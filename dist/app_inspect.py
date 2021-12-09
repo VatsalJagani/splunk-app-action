@@ -19,7 +19,11 @@ def list_files(startpath):
         for f in files:
             utils.debug('{}{}'.format(subindent, f))
 
-list_files(os.getcwd())
+# list_files(os.getcwd())
+
+print("test print")
+utils.debug("test utils.debug")
+utils.error("test utils.error")
 
 
 # Read Credentials
@@ -44,6 +48,7 @@ html_response_url = "{}/report".format(BASE_URL)
 
 
 # Login
+utils.debug("Creating access token.")
 response = requests.request("GET", LOGIN_URL, auth=HTTPBasicAuth(
     username, password), data={}, timeout=TIMEOUT_MAX)
 
@@ -54,6 +59,7 @@ if response.status_code != 200:
 res = response.json()
 token = res['data']['token']
 user = res['data']['user']['name']
+utils.debug("Got access token for {}".format(user))
 
 
 HEADERS = {
