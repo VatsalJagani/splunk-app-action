@@ -4,7 +4,9 @@ import requests
 from requests.auth import HTTPBasicAuth
 from threading import Thread
 from time import sleep
-from . import utils
+
+sys.path.append(os.path.dirname(__file__))
+import utils
 
 
 # This is just for testing
