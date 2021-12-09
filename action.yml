@@ -4,6 +4,16 @@ inputs:
   app_build:
     description: "Splunk App Build"
     required: true
+  splunkbase_username:
+    description: "Username required to call the Splunkbase API for App-Inspect"
+    required: true
+  splunkbase_password:
+    description: "Password required to call the Splunkbase API for App-Inspect"
+    required: true
+  report_prefix:
+    description: "Report prefix. Default is app. It will generate app_app_inspect_check.html, app_cloud_inspect_check.html, app_ssai_inspect_check.html files."
+    required: false
+    default: "app"
 outputs:
   stdout:
     description: "Program stdout"
@@ -13,7 +23,7 @@ outputs:
     description: "A string of 'true' or 'false' that tells if there were errors."
 runs:
   using: "node12"
-  main: "index.js"
+  main: "dist/index.js"
 branding:
   color: "purple"
   icon: "play"

@@ -1,15 +1,37 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
+const exec = require('@actions/exec');
+
+async function run() {
+    let stdout = "";
+    let stderr = "";
+    let errorStatus = "false";
+
+    const options = {};
+    options.listeners = {
+        stdout: (data) => {
+            stdout += data.toString();
+        },
+        stderr: (data) => {
+            stderr += data.toString();
+        }
+    };
+
+    try {
+        await exec.exec('python', ['app_inspect.py'], options);
+    } catch (error) {
+        errorStatus = "true";
+        core.setFailed(error);
+    } finally {
+        core.setOutput("stdout", stdout);
+        core.setOutput("stderr", stderr);
+        core.setOutput("error", errorStatus);
+    }
+}
+
 
 try {
-    // `app_build` input defined in action metadata file
-    const nameToGreet = core.getInput('app_build');
-    console.log(`Hello ${nameToGreet}!`);
-    const time = (new Date()).toTimeString();
-    core.setOutput("time", time);
-    // Get the JSON webhook payload for the event that triggered the workflow
-    const payload = JSON.stringify(github.context.payload, undefined, 2)
-    console.log(`The event payload: ${payload}`);
+    run();
 } catch (error) {
     core.setFailed(error.message);
 }
