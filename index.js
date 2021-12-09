@@ -18,7 +18,7 @@ async function run() {
     };
 
     try {
-        await exec.exec('python', ['app_inspect.py'], options);
+        await exec.exec('python', [`${__dirname}/app_inspect.py`], options);
     } catch (error) {
         errorStatus = "true";
         core.setFailed(error);
