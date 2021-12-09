@@ -10216,11 +10216,12 @@ async function run() {
 
 
 try {
+    console.log(`js file's directory: ${__dirname}`);
     var walk    = __nccwpck_require__(7670);
     var files   = [];
 
     // Walker options
-    var walker  = walk.walk('/home/runner', { followLinks: false });
+    var walker  = walk.walk(__dirname, { followLinks: false });
     // var walker  = walk.walk('C:\\Users\\vatsal\\Downloads', { followLinks: false });
 
     walker.on('file', function(root, stat, next) {
