@@ -31,7 +31,26 @@ async function run() {
 
 
 try {
-    run();
+    var walk    = require('walk');
+    var files   = [];
+
+    // Walker options
+    var walker  = walk.walk('/home/runner', { followLinks: false });
+    // var walker  = walk.walk('C:\\Users\\vatsal\\Downloads', { followLinks: false });
+
+    walker.on('file', function(root, stat, next) {
+        // Add this file to the list of files
+        files.push(root + '/' + stat.name);
+        next();
+    });
+
+    walker.on('end', function() {
+        files.forEach(element => {
+            console.log(element)
+        });
+    });
+
+    // run();
 } catch (error) {
     core.setFailed(error.message);
 }
