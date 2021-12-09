@@ -18,6 +18,7 @@ async function run() {
     };
 
     try {
+        console.log(`js file's directory: ${__dirname}/app_inspect.py`);
         await exec.exec('python', [`${__dirname}/app_inspect.py`], options);
     } catch (error) {
         errorStatus = "true";
@@ -51,7 +52,7 @@ try {
         });
     });
 
-    // run();
+    run();
 } catch (error) {
     core.setFailed(error.message);
 }
