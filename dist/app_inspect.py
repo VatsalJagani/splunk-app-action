@@ -9,21 +9,9 @@ sys.path.append(os.path.dirname(__file__))
 import utils
 
 
-# This is just for testing
-def list_files(startpath):
-    for root, dirs, files in os.walk(startpath):
-        level = root.replace(startpath, '').count(os.sep)
-        indent = ' ' * 4 * (level)
-        utils.debug('{}{}/'.format(indent, os.path.basename(root)))
-        subindent = ' ' * 4 * (level + 1)
-        for f in files:
-            utils.debug('{}{}'.format(subindent, f))
-
-# list_files(os.getcwd())
-
-print("test print")
-utils.debug("test utils.debug")
-utils.error("test utils.error")
+print("Started app_inspect.py")
+# utils.debug("test utils.debug")   # is not working
+# utils.error("test utils.error")
 
 
 # Read Credentials
@@ -32,12 +20,13 @@ password = utils.get_input('splunkbase_password')
 
 # Read App Build File
 app_build_path = utils.get_input('app_build')
+print("app_build_path: {}".format(app_build_path))
 app_build_name = os.path.split(app_build_path)[1]
 
 report_prefix = utils.get_input('report_prefix')
 
 
-TIMEOUT_MAX = 120
+TIMEOUT_MAX = 200
 
 LOGIN_URL = "https://api.splunk.com/2.0/rest/login/splunk"
 BASE_URL = "https://appinspect.splunk.com/v1/app"
@@ -48,7 +37,7 @@ html_response_url = "{}/report".format(BASE_URL)
 
 
 # Login
-utils.debug("Creating access token.")
+print("Creating access token.")
 response = requests.request("GET", LOGIN_URL, auth=HTTPBasicAuth(
     username, password), data={}, timeout=TIMEOUT_MAX)
 
@@ -59,7 +48,7 @@ if response.status_code != 200:
 res = response.json()
 token = res['data']['token']
 user = res['data']['user']['name']
-utils.debug("Got access token for {}".format(user))
+print("Got access token for {}".format(user))
 
 
 HEADERS = {
@@ -97,10 +86,10 @@ def perform_checks(type="APP_INSPECT"):
         ('app_package', (app_build_name, app_build_f, 'application/octet-stream'))
     ]
 
-    utils.debug("App build submitting (type={})".format(type))
+    print("App build submitting (type={})".format(type))
     response = requests.request(
         "POST", submit_url, headers=HEADERS, files=files, data=payload, timeout=TIMEOUT_MAX)
-    utils.debug("App package submit (type={}) response: status_code={}, text={}".format(type, response.status_code, response.text))
+    print("App package submit (type={}) response: status_code={}, text={}".format(type, response.status_code, response.text))
     
     if response.status_code != 200:
         utils.error("Error while requesting for app-inspect check. type={}, status_code={}".format(type, response.status_code))
@@ -108,7 +97,7 @@ def perform_checks(type="APP_INSPECT"):
 
     res = response.json()
     request_id = res['request_id']
-    utils.debug("App package submit (type={}) request_id={}".format(type, request_id))
+    print("App package submit (type={}) request_id={}".format(type, request_id))
 
     status = None
     # Status check
@@ -117,7 +106,7 @@ def perform_checks(type="APP_INSPECT"):
         response = requests.request("GET", "{}/{}".format(
             status_check_url, request_id), headers=HEADERS, data={}, timeout=TIMEOUT_MAX)
 
-        utils.debug("App package status check (type={}) response: status_code={}, text={}".format(type, response.status_code, response.text))
+        print("App package status check (type={}) response: status_code={}, text={}".format(type, response.status_code, response.text))
 
         if response.status_code != 200:
             utils.error("Error while requesting for app-inspect check status update. type={}, status_code={}".format(type, response.status_code))
@@ -131,7 +120,7 @@ def perform_checks(type="APP_INSPECT"):
             continue
 
         # Processing completed
-        utils.debug("App package status success (type={}) response: status_code={}, text={}".format(type, response.status_code, response.text))
+        print("App package status success (type={}) response: status_code={}, text={}".format(type, response.status_code, response.text))
 
         if int(res['info']['failure']) != 0:
             status = "Failure"
@@ -145,11 +134,11 @@ def perform_checks(type="APP_INSPECT"):
         return "Timed-out"
 
     # HTML Report retrive
-    utils.debug("Html report generating for type={}".format(type))
+    print("Html report generating for type={}".format(type))
     response = requests.request("GET", "{}/{}".format(html_response_url,
                                                       request_id), headers=HEADERS_REPORT, data={}, timeout=TIMEOUT_MAX)
     if response.status_code != 200:
-        utils.debug("Error while requesting for app-inspect check report. type={}, status_code={}".format(type, response.status_code))
+        print("Error while requesting for app-inspect check report. type={}, status_code={}".format(type, response.status_code))
         return "Exception"
 
     # write results into a file
@@ -187,4 +176,4 @@ thread_ssai_inspect.start()
 thread_app_inspect.join()
 thread_cloud_inspect.join()
 thread_ssai_inspect.join()
-utils.debug("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(app_inspect_result))
+print("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(app_inspect_result))
