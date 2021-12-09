@@ -1,0 +1,19 @@
+name: "Run Splunk App Inspect Check"
+description: "Run Splunk app-inspect check, cloud-inspect check and ssai (self-service) check on the App build to make sure App will pass the checks on Splunkbase."
+inputs:
+  app_build:
+    description: "Splunk App Build"
+    required: true
+outputs:
+  stdout:
+    description: "Program stdout"
+  stderr:
+    description: "Program stderr"
+  error:
+    description: "A string of 'true' or 'false' that tells if there were errors."
+runs:
+  using: "node12"
+  main: "index.js"
+branding:
+  color: "purple"
+  icon: "play"

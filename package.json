@@ -1,0 +1,24 @@
+{
+  "name": "Splunk-App-Inspect-Check-Github-Action",
+  "version": "1.0.0",
+  "description": "Github Action to automatically check Splunk App Inspect on commit",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VatsalJagani/Splunk-App-Inspect-Check-Github-Action.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/VatsalJagani/Splunk-App-Inspect-Check-Github-Action/issues"
+  },
+  "homepage": "https://github.com/VatsalJagani/Splunk-App-Inspect-Check-Github-Action#readme",
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "@actions/github": "^5.0.0"
+  }
+}
