@@ -4,7 +4,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 from threading import Thread
 from time import sleep
-import utils
+from . import utils
 
 
 # This is just for testing
