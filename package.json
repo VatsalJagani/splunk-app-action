@@ -19,6 +19,7 @@
   "homepage": "https://github.com/VatsalJagani/Splunk-App-Inspect-Check-Github-Action#readme",
   "dependencies": {
     "@actions/core": "^1.6.0",
+    "@actions/exec": "^1.1.0",
     "@actions/github": "^5.0.0"
   }
 }
