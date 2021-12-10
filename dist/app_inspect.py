@@ -26,7 +26,7 @@ app_build_name = os.path.split(app_build_path)[1]
 report_prefix = utils.get_input('report_prefix')
 
 
-TIMEOUT_MAX = 200
+TIMEOUT_MAX = 10
 
 LOGIN_URL = "https://api.splunk.com/2.0/rest/login/splunk"
 BASE_URL = "https://appinspect.splunk.com/v1/app"
@@ -176,4 +176,9 @@ thread_ssai_inspect.start()
 thread_app_inspect.join()
 thread_cloud_inspect.join()
 thread_ssai_inspect.join()
-print("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(app_inspect_result))
+
+if all(i=="Passed" for i in app_inspect_result):
+    print("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(app_inspect_result))
+else:
+    utils.error("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(app_inspect_result))
+    sys.exit(1)
