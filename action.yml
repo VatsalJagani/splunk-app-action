@@ -75,10 +75,14 @@ runs:
       run: |
         node ${{ github.action_path }}/dist/index.js
       env:
-        SPLUNK_app_dir: ${{inputs.app_dir}}
-        SPLUNK_app_build_name: ${{inputs.app_build_name}}
-        SPLUNK_splunkbase_username: ${{inputs.splunkbase_username}}
-        SPLUNK_splunkbase_password: ${{inputs.splunkbase_passsword}}
+        SPLUNK_app_dir: '${{inputs.app_dir}}'
+        SPLUNK_app_build_name: '${{inputs.app_build_name}}'
+        SPLUNK_splunkbase_username: '${{inputs.splunkbase_username}}'
+        SPLUNK_splunkbase_password: '${{inputs.splunkbase_passsword}}'
+        SPLUNK2_app_dir: '${{env.env_app_dir}}'
+        SPLUNK2_app_build_name: '${{env.env_app_build_name}}'
+        SPLUNK2_splunkbase_username: '${{env.env_splunkbase_username}}'
+        SPLUNK2_splunkbase_password: '${{env.env_splunkbase_passsword}}'
 
     - name: "Upload the app-inspect reports as artifact"
       uses: actions/upload-artifact@v2
