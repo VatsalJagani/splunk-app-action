@@ -32,17 +32,6 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: "Setup action inputs"
-      shell: bash
-      run: |
-        echo "app_dir: ${{inputs.app_dir}}"
-      env:
-        INPUTS_app_dir: ${{inputs.app_dir}}
-        INPUTS_app_build_name: ${{inputs.app_build_name}}
-        INPUTS_splunkbase_username: ${{inputs.splunkbase_username}}
-        INPUTS_splunkbase_password: ${{inputs.splunkbase_passsword}}
-
-
     - name: "Extracting the current branch name"
       shell: bash
       run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
@@ -85,6 +74,11 @@ runs:
       shell: bash
       run: |
         node ${{ github.action_path }}/dist/index.js
+      env:
+        INPUTS_app_dir: ${{inputs.app_dir}}
+        INPUTS_app_build_name: ${{inputs.app_build_name}}
+        INPUTS_splunkbase_username: ${{inputs.splunkbase_username}}
+        INPUTS_splunkbase_password: ${{inputs.splunkbase_passsword}}
 
     - name: "Upload the app-inspect reports as artifact"
       uses: actions/upload-artifact@v2

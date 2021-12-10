@@ -1,22 +1,12 @@
 import os
 
 
-def add_path(path):
-    with open(os.getenv("GITHUB_PATH"), "a") as github_path:
-        print(path, file=github_path)
-
-
 def get_input(name):
     return os.getenv(f"INPUT_{name}".upper())
 
 
 def set_output(name, value):
     print(f"::set-output name={name}::{_escape_data(value)}")
-
-
-def set_env(name, value):
-    with open(os.getenv("GITHUB_ENV"), "a") as env:
-        print(f"{name}={_escape_data(value)}", file=env)
 
 
 def debug(message):
@@ -49,10 +39,6 @@ def stop_commands():
 
 def resume_commands():
     print(f"::pause-commands::")
-
-
-def get_state(name):
-    return os.getenv(f"STATE_{name}")
 
 
 def save_state(name, value):
