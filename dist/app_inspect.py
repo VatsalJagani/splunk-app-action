@@ -27,7 +27,7 @@ report_prefix = app_build_name
 
 
 # Script
-TIMEOUT_MAX = 120
+TIMEOUT_MAX = 240
 
 LOGIN_URL = "https://api.splunk.com/2.0/rest/login/splunk"
 BASE_URL = "https://appinspect.splunk.com/v1/app"
@@ -43,7 +43,7 @@ response = requests.request("GET", LOGIN_URL, auth=HTTPBasicAuth(
     username, password), data={}, timeout=TIMEOUT_MAX)
 
 if response.status_code != 200:
-    utils.error("Error while logining. type={}, status_code={}".format(type, response.status_code))
+    utils.error("Error while logining. status_code={}, response={}".format(response.status_code, response.text))
     sys.exit(1)
 
 res = response.json()
@@ -67,16 +67,16 @@ app_inspect_result = ["Running", "Running", "Running"]
                      # app_inspect_result, cloud_inspect_result, ssai_inspect_result
 
 
-def perform_checks(type="APP_INSPECT"):
-    if type=="APP_INSPECT":
+def perform_checks(check_type="APP_INSPECT"):
+    if check_type=="APP_INSPECT":
         payload = {}
         report_file_name = '{}_app_inspect_check.html'.format(report_prefix)
 
-    elif type == "CLOUD_INSPECT":
+    elif check_type == "CLOUD_INSPECT":
         payload = {'included_tags': 'cloud'}
         report_file_name = '{}_cloud_inspect_check.html'.format(report_prefix)
 
-    elif type == "SSAI_INSPECT":
+    elif check_type == "SSAI_INSPECT":
         payload = {'included_tags': 'self-service'}
         report_file_name = '{}_ssai_inspect_check.html'.format(report_prefix)
 
@@ -87,18 +87,18 @@ def perform_checks(type="APP_INSPECT"):
         ('app_package', (app_build_name, app_build_f, 'application/octet-stream'))
     ]
 
-    print("App build submitting (type={})".format(type))
+    print("App build submitting (check_type={})".format(check_type))
     response = requests.request(
         "POST", submit_url, headers=HEADERS, files=files, data=payload, timeout=TIMEOUT_MAX)
-    print("App package submit (type={}) response: status_code={}, text={}".format(type, response.status_code, response.text))
+    print("App package submit (check_type={}) response: status_code={}, text={}".format(check_type, response.status_code, response.text))
     
     if response.status_code != 200:
-        utils.error("Error while requesting for app-inspect check. type={}, status_code={}".format(type, response.status_code))
+        utils.error("Error while requesting for app-inspect check. check_type={}, status_code={}".format(check_type, response.status_code))
         return "Exception"
 
     res = response.json()
     request_id = res['request_id']
-    print("App package submit (type={}) request_id={}".format(type, request_id))
+    print("App package submit (check_type={}) request_id={}".format(check_type, request_id))
 
     status = None
     # Status check
@@ -107,21 +107,21 @@ def perform_checks(type="APP_INSPECT"):
         response = requests.request("GET", "{}/{}".format(
             status_check_url, request_id), headers=HEADERS, data={}, timeout=TIMEOUT_MAX)
 
-        print("App package status check (type={}) response: status_code={}, text={}".format(type, response.status_code, response.text))
+        print("App package status check (check_type={}) response: status_code={}, text={}".format(check_type, response.status_code, response.text))
 
         if response.status_code != 200:
-            utils.error("Error while requesting for app-inspect check status update. type={}, status_code={}".format(type, response.status_code))
+            utils.error("Error while requesting for app-inspect check status update. check_type={}, status_code={}".format(check_type, response.status_code))
             return "Exception"
 
         res = response.json()
         res_status = res['status']
 
         if res_status == 'PROCESSING':
-            print("Report is processing for type={}".format(type))
+            print("Report is processing for check_type={}".format(check_type))
             continue
 
         # Processing completed
-        print("App package status success (type={}) response: status_code={}, text={}".format(type, response.status_code, response.text))
+        print("App package status success (check_type={}) response: status_code={}, text={}".format(check_type, response.status_code, response.text))
 
         if int(res['info']['failure']) != 0:
             status = "Failure"
@@ -135,11 +135,11 @@ def perform_checks(type="APP_INSPECT"):
         return "Timed-out"
 
     # HTML Report retrive
-    print("Html report generating for type={}".format(type))
+    print("Html report generating for check_type={}".format(check_type))
     response = requests.request("GET", "{}/{}".format(html_response_url,
                                                       request_id), headers=HEADERS_REPORT, data={}, timeout=TIMEOUT_MAX)
     if response.status_code != 200:
-        print("Error while requesting for app-inspect check report. type={}, status_code={}".format(type, response.status_code))
+        print("Error while requesting for app-inspect check report. check_type={}, status_code={}".format(check_type, response.status_code))
         return "Exception"
 
     # write results into a file
@@ -155,12 +155,12 @@ def perform_app_inspect_check(app_inspect_result):
 
 
 def perform_cloud_inspect_check(app_inspect_result):
-    status = perform_checks(type="CLOUD_INSPECT")
+    status = perform_checks(check_type="CLOUD_INSPECT")
     app_inspect_result[1] = status
 
 
 def perform_ssai_inspect_check(app_inspect_result):
-    status = perform_checks(type="SSAI_INSPECT")
+    status = perform_checks(check_type="SSAI_INSPECT")
     app_inspect_result[2] = status
 
 
