@@ -16,13 +16,34 @@ print("Started app_inspect.py")
 
 # Read Credentials
 username = utils.get_input('splunkbase_username')
+print("splunkbase username: {}".format(username))
 password = utils.get_input('splunkbase_password')
+print("splunkbase password: {}".format(password))
 
 # Read App Build Name
 app_build_name = utils.get_input('app_build_name')
+print("app_build_name: {}".format(app_build_name))
 app_build_path = app_build_name
 
 report_prefix = app_build_name
+
+
+# Debug function
+def list_files(startpath):
+    for root, dirs, files in os.walk(startpath):
+        level = root.replace(startpath, '').count(os.sep)
+        indent = ' ' * 4 * (level)
+        print('{}{}/'.format(indent, os.path.basename(root)))
+        subindent = ' ' * 4 * (level + 1)
+        for f in files:
+            print('{}{}'.format(subindent, f))
+
+# This is just for testing
+print("Files under current working directory.")
+list_files(os.getcwd())
+print("Files under github action dist directory.")
+list_files(os.path.dirname(__file__))
+
 
 
 
@@ -183,3 +204,9 @@ if all(i=="Passed" for i in app_inspect_result):
 else:
     utils.error("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(app_inspect_result))
     sys.exit(1)
+
+# This is just for testing
+print("Files under current working directory.")
+list_files(os.getcwd())
+print("Files under github action dist directory.")
+list_files(os.path.dirname(__file__))
