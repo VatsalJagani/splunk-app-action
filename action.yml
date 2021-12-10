@@ -70,10 +70,14 @@ runs:
       with:
         node-version: '12'
 
-    - name: "Running App-Inspect Checks"
+    - name: "checking environment variables"
       shell: bash
       run: |
-        node ${{ github.action_path }}/dist/index.js
+        echo "${{inputs.app_dir}} - ${{inputs.app_build_name}} - ${{inputs.splunkbase_username}} - ${{inputs.splunkbase_passsword}}"
+        echo "${{env.env_app_dir}} - ${{env.env_app_build_name}} - ${{env.env_splunkbase_username}} - ${{env.env_splunkbase_passsword}}"
+
+    - name: "Running App-Inspect Checks"
+      shell: bash
       env:
         SPLUNK_app_dir: '${{inputs.app_dir}}'
         SPLUNK_app_build_name: '${{inputs.app_build_name}}'
@@ -83,6 +87,8 @@ runs:
         SPLUNK2_app_build_name: '${{env.env_app_build_name}}'
         SPLUNK2_splunkbase_username: '${{env.env_splunkbase_username}}'
         SPLUNK2_splunkbase_password: '${{env.env_splunkbase_passsword}}'
+      run: |
+        node ${{ github.action_path }}/dist/index.js
 
     - name: "Upload the app-inspect reports as artifact"
       uses: actions/upload-artifact@v2
