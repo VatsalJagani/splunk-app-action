@@ -74,19 +74,39 @@ runs:
       shell: bash
       run: |
         echo "${{inputs.app_dir}} - ${{inputs.app_build_name}} - ${{inputs.splunkbase_username}} - ${{inputs.splunkbase_passsword}}"
-        echo "${{env.env_app_dir}} - ${{env.env_app_build_name}} - ${{env.env_splunkbase_username}} - ${{env.env_splunkbase_passsword}}"
+        echo "$env_app_dir - $env_app_build_name - $env_splunkbase_username - $env_splunkbase_passsword"
 
     - name: "Running App-Inspect Checks"
       shell: bash
       env:
-        SPLUNK_app_dir: '${{inputs.app_dir}}'
-        SPLUNK_app_build_name: '${{inputs.app_build_name}}'
-        SPLUNK_splunkbase_username: '${{inputs.splunkbase_username}}'
-        SPLUNK_splunkbase_password: '${{inputs.splunkbase_passsword}}'
-        SPLUNK2_app_dir: '${{env.env_app_dir}}'
-        SPLUNK2_app_build_name: '${{env.env_app_build_name}}'
-        SPLUNK2_splunkbase_username: '${{env.env_splunkbase_username}}'
-        SPLUNK2_splunkbase_password: '${{env.env_splunkbase_passsword}}'
+        SPLUNK_app_dir: ${{inputs.app_dir}}
+        SPLUNK_app_build_name: ${{inputs.app_build_name}}
+        SPLUNK_splunkbase_username: ${{inputs.splunkbase_username}}
+        SPLUNK_splunkbase_password: ${{inputs.splunkbase_passsword}}
+        SPLUNK2_app_dir: ${{env.env_app_dir}}
+        SPLUNK2_app_build_name: ${{env.env_app_build_name}}
+        SPLUNK2_splunkbase_username: ${{env.env_splunkbase_username}}
+        SPLUNK2_splunkbase_password: ${{env.env_splunkbase_passsword}}
+        SPLUNK3_app_dir: "${{inputs.app_dir}}"
+        SPLUNK3_app_build_name: "${{inputs.app_build_name}}"
+        SPLUNK3_splunkbase_username: "${{inputs.splunkbase_username}}"
+        SPLUNK3_splunkbase_password: "${{inputs.splunkbase_passsword}}"
+        SPLUNK4_app_dir: "${{env.env_app_dir}}"
+        SPLUNK4_app_build_name: "${{env.env_app_build_name}}"
+        SPLUNK4_splunkbase_username: "${{env.env_splunkbase_username}}"
+        SPLUNK4_splunkbase_password: "${{env.env_splunkbase_passsword}}"
+        SPLUNK5_app_dir: '${{inputs.app_dir}}'
+        SPLUNK5_app_build_name: '${{inputs.app_build_name}}'
+        SPLUNK5_splunkbase_username: '${{inputs.splunkbase_username}}'
+        SPLUNK5_splunkbase_password: '${{inputs.splunkbase_passsword}}'
+        SPLUNK6_app_dir: '${{env.env_app_dir}}'
+        SPLUNK6_app_build_name: '${{env.env_app_build_name}}'
+        SPLUNK6_splunkbase_username: '${{env.env_splunkbase_username}}'
+        SPLUNK6_splunkbase_password: '${{env.env_splunkbase_passsword}}'
+        SPLUNK7_app_dir: "$env_app_dir"
+        SPLUNK7_app_build_name: "$env_app_build_name"
+        SPLUNK7_splunkbase_username: "$env_splunkbase_username"
+        SPLUNK7_splunkbase_password: "$env_splunkbase_passsword"
       run: |
         node ${{ github.action_path }}/dist/index.js
 
