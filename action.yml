@@ -65,11 +65,15 @@ runs:
       run: |
         pip install requests
 
-    - name: "Running App-Inspect Checks"
+    - name: "Installing Node JS"
       uses: actions/setup-node@v2
       with:
         node-version: '12'
-      run: node ${{ github.action_path }}/dist/index.js
+
+    - name: "Running App-Inspect Checks"
+      shell: bash
+      run: |
+        node ${{ github.action_path }}/dist/index.js
 
     - name: "Upload the app-inspect reports as artifact"
       uses: actions/upload-artifact@v2
