@@ -18,15 +18,16 @@ print("Started app_inspect.py")
 username = utils.get_input('splunkbase_username')
 password = utils.get_input('splunkbase_password')
 
-# Read App Build File
-app_build_path = utils.get_input('app_build')
-print("app_build_path: {}".format(app_build_path))
-app_build_name = os.path.split(app_build_path)[1]
+# Read App Build Name
+app_build_name = utils.get_input('app_build_name')
+app_build_path = app_build_name
 
-report_prefix = utils.get_input('report_prefix')
+report_prefix = app_build_name
 
 
-TIMEOUT_MAX = 10
+
+# Script
+TIMEOUT_MAX = 120
 
 LOGIN_URL = "https://api.splunk.com/2.0/rest/login/splunk"
 BASE_URL = "https://appinspect.splunk.com/v1/app"
