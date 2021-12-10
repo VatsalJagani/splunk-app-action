@@ -13,6 +13,10 @@ print("Started app_inspect.py")
 # utils.debug("test utils.debug")   # is not working
 # utils.error("test utils.error")
 
+# this is just for testing
+for k, v in sorted(os.environ.items()):
+    print("{} : {}".format(k, v))
+
 
 # Read Credentials
 username = utils.get_input('splunkbase_username')

@@ -2,7 +2,7 @@ import os
 
 
 def get_input(name):
-    return os.getenv(f"SPLUNK_{name}".upper())
+    return os.getenv(f"SPLUNK_{name}")
 
 
 def set_output(name, value):
