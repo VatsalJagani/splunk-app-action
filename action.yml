@@ -107,6 +107,9 @@ runs:
         SPLUNK7_app_build_name: "$env_app_build_name"
         SPLUNK7_splunkbase_username: "$env_splunkbase_username"
         SPLUNK7_splunkbase_password: "$env_splunkbase_passsword"
+        SPLUNK8_app_build_name: "::set-env::${{inputs.app_build_name}}"
+        SPLUNK8_splunkbase_username: "::set-env::${{inputs.splunkbase_username}}"
+        SPLUNK8_splunkbase_password: "::set-env::${{inputs.splunkbase_passsword}}"
       run: |
         node ${{ github.action_path }}/dist/index.js
 
