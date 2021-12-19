@@ -110,7 +110,16 @@ runs:
         SPLUNK8_app_build_name: "::set-env::${{inputs.app_build_name}}"
         SPLUNK8_splunkbase_username: "::set-env::${{inputs.splunkbase_username}}"
         SPLUNK8_splunkbase_password: "::set-env::${{inputs.splunkbase_passsword}}"
+        SPLUNK9_app_build_name: "::set-env name=SPLUNK9_app_build_name::${{inputs.app_build_name}}"
+        SPLUNK9_splunkbase_username: "::set-env name=SPLUNK9_splunkbase_username::${{inputs.splunkbase_username}}"
+        SPLUNK9_splunkbase_password: "::set-env name=SPLUNK9_splunkbase_password::${{inputs.splunkbase_passsword}}"
       run: |
+        echo "::set-env name=SPLUNK10_app_build_name::${{inputs.app_build_name}}"
+        echo "::set-env name=SPLUNK10_splunkbase_username::${{inputs.splunkbase_username}}"
+        echo "::set-env name=SPLUNK10_splunkbase_password::${{inputs.splunkbase_passsword}}"
+        echo "::set-env name=SPLUNK11_app_build_name::${{env.app_build_name}}"
+        echo "::set-env name=SPLUNK11_splunkbase_username::${{env.splunkbase_username}}"
+        echo "::set-env name=SPLUNK11_splunkbase_password::${{env.splunkbase_passsword}}"
         node ${{ github.action_path }}/dist/index.js
 
     - name: "Upload the app-inspect reports as artifact"
