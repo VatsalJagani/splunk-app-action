@@ -46,9 +46,12 @@ runs:
     - name: "Generating the App Build"
       shell: bash
       run: |
-        find repodir/${{inputs.app_dir}} -type f -exec chmod 644 '{}' \;
-        find repodir/${{inputs.app_dir}} -type d -exec chmod 755 '{}' \;
-        tar -czf ${{inputs.app_build_name}}.tgz repodir/${{inputs.app_dir}}
+        cd repodir
+        find ${{inputs.app_dir}} -type f -exec chmod 644 '{}' \;
+        find ${{inputs.app_dir}} -type d -exec chmod 755 '{}' \;
+        tar -czf ${{inputs.app_build_name}}.tgz ${{inputs.app_dir}}
+        cd ..
+        mv repodir/${{inputs.app_build_name}}.tgz .
 
     - name: "Upload the app build as artifact"
       uses: actions/upload-artifact@v2
