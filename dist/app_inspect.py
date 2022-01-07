@@ -48,10 +48,10 @@ def list_files(startpath):
             print('{}{}'.format(subindent, f))
 
 # This is just for testing
-print("Files under current working directory:- {}".format(os.getcwd()))
-list_files(os.getcwd())
-print("Files under github action dist directory:- {}".format(os.path.dirname(__file__)))
-list_files(os.path.dirname(__file__))
+# print("Files under current working directory:- {}".format(os.getcwd()))
+# list_files(os.getcwd())
+# print("Files under github action dist directory:- {}".format(os.path.dirname(__file__)))
+# list_files(os.path.dirname(__file__))
 
 
 
@@ -134,8 +134,11 @@ def perform_checks(check_type="APP_INSPECT"):
     # Status check
     for i in range(10):
         sleep(60)    # check every minute for updated status
-        response = requests.request("GET", "{}/{}".format(
-            status_check_url, request_id), headers=HEADERS, data={}, timeout=TIMEOUT_MAX)
+        try:
+            response = requests.request("GET", "{}/{}".format(
+                status_check_url, request_id), headers=HEADERS, data={}, timeout=TIMEOUT_MAX)
+        except:
+            continue   # continue if there is any error (specifically 10 times for timeout error)
 
         print("App package status check (check_type={}) response: status_code={}, text={}".format(check_type, response.status_code, response.text))
 
