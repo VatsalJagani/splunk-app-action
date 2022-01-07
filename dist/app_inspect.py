@@ -42,10 +42,10 @@ def list_files(startpath):
             print('{}{}'.format(subindent, f))
 
 # This is just for testing
-# print("Files under current working directory.")
-# list_files(os.getcwd())
-# print("Files under github action dist directory.")
-# list_files(os.path.dirname(__file__))
+print("Files under current working directory.")
+list_files(os.getcwd())
+print("Files under github action dist directory.")
+list_files(os.path.dirname(__file__))
 
 
 
