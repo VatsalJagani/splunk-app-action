@@ -14,15 +14,13 @@ print("Started app_inspect.py")
 # utils.error("test utils.error")
 
 # this is just for testing
-for k, v in sorted(os.environ.items()):
-    print("{} : {}".format(k, v))
+# for k, v in sorted(os.environ.items()):
+#     print("{} : {}".format(k, v))
 
 
 # Read Credentials
 username = utils.get_input('splunkbase_username')
-print("splunkbase username: {}".format(username))
 password = utils.get_input('splunkbase_password')
-print("splunkbase password: {}".format(password))
 
 # Read App Build Name
 app_build_name = utils.get_input('app_build_name')
@@ -43,10 +41,10 @@ def list_files(startpath):
             print('{}{}'.format(subindent, f))
 
 # This is just for testing
-print("Files under current working directory.")
-list_files(os.getcwd())
-print("Files under github action dist directory.")
-list_files(os.path.dirname(__file__))
+# print("Files under current working directory.")
+# list_files(os.getcwd())
+# print("Files under github action dist directory.")
+# list_files(os.path.dirname(__file__))
 
 
 
@@ -175,16 +173,19 @@ def perform_checks(check_type="APP_INSPECT"):
 
 
 def perform_app_inspect_check(app_inspect_result):
+    print("Performing app-inspect checks...")
     status = perform_checks()
     app_inspect_result[0] = status
 
 
 def perform_cloud_inspect_check(app_inspect_result):
+    print("Performing cloud-inspect checks...")
     status = perform_checks(check_type="CLOUD_INSPECT")
     app_inspect_result[1] = status
 
 
 def perform_ssai_inspect_check(app_inspect_result):
+    print("Performing ssai-inspect checks...")
     status = perform_checks(check_type="SSAI_INSPECT")
     app_inspect_result[2] = status
 
@@ -208,9 +209,3 @@ if all(i=="Passed" for i in app_inspect_result):
 else:
     utils.error("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(app_inspect_result))
     sys.exit(1)
-
-# This is just for testing
-print("Files under current working directory.")
-list_files(os.getcwd())
-print("Files under github action dist directory.")
-list_files(os.path.dirname(__file__))
