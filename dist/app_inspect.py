@@ -114,7 +114,7 @@ def perform_checks(check_type="APP_INSPECT"):
     app_build_f.seek(0)
 
     files = [
-        ('app_package', (app_build_name, app_build_f, 'application/octet-stream'))
+        ('app_package', (app_build_path, app_build_f, 'application/octet-stream'))
     ]
 
     print("App build submitting (check_type={})".format(check_type))
