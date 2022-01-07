@@ -4,6 +4,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 from threading import Thread
 from time import sleep
+import traceback
 
 sys.path.append(os.path.dirname(__file__))
 import utils
@@ -174,19 +175,37 @@ def perform_checks(check_type="APP_INSPECT"):
 
 def perform_app_inspect_check(app_inspect_result):
     print("Performing app-inspect checks...")
-    status = perform_checks()
+    status = "Error"
+    try:
+        status = perform_checks()
+    except Exception as e:
+        utils.error("Error while checking app-inspect:{}".format(e))
+        utils.error(traceback.format_exc())
+        raise e
     app_inspect_result[0] = status
 
 
 def perform_cloud_inspect_check(app_inspect_result):
     print("Performing cloud-inspect checks...")
-    status = perform_checks(check_type="CLOUD_INSPECT")
+    status = "Error"
+    try:
+        status = perform_checks(check_type="CLOUD_INSPECT")
+    except Exception as e:
+        utils.error("Error while checking cloud-inspect:{}".format(e))
+        utils.error(traceback.format_exc())
+        raise e
     app_inspect_result[1] = status
 
 
 def perform_ssai_inspect_check(app_inspect_result):
     print("Performing ssai-inspect checks...")
-    status = perform_checks(check_type="SSAI_INSPECT")
+    status = "Error"
+    try:
+        status = perform_checks(check_type="SSAI_INSPECT")
+    except Exception as e:
+        utils.error("Error while checking ssai-inspect:{}".format(e))
+        utils.error(traceback.format_exc())
+        raise e
     app_inspect_result[2] = status
 
 
