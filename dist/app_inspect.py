@@ -26,7 +26,7 @@ password = utils.get_input('splunkbase_password')
 # Read App Build Name
 app_build_name = utils.get_input('app_build_name')
 print("app_build_name: {}".format(app_build_name))
-app_build_path = app_build_name
+app_build_path = "{}.tgz".format(app_build_name)
 
 report_prefix = app_build_name
 
