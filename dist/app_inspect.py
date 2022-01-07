@@ -27,6 +27,7 @@ password = utils.get_input('splunkbase_password')
 app_build_name = utils.get_input('app_build_name')
 print("app_build_name: {}".format(app_build_name))
 app_build_path = "{}.tgz".format(app_build_name)
+print("Current working directory: {}, app_build_name: {}".format(os.getcwd(), app_build_name))
 
 report_prefix = app_build_name
 
@@ -35,6 +36,11 @@ report_prefix = app_build_name
 def list_files(startpath):
     for root, dirs, files in os.walk(startpath):
         level = root.replace(startpath, '').count(os.sep)
+
+        # only until level 3
+        if level > 3:
+            continue
+
         indent = ' ' * 4 * (level)
         print('{}{}/'.format(indent, os.path.basename(root)))
         subindent = ' ' * 4 * (level + 1)
@@ -42,9 +48,9 @@ def list_files(startpath):
             print('{}{}'.format(subindent, f))
 
 # This is just for testing
-print("Files under current working directory.")
+print("Files under current working directory:- {}".format(os.getcwd()))
 list_files(os.getcwd())
-print("Files under github action dist directory.")
+print("Files under github action dist directory:- {}".format(os.path.dirname(__file__)))
 list_files(os.path.dirname(__file__))
 
 
