@@ -9745,11 +9745,11 @@ async function run() {
     const options = {};
     options.listeners = {
         stdout: (data) => {
-            core.setOutput("stdout", stdout);
+            core.setOutput("stdout", data);
             // stdout += data.toString();
         },
         stderr: (data) => {
-            core.setOutput("stderr", stderr);
+            core.setOutput("stderr", data);
             // stderr += data.toString();
         }
     };
