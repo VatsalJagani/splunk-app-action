@@ -74,7 +74,7 @@ runs:
         cd ..
 
     - name: "Generating the App Build"
-      if: inputs.app_dir != "."
+      if: ${{ inputs.app_dir != '.' }}
       shell: bash
       run: |
         cd repodir
@@ -85,7 +85,7 @@ runs:
         mv repodir/${{inputs.app_build_name}}.tgz .
     
     - name: "Generating the App Build (root dir)"
-      if: inputs.app_dir == "."
+      if: ${{ inputs.app_dir == '.' }}
       shell: bash
       run: |
         find repodir -type f -exec chmod 644 '{}' \;
