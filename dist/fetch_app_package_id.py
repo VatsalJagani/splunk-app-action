@@ -19,7 +19,7 @@ utils.list_files(os.getcwd())
 
 try:
     config = configparser.ConfigParser()
-    config.read(os.path.join(app_dir, 'default', 'app.conf'))
+    config.read(os.path.join('repodir', app_dir, 'default', 'app.conf'))
     utils.info("app.conf sections: {}".format(config.sections()))
     package_id = config['package']['id']
     utils.set_env("SPLUNK_FETCHED_APP_PACKAGE_ID", package_id)
