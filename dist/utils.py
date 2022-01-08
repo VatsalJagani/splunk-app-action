@@ -1,5 +1,5 @@
 import os
-import datetime
+from datetime import datetime
 
 
 def get_input(name):
