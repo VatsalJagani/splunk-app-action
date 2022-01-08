@@ -9756,7 +9756,8 @@ async function run() {
 
     try {
         console.log(`running python file: ${__dirname}/app_inspect.py`);
-        await exec.exec('python', [`${__dirname}/app_inspect.py`], options);
+        await exec.exec('python', ['-u', `${__dirname}/app_inspect.py`], options);
+        // -u with python is to run python Unbuffered to stream the stdout
     } catch (error) {
         errorStatus = "true";
         core.setFailed(error);
