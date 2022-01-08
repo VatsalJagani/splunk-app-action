@@ -23,6 +23,11 @@ try:
     utils.info("app.conf sections: {}".format(config.sections()))
     package_id = config['package']['id']
     utils.set_env("SPLUNK_FETCHED_APP_PACKAGE_ID", package_id)
+
+    # this is just for testing
+    for k, v in sorted(os.environ.items()):
+        print("{} : {}".format(k, v))
+
 except Exception as e:
     utils.error("Unable to fetch the app-package-id from app.conf. {}".format(e))
     utils.error(traceback.format_exc())
