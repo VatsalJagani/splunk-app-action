@@ -234,7 +234,7 @@ thread_ssai_inspect.start()
 thread_app_inspect.join()
 thread_cloud_inspect.join()
 thread_ssai_inspect.join()
-utils.info("Waiting for all threads to complete.")
+utils.info("All threads completed.")
 
 if all(i=="Passed" for i in app_inspect_result):
     utils.info("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(app_inspect_result))
