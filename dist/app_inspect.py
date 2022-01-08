@@ -30,6 +30,8 @@ app_build_path = "{}.tgz".format(app_build_name)
 print("Current working directory: {}, app_build_path: {}".format(os.getcwd(), app_build_path))
 
 report_prefix = app_build_name
+app_inspect_report_dir = "{}_reports".format(app_build_name)
+
 
 
 # Debug function
@@ -176,7 +178,7 @@ def perform_checks(check_type="APP_INSPECT"):
         return "Exception"
 
     # write results into a file
-    with open(report_file_name, 'w+') as f:
+    with open(os.path.join(app_inspect_report_dir, report_file_name), 'w+') as f:
         f.write(response.text)
 
     return status

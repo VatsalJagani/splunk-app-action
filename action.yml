@@ -92,8 +92,6 @@ runs:
       uses: actions/upload-artifact@v2
       if: always()
       with:
-        name: "App-Inspect-Report-${{inputs.app_build_name}}"
+        name: "App-Inspect-Reports-${{inputs.app_build_name}}"
         path: |
-          ${{inputs.app_build_name}}_app_inspect.html
-          ${{inputs.app_build_name}}_cloud_inspect.html
-          ${{inputs.app_build_name}}_ssai_inspect.html
+          ${{inputs.app_build_name}}_reports
