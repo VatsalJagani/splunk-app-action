@@ -111,7 +111,7 @@ runs:
       run: |
         cd repodir
         ls
-        if [[ ${{inputs.app_dir}} != $SPLUNK_FETCHED_APP_PACKAGE_ID ]]
+        if [[ ${{inputs.app_dir}} != $SPLUNK_FETCHED_APP_PACKAGE_ID ]]; then
             mv ${{inputs.app_dir}} $SPLUNK_FETCHED_APP_PACKAGE_ID
         fi
         find $SPLUNK_FETCHED_APP_PACKAGE_ID -type f -exec chmod 644 '{}' \;
