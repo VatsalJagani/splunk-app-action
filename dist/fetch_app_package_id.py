@@ -14,8 +14,8 @@ app_dir = utils.get_input('app_dir')
 utils.info("app_dir: {}".format(app_dir))
 
 # This is just for testing
-utils.info("Files under current working directory:- {}".format(os.getcwd()))
-utils.list_files(os.getcwd())
+# utils.info("Files under current working directory:- {}".format(os.getcwd()))
+# utils.list_files(os.getcwd())
 
 try:
     config = configparser.ConfigParser()
@@ -25,8 +25,8 @@ try:
     utils.set_env("SPLUNK_FETCHED_APP_PACKAGE_ID", package_id)
 
     # this is just for testing
-    for k, v in sorted(os.environ.items()):
-        print("{} : {}".format(k, v))
+    # for k, v in sorted(os.environ.items()):
+    #     print("{} : {}".format(k, v))
 
 except Exception as e:
     utils.error("Unable to fetch the app-package-id from app.conf. {}".format(e))
