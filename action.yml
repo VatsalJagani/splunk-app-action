@@ -81,7 +81,7 @@ runs:
       shell: bash
       run: |
         echo "SPLUNK_FETCHED_APP_PACKAGE_ID -> $SPLUNK_FETCHED_APP_PACKAGE_ID"
-        if [[ -n "$SPLUNK_FETCHED_APP_PACKAGE_ID" ]]; then
+        if [[ -z "$SPLUNK_FETCHED_APP_PACKAGE_ID" ]]; then
             echo "Setting app_dir as SPLUNK_FETCHED_APP_PACKAGE_ID -> ${{inputs.app_dir}}"
             export SPLUNK_FETCHED_APP_PACKAGE_ID=${{inputs.app_dir}}
         fi
@@ -111,7 +111,7 @@ runs:
       run: |
         cd repodir
         ls
-        if [[ ${{inputs.app_dir}} =! $SPLUNK_FETCHED_APP_PACKAGE_ID ]]
+        if [[ ${{inputs.app_dir}} != $SPLUNK_FETCHED_APP_PACKAGE_ID ]]
             mv ${{inputs.app_dir}} $SPLUNK_FETCHED_APP_PACKAGE_ID
         fi
         find $SPLUNK_FETCHED_APP_PACKAGE_ID -type f -exec chmod 644 '{}' \;
