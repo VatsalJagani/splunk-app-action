@@ -10,7 +10,7 @@ sys.path.append(os.path.dirname(__file__))
 import utils
 
 
-print("Started app_inspect.py")
+utils.info("Started app_inspect.py")
 # utils.debug("test utils.debug")   # is not working
 # utils.error("test utils.error")
 
@@ -25,9 +25,9 @@ password = utils.get_input('splunkbase_password')
 
 # Read App Build Name
 app_build_name = utils.get_input('app_build_name')
-print("app_build_name: {}".format(app_build_name))
+utils.info("app_build_name: {}".format(app_build_name))
 app_build_path = "{}.tgz".format(app_build_name)
-print("Current working directory: {}, app_build_path: {}".format(os.getcwd(), app_build_path))
+utils.info("Current working directory: {}, app_build_path: {}".format(os.getcwd(), app_build_path))
 
 report_prefix = app_build_name
 app_inspect_report_dir = "{}_reports".format(app_build_name)
@@ -50,9 +50,9 @@ def list_files(startpath):
             print('{}{}'.format(subindent, f))
 
 # This is just for testing
-# print("Files under current working directory:- {}".format(os.getcwd()))
+# utils.info("Files under current working directory:- {}".format(os.getcwd()))
 # list_files(os.getcwd())
-# print("Files under github action dist directory:- {}".format(os.path.dirname(__file__)))
+# utils.info("Files under github action dist directory:- {}".format(os.path.dirname(__file__)))
 # list_files(os.path.dirname(__file__))
 
 
@@ -70,7 +70,7 @@ html_response_url = "{}/report".format(BASE_URL)
 
 
 # Login
-print("Creating access token.")
+utils.info("Creating access token.")
 response = requests.request("GET", LOGIN_URL, auth=HTTPBasicAuth(
     username, password), data={}, timeout=TIMEOUT_MAX)
 
@@ -81,7 +81,7 @@ if response.status_code != 200:
 res = response.json()
 token = res['data']['token']
 user = res['data']['user']['name']
-print("Got access token for {}".format(user))
+utils.info("Got access token for {}".format(user))
 
 
 HEADERS = {
@@ -119,10 +119,10 @@ def perform_checks(check_type="APP_INSPECT"):
         ('app_package', (app_build_path, app_build_f, 'application/octet-stream'))
     ]
 
-    print("App build submitting (check_type={})".format(check_type))
+    utils.info("App build submitting (check_type={})".format(check_type))
     response = requests.request(
         "POST", submit_url, headers=HEADERS, files=files, data=payload, timeout=TIMEOUT_MAX)
-    print("App package submit (check_type={}) response: status_code={}, text={}".format(check_type, response.status_code, response.text))
+    utils.info("App package submit (check_type={}) response: status_code={}, text={}".format(check_type, response.status_code, response.text))
     
     if response.status_code != 200:
         utils.error("Error while requesting for app-inspect check. check_type={}, status_code={}".format(check_type, response.status_code))
@@ -130,20 +130,20 @@ def perform_checks(check_type="APP_INSPECT"):
 
     res = response.json()
     request_id = res['request_id']
-    print("App package submit (check_type={}) request_id={}".format(check_type, request_id))
+    utils.info("App package submit (check_type={}) request_id={}".format(check_type, request_id))
 
     status = None
     # Status check
     for i in range(10):
         sleep(60)    # check every minute for updated status
-        print("...")
+        utils.info("...")
         try:
             response = requests.request("GET", "{}/{}".format(
                 status_check_url, request_id), headers=HEADERS, data={}, timeout=TIMEOUT_MAX)
         except:
             continue   # continue if there is any error (specifically 10 times for timeout error)
 
-        print("App package status check (check_type={}) response: status_code={}, text={}".format(check_type, response.status_code, response.text))
+        utils.info("App package status check (check_type={}) response: status_code={}, text={}".format(check_type, response.status_code, response.text))
 
         if response.status_code != 200:
             utils.error("Error while requesting for app-inspect check status update. check_type={}, status_code={}".format(check_type, response.status_code))
@@ -153,11 +153,11 @@ def perform_checks(check_type="APP_INSPECT"):
         res_status = res['status']
 
         if res_status == 'PROCESSING':
-            print("Report is processing for check_type={}".format(check_type))
+            utils.info("Report is processing for check_type={}".format(check_type))
             continue
 
         # Processing completed
-        print("App package status success (check_type={}) response: status_code={}, text={}".format(check_type, response.status_code, response.text))
+        utils.info("App package status success (check_type={}) response: status_code={}, text={}".format(check_type, response.status_code, response.text))
 
         if int(res['info']['failure']) != 0:
             status = "Failure"
@@ -171,7 +171,7 @@ def perform_checks(check_type="APP_INSPECT"):
         return "Timed-out"
 
     # HTML Report retrive
-    print("Html report generating for check_type={}".format(check_type))
+    utils.info("Html report generating for check_type={}".format(check_type))
     response = requests.request("GET", "{}/{}".format(html_response_url,
                                                       request_id), headers=HEADERS_REPORT, data={}, timeout=TIMEOUT_MAX)
     if response.status_code != 200:
@@ -186,7 +186,7 @@ def perform_checks(check_type="APP_INSPECT"):
 
 
 def perform_app_inspect_check(app_inspect_result):
-    print("Performing app-inspect checks...")
+    utils.info("Performing app-inspect checks...")
     status = "Error"
     try:
         status = perform_checks()
@@ -198,7 +198,7 @@ def perform_app_inspect_check(app_inspect_result):
 
 
 def perform_cloud_inspect_check(app_inspect_result):
-    print("Performing cloud-inspect checks...")
+    utils.info("Performing cloud-inspect checks...")
     status = "Error"
     try:
         status = perform_checks(check_type="CLOUD_INSPECT")
@@ -210,7 +210,7 @@ def perform_cloud_inspect_check(app_inspect_result):
 
 
 def perform_ssai_inspect_check(app_inspect_result):
-    print("Performing ssai-inspect checks...")
+    utils.info("Performing ssai-inspect checks...")
     status = "Error"
     try:
         status = perform_checks(check_type="SSAI_INSPECT")
@@ -234,15 +234,16 @@ thread_ssai_inspect.start()
 thread_app_inspect.join()
 thread_cloud_inspect.join()
 thread_ssai_inspect.join()
+utils.info("Waiting for all threads to complete.")
 
 if all(i=="Passed" for i in app_inspect_result):
-    print("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(app_inspect_result))
+    utils.info("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(app_inspect_result))
 else:
     utils.error("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(app_inspect_result))
     sys.exit(1)
 
 # This is just for testing
-print("Files under current working directory:- {}".format(os.getcwd()))
+utils.info("Files under current working directory:- {}".format(os.getcwd()))
 list_files(os.getcwd())
-# print("Files under github action dist directory:- {}".format(os.path.dirname(__file__)))
+# utils.info("Files under github action dist directory:- {}".format(os.path.dirname(__file__)))
 # list_files(os.path.dirname(__file__))

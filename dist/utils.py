@@ -1,4 +1,5 @@
 import os
+import datetime
 
 
 def get_input(name):
@@ -9,15 +10,28 @@ def set_output(name, value):
     print(f"::set-output name={name}::{_escape_data(value)}")
 
 
+def format_message(message):
+    timestamp = datetime.now().strftime("%H:%M:%S.%f")
+    return "{} | {}".format(timestamp, message)
+
+
 def debug(message):
+    message = format_message(message)
     print(f"::debug::{_escape_data(message)}")
 
 
+def info(message):
+    message = format_message(message)
+    print(f"{_escape_data(message)}")
+
+
 def warning(message):
+    message = format_message(message)
     print(f"::warning::{_escape_data(message)}")
 
 
 def error(message):
+    message = format_message(message)
     print(f"::error::{_escape_data(message)}")
 
 
