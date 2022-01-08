@@ -51,10 +51,10 @@ runs:
         echo "app_build_name -> ${{inputs.app_build_name}}"
         echo "splunkbase_username -> ${{inputs.splunkbase_username}} (If using Github secret the value will be ***)"
         mkdir ${{inputs.app_build_name}}_reports
-        # cd repodir
-        # rm -rf .github
-        # rm -rf .git
-        # cd ..
+        cd repodir
+        rm -rf .github
+        rm -rf .git
+        cd ..
 
     - name: "Running user defined commands"
       shell: bash
@@ -74,6 +74,7 @@ runs:
         cd ..
 
     - name: "Generating the App Build"
+      if: inputs.app_dir != "."
       shell: bash
       run: |
         cd repodir
@@ -82,6 +83,14 @@ runs:
         tar -czf ${{inputs.app_build_name}}.tgz ${{inputs.app_dir}}
         cd ..
         mv repodir/${{inputs.app_build_name}}.tgz .
+    
+    - name: "Generating the App Build (root dir)"
+      if: inputs.app_dir == "."
+      shell: bash
+      run: |
+        find repodir -type f -exec chmod 644 '{}' \;
+        find repodir -type d -exec chmod 755 '{}' \;
+        tar -czf ${{inputs.app_build_name}}.tgz repodir
 
     - name: "Upload the app build as artifact"
       uses: actions/upload-artifact@v2

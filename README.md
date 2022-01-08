@@ -42,7 +42,7 @@ jobs:
     steps:
       - uses: VatsalJagani/splunk-app-action@v0
         with:
-          app_dir: "lansweeper_app_for_splunk"
+          app_dir: "my_splunk_app"
           app_build_name: "app"
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
           splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
@@ -158,13 +158,13 @@ jobs:
 * If you wish to run the commands before generating the App build, set the environment variables `SPLUNK_APP_ACTION_<n>`.
 ```
   - uses: VatsalJagani/splunk-app-action@v0
+    env:
+      SPLUNK_APP_ACTION_1: "chmod +x my_app_dir/bin/*.sh"
     with:
       app_dir: "my_app_dir"
       app_build_name: "app"
       splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
       splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
-    env:
-      SPLUNK_APP_ACTION_1: "chmod +x my_app_dir/bin/*.sh"
 ```
 * Above use-case is very common as if your App/Add-on has shell script you want to make sure it has executable permission.
 * Run the command in the context of your repo's root directory. (Assume current working directory is your repo's root directory.)
