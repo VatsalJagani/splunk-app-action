@@ -42,6 +42,16 @@ runs:
       with:
           ref: ${{ steps.extract_branch.outputs.branch }}
           path: repodir
+    
+    - name: "Pre-tasks"
+      shell: bash
+      run: |
+        echo "Inputs: --->"
+        echo "app_dir -> ${{inputs.app_dir}}"
+        echo "app_build_name -> ${{inputs.app_build_name}}"
+        echo "splunkbase_username -> ${{inputs.splunkbase_username}} (If using Github secret the value will be ***)"
+        echo "splunkbase_password -> ${{inputs.splunkbase_password}} (If using Github secret the value will be ***)"
+        mkdir ${{inputs.app_build_name}}_reports
 
     - name: "Generating the App Build"
       shell: bash
@@ -72,11 +82,6 @@ runs:
       uses: actions/setup-node@v2
       with:
         node-version: '12'
-
-    - name: "checking environment variables"
-      shell: bash
-      run: |
-        echo "${{inputs.app_dir}} - ${{inputs.app_build_name}} - ${{inputs.splunkbase_username}} - ${{inputs.splunkbase_password}}"
 
     - name: "Running App-Inspect Checks"
       shell: bash
