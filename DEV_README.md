@@ -23,4 +23,5 @@
   ```
   git tag -f -a -m "v2" v2
   git push -f --tags
+  git push -f --follow-tags
   ```

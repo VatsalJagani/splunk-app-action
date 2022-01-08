@@ -10,22 +10,25 @@ async function run() {
     const options = {};
     options.listeners = {
         stdout: (data) => {
-            stdout += data.toString();
+            core.setOutput("stdout", data.toString());
+            // stdout += data.toString();
         },
         stderr: (data) => {
-            stderr += data.toString();
+            core.setOutput("stderr", data.toString());
+            // stderr += data.toString();
         }
     };
 
     try {
         console.log(`running python file: ${__dirname}/app_inspect.py`);
-        await exec.exec('python', [`${__dirname}/app_inspect.py`], options);
+        await exec.exec('python', ['-u', `${__dirname}/app_inspect.py`], options);
+        // -u with python is to run python Unbuffered to stream the stdout
     } catch (error) {
         errorStatus = "true";
         core.setFailed(error);
     } finally {
-        core.setOutput("stdout", stdout);
-        core.setOutput("stderr", stderr);
+        // core.setOutput("stdout", stdout);
+        // core.setOutput("stderr", stderr);
         core.setOutput("error", errorStatus);
     }
 }
