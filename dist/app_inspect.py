@@ -243,7 +243,5 @@ else:
     sys.exit(1)
 
 # This is just for testing
-utils.info("Files under current working directory:- {}".format(os.getcwd()))
-list_files(os.getcwd())
-# utils.info("Files under github action dist directory:- {}".format(os.path.dirname(__file__)))
-# list_files(os.path.dirname(__file__))
+# utils.info("Files under current working directory:- {}".format(os.getcwd()))
+# list_files(os.getcwd())
