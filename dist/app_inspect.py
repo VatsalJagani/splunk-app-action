@@ -136,6 +136,7 @@ def perform_checks(check_type="APP_INSPECT"):
     # Status check
     for i in range(10):
         sleep(60)    # check every minute for updated status
+        print("...")
         try:
             response = requests.request("GET", "{}/{}".format(
                 status_check_url, request_id), headers=HEADERS, data={}, timeout=TIMEOUT_MAX)
@@ -174,7 +175,7 @@ def perform_checks(check_type="APP_INSPECT"):
     response = requests.request("GET", "{}/{}".format(html_response_url,
                                                       request_id), headers=HEADERS_REPORT, data={}, timeout=TIMEOUT_MAX)
     if response.status_code != 200:
-        print("Error while requesting for app-inspect check report. check_type={}, status_code={}".format(check_type, response.status_code))
+        utils.error("Error while requesting for app-inspect check report. check_type={}, status_code={}".format(check_type, response.status_code))
         return "Exception"
 
     # write results into a file
@@ -239,3 +240,9 @@ if all(i=="Passed" for i in app_inspect_result):
 else:
     utils.error("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(app_inspect_result))
     sys.exit(1)
+
+# This is just for testing
+print("Files under current working directory:- {}".format(os.getcwd()))
+list_files(os.getcwd())
+# print("Files under github action dist directory:- {}".format(os.path.dirname(__file__)))
+# list_files(os.path.dirname(__file__))
