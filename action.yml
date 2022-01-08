@@ -79,6 +79,7 @@ runs:
 
     - name: "Fetching app-package-id from app.conf file - continue"
       shell: bash
+      run: |
         echo "SPLUNK_FETCHED_APP_PACKAGE_ID -> $SPLUNK_FETCHED_APP_PACKAGE_ID"
         if [[ -n "$SPLUNK_FETCHED_APP_PACKAGE_ID" ]]; then
             echo "Setting app_dir as SPLUNK_FETCHED_APP_PACKAGE_ID -> ${{inputs.app_dir}}"
