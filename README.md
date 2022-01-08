@@ -3,7 +3,7 @@ Github Action to automatically check Splunk App Inspect on commit
 
 
 
-## Development
-* Run below command to generate the single JS file in the `dist` directory.
-  * `ncc build index.js --license LICENSE`
-
+## Contribute
+* If you are developer and want to contribute to this project:
+  * [Developer Guide](DEV_README.md)
+* If you are not a developer and have a request for enhancement or bug create a Github Issue in this project.
