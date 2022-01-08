@@ -55,6 +55,31 @@ runs:
         rm -rf .github
         rm -rf .git
         cd ..
+    
+    - name: "Install Python"
+      uses: actions/setup-python@v2
+
+    - name: "Install required packages"
+      shell: bash
+      run: |
+        pip install requests
+
+    - name: "Installing Node JS"
+      uses: actions/setup-node@v2
+      with:
+        node-version: '12'
+
+
+    - name: "Fetching app-package-id from app.conf file"
+      shell: bash
+      env:
+        SPLUNK_app_dir: ${{inputs.app_dir}}
+      run: |
+        node ${{ github.action_path }}/dist/index.js fetch_app_package_id.py
+        if [[ -n "$SPLUNK_FETCHED_APP_PACKAGE_ID" ]]; then
+            export SPLUNK_FETCHED_APP_PACKAGE_ID=${{inputs.app_dir}}
+        fi
+
 
     - name: "Running user defined commands"
       shell: bash
@@ -73,14 +98,16 @@ runs:
 
         cd ..
 
+
     - name: "Generating the App Build"
       if: ${{ inputs.app_dir != '.' }}
       shell: bash
       run: |
         cd repodir
-        find ${{inputs.app_dir}} -type f -exec chmod 644 '{}' \;
-        find ${{inputs.app_dir}} -type d -exec chmod 755 '{}' \;
-        tar -czf ${{inputs.app_build_name}}.tgz ${{inputs.app_dir}}
+        mv ${{inputs.app_dir}} $SPLUNK_FETCHED_APP_PACKAGE_ID
+        find $SPLUNK_FETCHED_APP_PACKAGE_ID -type f -exec chmod 644 '{}' \;
+        find $SPLUNK_FETCHED_APP_PACKAGE_ID -type d -exec chmod 755 '{}' \;
+        tar -czf ${{inputs.app_build_name}}.tgz $SPLUNK_FETCHED_APP_PACKAGE_ID
         cd ..
         mv repodir/${{inputs.app_build_name}}.tgz .
     
@@ -88,9 +115,10 @@ runs:
       if: ${{ inputs.app_dir == '.' }}
       shell: bash
       run: |
-        find repodir -type f -exec chmod 644 '{}' \;
-        find repodir -type d -exec chmod 755 '{}' \;
-        tar -czf ${{inputs.app_build_name}}.tgz repodir
+        mv repodir $SPLUNK_FETCHED_APP_PACKAGE_ID
+        find $SPLUNK_FETCHED_APP_PACKAGE_ID -type f -exec chmod 644 '{}' \;
+        find $SPLUNK_FETCHED_APP_PACKAGE_ID -type d -exec chmod 755 '{}' \;
+        tar -czf ${{inputs.app_build_name}}.tgz $SPLUNK_FETCHED_APP_PACKAGE_ID
 
     - name: "Upload the app build as artifact"
       uses: actions/upload-artifact@v2
@@ -99,28 +127,15 @@ runs:
         path: |
           ${{inputs.app_build_name}}.tgz
 
-    - name: "Install Python"
-      uses: actions/setup-python@v2
-
-    - name: "Install required packages"
-      shell: bash
-      run: |
-        pip install requests
-
-    - name: "Installing Node JS"
-      uses: actions/setup-node@v2
-      with:
-        node-version: '12'
 
     - name: "Running App-Inspect Checks"
       shell: bash
       env:
-        SPLUNK_app_dir: ${{inputs.app_dir}}
         SPLUNK_app_build_name: ${{inputs.app_build_name}}
         SPLUNK_splunkbase_username: ${{inputs.splunkbase_username}}
         SPLUNK_splunkbase_password: ${{inputs.splunkbase_password}}
       run: |
-        node ${{ github.action_path }}/dist/index.js
+        node ${{ github.action_path }}/dist/index.js app_inspect.py
 
     - name: "Upload the app-inspect reports as artifact"
       uses: actions/upload-artifact@v2

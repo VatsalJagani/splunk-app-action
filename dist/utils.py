@@ -6,6 +6,10 @@ def get_input(name):
     return os.getenv(f"SPLUNK_{name}")
 
 
+def set_env(name, value):
+    os.environ[name] = value
+
+
 def set_output(name, value):
     print(f"::set-output name={name}::{_escape_data(value)}")
 

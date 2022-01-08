@@ -2,6 +2,9 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const exec = require('@actions/exec');
 
+let cli_arguments = process.argv
+let python_file = cli_arguments[2]   // first cli argument
+
 async function run() {
     let stdout = "";
     let stderr = "";
@@ -20,8 +23,8 @@ async function run() {
     };
 
     try {
-        console.log(`running python file: ${__dirname}/app_inspect.py`);
-        await exec.exec('python', ['-u', `${__dirname}/app_inspect.py`], options);
+        console.log(`running python file: ${__dirname}/${python_file}`);
+        await exec.exec('python', ['-u', `${__dirname}/${python_file}`], options);
         // -u with python is to run python Unbuffered to stream the stdout
     } catch (error) {
         errorStatus = "true";
