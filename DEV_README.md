@@ -25,3 +25,9 @@
   git push -f --tags
   git push -f --follow-tags
   ```
+
+* To delete tag
+  ```
+  git tag -d v0
+  git push --delete origin v0
+  ```
