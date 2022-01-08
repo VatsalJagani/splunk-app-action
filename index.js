@@ -10,10 +10,12 @@ async function run() {
     const options = {};
     options.listeners = {
         stdout: (data) => {
-            stdout += data.toString();
+            core.setOutput("stdout", stdout);
+            // stdout += data.toString();
         },
         stderr: (data) => {
-            stderr += data.toString();
+            core.setOutput("stderr", stderr);
+            // stderr += data.toString();
         }
     };
 
@@ -24,8 +26,8 @@ async function run() {
         errorStatus = "true";
         core.setFailed(error);
     } finally {
-        core.setOutput("stdout", stdout);
-        core.setOutput("stderr", stderr);
+        // core.setOutput("stdout", stdout);
+        // core.setOutput("stderr", stderr);
         core.setOutput("error", errorStatus);
     }
 }
