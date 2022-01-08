@@ -76,7 +76,9 @@ runs:
         SPLUNK_app_dir: ${{inputs.app_dir}}
       run: |
         node ${{ github.action_path }}/dist/index.js fetch_app_package_id.py
+        echo "SPLUNK_FETCHED_APP_PACKAGE_ID -> $SPLUNK_FETCHED_APP_PACKAGE_ID"
         if [[ -n "$SPLUNK_FETCHED_APP_PACKAGE_ID" ]]; then
+            echo "Setting app_dir as SPLUNK_FETCHED_APP_PACKAGE_ID -> ${{inputs.app_dir}}"
             export SPLUNK_FETCHED_APP_PACKAGE_ID=${{inputs.app_dir}}
         fi
 

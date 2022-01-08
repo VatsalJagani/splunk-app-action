@@ -24,7 +24,9 @@ def get_input(name):
 
 
 def set_env(name, value):
-    os.environ[name] = value
+    ret_code = os.system('export {}={}'.format(name, value))
+    print("ret_code for setting env variable. {}".format(ret_code))
+    # os.environ[name] = value
 
 
 def set_output(name, value):
