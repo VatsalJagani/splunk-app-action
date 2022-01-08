@@ -46,7 +46,7 @@ runs:
     - name: "Pre-tasks"
       shell: bash
       run: |
-        echo "Inputs: --->"
+        echo "=== Inputs ==="
         echo "app_dir -> ${{inputs.app_dir}}"
         echo "app_build_name -> ${{inputs.app_build_name}}"
         echo "splunkbase_username -> ${{inputs.splunkbase_username}} (If using Github secret the value will be ***)"
@@ -76,6 +76,9 @@ runs:
         SPLUNK_app_dir: ${{inputs.app_dir}}
       run: |
         node ${{ github.action_path }}/dist/index.js fetch_app_package_id.py
+
+    - name: "Fetching app-package-id from app.conf file - continue"
+      shell: bash
         echo "SPLUNK_FETCHED_APP_PACKAGE_ID -> $SPLUNK_FETCHED_APP_PACKAGE_ID"
         if [[ -n "$SPLUNK_FETCHED_APP_PACKAGE_ID" ]]; then
             echo "Setting app_dir as SPLUNK_FETCHED_APP_PACKAGE_ID -> ${{inputs.app_dir}}"
@@ -106,7 +109,10 @@ runs:
       shell: bash
       run: |
         cd repodir
-        mv ${{inputs.app_dir}} $SPLUNK_FETCHED_APP_PACKAGE_ID
+        ls
+        if [[ ${{inputs.app_dir}} =! $SPLUNK_FETCHED_APP_PACKAGE_ID ]]
+            mv ${{inputs.app_dir}} $SPLUNK_FETCHED_APP_PACKAGE_ID
+        fi
         find $SPLUNK_FETCHED_APP_PACKAGE_ID -type f -exec chmod 644 '{}' \;
         find $SPLUNK_FETCHED_APP_PACKAGE_ID -type d -exec chmod 755 '{}' \;
         tar -czf ${{inputs.app_build_name}}.tgz $SPLUNK_FETCHED_APP_PACKAGE_ID
