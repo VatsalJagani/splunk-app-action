@@ -34,26 +34,11 @@ app_inspect_report_dir = "{}_reports".format(app_build_name)
 
 
 
-# Debug function
-def list_files(startpath):
-    for root, dirs, files in os.walk(startpath):
-        level = root.replace(startpath, '').count(os.sep)
-
-        # only until level 2
-        if level > 2:
-            continue
-
-        indent = ' ' * 4 * (level)
-        print('{}{}/'.format(indent, os.path.basename(root)))
-        subindent = ' ' * 4 * (level + 1)
-        for f in files:
-            print('{}{}'.format(subindent, f))
-
 # This is just for testing
 # utils.info("Files under current working directory:- {}".format(os.getcwd()))
-# list_files(os.getcwd())
+# utils.list_files(os.getcwd())
 # utils.info("Files under github action dist directory:- {}".format(os.path.dirname(__file__)))
-# list_files(os.path.dirname(__file__))
+# utils.list_files(os.path.dirname(__file__))
 
 
 
@@ -244,4 +229,4 @@ else:
 
 # This is just for testing
 # utils.info("Files under current working directory:- {}".format(os.getcwd()))
-# list_files(os.getcwd())
+# utils.list_files(os.getcwd())
