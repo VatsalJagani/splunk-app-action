@@ -60,4 +60,5 @@ def save_state(name, value):
 
 
 def _escape_data(value: str):
-    return value.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+    return value.replace("%", "%25").replace("\r", "%0D")
+    # .replace("\n", "%0A")
