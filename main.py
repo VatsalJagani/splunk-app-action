@@ -73,6 +73,7 @@ def generate_app_build():
 
         os.system('cd ..')
     
+    utils.info("cwd={}".format(os.getcwd()))
     utils.list_files(os.getcwd())
 
 
@@ -81,4 +82,5 @@ remove_git_folders()
 app_package_id = fetch_app_package_id()
 utils.info("app_package_id={}".format(app_package_id))
 generate_app_build()
-app_inspect.run_app_inspect_checks()
+# app_inspect.run_app_inspect_checks()
+# TODO - uncomment above
