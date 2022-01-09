@@ -74,7 +74,7 @@ def generate_app_build():
         os.chdir('..')
     
     utils.info("final cwd={}".format(os.getcwd()))
-    # utils.list_files(os.getcwd())
+    utils.list_files(os.getcwd())
 
 
 
