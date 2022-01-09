@@ -14,6 +14,9 @@ utils.info("Started app_inspect.py")
 # utils.debug("test utils.debug")   # is not working
 # utils.error("test utils.error")
 
+utils.info("THIS IS FOR DEBUGGING, TEMPORARILY STOPPED APP_INSPECT CHECKS.")
+sys.exit()
+
 # this is just for testing
 # for k, v in sorted(os.environ.items()):
 #     print("{} : {}".format(k, v))
