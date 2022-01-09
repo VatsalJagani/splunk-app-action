@@ -17,8 +17,8 @@ app_package_id = None
 
 
 # This is just for testing
-utils.info("Files under current working directory:- {}".format(os.getcwd()))
-utils.list_files(os.getcwd())
+# utils.info("Files under current working directory:- {}".format(os.getcwd()))
+# utils.list_files(os.getcwd())
 
 
 
@@ -49,7 +49,7 @@ def generate_app_build():
     global app_package_id
     utils.info("Generating the app build. app_dir={}, app_package_id={}".format(app_dir, app_package_id))
 
-    utils.list_files(os.getcwd())
+    # utils.list_files(os.getcwd())
 
     if app_dir == '.':
         os.system('mv repodir {}'.format(app_package_id))
@@ -57,11 +57,10 @@ def generate_app_build():
         os.system("find {} -type d -exec chmod 755 '{{}}' \;".format(app_package_id))
         os.system("tar -czf {}.tgz {}".format(app_build_name, app_package_id))
     else:
-        # os.system('cd repodir')
         os.chdir('repodir')
 
         utils.info("updated cwd={}".format(os.getcwd()))
-        utils.list_files(os.getcwd())
+        # utils.list_files(os.getcwd())
         
         if app_package_id and app_dir != app_package_id:
             os.system('mv {} {}'.format(app_dir, app_package_id))
@@ -72,10 +71,10 @@ def generate_app_build():
         os.system("find {} -type d -exec chmod 755 '{{}}' \;".format(app_package_id))
         os.system("tar -czf {}.tgz {}".format(app_build_name, app_package_id))
 
-        os.system('cd ..')
+        os.chdir('..')
     
     utils.info("final cwd={}".format(os.getcwd()))
-    utils.list_files(os.getcwd())
+    # utils.list_files(os.getcwd())
 
 
 
@@ -83,5 +82,4 @@ remove_git_folders()
 app_package_id = fetch_app_package_id()
 utils.info("app_package_id={}".format(app_package_id))
 generate_app_build()
-# app_inspect.run_app_inspect_checks()
-# TODO - uncomment above
+app_inspect.run_app_inspect_checks()
