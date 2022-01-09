@@ -70,6 +70,7 @@ def generate_app_build():
         os.system("find {} -type f -exec chmod 644 '{{}}' \;".format(app_package_id))
         os.system("find {} -type d -exec chmod 755 '{{}}' \;".format(app_package_id))
         os.system("tar -czf {}.tgz {}".format(app_build_name, app_package_id))
+        os.system('mv {}.tgz ..'.format(app_build_name))
 
         os.chdir('..')
     
