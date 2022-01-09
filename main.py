@@ -57,9 +57,10 @@ def generate_app_build():
         os.system("find {} -type d -exec chmod 755 '{{}}' \;".format(app_package_id))
         os.system("tar -czf {}.tgz {}".format(app_build_name, app_package_id))
     else:
-        os.system('cd repodir')
+        # os.system('cd repodir')
+        os.chdir('repodir')
 
-        utils.info("cwd={}".format(os.getcwd()))
+        utils.info("updated cwd={}".format(os.getcwd()))
         utils.list_files(os.getcwd())
         
         if app_package_id and app_dir != app_package_id:
@@ -73,7 +74,7 @@ def generate_app_build():
 
         os.system('cd ..')
     
-    utils.info("cwd={}".format(os.getcwd()))
+    utils.info("final cwd={}".format(os.getcwd()))
     utils.list_files(os.getcwd())
 
 
