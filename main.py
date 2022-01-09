@@ -46,8 +46,8 @@ def fetch_app_package_id():
 
 
 def generate_app_build():
-    utils.info("Generating the app build. app_dir={}, app_package_id={}".format(app_dir, app_package_id))
     global app_package_id
+    utils.info("Generating the app build. app_dir={}, app_package_id={}".format(app_dir, app_package_id))
 
     utils.list_files(os.getcwd())
 
