@@ -46,6 +46,7 @@ runs:
     - name: "Pre-tasks"
       shell: bash
       run: |
+        pwd
         echo "=== Inputs ==="
         echo "app_dir -> ${{inputs.app_dir}}"
         echo "app_build_name -> ${{inputs.app_build_name}}"
@@ -55,6 +56,7 @@ runs:
         rm -rf .github
         rm -rf .git
         cd ..
+        pwd
     
     - name: "Install Python"
       uses: actions/setup-python@v2
@@ -75,21 +77,26 @@ runs:
       env:
         SPLUNK_app_dir: ${{inputs.app_dir}}
       run: |
+        pwd
         node ${{ github.action_path }}/dist/index.js fetch_app_package_id.py
+        pwd
 
     - name: "Fetching app-package-id from app.conf file - continue"
       shell: bash
       run: |
+        pwd
         echo "SPLUNK_FETCHED_APP_PACKAGE_ID -> $SPLUNK_FETCHED_APP_PACKAGE_ID"
         if [[ -z "$SPLUNK_FETCHED_APP_PACKAGE_ID" ]]; then
             echo "Setting app_dir as SPLUNK_FETCHED_APP_PACKAGE_ID -> ${{inputs.app_dir}}"
             export SPLUNK_FETCHED_APP_PACKAGE_ID=${{inputs.app_dir}}
         fi
+        pwd
 
 
     - name: "Running user defined commands"
       shell: bash
       run: |
+        pwd
         cd repodir
 
         for i in $(seq 1 100); do
@@ -103,12 +110,14 @@ runs:
         done
 
         cd ..
+        pwd
 
 
     - name: "Generating the App Build"
       if: ${{ inputs.app_dir != '.' }}
       shell: bash
       run: |
+        pwd
         cd repodir
         ls
         if [[ ${{inputs.app_dir}} != $SPLUNK_FETCHED_APP_PACKAGE_ID ]]; then
@@ -119,15 +128,18 @@ runs:
         tar -czf ${{inputs.app_build_name}}.tgz $SPLUNK_FETCHED_APP_PACKAGE_ID
         cd ..
         mv repodir/${{inputs.app_build_name}}.tgz .
+        pwd
     
     - name: "Generating the App Build (root dir)"
       if: ${{ inputs.app_dir == '.' }}
       shell: bash
       run: |
+        pwd
         mv repodir $SPLUNK_FETCHED_APP_PACKAGE_ID
         find $SPLUNK_FETCHED_APP_PACKAGE_ID -type f -exec chmod 644 '{}' \;
         find $SPLUNK_FETCHED_APP_PACKAGE_ID -type d -exec chmod 755 '{}' \;
         tar -czf ${{inputs.app_build_name}}.tgz $SPLUNK_FETCHED_APP_PACKAGE_ID
+        pwd
 
     - name: "Upload the app build as artifact"
       uses: actions/upload-artifact@v2
