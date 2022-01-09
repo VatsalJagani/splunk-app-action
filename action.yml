@@ -52,12 +52,7 @@ runs:
         echo "app_build_name -> ${{inputs.app_build_name}}"
         echo "splunkbase_username -> ${{inputs.splunkbase_username}} (If using Github secret the value will be ***)"
         mkdir ${{inputs.app_build_name}}_reports
-        cd repodir
-        rm -rf .github
-        rm -rf .git
-        cd ..
-        pwd
-    
+
     - name: "Install Python"
       uses: actions/setup-python@v2
 
@@ -65,32 +60,6 @@ runs:
       shell: bash
       run: |
         pip install requests
-
-    - name: "Installing Node JS"
-      uses: actions/setup-node@v2
-      with:
-        node-version: '12'
-
-
-    - name: "Fetching app-package-id from app.conf file"
-      shell: bash
-      env:
-        SPLUNK_app_dir: ${{inputs.app_dir}}
-      run: |
-        pwd
-        python ${{ github.action_path }}/dist/fetch_app_package_id.py
-        pwd
-
-    - name: "Fetching app-package-id from app.conf file - continue"
-      shell: bash
-      run: |
-        pwd
-        echo "SPLUNK_FETCHED_APP_PACKAGE_ID -> $SPLUNK_FETCHED_APP_PACKAGE_ID"
-        if [[ -z "$SPLUNK_FETCHED_APP_PACKAGE_ID" ]]; then
-            echo "Setting app_dir as SPLUNK_FETCHED_APP_PACKAGE_ID -> ${{inputs.app_dir}}"
-            export SPLUNK_FETCHED_APP_PACKAGE_ID=${{inputs.app_dir}}
-        fi
-        pwd
 
 
     - name: "Running user defined commands"
@@ -113,50 +82,25 @@ runs:
         pwd
 
 
-    - name: "Generating the App Build"
-      if: ${{ inputs.app_dir != '.' }}
+    - name: "Running the Splunk App actions"
       shell: bash
+      env:
+        SPLUNK_app_dir: ${{inputs.app_dir}}
+        SPLUNK_app_build_name: ${{inputs.app_build_name}}
+        SPLUNK_splunkbase_username: ${{inputs.splunkbase_username}}
+        SPLUNK_splunkbase_password: ${{inputs.splunkbase_password}}
       run: |
-        pwd
-        cd repodir
-        ls
-        if [[ ${{inputs.app_dir}} != $SPLUNK_FETCHED_APP_PACKAGE_ID ]]; then
-            mv ${{inputs.app_dir}} $SPLUNK_FETCHED_APP_PACKAGE_ID
-        fi
-        find $SPLUNK_FETCHED_APP_PACKAGE_ID -type f -exec chmod 644 '{}' \;
-        find $SPLUNK_FETCHED_APP_PACKAGE_ID -type d -exec chmod 755 '{}' \;
-        tar -czf ${{inputs.app_build_name}}.tgz $SPLUNK_FETCHED_APP_PACKAGE_ID
-        cd ..
-        mv repodir/${{inputs.app_build_name}}.tgz .
-        pwd
-    
-    - name: "Generating the App Build (root dir)"
-      if: ${{ inputs.app_dir == '.' }}
-      shell: bash
-      run: |
-        pwd
-        mv repodir $SPLUNK_FETCHED_APP_PACKAGE_ID
-        find $SPLUNK_FETCHED_APP_PACKAGE_ID -type f -exec chmod 644 '{}' \;
-        find $SPLUNK_FETCHED_APP_PACKAGE_ID -type d -exec chmod 755 '{}' \;
-        tar -czf ${{inputs.app_build_name}}.tgz $SPLUNK_FETCHED_APP_PACKAGE_ID
-        pwd
+        python ${{ github.action_path }}/main.py
+
 
     - name: "Upload the app build as artifact"
       uses: actions/upload-artifact@v2
+      if: always()
       with:
         name: "App-Build-${{inputs.app_build_name}}"
         path: |
           ${{inputs.app_build_name}}.tgz
 
-
-    - name: "Running App-Inspect Checks"
-      shell: bash
-      env:
-        SPLUNK_app_build_name: ${{inputs.app_build_name}}
-        SPLUNK_splunkbase_username: ${{inputs.splunkbase_username}}
-        SPLUNK_splunkbase_password: ${{inputs.splunkbase_password}}
-      run: |
-        node ${{ github.action_path }}/dist/index.js app_inspect.py
 
     - name: "Upload the app-inspect reports as artifact"
       uses: actions/upload-artifact@v2

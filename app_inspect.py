@@ -6,20 +6,7 @@ from threading import Thread
 from time import sleep
 import traceback
 
-sys.path.append(os.path.dirname(__file__))
 import utils
-
-
-utils.info("Started app_inspect.py")
-# utils.debug("test utils.debug")   # is not working
-# utils.error("test utils.error")
-
-utils.info("THIS IS FOR DEBUGGING, TEMPORARILY STOPPED APP_INSPECT CHECKS.")
-sys.exit()
-
-# this is just for testing
-# for k, v in sorted(os.environ.items()):
-#     print("{} : {}".format(k, v))
 
 
 # Read Credentials
@@ -37,15 +24,6 @@ app_inspect_report_dir = "{}_reports".format(app_build_name)
 
 
 
-# This is just for testing
-# utils.info("Files under current working directory:- {}".format(os.getcwd()))
-# utils.list_files(os.getcwd())
-# utils.info("Files under github action dist directory:- {}".format(os.path.dirname(__file__)))
-# utils.list_files(os.path.dirname(__file__))
-
-
-
-
 # Script
 TIMEOUT_MAX = 240
 
@@ -57,34 +35,39 @@ status_check_url = "{}/validate/status".format(BASE_URL)
 html_response_url = "{}/report".format(BASE_URL)
 
 
-# Login
-utils.info("Creating access token.")
-response = requests.request("GET", LOGIN_URL, auth=HTTPBasicAuth(
-    username, password), data={}, timeout=TIMEOUT_MAX)
-
-if response.status_code != 200:
-    utils.error("Error while logining. status_code={}, response={}".format(response.status_code, response.text))
-    sys.exit(1)
-
-res = response.json()
-token = res['data']['token']
-user = res['data']['user']['name']
-utils.info("Got access token for {}".format(user))
-
-
-HEADERS = {
-    'Authorization': 'bearer {}'.format(token),
-}
-
-HEADERS_REPORT = {
-    'Authorization': 'bearer {}'.format(token),
-    'Content-Type': 'text/html',
-}
-
-
+HEADERS = None
+HEADERS_REPORT = None
 
 app_inspect_result = ["Running", "Running", "Running"]
                      # app_inspect_result, cloud_inspect_result, ssai_inspect_result
+
+
+
+def api_login():
+    # Login
+    utils.info("Creating access token.")
+    response = requests.request("GET", LOGIN_URL, auth=HTTPBasicAuth(
+        username, password), data={}, timeout=TIMEOUT_MAX)
+
+    if response.status_code != 200:
+        utils.error("Error while logining. status_code={}, response={}".format(response.status_code, response.text))
+        sys.exit(1)
+
+    res = response.json()
+    token = res['data']['token']
+    user = res['data']['user']['name']
+    utils.info("Got access token for {}".format(user))
+
+    global HEADERS
+    HEADERS = {
+        'Authorization': 'bearer {}'.format(token),
+    }
+
+    global HEADERS_REPORT
+    HEADERS_REPORT = {
+        'Authorization': 'bearer {}'.format(token),
+        'Content-Type': 'text/html',
+    }
 
 
 def perform_checks(check_type="APP_INSPECT"):
@@ -209,27 +192,28 @@ def perform_ssai_inspect_check(app_inspect_result):
     app_inspect_result[2] = status
 
 
-thread_app_inspect = Thread(target=perform_app_inspect_check, args=(app_inspect_result,))
-thread_app_inspect.start()
+def run_app_inspect_checks():
+    utils.info("Started app_inspect.py")
 
-thread_cloud_inspect = Thread(target=perform_cloud_inspect_check, args=(app_inspect_result,))
-thread_cloud_inspect.start()
+    api_login()
 
-thread_ssai_inspect = Thread(target=perform_ssai_inspect_check, args=(app_inspect_result,))
-thread_ssai_inspect.start()
+    thread_app_inspect = Thread(target=perform_app_inspect_check, args=(app_inspect_result,))
+    thread_app_inspect.start()
 
-# wait for all threads to complete
-thread_app_inspect.join()
-thread_cloud_inspect.join()
-thread_ssai_inspect.join()
-utils.info("All threads completed.")
+    thread_cloud_inspect = Thread(target=perform_cloud_inspect_check, args=(app_inspect_result,))
+    thread_cloud_inspect.start()
 
-if all(i=="Passed" for i in app_inspect_result):
-    utils.info("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(app_inspect_result))
-else:
-    utils.error("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(app_inspect_result))
-    sys.exit(1)
+    thread_ssai_inspect = Thread(target=perform_ssai_inspect_check, args=(app_inspect_result,))
+    thread_ssai_inspect.start()
 
-# This is just for testing
-# utils.info("Files under current working directory:- {}".format(os.getcwd()))
-# utils.list_files(os.getcwd())
+    # wait for all threads to complete
+    thread_app_inspect.join()
+    thread_cloud_inspect.join()
+    thread_ssai_inspect.join()
+    utils.info("All threads completed.")
+
+    if all(i=="Passed" for i in app_inspect_result):
+        utils.info("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(app_inspect_result))
+    else:
+        utils.error("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(app_inspect_result))
+        sys.exit(1)
