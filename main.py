@@ -46,7 +46,10 @@ def fetch_app_package_id():
 
 
 def generate_app_build():
+    utils.info("Generating the app build. app_dir={}, app_package_id={}".format(app_dir, app_package_id))
     global app_package_id
+
+    utils.list_files(os.getcwd())
 
     if app_dir == '.':
         os.system('mv repodir {}'.format(app_package_id))
@@ -55,6 +58,9 @@ def generate_app_build():
         os.system("tar -czf {}.tgz {}".format(app_build_name, app_package_id))
     else:
         os.system('cd repodir')
+
+        utils.info("cwd={}".format(os.getcwd()))
+        utils.list_files(os.getcwd())
         
         if app_package_id and app_dir != app_package_id:
             os.system('mv {} {}'.format(app_dir, app_package_id))
@@ -66,10 +72,13 @@ def generate_app_build():
         os.system("tar -czf {}.tgz {}".format(app_build_name, app_package_id))
 
         os.system('cd ..')
+    
+    utils.list_files(os.getcwd())
 
 
 
 remove_git_folders()
 app_package_id = fetch_app_package_id()
+utils.info("app_package_id={}".format(app_package_id))
 generate_app_build()
 app_inspect.run_app_inspect_checks()
