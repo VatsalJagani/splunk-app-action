@@ -78,7 +78,7 @@ runs:
         SPLUNK_app_dir: ${{inputs.app_dir}}
       run: |
         pwd
-        node ${{ github.action_path }}/dist/index.js fetch_app_package_id.py
+        python ${{ github.action_path }}/dist/fetch_app_package_id.py
         pwd
 
     - name: "Fetching app-package-id from app.conf file - continue"
