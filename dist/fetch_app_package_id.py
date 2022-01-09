@@ -14,8 +14,15 @@ app_dir = utils.get_input('app_dir')
 utils.info("app_dir: {}".format(app_dir))
 
 # This is just for testing
-# utils.info("Files under current working directory:- {}".format(os.getcwd()))
-# utils.list_files(os.getcwd())
+utils.info("Files under current working directory:- {}".format(os.getcwd()))
+utils.list_files(os.getcwd())
+
+# more troubleshooting
+file_path = os.path.join('repodir', app_dir, 'default', 'app.conf')
+utils.info("File-path: {}".format(file_path))
+with open(file_path, 'r') as f:
+    utils.info(str(f.readlines()))
+
 
 try:
     config = configparser.ConfigParser()
