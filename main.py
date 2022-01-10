@@ -15,6 +15,9 @@ utils.info("app_build_name: {}".format(app_build_name))
 app_package_id_input = utils.get_input('app_package_id')
 utils.info("app_package_id: {}".format(app_package_id_input))
 
+is_app_inspect_check = utils.str_to_boolean(utils.get_input('is_app_inspect_check'))
+utils.info("is_app_inspect_check: {}".format(is_app_inspect_check))
+
 
 app_package_id = None
 
@@ -90,4 +93,7 @@ remove_git_folders()
 app_package_id = fetch_app_package_id()
 utils.info("app_package_id={}".format(app_package_id))
 generate_app_build()
-app_inspect.run_app_inspect_checks()
+if is_app_inspect_check:
+    app_inspect.run_app_inspect_checks()
+else:
+    utils.info("Ignoring App-inspect checks.")
