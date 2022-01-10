@@ -123,7 +123,16 @@ jobs:
    - Is Required: `false`
    - Default: `app`
 
-3. **`splunkbase_username`**
+3. **`app_package_id`**
+   - Splunk app folder name when installed in Splunk or the app package being extracted.
+   - It is recommended to provide as part of app.conf's `[package]` stanza's `id` attribute.
+   - Is Required: `false`
+   - Default:
+     * If you do not provide the parameter the one found in the app.conf will be used.
+     * Do not provide the parameter is the id is present in the app.conf file as mismatching value will result in app-inspect failure on Splunkbase.
+     * If the parameter is not provided and app.conf also does not have the id attribute then `app_build_name` will be used.
+
+4. **`splunkbase_username`**
     - Provide your Splunkbase account username to run the App-inspect API. (Do not use full email, use just the username.)
     - Best way to provide is to create GitHub secret and assign the secret here.
       * Example: create a GitHub repository secret `SPLUNKBASE_USERNAME` and use it like:
@@ -131,7 +140,7 @@ jobs:
     - Is Required: `true`
     - Default: `N/A`
 
-4. **`splunkbase_password`**
+5. **`splunkbase_password`**
     - Provide your Splunkbase account password to run the App-inspect API.
     - Do not use the hard-coded password on your GitHub workflow file unless your are the only one accessing the repository. Use GitHub secrets instead.
       * GitHub secrets are secure as that cannot be logged in the action anywhere.
