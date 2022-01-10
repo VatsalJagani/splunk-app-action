@@ -132,21 +132,29 @@ jobs:
      * Do not provide the parameter is the id is present in the app.conf file as mismatching value will result in app-inspect failure on Splunkbase.
      * If the parameter is not provided and app.conf also does not have the id attribute then `app_build_name` will be used.
 
-4. **`splunkbase_username`**
+4. **`is_app_inspect_check`**
+   - Whether to perform App inspect checks, cloud checks and SSAI checks or not?
+   - Is Required: `false`
+   - Default: `true`
+     * By default app-inspect checks will be performed, if you wish to disable it provide `false`.
+
+5. **`splunkbase_username`**
     - Provide your Splunkbase account username to run the App-inspect API. (Do not use full email, use just the username.)
     - Best way to provide is to create GitHub secret and assign the secret here.
       * Example: create a GitHub repository secret `SPLUNKBASE_USERNAME` and use it like:
         * `splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}`
-    - Is Required: `true`
+    - Is Required: `false`
+      * Required if you want to perform app-inspect checks (Depending on the value of `is_app_inspect_check` input which is true by default.)
     - Default: `N/A`
 
-5. **`splunkbase_password`**
+6. **`splunkbase_password`**
     - Provide your Splunkbase account password to run the App-inspect API.
     - Do not use the hard-coded password on your GitHub workflow file unless your are the only one accessing the repository. Use GitHub secrets instead.
       * GitHub secrets are secure as that cannot be logged in the action anywhere.
       * Example: create a GitHub repository secret `SPLUNKBASE_PASSWORD` and use it like:
         * `splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}`
-    - Is Required: `true`
+    - Is Required: `false`
+      * Required if you want to perform app-inspect checks (Depending on the value of `is_app_inspect_check` input which is true by default.)
     - Default: `N/A`
 
 

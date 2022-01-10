@@ -18,6 +18,12 @@ def list_files(startpath):
             print('{}{}'.format(subindent, f))
 
 
+def str_to_boolean(value_in_str: str):
+    value_in_str = str(value_in_str).lower()
+    if value_in_str in ("false", "f", "0"):
+        return False
+    return True
+
 
 def get_input(name):
     return os.getenv(f"SPLUNK_{name}")

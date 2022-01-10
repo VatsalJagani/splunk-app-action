@@ -11,7 +11,15 @@ import utils
 
 # Read Credentials
 username = utils.get_input('splunkbase_username')
+if not username:
+    utils.error("splunkbase_username input is not provided.")
+    sys.exit(1)
+
 password = utils.get_input('splunkbase_password')
+if not password:
+    utils.error("splunkbase_password input is not provided.")
+    sys.exit(1)
+
 
 # Read App Build Name
 app_build_name = utils.get_input('app_build_name')
