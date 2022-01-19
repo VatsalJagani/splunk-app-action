@@ -22,7 +22,12 @@ jobs:
     steps:
       - name: "Pre-steps"
         run: |
-          cd tests
+          echo "Executing pre-steps"
+          pwd
+          cd splunk-app-action/tests
+          ls
+          echo "Pre-steps execution completed."
+
 
       - name: "Successfully Passing App"
         run: |
