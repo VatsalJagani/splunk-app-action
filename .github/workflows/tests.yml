@@ -24,7 +24,8 @@ jobs:
         run: |
           echo "Executing pre-steps"
           pwd
-          cd splunk-app-action/tests
+          ls
+          cd test_apps
           ls
           echo "Pre-steps execution completed."
 
