@@ -21,7 +21,14 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
+      - name: "Extra step for testing"
+        shell: bash
+        run: |
+          pwd
+          ls
+
       - name: "Pre-steps"
+        shell: bash
         run: |
           echo "Executing pre-steps"
           pwd
