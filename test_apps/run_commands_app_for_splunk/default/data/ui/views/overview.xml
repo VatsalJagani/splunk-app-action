@@ -1,0 +1,31 @@
+<form version="1.1" script="table_highlight.js">
+  <label>Overview</label>
+  <description>Includes statistics</description>
+  <search id="all_search">
+    <query>`default_index`
+| stats latest(_time) as _time by host
+</query>
+    <earliest>$tOverview.earliest$</earliest>
+    <latest>$tOverview.latest$</latest>
+  </search>
+  <fieldset submitButton="false"></fieldset>
+  <row>
+    <panel>
+      <input type="time" token="tOverview" searchWhenChanged="true">
+        <label>Time Frame</label>
+        <default>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
+      <single>
+        <search base="all_search">
+          <query>| stats count</query>
+        </search>
+        <option name="height">70</option>
+        <option name="refresh.display">preview</option>
+        <option name="underLabel">Total Calls</option>
+      </single>
+    </panel>
+  </row>
+</form>
