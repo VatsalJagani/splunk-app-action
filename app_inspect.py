@@ -29,13 +29,19 @@ direct_app_build_path = utils.get_input('app_build_path')
 utils.info("app_build_path: {}".format(direct_app_build_path))
 
 app_build_path = "{}.tgz".format(app_build_name)
-if direct_app_build_path!= "NONE":
+app_build_filename = app_build_path
+if direct_app_build_path != "NONE":
     app_build_path = direct_app_build_path
+    app_build_filename = os.path.basename(app_build_path)
 utils.info("Current working directory: {}, app_build_path: {}".format(os.getcwd(), app_build_path))
 
 report_prefix = app_build_name
 app_inspect_report_dir = "{}_reports".format(app_build_name)
 
+
+# This is just for testing
+utils.info("Files under current working directory:- {}".format(os.getcwd()))
+utils.list_files(os.getcwd())
 
 
 # Script
@@ -101,7 +107,7 @@ def perform_checks(check_type="APP_INSPECT"):
     app_build_f.seek(0)
 
     files = [
-        ('app_package', (app_build_path, app_build_f, 'application/octet-stream'))
+        ('app_package', (app_build_filename, app_build_f, 'application/octet-stream'))
     ]
 
     utils.info("App build submitting (check_type={})".format(check_type))
