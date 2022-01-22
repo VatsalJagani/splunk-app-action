@@ -198,9 +198,9 @@ jobs:
 * **Cyences App for Splunk**
   * Has App and Add-on in the same repo.
   * Uses user defined command execution before generating the Add-on build. (To give executable permissions to bash (`.sh`) files in the Add-on automatically.)
-  ![](images/cyences_workflow_3.png)
+  ![image](/images/cyences_workflow_3.PNG)
   * Executes workflow action whenever a new pull request is created. It also runs on any changes to `master` branch.
-  ![](images/cyences_workflow_1.png)
+  ![image](/images/cyences_workflow_1.PNG)
   * [Splunkbase App](https://splunkbase.splunk.com/app/5351/)
   * [Splunkbase Add-on](https://splunkbase.splunk.com/app/5659/)
   * [Workflow file](https://github.com/VatsalJagani/Splunk-Cyences-App-for-Splunk/blob/master/.github/workflows/main.yml)
@@ -210,17 +210,17 @@ jobs:
 * **3CX PhoneSystem App**
   * Has github repo's root directory as the App's root directory.
   * Executes on all changes in all branches. Also, option to manually execute the workflow from GitHub UI.
-  ![](images/3cx_app_workflow.png)
+  ![image](/images/3cx_app_workflow.PNG)
   * [Workflow file](https://github.com/VatsalJagani/Splunk-3CX-App/blob/master/.github/workflows/main.yml)
 
 
 * **Sample run app-inspect checks directly on previously generated build**
-  * ![](images/sample_to_use_on_already_generated_build.png)
+  * ![image](/images/sample_to_use_on_already_generated_build.PNG)
 
 
 * **MaxMind Database Auto Update App**
   * Removing unnecessary files from build.
-    ![](images/max_mind_database_update_app_workflow.png)
+    ![image](/images/max_mind_database_update_app_workflow.PNG)
   * [Workflow file](https://github.com/VatsalJagani/Splunk-App-Auto-Update-MaxMind-Database/blob/master/.github/workflows/main.yml)
 
 
