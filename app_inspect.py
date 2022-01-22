@@ -40,8 +40,8 @@ app_inspect_report_dir = "{}_reports".format(app_build_name)
 
 
 # This is just for testing
-utils.info("Files under current working directory:- {}".format(os.getcwd()))
-utils.list_files(os.getcwd())
+# utils.info("Files under current working directory:- {}".format(os.getcwd()))
+# utils.list_files(os.getcwd())
 
 
 # Script
