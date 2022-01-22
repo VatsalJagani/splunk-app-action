@@ -85,7 +85,7 @@ runs:
             declare -n command=$command_name
             if [[ -n "$command" ]]; then
                 echo "command being executed:- $command"
-                $command
+                bash -c "$command"
             fi
         done
 
