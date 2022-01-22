@@ -214,12 +214,19 @@ jobs:
   * [Workflow file](https://github.com/VatsalJagani/Splunk-3CX-App/blob/master/.github/workflows/main.yml)
 
 
-* ### Other Examples
-  * Lansweeper App and Add-on - [Workflow file](https://github.com/VatsalJagani/Splunk-Integration-for-Lansweeper/blob/master/.github/workflows/main.yml)
-  * MaxMind Database Auto Update App - [Workflow file](https://github.com/VatsalJagani/Splunk-App-Auto-Update-MaxMind-Database/blob/master/.github/workflows/main.yml)
-    * Removing unnecessary files from build.
+* ### Sample run app-inspect checks directly on previously generated build
+  * ![](images/sample_to_use_on_already_generated_build.png)
+
+
+* ### MaxMind Database Auto Update App
+  * Removing unnecessary files from build.
     ![](images/max_mind_database_update_app_workflow.png)
-  * And more...
+  * [Workflow file](https://github.com/VatsalJagani/Splunk-App-Auto-Update-MaxMind-Database/blob/master/.github/workflows/main.yml)
+
+
+* ### Lansweeper App and Add-on
+  * [Workflow file](https://github.com/VatsalJagani/Splunk-Integration-for-Lansweeper/blob/master/.github/workflows/main.yml)
+
 
 
 ## Contribute
