@@ -24,7 +24,13 @@ if not password:
 # Read App Build Name
 app_build_name = utils.get_input('app_build_name')
 utils.info("app_build_name: {}".format(app_build_name))
+
+direct_app_build_path = utils.get_input('app_build_path')
+utils.info("app_build_path: {}".format(direct_app_build_path))
+
 app_build_path = "{}.tgz".format(app_build_name)
+if direct_app_build_path!= "NONE":
+    app_build_path = direct_app_build_path
 utils.info("Current working directory: {}, app_build_path: {}".format(os.getcwd(), app_build_path))
 
 report_prefix = app_build_name

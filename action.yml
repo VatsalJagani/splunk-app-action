@@ -18,6 +18,10 @@ inputs:
     description: "Folder name for extracted app in Splunk."
     required: false
     default: "NONE"
+  app_build_path:
+    description: "Generated app-build in previous steps of the workflow action."
+    required: false
+    default: "NONE"
   is_app_inspect_check:
     description: "Whether to perform the app-inspect checks or not"
     required: false
@@ -47,6 +51,7 @@ runs:
 
     - name: "Clone the Repository"
       uses: actions/checkout@v2
+      if: inputs.app_build_path == "NONE"
       with:
           ref: ${{ steps.extract_branch.outputs.branch }}
           path: repodir
@@ -59,6 +64,7 @@ runs:
         echo "app_dir -> ${{inputs.app_dir}}"
         echo "app_build_name -> ${{inputs.app_build_name}}"
         echo "app_package_id -> ${{inputs.app_package_id}}"
+        echo "app_build_path -> ${{inputs.app_build_path}}"
         echo "is_app_inspect_check -> ${{inputs.is_app_inspect_check}}"
         echo "splunkbase_username -> ${{inputs.splunkbase_username}} (If using Github secret the value will be ***)"
         mkdir ${{inputs.app_build_name}}_reports
@@ -75,6 +81,7 @@ runs:
 
     - name: "Running user defined commands"
       shell: bash
+      if: inputs.app_build_path == "NONE"
       run: |
         pwd
         cd repodir
@@ -99,6 +106,7 @@ runs:
         SPLUNK_app_dir: ${{inputs.app_dir}}
         SPLUNK_app_build_name: ${{inputs.app_build_name}}
         SPLUNK_app_package_id: ${{inputs.app_package_id}}
+        SPLUNK_app_build_path: ${{inputs.app_build_path}}
         SPLUNK_is_app_inspect_check: ${{inputs.is_app_inspect_check}}
         SPLUNK_splunkbase_username: ${{inputs.splunkbase_username}}
         SPLUNK_splunkbase_password: ${{inputs.splunkbase_password}}
@@ -108,7 +116,7 @@ runs:
 
     - name: "Upload the app build as artifact"
       uses: actions/upload-artifact@v2
-      if: always()
+      if: inputs.app_build_path == "NONE"
       with:
         name: "App-Build-${{inputs.app_build_name}}"
         path: |
