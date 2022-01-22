@@ -51,7 +51,7 @@ runs:
 
     - name: "Clone the Repository"
       uses: actions/checkout@v2
-      if: inputs.app_build_path == "NONE"
+      if: inputs.app_build_path == 'NONE'
       with:
           ref: ${{ steps.extract_branch.outputs.branch }}
           path: repodir
@@ -81,7 +81,7 @@ runs:
 
     - name: "Running user defined commands"
       shell: bash
-      if: inputs.app_build_path == "NONE"
+      if: inputs.app_build_path == 'NONE'
       run: |
         pwd
         cd repodir
@@ -116,7 +116,7 @@ runs:
 
     - name: "Upload the app build as artifact"
       uses: actions/upload-artifact@v2
-      if: inputs.app_build_path == "NONE"
+      if: inputs.app_build_path == 'NONE'
       with:
         name: "App-Build-${{inputs.app_build_name}}"
         path: |
