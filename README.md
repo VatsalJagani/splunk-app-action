@@ -5,6 +5,7 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 ## Capabilities
 * Generate Splunk App/Add-on Build artifact
   * The action automatically generates build artifact from github repo.
+  * Change file and directory permissions to avoid app-inspect failures.
 
 * Run command before building the App build.
   * This could be useful if you wish to remove some files that you don't want in the build, change permission of some files before running the rest of the app build or app-inspect check.
@@ -172,14 +173,14 @@ jobs:
 ```
   - uses: VatsalJagani/splunk-app-action@v1
     env:
-      SPLUNK_APP_ACTION_1: "chmod +x my_app_dir/bin/*.sh"
+      SPLUNK_APP_ACTION_1: "find my_app -type f -name *.sh -exec chmod +x '{}' \\;"
     with:
-      app_dir: "my_app_dir"
+      app_dir: "my_app"
       app_build_name: "app"
       splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
       splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
-* Above use-case is very common as if your App/Add-on has shell script you want to make sure it has executable permission.
+* Above use-case is very common as if your App/Add-on has shell scripts in bin directory and you want to make sure it has executable permission.
 * Run the command in the context of your repo's root directory. (Assume current working directory is your repo's root directory.)
 * Maximum 100 commands can be executed. So from `SPLUNK_APP_ACTION_1` to `SPLUNK_APP_ACTION_99`.
 * The command will be executed in incremented order from `SPLUNK_APP_ACTION_1` to `SPLUNK_APP_ACTION_99`.
@@ -187,16 +188,31 @@ jobs:
 
 
 ## Examples
-* [Cyences App for Splunk](https://github.com/VatsalJagani/Splunk-Cyences-App-for-Splunk/blob/master/.github/workflows/main.yml)
+* ### Cyences App for Splunk
   * Has App and Add-on in the same repo.
   * Uses user defined command execution before generating the Add-on build. (To give executable permissions to bash (`.sh`) files in the Add-on automatically.)
+  ![](images/cyences_workflow_3.png)
   * Executes workflow action whenever a new pull request is created. It also runs on any changes to `master` branch.
+  ![](images/cyences_workflow_1.png)
   * [Splunkbase App](https://splunkbase.splunk.com/app/5351/)
   * [Splunkbase Add-on](https://splunkbase.splunk.com/app/5659/)
+  * [Workflow file](https://github.com/VatsalJagani/Splunk-Cyences-App-for-Splunk/blob/master/.github/workflows/main.yml)
 [](images/cyences_workflow.png)
 
-* [3CX PhoneSystem App]()
- - TODO
+
+* ### 3CX PhoneSystem App
+  * Has github repo's root directory as the App's root directory.
+  * Executes on all changes in all branches. Also, option to manually execute the workflow from GitHub UI.
+  ![](images/3cx_app_workflow.png)
+  * [Workflow file](https://github.com/VatsalJagani/Splunk-3CX-App/blob/master/.github/workflows/main.yml)
+
+
+* ### Other Examples
+  * Lansweeper App and Add-on - [Workflow file](https://github.com/VatsalJagani/Splunk-Integration-for-Lansweeper/blob/master/.github/workflows/main.yml)
+  * MaxMind Database Auto Update App - [Workflow file](https://github.com/VatsalJagani/Splunk-App-Auto-Update-MaxMind-Database/blob/master/.github/workflows/main.yml)
+    * Removing unnecessary files from build.
+    ![](images/max_mind_database_update_app_workflow.png)
+  * And more...
 
 
 ## Contribute
