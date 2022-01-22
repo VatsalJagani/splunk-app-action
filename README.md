@@ -230,6 +230,6 @@ jobs:
 
 
 ## Contribute
-* If you are developer and want to contribute to this project:
-  * [Developer Guide](DEV_README.md)
-* If you are not a developer and have a request for enhancement or bug create a Github Issue in this project.
+* If you are developer and want to contribute to this project, please submit a Pull Request.
+* If you find a bug or have a request for enhancement, create a Github Issue in this project.
+* If you wish to share Feedback or success story, please add comment in [this issue](https://github.com/VatsalJagani/splunk-app-action/issues/19).
