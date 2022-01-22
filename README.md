@@ -129,13 +129,20 @@ jobs:
      * Do not provide the parameter is the id is present in the app.conf file as mismatching value will result in app-inspect failure on Splunkbase.
      * If the parameter is not provided and app.conf also does not have the id attribute then `app_build_name` will be used.
 
-4. **`is_app_inspect_check`**
+4. **`app_build_path`**
+   - The previously generated App build file path.
+   - If this parameter is provided then App building will be disabled, instead the action will take this file as input to run the app-inspect checks.
+   - If this input parameter is provided then `app_dir`, and `app_package_id` will be ignore. The `app_build_name` will only be use to name the app_inspect report files.
+   - Is Required: `false`
+   - Default: None
+
+5. **`is_app_inspect_check`**
    - Whether to perform App inspect checks, cloud checks and SSAI checks or not?
    - Is Required: `false`
    - Default: `true`
      * By default app-inspect checks will be performed, if you wish to disable it provide `false`.
 
-5. **`splunkbase_username`**
+6. **`splunkbase_username`**
     - Provide your Splunkbase account username to run the App-inspect API. (Do not use full email, use just the username.)
     - Best way to provide is to create GitHub secret and assign the secret here.
       * Example: create a GitHub repository secret `SPLUNKBASE_USERNAME` and use it like:
@@ -144,7 +151,7 @@ jobs:
       * Required if you want to perform app-inspect checks (Depending on the value of `is_app_inspect_check` input which is true by default.)
     - Default: `N/A`
 
-6. **`splunkbase_password`**
+7. **`splunkbase_password`**
     - Provide your Splunkbase account password to run the App-inspect API.
     - Do not use the hard-coded password on your GitHub workflow file unless your are the only one accessing the repository. Use GitHub secrets instead.
       * GitHub secrets are secure as that cannot be logged in the action anywhere.
@@ -188,7 +195,7 @@ jobs:
 
 
 ## Examples
-* ### Cyences App for Splunk
+* **Cyences App for Splunk**
   * Has App and Add-on in the same repo.
   * Uses user defined command execution before generating the Add-on build. (To give executable permissions to bash (`.sh`) files in the Add-on automatically.)
   ![](images/cyences_workflow_3.png)
@@ -200,19 +207,26 @@ jobs:
 [](images/cyences_workflow.png)
 
 
-* ### 3CX PhoneSystem App
+* **3CX PhoneSystem App**
   * Has github repo's root directory as the App's root directory.
   * Executes on all changes in all branches. Also, option to manually execute the workflow from GitHub UI.
   ![](images/3cx_app_workflow.png)
   * [Workflow file](https://github.com/VatsalJagani/Splunk-3CX-App/blob/master/.github/workflows/main.yml)
 
 
-* ### Other Examples
-  * Lansweeper App and Add-on - [Workflow file](https://github.com/VatsalJagani/Splunk-Integration-for-Lansweeper/blob/master/.github/workflows/main.yml)
-  * MaxMind Database Auto Update App - [Workflow file](https://github.com/VatsalJagani/Splunk-App-Auto-Update-MaxMind-Database/blob/master/.github/workflows/main.yml)
-    * Removing unnecessary files from build.
+* **Sample run app-inspect checks directly on previously generated build**
+  * ![](images/sample_to_use_on_already_generated_build.png)
+
+
+* **MaxMind Database Auto Update App**
+  * Removing unnecessary files from build.
     ![](images/max_mind_database_update_app_workflow.png)
-  * And more...
+  * [Workflow file](https://github.com/VatsalJagani/Splunk-App-Auto-Update-MaxMind-Database/blob/master/.github/workflows/main.yml)
+
+
+* **Lansweeper App and Add-on**
+  * [Workflow file](https://github.com/VatsalJagani/Splunk-Integration-for-Lansweeper/blob/master/.github/workflows/main.yml)
+
 
 
 ## Contribute

@@ -10,8 +10,13 @@ import app_inspect
 
 app_dir = utils.get_input('app_dir')
 utils.info("app_dir: {}".format(app_dir))
+
 app_build_name = utils.get_input('app_build_name')
 utils.info("app_build_name: {}".format(app_build_name))
+
+direct_app_build_path = utils.get_input('app_build_path')
+utils.info("app_build_path: {}".format(direct_app_build_path))
+
 app_package_id_input = utils.get_input('app_package_id')
 utils.info("app_package_id: {}".format(app_package_id_input))
 
@@ -88,11 +93,12 @@ def generate_app_build():
     utils.list_files(os.getcwd())
 
 
+if direct_app_build_path == "NONE":
+    remove_git_folders()
+    app_package_id = fetch_app_package_id()
+    utils.info("app_package_id={}".format(app_package_id))
+    generate_app_build()
 
-remove_git_folders()
-app_package_id = fetch_app_package_id()
-utils.info("app_package_id={}".format(app_package_id))
-generate_app_build()
 if is_app_inspect_check:
     app_inspect.run_app_inspect_checks()
 else:
