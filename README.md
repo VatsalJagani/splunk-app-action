@@ -195,7 +195,7 @@ jobs:
 
 
 ## Examples
-* ### Cyences App for Splunk
+* **Cyences App for Splunk**
   * Has App and Add-on in the same repo.
   * Uses user defined command execution before generating the Add-on build. (To give executable permissions to bash (`.sh`) files in the Add-on automatically.)
   ![](images/cyences_workflow_3.png)
@@ -207,24 +207,24 @@ jobs:
 [](images/cyences_workflow.png)
 
 
-* ### 3CX PhoneSystem App
+* **3CX PhoneSystem App**
   * Has github repo's root directory as the App's root directory.
   * Executes on all changes in all branches. Also, option to manually execute the workflow from GitHub UI.
   ![](images/3cx_app_workflow.png)
   * [Workflow file](https://github.com/VatsalJagani/Splunk-3CX-App/blob/master/.github/workflows/main.yml)
 
 
-* ### Sample run app-inspect checks directly on previously generated build
+* **Sample run app-inspect checks directly on previously generated build**
   * ![](images/sample_to_use_on_already_generated_build.png)
 
 
-* ### MaxMind Database Auto Update App
+* **MaxMind Database Auto Update App**
   * Removing unnecessary files from build.
     ![](images/max_mind_database_update_app_workflow.png)
   * [Workflow file](https://github.com/VatsalJagani/Splunk-App-Auto-Update-MaxMind-Database/blob/master/.github/workflows/main.yml)
 
 
-* ### Lansweeper App and Add-on
+* **Lansweeper App and Add-on**
   * [Workflow file](https://github.com/VatsalJagani/Splunk-Integration-for-Lansweeper/blob/master/.github/workflows/main.yml)
 
 
