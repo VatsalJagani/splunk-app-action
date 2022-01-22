@@ -1,5 +1,5 @@
 name: "Run Splunk App Inspect Check"
-description: "Run Splunk app-inspect check, cloud-inspect check and ssai (self-service) check on the App build to make sure App will pass the checks on Splunkbase."
+description: "Splunk App build generation and App-inspect checks with API automatically on change."
 
 branding:
   color: "purple"
