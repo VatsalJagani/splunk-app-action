@@ -119,8 +119,7 @@ runs:
       if: always()
       with:
         name: "App-Build-${{inputs.app_build_name}}"
-        path: |
-          ${{inputs.app_build_name}}.tgz
+        path: ${{inputs.app_build_name}}.tgz
 
 
     - name: "Upload the app-inspect reports as artifact"
@@ -128,5 +127,4 @@ runs:
       if: always()
       with:
         name: "App-Inspect-Reports-${{inputs.app_build_name}}"
-        path: |
-          ${{inputs.app_build_name}}_reports
+        path: ${{inputs.app_build_name}}_reports

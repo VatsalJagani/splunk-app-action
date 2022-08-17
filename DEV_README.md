@@ -15,7 +15,7 @@
 
 * Update the tag from one commit to other:
   ```
-  git tag -f -a -m "v2" v2
+  git tag -f -a -m "v1" v1
   git push -f --tags
   git push -f --follow-tags
   ```
