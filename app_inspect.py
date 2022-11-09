@@ -11,14 +11,7 @@ import utils
 
 # Read Credentials
 username = utils.get_input('splunkbase_username')
-if not username:
-    utils.error("splunkbase_username input is not provided.")
-    sys.exit(1)
-
 password = utils.get_input('splunkbase_password')
-if not password:
-    utils.error("splunkbase_password input is not provided.")
-    sys.exit(1)
 
 
 # Read App Build Name
@@ -214,6 +207,15 @@ def perform_ssai_inspect_check(app_inspect_result):
 
 def run_app_inspect_checks():
     utils.info("Started app_inspect.py")
+
+    if not username:
+        utils.error("splunkbase_username input is not provided.")
+        sys.exit(1)
+    
+    if not password:
+        utils.error("splunkbase_password input is not provided.")
+        sys.exit(1)
+
 
     api_login()
 
