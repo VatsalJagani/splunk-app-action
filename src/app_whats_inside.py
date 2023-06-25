@@ -2,85 +2,11 @@
 import os
 import xml.etree.ElementTree as ET
 
-
-class SplunkConfigParser:
-    def __init__(self, *args, **kwargs):
-        self._multiline_option_chars = set(['\\'])
-        self.content = {}
-
-    def read(self, filenames, encoding=None):
-        with open(filenames, 'r', encoding=encoding) as file:
-            content = file.read()
-        self._parse(content)
-
-    def _parse(self, content):
-        lines = content.splitlines()
-        current_section = None
-        current_option = None
-        current_value = []
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-
-            if line.startswith(';') or line.startswith('#'):   # comment characters
-                continue
-
-            if current_option is None and line.startswith('[') and line.endswith(']'):
-                current_section = line[1:-1]
-                if current_section not in self.content:
-                    self.content[current_section] = {}
-
-            elif current_option is None and '=' in line:
-                if current_section is None:
-                    # raise configparser.MissingSectionHeaderError(line)
-                    # For splunk, no section, means default section
-                    current_section = 'default'
-                    self.content[current_section] = {}
-
-                option, value = line.split('=', 1)
-                option = option.strip()
-                value = value.strip()
-
-                if len(value) > 0 and value[-1] in self._multiline_option_chars:
-                    current_option = option
-                    current_value.append(value[:-1])
-                # elif current_option is not None and value:
-                #     current_value.append(value)
-                #     self.content[current_section][current_option] = '\n'.join(current_value)
-                #     current_option = None
-                #     current_value = []
-                else:
-                    self.content[current_section][option] = value
-
-            elif current_option:   # in-complete line (for multi-line values)
-                if len(line) > 0 and line[-1] in self._multiline_option_chars:
-                    current_value.append(line[:-1])
-                else:
-                    current_value.append(line)
-                    self.content[current_section][current_option] = '\n'.join(current_value)
-                    current_option = None
-                    current_value = []
-            
-            else:
-                print("SplunkConfigParser: something is wrong here.")
+import helper_github_action as utils
+from helper_splunk import SplunkConfigParser
 
 
-    def write(self, file, space_around_delimiters=True):
-        with open(file, 'w') as fp:
-            for section in self.sections():
-                fp.write(f'[{section}]\n')
-                for option, value in self.content[section].items():
-                    if '\n' in value:
-                        value = '\n' + '\n'.join(value.splitlines())
-                    fp.write(f'{option} = {value}\n')
-                fp.write('\n')
-    
-    def sections(self):
-        return self.content.keys()
-
-
-class SplunkAppDetails:
+class SplunkAppWhatsInsideDetail:
     IMP_CONF_FILES = {
         'savedsearches': 'Reports and Alerts',
         'commands': 'Custom Commands',
@@ -93,14 +19,25 @@ class SplunkAppDetails:
         'collections': 'Lookups - KVStore Collections',
     }
 
-    def __init__(self, app_root_path, markers=["# What's in the App", "What's in the Add-on", "# What's inside the App", "What's inside the Add-on"]) -> None:
-        self.app_root_path = app_root_path
-        self.markers = markers
+    def __init__(self) -> None:
+        self.is_whats_in_app_enable = utils.str_to_boolean(utils.get_input('is_whats_in_app_enable'))
+        utils.info("is_whats_in_app_enable: {}".format(self.is_whats_in_app_enable))
+        
+        if not self.is_whats_in_app_enable:
+            utils.info("Ignoring Adding content for What's in the App to README.md")
+            return
+
+
+        self.app_root_path = utils.get_input('app_dir')
+        utils.info("app_dir/app_root_path: {}".format(self.app_dir))
+
+        self.markers = ["# What's in the App", "What's in the Add-on", "# What's inside the App", "What's inside the Add-on"]
+        # TODO - marker: maybe take as user input as well
 
         self.content = []
-        self.content.extend(self.get_xml_dashboards())
-        self.content.extend(self.get_imp_conf_files_details())
-        self.content.extend(self.get_csv_lookup_files())
+        self.content.extend(self._get_xml_dashboards())
+        self.content.extend(self._get_imp_conf_files_details())
+        self.content.extend(self._get_csv_lookup_files())
 
 
     def _get_readme_file_location(self):
@@ -110,7 +47,9 @@ class SplunkAppDetails:
 
 
     def update_readme(self):
-        # Read the file
+        if not self.is_whats_in_app_enable:
+            return
+
         file_path = self._get_readme_file_location()
         if not file_path:
             print("No Readme.md file found.")
@@ -160,12 +99,12 @@ class SplunkAppDetails:
         return stanzas
 
 
-    def do_conf_specific_processing(self, file_key, label, stanzas):
+    def _do_conf_specific_processing(self, file_key, label, stanzas):
         if len(stanzas)>0:
             return 'No of {}: **{}**'.format(label, len(stanzas))
 
 
-    def get_stanzas(self, conf_file_name):
+    def _get_stanzas(self, conf_file_name):
         stanzas = set()
         local_conf_file = os.path.join(self.app_root_path, 'local', "{}.conf".format(conf_file_name))
         default_conf_file = os.path.join(self.app_root_path, 'default', "{}.conf".format(conf_file_name))
@@ -182,18 +121,18 @@ class SplunkAppDetails:
         return stanzas
 
 
-    def get_imp_conf_files_details(self):
+    def _get_imp_conf_files_details(self):
         details = []
         for file_key, label in self.IMP_CONF_FILES.items():
-            _stanzas = self.get_stanzas(file_key)
-            _detail = self.do_conf_specific_processing(file_key, label, _stanzas)
+            _stanzas = self._get_stanzas(file_key)
+            _detail = self._do_conf_specific_processing(file_key, label, _stanzas)
             if _detail:
                 details.append(_detail)
 
         return details
 
 
-    def get_csv_lookup_files(self):
+    def _get_csv_lookup_files(self):
         lookups_path = os.path.join(self.app_root_path, 'lookups')
         csv_lookup_files = [file for file in os.listdir(lookups_path) if file.endswith(".csv") or file.endswith(".CSV")]
 
@@ -238,7 +177,7 @@ class SplunkAppDetails:
             }
 
 
-    def get_xml_dashboards(self):
+    def _get_xml_dashboards(self):
         dashboards = {}
         
         local_dashboards_path = os.path.join(self.app_root_path, 'local', 'data', 'ui', 'views')
@@ -271,7 +210,3 @@ class SplunkAppDetails:
         else:
             return []
 
-
-def main(app_dir):
-    sp = SplunkAppDetails(app_dir)
-    sp.update_readme()
