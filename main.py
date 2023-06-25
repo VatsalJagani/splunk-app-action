@@ -6,6 +6,7 @@ import traceback
 sys.path.append(os.path.dirname(__file__))
 import utils
 import app_inspect
+import whats_in_app
 
 
 app_dir = utils.get_input('app_dir')
@@ -22,6 +23,9 @@ utils.info("app_package_id: {}".format(app_package_id_input))
 
 is_app_inspect_check = utils.str_to_boolean(utils.get_input('is_app_inspect_check'))
 utils.info("is_app_inspect_check: {}".format(is_app_inspect_check))
+
+is_whats_in_app_enable = utils.str_to_boolean(utils.get_input('is_whats_in_app_enable'))
+utils.info("is_whats_in_app_enable: {}".format(is_whats_in_app_enable))
 
 
 app_package_id = None
@@ -103,3 +107,9 @@ if is_app_inspect_check:
     app_inspect.run_app_inspect_checks()
 else:
     utils.info("Ignoring App-inspect checks.")
+
+
+if is_whats_in_app_enable:
+    whats_in_app.main(app_dir)
+else:
+    utils.info("Ignoring Adding content for What's in the App to README.md")

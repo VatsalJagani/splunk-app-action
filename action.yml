@@ -26,6 +26,10 @@ inputs:
     description: "Whether to perform the app-inspect checks or not"
     required: false
     default: true
+  is_whats_in_app_enable:
+    description: "Whether to add content in the README for What's in the App/Add-on"
+    required: false
+    default: true
   splunkbase_username:
     description: "Username required to call the Splunkbase API for App-Inspect"
     required: false
@@ -66,6 +70,7 @@ runs:
         echo "app_package_id -> ${{inputs.app_package_id}}"
         echo "app_build_path -> ${{inputs.app_build_path}}"
         echo "is_app_inspect_check -> ${{inputs.is_app_inspect_check}}"
+        echo "is_whats_in_app_enable -> ${{inputs.is_whats_in_app_enable}}"
         echo "splunkbase_username -> ${{inputs.splunkbase_username}} (If using Github secret the value will be ***)"
         mkdir ${{inputs.app_build_name}}_reports
 
@@ -108,6 +113,7 @@ runs:
         SPLUNK_app_package_id: ${{inputs.app_package_id}}
         SPLUNK_app_build_path: ${{inputs.app_build_path}}
         SPLUNK_is_app_inspect_check: ${{inputs.is_app_inspect_check}}
+        SPLUNK_is_whats_in_app_enable: ${{inputs.is_whats_in_app_enable}}
         SPLUNK_splunkbase_username: ${{inputs.splunkbase_username}}
         SPLUNK_splunkbase_password: ${{inputs.splunkbase_password}}
       run: |

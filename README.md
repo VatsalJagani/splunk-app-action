@@ -142,7 +142,15 @@ jobs:
    - Default: `true`
      * By default app-inspect checks will be performed, if you wish to disable it provide `false`.
 
-6. **`splunkbase_username`**
+6. **`is_whats_in_app_enable`**
+   - Whether to update the README for details on What's inside the App/Add-on. 
+   - The README.txt or README.md file should be present inside the App's root folder. The file name is case-insensitive, meaning it works even for ReadMe.md.
+   - The README file should content one of the following lines to add the content below it automatically: "## What's In The App", "## What's In The Add-on", "## What's Inside the App", "## What's Inside the Add-on". The content here is also case-insensitive, meaning it works even if the case do not match. But the line should start with heading, here for example its H2 (##), but it could be any header.
+   - Is Required: `false`
+   - Default: `true`
+     * By default `splunk-app-action` will try to find the place in the README file for What's in the App and try to add relevant content below it. If you wish to disable it provide `false`.
+
+7. **`splunkbase_username`**
     - Provide your Splunkbase account username to run the App-inspect API. (Do not use full email, use just the username.)
     - Best way to provide is to create GitHub secret and assign the secret here.
       * Example: create a GitHub repository secret `SPLUNKBASE_USERNAME` and use it like:
@@ -151,7 +159,7 @@ jobs:
       * Required if you want to perform app-inspect checks (Depending on the value of `is_app_inspect_check` input which is true by default.)
     - Default: `N/A`
 
-7. **`splunkbase_password`**
+8. **`splunkbase_password`**
     - Provide your Splunkbase account password to run the App-inspect API.
     - Do not use the hard-coded password on your GitHub workflow file unless your are the only one accessing the repository. Use GitHub secrets instead.
       * GitHub secrets are secure as that cannot be logged in the action anywhere.
