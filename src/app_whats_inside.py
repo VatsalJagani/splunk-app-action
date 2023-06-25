@@ -47,6 +47,9 @@ class SplunkAppWhatsInsideDetail:
 
 
     def update_readme(self):
+        '''
+        It returns the file_path of README file when the file has been changed, otherwise None
+        '''
         if not self.is_whats_in_app_enable:
             return
 
@@ -85,11 +88,14 @@ class SplunkAppWhatsInsideDetail:
         if start_line_no>=0 and end_line_no>0:
             new_lines = ["* {}\n".format(element) for element in self.content]
             new_lines.extend(['\n', '\n'])
-            lines[start_line_no+1:end_line_no+1] = new_lines
-            print("Writing the What's in the App Content")
+            if lines[start_line_no+1:end_line_no+1] != new_lines:
+                lines[start_line_no+1:end_line_no+1] = new_lines
+                print("Writing the What's in the App Content")
 
-        with open(file_path, 'w') as file:
-            file.writelines(lines)
+                with open(file_path, 'w') as file:
+                    file.writelines(lines)
+
+                return file_path
 
 
     def _get_conf_stanzas(self, file_path):

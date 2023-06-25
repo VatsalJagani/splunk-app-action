@@ -28,6 +28,9 @@ def str_to_boolean(value_in_str: str):
 def get_input(name):
     return os.getenv(f"SPLUNK_{name}")
 
+def set_input(name, value):
+    os.environ["SPLUNK_{}".format(name)] = value
+
 
 def set_env(name, value):
     # os.environ[name] = value   # this does not work with github action

@@ -5,6 +5,12 @@
 * Automated tests for the GitHub action present in the separate repo here [splunk-app-action-tests](https://github.com/VatsalJagani/splunk-app-action-tests)
 
 
+## How to Run Locally
+```
+python3 src/main.py local_test
+```
+
+
 # Notes for author
 
 * Create a new tag and push the tag from git:
