@@ -68,7 +68,7 @@ class GitHubPR:
 
 
     def commit_and_pr(self, file_to_generate_hash, local_test=False):
-        _hash = utils.get_file_hash(file_to_generate_hash)
+        _hash = get_file_hash(file_to_generate_hash)
         new_branch = 'splunk_app_action_{}'.format(_hash)
         utils.info("Branch Name: {}".format(new_branch))
         os.chdir(self.REPO_DIR)

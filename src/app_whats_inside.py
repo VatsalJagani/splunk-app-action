@@ -28,8 +28,8 @@ class SplunkAppWhatsInsideDetail:
             return
 
 
-        self.app_root_path = utils.get_input('app_dir')
-        utils.info("app_dir/app_root_path: {}".format(self.app_dir))
+        self.app_dir = utils.get_input('app_dir')
+        utils.info("app_dir: {}".format(self.app_dir))
 
         self.markers = ["# What's in the App", "What's in the Add-on", "# What's inside the App", "What's inside the Add-on"]
         # TODO - marker: maybe take as user input as well
@@ -41,9 +41,9 @@ class SplunkAppWhatsInsideDetail:
 
 
     def _get_readme_file_location(self):
-        for file in os.listdir(self.app_root_path):
+        for file in os.listdir(self.app_dir):
             if file.lower() in ['readme.md', 'readme.txt']:
-                return os.path.join(self.app_root_path, file)
+                return os.path.join(self.app_dir, file)
 
 
     def update_readme(self):
@@ -112,8 +112,8 @@ class SplunkAppWhatsInsideDetail:
 
     def _get_stanzas(self, conf_file_name):
         stanzas = set()
-        local_conf_file = os.path.join(self.app_root_path, 'local', "{}.conf".format(conf_file_name))
-        default_conf_file = os.path.join(self.app_root_path, 'default', "{}.conf".format(conf_file_name))
+        local_conf_file = os.path.join(self.app_dir, 'local', "{}.conf".format(conf_file_name))
+        default_conf_file = os.path.join(self.app_dir, 'default', "{}.conf".format(conf_file_name))
 
         if os.path.isfile(local_conf_file):
             stanzas.update(self._get_conf_stanzas(local_conf_file))
@@ -139,7 +139,7 @@ class SplunkAppWhatsInsideDetail:
 
 
     def _get_csv_lookup_files(self):
-        lookups_path = os.path.join(self.app_root_path, 'lookups')
+        lookups_path = os.path.join(self.app_dir, 'lookups')
         csv_lookup_files = [file for file in os.listdir(lookups_path) if file.endswith(".csv") or file.endswith(".CSV")]
 
         if len(csv_lookup_files)>0:
@@ -186,7 +186,7 @@ class SplunkAppWhatsInsideDetail:
     def _get_xml_dashboards(self):
         dashboards = {}
         
-        local_dashboards_path = os.path.join(self.app_root_path, 'local', 'data', 'ui', 'views')
+        local_dashboards_path = os.path.join(self.app_dir, 'local', 'data', 'ui', 'views')
         if os.path.isdir(local_dashboards_path):
             local_xml_files = [file for file in os.listdir(local_dashboards_path) if file.endswith(".xml") or file.endswith(".XML")]
 
@@ -194,7 +194,7 @@ class SplunkAppWhatsInsideDetail:
                 dashboard_details = self._get_xml_dashboard_details(os.path.join(local_dashboards_path, df))
                 dashboards[df] = dashboard_details
 
-        default_dashboards_path = os.path.join(self.app_root_path, 'default', 'data', 'ui', 'views')
+        default_dashboards_path = os.path.join(self.app_dir, 'default', 'data', 'ui', 'views')
         if os.path.isdir(default_dashboards_path):
             default_xml_files = [file for file in os.listdir(default_dashboards_path) if file.endswith(".xml") or file.endswith(".XML")]
 

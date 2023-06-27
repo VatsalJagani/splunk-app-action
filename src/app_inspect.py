@@ -193,7 +193,7 @@ class SplunkAppInspect:
         utils.info("Performing ssai-inspect checks...")
         status = "Error"
         try:
-            status = perform_checks(check_type="SSAI_INSPECT")
+            status = self._perform_checks(check_type="SSAI_INSPECT")
         except Exception as e:
             utils.error("Error while checking ssai-inspect:{}".format(e))
             utils.error(traceback.format_exc())

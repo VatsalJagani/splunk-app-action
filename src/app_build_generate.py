@@ -59,7 +59,7 @@ class SplunkAppBuildGenerator:
         # TODO - ensure that you are in a right directory
         # utils.list_files(os.getcwd())
 
-        if self.direct_app_build_path != "NONE":
+        if self.direct_app_build_path and self.direct_app_build_path != "NONE":
             return self.direct_app_build_path
 
         self._remove_git_folders()
