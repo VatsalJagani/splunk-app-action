@@ -139,8 +139,10 @@ class SplunkAppWhatsInsideDetail:
 
 
     def _get_csv_lookup_files(self):
+        csv_lookup_files = []
         lookups_path = os.path.join(self.app_dir, 'lookups')
-        csv_lookup_files = [file for file in os.listdir(lookups_path) if file.endswith(".csv") or file.endswith(".CSV")]
+        if os.isdir(lookups_path):
+            csv_lookup_files = [file for file in os.listdir(lookups_path) if file.endswith(".csv") or file.endswith(".CSV")]
 
         if len(csv_lookup_files)>0:
             return ["No of Static CSV Lookup Files: **{}**".format(len(csv_lookup_files))]
