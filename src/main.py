@@ -14,7 +14,6 @@ from helper_github_pr import GitHubPR
 
 if __name__ == "__main__":
     LOCAL_TEST = False
-    LOCAL_TEST = True
     if LOCAL_TEST or (len(sys.argv) > 1 and sys.argv[1] == "local_test"):
         LOCAL_TEST = True
         utils.set_input('app_dir', 'test_app')
