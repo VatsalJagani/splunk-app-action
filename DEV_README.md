@@ -2,7 +2,7 @@
 
 * Fork the project and submit a Pull Request if you would like to contribute to the project.
 
-* Automated tests for the GitHub action present in the separate repo here [splunk-app-action-tests](https://github.com/VatsalJagani/splunk-app-action-tests)
+* Automated tests for the GitHub action present in the separate repo here [splunk-app-action-test-app](https://github.com/VatsalJagani/splunk-app-action-test-app)
 
 
 ## How to Run Locally
@@ -21,15 +21,15 @@ python3 src/main.py local_test
 
 * Update the tag from one commit to other:
   ```
-  git tag -f -a -m "v1" v1
+  git tag -f -a -m "v1.12" v1.12
   git push -f --tags
   git push -f --follow-tags
   ```
 
 * To delete tag
   ```
-  git tag -d v0
-  git push --delete origin v0
+  git tag -d v1.12
+  git push --delete origin v1.12
   ```
 
 
