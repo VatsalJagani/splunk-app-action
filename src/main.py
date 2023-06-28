@@ -17,7 +17,6 @@ if __name__ == "__main__":
     if LOCAL_TEST or (len(sys.argv) > 1 and sys.argv[1] == "local_test"):
         LOCAL_TEST = True
         utils.set_input('app_dir', 'test_app')
-        utils.set_input('app_build_name', 'test_app')
         # Get user input for splunkbase_username
         splunkbase_username = input("Enter your Splunkbase username: ")
         utils.set_input('splunkbase_username', splunkbase_username)
@@ -38,8 +37,8 @@ if __name__ == "__main__":
     # utils.list_files(os.getcwd())
 
     try:
-        build_path = SplunkAppBuildGenerator().generate()    # Generate Build
-        SplunkAppInspect(build_path).run_all_checks()        # Run App Inspect
+        build_path, app_package_id = SplunkAppBuildGenerator().generate()    # Generate Build
+        SplunkAppInspect(build_path, app_package_id).run_all_checks()        # Run App Inspect
     except Exception as e:
         utils.error("Error in SplunkBase Build Generator or App Inspect Checks: {}".format(e))
         utils.error(traceback.format_exc())

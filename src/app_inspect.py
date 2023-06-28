@@ -20,7 +20,7 @@ class SplunkAppInspect:
     HTML_RESPONSE_URL = "{}/report".format(BASE_URL)
 
 
-    def __init__(self, app_build_path) -> None:
+    def __init__(self, app_build_path, app_package_id) -> None:
         self.is_app_inspect_check = utils.str_to_boolean(utils.get_input('is_app_inspect_check'))
         utils.info("is_app_inspect_check: {}".format(self.is_app_inspect_check))
         if not self.is_app_inspect_check:
@@ -41,12 +41,10 @@ class SplunkAppInspect:
             raise Exception(msg)
 
         self.app_build_path = app_build_path
-        self.app_build_name = utils.get_input('app_build_name')
-        utils.info("app_build_name: {}".format(self.app_build_name))
+        self.app_package_id = app_package_id
 
         self.app_build_filename = os.path.basename(app_build_path)
-        self.report_prefix = self.app_build_name
-        self.app_inspect_report_dir = "{}_reports".format(self.app_build_name)
+        self.app_inspect_report_dir = "{}_reports".format(self.app_package_id)
 
         self.headers = None
         self.headers_report = None
@@ -82,15 +80,15 @@ class SplunkAppInspect:
     def _perform_checks(self, check_type="APP_INSPECT"):
         if check_type=="APP_INSPECT":
             payload = {}
-            report_file_name = '{}_app_inspect_check.html'.format(self.report_prefix)
+            report_file_name = '{}_app_inspect_check.html'.format(self.app_package_id)
 
         elif check_type == "CLOUD_INSPECT":
             payload = {'included_tags': 'cloud'}
-            report_file_name = '{}_cloud_inspect_check.html'.format(self.report_prefix)
+            report_file_name = '{}_cloud_inspect_check.html'.format(self.app_package_id)
 
         elif check_type == "SSAI_INSPECT":
             payload = {'included_tags': 'self-service'}
-            report_file_name = '{}_ssai_inspect_check.html'.format(self.report_prefix)
+            report_file_name = '{}_ssai_inspect_check.html'.format(self.app_package_id)
 
         app_build_f = open(self.app_build_path, 'rb')
         app_build_f.seek(0)
