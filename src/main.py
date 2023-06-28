@@ -37,6 +37,13 @@ if __name__ == "__main__":
     # utils.info("Files under current working directory:- {}".format(os.getcwd()))
     # utils.list_files(os.getcwd())
 
+    try:
+        build_path = SplunkAppBuildGenerator().generate()    # Generate Build
+        SplunkAppInspect(build_path).run_all_checks()        # Run App Inspect
+    except Exception as e:
+        utils.error("Error in SplunkBase Build Generator or App Inspect Checks: {}".format(e))
+        utils.error(traceback.format_exc())
+
 
     try:
         readme_file_path = SplunkAppWhatsInsideDetail().update_readme()
@@ -44,13 +51,6 @@ if __name__ == "__main__":
             GitHubPR(repo_dir=REPO_DIR).commit_and_pr(file_to_generate_hash=readme_file_path, local_test=LOCAL_TEST)
     except Exception as e:
         utils.error("Error in Updating README: {}".format(e))
-        utils.error(traceback.format_exc())
-
-    try:
-        build_path = SplunkAppBuildGenerator().generate()
-        SplunkAppInspect(build_path).run_all_checks()
-    except Exception as e:
-        utils.error("Error in SplunkBase Build Generator or App Inspect Checks: {}".format(e))
         utils.error(traceback.format_exc())
 
 
