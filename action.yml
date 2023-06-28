@@ -35,6 +35,24 @@ inputs:
     required: false
     default: "NONE"
 
+  app_utilities:
+    description: "Add comma separated list of utilities to use."
+    required: false
+    default: ""
+
+  my_github_token:
+    description: "GitHub Secret Token to automatically create Pull request. (Make sure to put it in the Repo secret on GitHub as `MY_GITHUB_TOKEN` and then use it like `{{ secrets.MY_GITHUB_TOKEN }}`. Do not write it in plain text.) Only required if app_utilities is being used."
+    required: false
+    default: "NONE"
+
+  default_branch_name:
+    description: "It auto detects the default branch, but if you want to use different branch then write branch name in this input. This branch will be used to create new branch and create PR."
+    required: false
+    default: "NONE"
+
+  # TODO - getting the default branch instead with Python
+
+
   # is_whats_in_app_enable:
   #   description: "Whether to add content in the README for What's in the App/Add-on"
   #   required: false
@@ -63,7 +81,8 @@ runs:
       with:
           ref: ${{ steps.extract_branch.outputs.branch }}
           path: repodir
-    
+
+
     - name: "Pre-tasks"
       shell: bash
       run: |
@@ -116,6 +135,7 @@ runs:
         SPLUNK_is_whats_in_app_enable: ${{inputs.is_whats_in_app_enable}}
         SPLUNK_splunkbase_username: ${{inputs.splunkbase_username}}
         SPLUNK_splunkbase_password: ${{inputs.splunkbase_password}}
+        GITHUB_TOKEN: ${{inputs.my_github_token}}
       run: |
         python -u ${{ github.action_path }}/src/main.py
 
