@@ -205,13 +205,13 @@ class SplunkAppInspect:
         if not self.is_app_inspect_check:
             return
 
-        thread_app_inspect = Thread(target=self._perform_app_inspect_check, args=(self,))
+        thread_app_inspect = Thread(target=self._perform_app_inspect_check)
         thread_app_inspect.start()
 
-        thread_cloud_inspect = Thread(target=self._perform_cloud_inspect_check, args=(self,))
+        thread_cloud_inspect = Thread(target=self._perform_cloud_inspect_check)
         thread_cloud_inspect.start()
 
-        thread_ssai_inspect = Thread(target=self._perform_ssai_inspect_check, args=(self,))
+        thread_ssai_inspect = Thread(target=self._perform_ssai_inspect_check)
         thread_ssai_inspect.start()
 
         # wait for all threads to complete
