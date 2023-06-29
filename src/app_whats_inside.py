@@ -3,6 +3,7 @@ import os
 import xml.etree.ElementTree as ET
 
 import helper_github_action as utils
+from helper_file_handler import PartRawFileHandler
 from helper_splunk_config_parser import SplunkConfigParser
 
 
@@ -31,7 +32,10 @@ class SplunkAppWhatsInsideDetail:
         self.app_dir = utils.get_input('app_dir')
         utils.info("app_dir: {}".format(self.app_dir))
 
-        self.markers = ["# What's in the App", "What's in the Add-on", "# What's inside the App", "What's inside the Add-on"]
+        self.start_markers = ["# What's in the App", "What's in the Add-on", "# What's inside the App", "What's inside the Add-on"]
+        self.end_markers = ['\n\n']
+        self.start_marker_to_add = "# What's inside the App"
+        self.end_marker_to_add = "\n\n"
         # TODO - marker: maybe take as user input as well
 
         self.content = []
@@ -58,44 +62,14 @@ class SplunkAppWhatsInsideDetail:
             print("No Readme.md file found.")
             return
 
-        lines = []
-        with open(file_path, 'r') as file:
-            lines = file.readlines()
-        
-        # Find the marker line
-        start_line_no = -1
-        end_line_no = -1
-        for i, line in enumerate(lines):
-            _l = line.lower()
-            for m in self.markers:
-                if m.lower() in _l:
-                    start_line_no = i
-                    break
-            else:
-                continue
-            break
+        is_changed = PartRawFileHandler(None, file_path).validate_file_content(
+            '\n' + '\n'.join(self.content),
+            self.start_markers, self.end_markers,
+            self.start_marker_to_add, self.end_marker_to_add)
 
-        for i in range(start_line_no+1, len(lines)):
-            if lines[i].strip() == '':
-                if i+1 < len(lines):
-                    if lines[i+1].strip() == '':
-                        end_line_no = i+1
-                        break
-                else:
-                    end_line_no = i
-                    break
+        if is_changed:
+            return file_path
 
-        if start_line_no>=0 and end_line_no>0:
-            new_lines = ["* {}\n".format(element) for element in self.content]
-            new_lines.extend(['\n', '\n'])
-            if lines[start_line_no+1:end_line_no+1] != new_lines:
-                lines[start_line_no+1:end_line_no+1] = new_lines
-                print("Writing the What's in the App Content")
-
-                with open(file_path, 'w') as file:
-                    file.writelines(lines)
-
-                return file_path
 
 
     def _get_conf_stanzas(self, file_path):
