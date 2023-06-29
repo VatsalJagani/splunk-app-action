@@ -3,7 +3,7 @@ import os
 import traceback
 
 import helper_github_action as utils
-from helper_splunk import SplunkConfigParser
+from helper_splunk_config_parser import SplunkConfigParser
 
 
 class SplunkAppBuildGenerator:
