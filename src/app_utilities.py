@@ -1,7 +1,7 @@
 import os
 import helper_github_action as utils
 from helper_github_pr import GitHubPR
-from app_whats_inside import SplunkAppWhatsInsideDetail
+from utilities.whats_inside_app import SplunkAppWhatsInsideDetail
 
 
 class SplunkAppUtilities:
