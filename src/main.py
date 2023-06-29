@@ -7,12 +7,13 @@ sys.path.append(os.path.dirname(__file__))
 import helper_github_action as utils
 from app_inspect import SplunkAppInspect
 from app_build_generate import SplunkAppBuildGenerator
-from app_whats_inside import SplunkAppWhatsInsideDetail
-from helper_github_pr import GitHubPR
+from app_utilities import SplunkAppUtilities
+
 
 
 
 if __name__ == "__main__":
+    '''
     LOCAL_TEST = False
     if LOCAL_TEST or (len(sys.argv) > 1 and sys.argv[1] == "local_test"):
         LOCAL_TEST = True
@@ -25,16 +26,25 @@ if __name__ == "__main__":
         import getpass
         splunkbase_password = getpass.getpass("Enter your Splunkbase password: ")
         utils.set_input('splunkbase_password', splunkbase_password)
+    '''
+    # Disabling the local test
 
-
-
-    REPO_DIR = os.path.join(os.getcwd(), 'repodir')
-    if LOCAL_TEST:
-        REPO_DIR = os.path.dirname(os.path.dirname(__file__))
+    # Set REPO_DIR as environment variable
+    utils.CommonDirPaths.generate_paths()
+    # if LOCAL_TEST:
+    #     utils.CommonDirPaths.REPO_DIR = os.path.dirname(os.path.dirname(__file__))
 
     # This is just for testing
     # utils.info("Files under current working directory:- {}".format(os.getcwd()))
     # utils.list_files(os.getcwd())
+
+
+    try:
+        SplunkAppUtilities()
+    except Exception as e:
+        utils.error("Error Adding Splunk App Utilities: {}".format(e))
+        utils.error(traceback.format_exc())
+
 
     try:
         build_path, app_package_id = SplunkAppBuildGenerator().generate()    # Generate Build
@@ -43,14 +53,6 @@ if __name__ == "__main__":
         utils.error("Error in SplunkBase Build Generator or App Inspect Checks: {}".format(e))
         utils.error(traceback.format_exc())
 
-
-    try:
-        readme_file_path = SplunkAppWhatsInsideDetail().update_readme()
-        if readme_file_path:
-            GitHubPR(repo_dir=REPO_DIR).commit_and_pr(file_to_generate_hash=readme_file_path, local_test=LOCAL_TEST)
-    except Exception as e:
-        utils.error("Error in Updating README: {}".format(e))
-        utils.error(traceback.format_exc())
 
 
 # TODO - Maybe use https://github.com/CrossRealms/Splunk-App-Common-Utility-Action/blob/main/main.py
