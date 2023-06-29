@@ -73,8 +73,7 @@ class SplunkAppWhatsInsideDetail:
 
 
     def _get_conf_stanzas(self, file_path):
-        config = SplunkConfigParser()
-        config.read(file_path)
+        config = SplunkConfigParser(file_path)
         stanzas = config.sections()
         return stanzas
 

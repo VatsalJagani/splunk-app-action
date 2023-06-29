@@ -1,12 +1,128 @@
 
 import os
 
+MULTI_LINE_CHAR = '\\'
+COMMENT_CHAR = '#'
+FILE_SECTION = '___FILE___'
+NEW_LINE_CHAR = '\n'
+
+
+class _SplunkStanzaOptions:
+    def __init__(self) -> None:
+        self._content = []
+
+
+    def add(self, key, value=None):
+        if value:
+            self._content.append((key, value))
+        self._content.append(key)
+
+
+    def __getitem__(self, key):
+        for key_value in self._content:
+            if type(key_value) == tuple:
+                if key_value[0] == key:
+                    return key_value[1]
+        raise KeyError(key)
+
+
+
+    def __setitem__(self, key, value):
+        self.add(key, value)
+
+
+    def __delitem__(self, key):
+        for i in range(len(self._content)):
+            key_value = self._content[i]
+            if type(key_value) == tuple:
+                if key_value[0] == key:
+                    self._content.pop(i)
+                    return
+        raise KeyError(key)
+
+
+    def __contains__(self, key):
+        for key_value in self._content:
+            if type(key_value) == tuple:
+                if key_value[0] == key:
+                    return True
+        return False
+
+
+    def __len__(self):
+        length = 0
+        for key_value in self._content:
+            if type(key_value) == tuple:
+                length += 1
+        return length
+
+
+    def __iter__(self):
+        return iter(self._content)
+
+
+    def write_to_file(self, fp):
+        for key_value in self._content:
+            if type(key_value) == str:
+                fp.write(f'{key_value}\n')
+
+            elif type(key_value) == tuple:
+                option = key_value[0]
+                value = key_value[1]
+
+                if NEW_LINE_CHAR in value:
+                    new_line_ch = NEW_LINE_CHAR+'\n'
+                    value = new_line_ch.join(value.splitlines())
+
+                fp.write(f'{option} = {value}\n')
+
+            else:
+                raise Exception("SplunkConfigParser > _SplunkStanzaOptions: Unexpected parsing error while writing the conf file.")
+
+
+    def merge(self, second_options_obj):
+        is_changed = False
+
+        for key_value in second_options_obj:
+            if type(key_value) == str:
+                if key_value not in self._content:
+                    self._content.add(key_value)
+                    is_changed = True
+
+            elif type(key_value) == tuple:
+                option = key_value[0]
+                value = key_value[1]
+
+                for i in range(len(self._content)):
+                    ex_key_val = self._content[i]
+                    if type(ex_key_val) != tuple:
+                        continue
+
+                    ex_op = ex_key_val[0]
+                    ex_val = ex_key_val[1]
+
+                    if ex_op == option:
+                        if value != ex_val:
+                            self._content[i] = (option, value)
+                            is_changed = True
+                        break
+                    else:
+                        continue
+
+                else:
+                    # no match found, add new
+                    self._content.append((option, value))
+                    is_changed = True
+
+            else:
+                raise Exception("SplunkConfigParser: Unexpected parsing error while writing the conf file.")
+
+        return is_changed
+
+
+
 
 class SplunkConfigParser:
-    MULTI_LINE_CHAR = '\\'
-    COMMENT_CHAR = '#'
-    FILE_SECTION = '___FILE___'
-    NEW_LINE_CHAR = '\n'
 
     def __init__(self, file_path):
         self.file_path = file_path
@@ -23,8 +139,8 @@ class SplunkConfigParser:
 
     def _parse(self, content):
         lines = content.splitlines()
-        current_section = self.FILE_SECTION
-        self._content[current_section] = []
+        current_section = FILE_SECTION
+        self._content[current_section] = _SplunkStanzaOptions()
         current_option = None
         current_value = []
 
@@ -33,11 +149,11 @@ class SplunkConfigParser:
 
             # Empty Line
             if not line:
-                self._content[current_section].append(original_line)
+                self._content[current_section].add(original_line)
 
             # Comment Line
-            elif line.startswith(self.COMMENT_CHAR):   # comment character, preserve the line
-                self._add_option(current_option, original_line)
+            elif line.startswith(COMMENT_CHAR):   # comment character, preserve the line
+                self._content[current_section].add(original_line)
 
             # Stanza line - []
             elif current_option is None and line.startswith('[') and line.endswith(']'):
@@ -51,19 +167,19 @@ class SplunkConfigParser:
                 option = option.strip()
                 value = value.strip()
 
-                if len(value) > 0 and value[-1] == self.MULTI_LINE_CHAR:
+                if len(value) > 0 and value[-1] == MULTI_LINE_CHAR:
                     current_option = option
                     current_value.append(value[:-1])
                 else:
-                    self._content[current_section].append((option, value))
+                    self._content[current_section].add(option, value)
 
             # Second line of multi-line option value
             elif current_option:
-                if len(line) > 0 and line[-1] == self.MULTI_LINE_CHAR:
+                if len(line) > 0 and line[-1] == MULTI_LINE_CHAR:
                     current_value.append(line[:-1])
                 else:
                     current_value.append(line)
-                    self._content[current_section].append((current_option, self.NEW_LINE_CHAR.join(current_value)))
+                    self._content[current_section].add(current_option, NEW_LINE_CHAR.join(current_value))
                     current_option = None
                     current_value = []
             
@@ -73,27 +189,12 @@ class SplunkConfigParser:
 
     def write(self, file):
         with open(file, 'w') as fp:
-            for section, values in self._content.items():
+            for section, options in self._content.items():
 
-                if section != self.FILE_SECTION:
+                if section != FILE_SECTION:
                     fp.write(f'[{section}]\n')
 
-                for key_value in self._content[section]:
-                    if type(key_value) == str:
-                        fp.write(f'{key_value}\n')
-
-                    elif type(key_value) == tuple:
-                        option = key_value[0]
-                        value = key_value[1]
-
-                        if self.NEW_LINE_CHAR in value:
-                            new_line_ch = self.NEW_LINE_CHAR+'\n'
-                            value = new_line_ch.join(value.splitlines())
-
-                        fp.write(f'{option} = {value}\n')
-
-                    else:
-                        raise Exception("SplunkConfigParser: Unexpected parsing error while writing the conf file.")
+                options.write_to_file(fp)
 
                 fp.write('\n')
 
@@ -123,12 +224,14 @@ class SplunkConfigParser:
 
 
     def __len__(self):
-        return len(self._content) + 1
+        if FILE_SECTION in self:
+            return len(self._content) - 1
+        return len(self._content)
 
 
     def __iter__(self):
         return iter(self._content)
-    
+
     def items(self):
         return self._content.items()
 
@@ -138,42 +241,11 @@ class SplunkConfigParser:
 
         for stanza, options in second_conf_parser.items():
             if stanza not in self._content:
-                # stanza not exist in the parser
-                self._content[stanza] = []
+                self._content[stanza] = _SplunkStanzaOptions()
                 is_changed = True
 
-            for key_value in options:
-                if type(key_value) == str:
-                    if key_value not in self._content[stanza]:
-                        self._content[stanza].append(key_value)
-                        is_changed = True
-
-                elif type(key_value) == tuple:
-                    option = key_value[0]
-                    value = key_value[1]
-
-                    for i in range(len(self._content[stanza])):
-                        ex_key_val = self._content[stanza][i]
-                        if type(ex_key_val) != tuple:
-                            continue
-
-                        ex_op = ex_key_val[0]
-                        ex_val = ex_key_val[1]
-
-                        if ex_op == option:
-                            if value != ex_val:
-                                self._content[stanza][i] = (option, value)
-                                is_changed = True
-                            break
-                        else:
-                            continue
-
-                    else:
-                        # no match found, add new
-                        self._content[stanza].append((option, value))
-                        is_changed = True
-
-                else:
-                    raise Exception("SplunkConfigParser: Unexpected parsing error while writing the conf file.")
+            is_changed1 = self._content[stanza].merge(options)
+            if is_changed1:
+                is_changed = True
 
         return is_changed
