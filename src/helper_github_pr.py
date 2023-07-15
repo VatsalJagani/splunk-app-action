@@ -13,6 +13,25 @@ def get_file_hash(file_path):
     return hash_md5.hexdigest()
 
 
+def get_folder_hash(folder_path): 
+    hash_md5 = hashlib.md5() 
+    for root, dirs, files in os.walk(folder_path): 
+        for file in files: 
+            file_path = os.path.join(root, file) 
+            file_hash = get_file_hash(file_path) 
+            hash_md5.update(file_hash.encode('utf-8')) 
+    return hash_md5.hexdigest()
+
+
+def get_multi_files_hash(file_paths):
+    hash_md5 = hashlib.md5()
+    for file_path in file_paths:
+        file_hash = get_file_hash(file_path)
+        hash_md5.update(file_hash.encode('utf-8'))
+    return hash_md5.hexdigest()
+
+
+
 class GitHubPR:
     DEFAULT_BRANCH_NAME = None
     IS_GIT_CONFIGURED = False

@@ -13,31 +13,7 @@ from app_utilities import SplunkAppUtilities
 
 
 if __name__ == "__main__":
-    '''
-    LOCAL_TEST = False
-    if LOCAL_TEST or (len(sys.argv) > 1 and sys.argv[1] == "local_test"):
-        LOCAL_TEST = True
-        utils.set_input('app_dir', 'test_app')
-        # Get user input for splunkbase_username
-        splunkbase_username = input("Enter your Splunkbase username: ")
-        utils.set_input('splunkbase_username', splunkbase_username)
-
-        # Get user input for splunkbase_password (masked input)
-        import getpass
-        splunkbase_password = getpass.getpass("Enter your Splunkbase password: ")
-        utils.set_input('splunkbase_password', splunkbase_password)
-    '''
-    # Disabling the local test
-
-    # Set REPO_DIR as environment variable
     utils.CommonDirPaths.generate_paths()
-    # if LOCAL_TEST:
-    #     utils.CommonDirPaths.REPO_DIR = os.path.dirname(os.path.dirname(__file__))
-
-    # This is just for testing
-    # utils.info("Files under current working directory:- {}".format(os.getcwd()))
-    # utils.list_files(os.getcwd())
-
 
     try:
         SplunkAppUtilities()
