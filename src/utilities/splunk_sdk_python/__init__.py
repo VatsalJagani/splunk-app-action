@@ -19,7 +19,7 @@ class SplunkPythonSDKUtility:
             with open(file_path, 'r') as f:
                 match = re.search(r"\n__version_info__\s*=\s*([^\n]+)", f.read())
                 version = match.group(1)
-                utils.info(f"Existing splunklib version = {version}")
+                utils.info(f"splunklib version = {version}")
                 return version
         except:
             utils.info("Error with getting the splunklib version.")
@@ -38,9 +38,9 @@ class SplunkPythonSDKUtility:
             previous_version = self._get_splunklib_version(init_file)
 
         if already_exist:
-            os.system('pip install splunk-sdk --upgrade')
+            os.system(f'pip install splunk-sdk --upgrade --target {self.folder_to_install_splunklib}')
         else:
-            os.system('pip install splunk-sdk')
+            os.system(f'pip install splunk-sdk --target {self.folder_to_install_splunklib}')
 
         new_version = self._get_splunklib_version(init_file)
 
