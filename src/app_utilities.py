@@ -4,6 +4,7 @@ from helper_github_pr import GitHubPR
 from utilities.whats_inside_app import SplunkAppWhatsInsideDetail
 from utilities.logger import LoggerUtility
 from utilities.splunk_sdk_python import SplunkPythonSDKUtility
+from utilities.common_splunk_js_utilities import CommonJSUtilitiesFile
 
 
 class SplunkAppUtilities:
@@ -39,9 +40,12 @@ class SplunkAppUtilities:
                     splunklib_hash = SplunkPythonSDKUtility().install_splunk_python_sdk()
                     if splunklib_hash:
                         github.commit_and_pr(hash=splunklib_hash)
-            
-            # elif utility == "common_splunk_js_utilities":
-            #     CommonSplunkJSUtility(GITHUB_ACTION_DIR, REPO_DIR, app_package_dir, main_branch_name, local_test=local_test)
-            
+
+            elif utility == "common_js_utilities":
+                with GitHubPR(self.is_test) as github:
+                    js_utility_hash = CommonJSUtilitiesFile().add_js_utility_file()
+                    if js_utility_hash:
+                        github.commit_and_pr(hash=js_utility_hash)
+
             else:
                 utils.error("utility={} is not supported.".format(utility))
