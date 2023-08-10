@@ -231,7 +231,5 @@ jobs:
 * If you wish to share Feedback or success story, please add comment in [this issue](https://github.com/VatsalJagani/splunk-app-action/issues/19).
 
 
-# TODO - Add in all files that this file is managed by this action along with Github link, if need to modify create PR to GitHub action for any enhancement.
-
 # TODO - Update screenshots and/or provide link
 

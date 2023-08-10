@@ -1,3 +1,7 @@
+# This file is generated and maintained by splunk-app-action (https://github.com/VatsalJagani/splunk-app-action)
+# To modify anything create Pull Request on the splunk-app-action GitHub repository.
+
+
 # Standard library imports
 import logging
 import logging.handlers
