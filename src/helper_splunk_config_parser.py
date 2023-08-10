@@ -9,17 +9,17 @@ NEW_LINE_CHAR = '\n'
 
 class _SplunkStanzaOptions:
     def __init__(self) -> None:
-        self._content = []
+        self._stanza_content = []
 
 
     def add(self, key, value=None):
         if value:
-            self._content.append((key, value))
-        self._content.append(key)
+            self._stanza_content.append((key, value))
+        self._stanza_content.append(key)
 
 
     def __getitem__(self, key):
-        for key_value in self._content:
+        for key_value in self._stanza_content:
             if type(key_value) == tuple:
                 if key_value[0] == key:
                     return key_value[1]
@@ -32,17 +32,17 @@ class _SplunkStanzaOptions:
 
 
     def __delitem__(self, key):
-        for i in range(len(self._content)):
-            key_value = self._content[i]
+        for i in range(len(self._stanza_content)):
+            key_value = self._stanza_content[i]
             if type(key_value) == tuple:
                 if key_value[0] == key:
-                    self._content.pop(i)
+                    self._stanza_content.pop(i)
                     return
         raise KeyError(key)
 
 
     def __contains__(self, key):
-        for key_value in self._content:
+        for key_value in self._stanza_content:
             if type(key_value) == tuple:
                 if key_value[0] == key:
                     return True
@@ -51,18 +51,18 @@ class _SplunkStanzaOptions:
 
     def __len__(self):
         length = 0
-        for key_value in self._content:
+        for key_value in self._stanza_content:
             if type(key_value) == tuple:
                 length += 1
         return length
 
 
     def __iter__(self):
-        return iter(self._content)
+        return iter(self._stanza_content)
 
 
     def write_to_file(self, fp):
-        for key_value in self._content:
+        for key_value in self._stanza_content:
             if type(key_value) == str:
                 fp.write(f'{key_value}\n')
 
@@ -85,16 +85,16 @@ class _SplunkStanzaOptions:
 
         for key_value in second_options_obj:
             if type(key_value) == str:
-                if key_value not in self._content:
-                    self._content.add(key_value)
+                if key_value not in self._stanza_content:
+                    self._stanza_content.add(key_value)
                     is_changed = True
 
             elif type(key_value) == tuple:
                 option = key_value[0]
                 value = key_value[1]
 
-                for i in range(len(self._content)):
-                    ex_key_val = self._content[i]
+                for i in range(len(self._stanza_content)):
+                    ex_key_val = self._stanza_content[i]
                     if type(ex_key_val) != tuple:
                         continue
 
@@ -103,7 +103,7 @@ class _SplunkStanzaOptions:
 
                     if ex_op == option:
                         if value != ex_val:
-                            self._content[i] = (option, value)
+                            self._stanza_content[i] = (option, value)
                             is_changed = True
                         break
                     else:
@@ -111,7 +111,7 @@ class _SplunkStanzaOptions:
 
                 else:
                     # no match found, add new
-                    self._content.append((option, value))
+                    self._stanza_content.append((option, value))
                     is_changed = True
 
             else:
@@ -159,7 +159,7 @@ class SplunkConfigParser:
             elif current_option is None and line.startswith('[') and line.endswith(']'):
                 current_section = line[1:-1]
                 if current_section not in self._content:
-                    self._content[current_section] = []
+                    self._content[current_section] = _SplunkStanzaOptions()
 
             # New option line
             elif current_option is None and '=' in line:
