@@ -26,9 +26,9 @@ class SplunkAppWhatsInsideDetail:
         utils.info("app_dir: {}".format(self.app_dir))
 
         self.start_markers = ["# What's in the App", "What's in the Add-on", "# What's inside the App", "# What's inside the Add-on"]
-        self.end_markers = ['\n\n']
+        self.end_markers = ['\n\n\n']
         self.start_marker_to_add = "# What's inside the App"
-        self.end_marker_to_add = "\n\n"
+        self.end_marker_to_add = "\n\n\n"
         # TODO - marker: maybe take as user input as well
 
         self.content = []
@@ -53,7 +53,7 @@ class SplunkAppWhatsInsideDetail:
             return
 
         is_changed = PartRawFileHandler(None, file_path).validate_file_content(
-            '\n\n' + '\n'.join(self.content),
+            '\n' + '\n'.join(self.content),
             self.start_markers, self.end_markers,
             self.start_marker_to_add, self.end_marker_to_add)
 

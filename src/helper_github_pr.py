@@ -37,20 +37,28 @@ class GitHubPR:
     DEFAULT_BRANCH_NAME = None
     IS_GIT_CONFIGURED = False
 
-    def __init__(self) -> None:
+    def __init__(self, is_test=False) -> None:
+        self.is_test = is_test
+
         os.chdir(utils.CommonDirPaths.REPO_DIR)
 
-        GitHubPR.configure_git()
-        GitHubPR.set_default_branch()
+        GitHubPR.configure_git(is_test)
+        GitHubPR.set_default_branch(is_test)
 
 
     def __enter__(self):
+        if self.is_test:
+            return self
+
         # checkout default branch
         os.system(r'git checkout {}'.format(self.DEFAULT_BRANCH_NAME))
         return self
 
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.is_test:
+            return
+
         # checkout default branch
         os.system(r'git checkout {}'.format(self.DEFAULT_BRANCH_NAME))
 
@@ -58,7 +66,10 @@ class GitHubPR:
 
 
     @staticmethod
-    def set_default_branch():
+    def set_default_branch(is_test):
+        if is_test:
+            return
+
         utils.info("Finding default branch for the repo.")
         if GitHubPR.DEFAULT_BRANCH_NAME:
             return
@@ -79,7 +90,10 @@ class GitHubPR:
 
 
     @staticmethod
-    def configure_git():
+    def configure_git(is_test):
+        if is_test:
+            return
+
         utils.info("Configuring git username & credentials.")
         if GitHubPR.IS_GIT_CONFIGURED:
             return
@@ -126,6 +140,9 @@ class GitHubPR:
 
 
     def commit_and_pr(self, file_to_generate_hash):
+        if self.is_test:
+            return
+
         _hash = get_file_hash(file_to_generate_hash)
         new_branch = 'splunk_app_action_{}'.format(_hash)
         utils.info("Branch Name: {}".format(new_branch))
