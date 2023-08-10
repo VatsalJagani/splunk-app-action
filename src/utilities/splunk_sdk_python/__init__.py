@@ -35,7 +35,7 @@ class SplunkPythonSDKUtility:
         if os.path.exists(splunklib_dir) and os.path.isdir(splunklib_dir) and os.path.isfile(init_file):
             already_exist = True
             previous_version = self._get_splunklib_version(init_file)
-            utils.info(f"splunklib version = {previous_version}")
+            utils.info(f"previous splunklib version = {previous_version}")
 
         if already_exist:
             os.system(f'pip install splunk-sdk --upgrade --target {self.folder_to_install_splunklib}')

@@ -12,7 +12,8 @@ class CommonJSUtilitiesFile:
         self.file_path = os.path.join(self.folder_path, 'splunk_common_js_v_utilities.js')
 
         os.chdir(utils.CommonDirPaths.APP_DIR)
-        os.makedirs(self.folder_path)
+        if not os.path.exists(self.folder_path):
+            os.makedirs(self.folder_path)
 
 
     def add_js_utility_file(self):
