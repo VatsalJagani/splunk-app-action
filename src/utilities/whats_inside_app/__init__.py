@@ -3,12 +3,12 @@ import os
 import xml.etree.ElementTree as ET
 
 import helper_github_action as utils
-import helper_github_pr
 from helper_file_handler import PartRawFileHandler
 from helper_splunk_config_parser import SplunkConfigParser
+from utilities.base_utility import BaseUtility
 
 
-class SplunkAppWhatsInsideDetail:
+class SplunkAppWhatsInsideDetail(BaseUtility):
     IMP_CONF_FILES = {
         'savedsearches': 'Reports and Alerts',
         'commands': 'Custom Commands',
@@ -22,45 +22,42 @@ class SplunkAppWhatsInsideDetail:
     }
 
 
-    def __init__(self) -> None:
-        self.app_dir = utils.get_input('app_dir')
-        utils.info("app_dir: {}".format(self.app_dir))
-
-        self.start_markers = ["# What's in the App", "What's in the Add-on", "# What's inside the App", "# What's inside the Add-on"]
-        self.end_markers = ['\n\n\n']
-        self.start_marker_to_add = "# What's inside the App"
-        self.end_marker_to_add = "\n\n\n"
-        # TODO - marker: maybe take as user input as well
-
-        self.content = []
-        self.content.extend(self._get_xml_dashboards())
-        self.content.extend(self._get_imp_conf_files_details())
-        self.content.extend(self._get_csv_lookup_files())
-
-
     def _get_readme_file_location(self):
         for file in os.listdir(self.app_dir):
             if file.lower() in ['readme.md', 'readme.txt']:
                 return os.path.join(self.app_dir, file)
 
 
-    def update_readme(self):
+    def implement_utility(self):
         '''
         It returns the file_path of README file when the file has been changed, otherwise None
         '''
+        self.app_dir = utils.get_input('app_dir')
+        utils.info("app_dir: {}".format(self.app_dir))
+
+        start_markers = ["# What's in the App", "What's in the Add-on", "# What's inside the App", "# What's inside the Add-on"]
+        end_markers = ['\n\n\n']
+        start_marker_to_add = "# What's inside the App"
+        end_marker_to_add = "\n\n\n"
+        # TODO - marker: maybe take as user input as well
+
+        content = []
+        content.extend(self._get_xml_dashboards())
+        content.extend(self._get_imp_conf_files_details())
+        content.extend(self._get_csv_lookup_files())
+
         file_path = self._get_readme_file_location()
         if not file_path:
             print("No Readme.md file found.")
             return
 
         is_changed = PartRawFileHandler(None, file_path).validate_file_content(
-            '\n\n* ' + '\n* '.join(self.content),
-            self.start_markers, self.end_markers,
-            self.start_marker_to_add, self.end_marker_to_add)
+            '\n\n* ' + '\n* '.join(content),
+            start_markers, end_markers,
+            start_marker_to_add, end_marker_to_add)
 
         if is_changed:
-            return helper_github_pr.get_file_hash(file_path)
-
+            return file_path
 
 
     def _get_conf_stanzas(self, file_path):

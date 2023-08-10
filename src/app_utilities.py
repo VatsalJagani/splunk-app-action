@@ -1,6 +1,5 @@
 
 import helper_github_action as utils
-from helper_github_pr import GitHubPR
 from utilities.whats_inside_app import SplunkAppWhatsInsideDetail
 from utilities.logger import LoggerUtility
 from utilities.splunk_sdk_python import SplunkPythonSDKUtility
@@ -24,28 +23,16 @@ class SplunkAppUtilities:
     def add_utilities(self, app_utilities):
         for utility in app_utilities:
             if utility == "whats_in_the_app":
-                with GitHubPR(self.is_test) as github:
-                    readme_file_path_hash = SplunkAppWhatsInsideDetail().update_readme()
-                    if readme_file_path_hash:
-                        github.commit_and_pr(hash=readme_file_path_hash)
-            
+                SplunkAppWhatsInsideDetail()
+
             elif utility == "logger":
-                with GitHubPR(self.is_test) as github:
-                    logger_hash = LoggerUtility().add_logger()
-                    if logger_hash:
-                        github.commit_and_pr(hash=logger_hash)
-            
+                LoggerUtility()
+
             elif utility == "splunk_python_sdk":
-                with GitHubPR(self.is_test) as github:
-                    splunklib_hash = SplunkPythonSDKUtility().install_splunk_python_sdk()
-                    if splunklib_hash:
-                        github.commit_and_pr(hash=splunklib_hash)
+                SplunkPythonSDKUtility()
 
             elif utility == "common_js_utilities":
-                with GitHubPR(self.is_test) as github:
-                    js_utility_hash = CommonJSUtilitiesFile().add_js_utility_file()
-                    if js_utility_hash:
-                        github.commit_and_pr(hash=js_utility_hash)
+                CommonJSUtilitiesFile()
 
             else:
                 utils.error("utility={} is not supported.".format(utility))
