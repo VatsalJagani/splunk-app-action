@@ -53,7 +53,7 @@ class SplunkAppWhatsInsideDetail:
             return
 
         is_changed = PartRawFileHandler(None, file_path).validate_file_content(
-            '\n' + '\n'.join(self.content),
+            '\n' + '\n* '.join(self.content),
             self.start_markers, self.end_markers,
             self.start_marker_to_add, self.end_marker_to_add)
 
