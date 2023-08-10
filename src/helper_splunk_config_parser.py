@@ -86,7 +86,7 @@ class _SplunkStanzaOptions:
         for key_value in second_options_obj:
             if type(key_value) == str:
                 if key_value not in self._stanza_content:
-                    self._stanza_content.add(key_value)
+                    self._stanza_content.append(key_value)
                     is_changed = True
 
             elif type(key_value) == tuple:
