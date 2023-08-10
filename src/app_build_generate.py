@@ -21,7 +21,7 @@ class SplunkAppBuildGenerator:
         self.app_package_id = self._fetch_app_package_id()
         utils.set_env('app_package_id', self.app_package_id)
 
-        # TODO - ensure that you are in a right folder to execute the code
+        os.chdir(utils.CommonDirPaths.MAIN_DIR)
 
 
     def _fetch_app_package_id(self):
@@ -59,9 +59,6 @@ class SplunkAppBuildGenerator:
     def generate(self):
         utils.info("Generating the app build. app_dir={}, app_package_id={}".format(self.app_dir, self.app_package_id))
 
-        # TODO - ensure that you are in a right directory
-        # utils.list_files(os.getcwd())
-
         if not self.is_generate_build:
             return self.direct_app_build_path, self.app_package_id
 
@@ -75,8 +72,6 @@ class SplunkAppBuildGenerator:
             self._util_generate_build_commands()
         else:
             os.chdir('repodir_for_build')
-            utils.info("updated cwd={}".format(os.getcwd()))
-            # utils.list_files(os.getcwd())
 
             if self.app_dir != self.app_package_id:
                 os.system('mv {} {}'.format(self.app_dir, self.app_package_id))
@@ -85,10 +80,6 @@ class SplunkAppBuildGenerator:
             os.system('mv {}.tgz ..'.format(self.app_package_id))
 
             os.chdir('..')
-
-        utils.info("final cwd={}".format(os.getcwd()))
-        utils.list_files(os.getcwd())
-        # TODO - remove above debug lines after testing.
 
         return '{}.tgz'.format(self.app_package_id), self.app_package_id
 
