@@ -37,11 +37,6 @@ class GitHubPR:
     IS_GIT_CONFIGURED = False
 
     def __init__(self) -> None:
-        GitHubPR.set_default_branch()
-        GitHubPR.configure_git()
-
-
-    def __enter__(self):
         utils.info(f"current directory: {os.getcwd()}")
         utils.list_files(os.getcwd())
         utils.info(f"new directory: {utils.CommonDirPaths.REPO_DIR}")
@@ -49,6 +44,12 @@ class GitHubPR:
         utils.info(f"new current directory: {os.getcwd()}")
         utils.list_files(os.getcwd())
         # TODO - Remove debug related code from above.
+
+        GitHubPR.set_default_branch()
+        GitHubPR.configure_git()
+
+
+    def __enter__(self):
         # checkout default branch
         os.system(r'git checkout {}'.format(self.default_branch_name))
 
@@ -61,7 +62,7 @@ class GitHubPR:
 
     @staticmethod
     def set_default_branch():
-
+        utils.info("Finding default branch for the repo.")
         if GitHubPR.DEFAULT_BRANCH_NAME:
             return
 
@@ -78,6 +79,7 @@ class GitHubPR:
 
     @staticmethod
     def configure_git():
+        utils.info("Configuring git username & credentials.")
         if GitHubPR.IS_GIT_CONFIGURED:
             return
 
@@ -90,7 +92,7 @@ class GitHubPR:
 
         GitHubPR.IS_GIT_CONFIGURED = True
 
-        # TODO - Create this GitHub account
+        # TODO - Create this GitHub account specific for github action
 
 
     def _check_branch_does_not_exist(self, branch_name):
