@@ -100,6 +100,8 @@ runs:
         echo "app_utilities -> ${{inputs.app_utilities}}"
         echo "my_github_token -> ${{inputs.my_github_token}} (If using Github secret the value will be ***)"
         echo "default_branch_name -> ${{inputs.default_branch_name}}"
+        echo "logger_log_files_prefix -> ${{inputs.logger_log_files_prefix}}"
+        echo "logger_sourcetype -> ${{inputs.logger_sourcetype}}"
         mkdir app_inspect_reports
 
 
@@ -145,6 +147,8 @@ runs:
         SPLUNK_app_utilities: ${{inputs.app_utilities}}
         GITHUB_TOKEN: ${{inputs.my_github_token}}
         SPLUNK_default_branch_name: ${{inputs.default_branch_name}}
+        SPLUNK_logger_log_files_prefix: ${{inputs.logger_log_files_prefix}}
+        SPLUNK_logger_sourcetype: ${{inputs.logger_sourcetype}}
       run: |
         python -u ${{ github.action_path }}/src/main.py
 

@@ -12,11 +12,19 @@ class LoggerUtility:
         self.app_dir = utils.get_input('app_dir')
         utils.info("app_dir: {}".format(self.app_dir))
 
+        self.should_execute = True
+
         log_files_prefix = utils.get_input('logger_log_files_prefix')
         utils.info("log_files_prefix: {}".format(log_files_prefix))
-        
+        if not log_files_prefix or log_files_prefix=="NONE":
+            utils.error("skipping the logger adding as logger_log_files_prefix input is not defined.")
+            self.should_execute = False
+
         logger_sourcetype = utils.get_input('logger_sourcetype')
         utils.info("logger_sourcetype: {}".format(logger_sourcetype))
+        if not logger_sourcetype or logger_sourcetype=="NONE":
+            utils.error("skipping the logger adding as logger_sourcetype input is not defined.")
+            self.should_execute = False
 
         self.words_for_replacement = {
             '<<<log_files_prefix>>>': log_files_prefix,
@@ -25,6 +33,9 @@ class LoggerUtility:
 
 
     def add_logger(self):
+        if not self.should_execute:
+            return False
+
         update1 = self.add_logger_manager_py()
         update2 = self.add_props_content()
         if update1 or update2:
