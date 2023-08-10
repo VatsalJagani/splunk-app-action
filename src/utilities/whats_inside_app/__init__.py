@@ -20,19 +20,12 @@ class SplunkAppWhatsInsideDetail:
         'collections': 'Lookups - KVStore Collections',
     }
 
+
     def __init__(self) -> None:
-        self.is_whats_in_app_enable = utils.str_to_boolean(utils.get_input('is_whats_in_app_enable'))
-        utils.info("is_whats_in_app_enable: {}".format(self.is_whats_in_app_enable))
-        
-        if not self.is_whats_in_app_enable:
-            utils.info("Ignoring Adding content for What's in the App to README.md")
-            return
-
-
         self.app_dir = utils.get_input('app_dir')
         utils.info("app_dir: {}".format(self.app_dir))
 
-        self.start_markers = ["# What's in the App", "What's in the Add-on", "# What's inside the App", "What's inside the Add-on"]
+        self.start_markers = ["# What's in the App", "What's in the Add-on", "# What's inside the App", "# What's inside the Add-on"]
         self.end_markers = ['\n\n']
         self.start_marker_to_add = "# What's inside the App"
         self.end_marker_to_add = "\n\n"
@@ -54,16 +47,13 @@ class SplunkAppWhatsInsideDetail:
         '''
         It returns the file_path of README file when the file has been changed, otherwise None
         '''
-        if not self.is_whats_in_app_enable:
-            return
-
         file_path = self._get_readme_file_location()
         if not file_path:
             print("No Readme.md file found.")
             return
 
         is_changed = PartRawFileHandler(None, file_path).validate_file_content(
-            '\n' + '\n'.join(self.content),
+            '\n\n' + '\n'.join(self.content),
             self.start_markers, self.end_markers,
             self.start_marker_to_add, self.end_marker_to_add)
 

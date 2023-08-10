@@ -37,7 +37,7 @@ inputs:
 
 
   app_utilities:
-    description: "Add comma separated list of utilities to use. Valid options: whats_in_the_app"
+    description: "Add comma separated list of utilities to use. You need to enable read and write permission for workflow to create Pull Requests. Valid options: whats_in_the_app"
     required: false
     default: ""
 

@@ -97,7 +97,7 @@ class PartRawFileHandler(BaseFileHandler):
             # Content found
             if end_index < 0:
                 end_index = len(lower_content) - 1
-            
+
             updated_content = content[:start_index] + new_content + content[end_index:]
 
         else:
