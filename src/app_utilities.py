@@ -3,6 +3,7 @@ import helper_github_action as utils
 from helper_github_pr import GitHubPR
 from utilities.whats_inside_app import SplunkAppWhatsInsideDetail
 from utilities.logger import LoggerUtility
+from utilities.splunk_sdk_python import SplunkPythonSDKUtility
 
 
 class SplunkAppUtilities:
@@ -32,6 +33,12 @@ class SplunkAppUtilities:
                     logger_hash = LoggerUtility().add_logger()
                     if logger_hash:
                         github.commit_and_pr(hash=logger_hash)
+            
+            elif utility == "splunk_python_sdk":
+                with GitHubPR(self.is_test) as github:
+                    splunklib_hash = SplunkPythonSDKUtility().install_splunk_python_sdk()
+                    if splunklib_hash:
+                        github.commit_and_pr(hash=splunklib_hash)
             
             # elif utility == "common_splunk_js_utilities":
             #     CommonSplunkJSUtility(GITHUB_ACTION_DIR, REPO_DIR, app_package_dir, main_branch_name, local_test=local_test)

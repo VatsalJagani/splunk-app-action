@@ -1,6 +1,5 @@
 
 import os
-import xml.etree.ElementTree as ET
 
 import helper_github_action as utils
 import helper_github_pr
@@ -9,9 +8,6 @@ from helper_file_handler import FullRawFileHandler, PartConfFileHandler
 
 class LoggerUtility:
     def __init__(self) -> None:
-        self.app_dir = utils.get_input('app_dir')
-        utils.info("app_dir: {}".format(self.app_dir))
-
         self.should_execute = True
 
         log_files_prefix = utils.get_input('logger_log_files_prefix')
