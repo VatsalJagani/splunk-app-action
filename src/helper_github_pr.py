@@ -69,22 +69,21 @@ class GitHubPR:
 
         os.system(r"git remote show origin | sed -n '/HEAD branch/s/.*: //p'")
 
-        os.system(r'git symbolic-ref refs/remotes/origin/HEAD')
-
-        output = subprocess.check_output(['git', 'remote', 'show', 'origin'])
-        utils.info("output of git remote show origin: {}".format(output))
-        match = re.search(r"HEAD branch:\s*([^\n]+)", output)
-        if match:
-            utils.info(f"branch found: {match.group(1)}")
-
+        # os.system(r'git symbolic-ref refs/remotes/origin/HEAD')
 
         _default_branch_name_input = utils.get_input('default_branch_name')
         if _default_branch_name_input and _default_branch_name_input!="NONE":
             GitHubPR.DEFAULT_BRANCH_NAME = _default_branch_name_input
         else:
-            output = subprocess.check_output(['git', 'symbolic-ref', 'refs/remotes/origin/HEAD'])
-            branch_name = output.decode('utf-8').strip().split('/')[-1]
-            GitHubPR.DEFAULT_BRANCH_NAME = branch_name
+            output = subprocess.check_output(['git', 'remote', 'show', 'origin'])
+            utils.info("output of git remote show origin: {}".format(output))
+            match = re.search(r"HEAD branch:\s*([^\n]+)", output.decode('utf-8'))
+            utils.info(f"branch found: {match.group(1)}")
+            GitHubPR.DEFAULT_BRANCH_NAME = match.group(1)
+
+            # output = subprocess.check_output(['git', 'symbolic-ref', 'refs/remotes/origin/HEAD'])
+            # branch_name = output.decode('utf-8').strip().split('/')[-1]
+            # GitHubPR.DEFAULT_BRANCH_NAME = branch_name
 
         utils.info("default_branch_name: {}".format(GitHubPR.DEFAULT_BRANCH_NAME))
 
