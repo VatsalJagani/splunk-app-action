@@ -176,6 +176,20 @@ jobs:
 
 
 
+## Troubleshooting
+* You see below error on GitHub workflow with action.
+
+    ```
+    Unable to push changes into the branch=splunk_app_action_bbe00a4a32a796cc84b73b09abc09922
+    ```
+
+    * Enable GitHub workflow to create pull request.
+    * Go to your Repo `Setting' > `Actions` > `General``.
+        * ![Workflow Permission 1](/images/workflow_permission_for_pr_1.png)
+    * Enable read and write permission under `Workflow permissions`.
+        * ![Workflow Permission 2](/images/workflow_permission_for_pr_2.png)
+
+
 ## Examples
 * **Cyences App for Splunk**
   * Has App and Add-on in the same repo.
