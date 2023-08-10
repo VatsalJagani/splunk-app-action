@@ -45,19 +45,19 @@ class GitHubPR:
         utils.list_files(os.getcwd())
         # TODO - Remove debug related code from above.
 
-        GitHubPR.set_default_branch()
         GitHubPR.configure_git()
+        GitHubPR.set_default_branch()
 
 
     def __enter__(self):
         # checkout default branch
-        os.system(r'git checkout {}'.format(self.default_branch_name))
+        os.system(r'git checkout {}'.format(self.DEFAULT_BRANCH_NAME))
 
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         os.chdir(utils.CommonDirPaths.MAIN_DIR)
         # checkout default branch
-        os.system(r'git checkout {}'.format(self.default_branch_name))
+        os.system(r'git checkout {}'.format(self.DEFAULT_BRANCH_NAME))
 
 
     @staticmethod
@@ -65,6 +65,8 @@ class GitHubPR:
         utils.info("Finding default branch for the repo.")
         if GitHubPR.DEFAULT_BRANCH_NAME:
             return
+
+        os.system(r'git symbolic-ref refs/remotes/origin/HEAD')
 
         _default_branch_name_input = utils.get_input('default_branch_name')
         if _default_branch_name_input and _default_branch_name_input!="NONE":
@@ -108,7 +110,7 @@ class GitHubPR:
 
     def _commit(self, new_branch):
         utils.info("Committing the code.")
-        os.system(r'git checkout -b {} {}'.format(new_branch, self.default_branch_name))   # Create a new branch
+        os.system(r'git checkout -b {} {}'.format(new_branch, self.DEFAULT_BRANCH_NAME))   # Create a new branch
         os.system(r'git add -A')   # Add app changes
         os.system(r'git commit -m "{}"'.format(new_branch))   # Commit changes
 
@@ -121,7 +123,7 @@ class GitHubPR:
             utils.error("Unable to push changes into the branch={}".format(new_branch))
             return
 
-        os.system(r'gh pr create --base {} --head {} --fill'.format(self.default_branch_name, new_branch))   # Create PR
+        os.system(r'gh pr create --base {} --head {} --fill'.format(self.DEFAULT_BRANCH_NAME, new_branch))   # Create PR
 
 
     def commit_and_pr(self, file_to_generate_hash):
