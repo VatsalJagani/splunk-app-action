@@ -37,7 +37,7 @@ inputs:
 
 
   app_utilities:
-    description: "Add comma separated list of utilities to use. You need to enable read and write permission for workflow to create Pull Requests. Valid options: whats_in_the_app"
+    description: "Add comma separated list of utilities to use. You need to enable read and write permission for workflow to create Pull Requests. Valid options: whats_in_the_app, logger"
     required: false
     default: ""
 
@@ -50,7 +50,16 @@ inputs:
     description: "It auto detects the default branch, but if you want to use different branch then write branch name in this input. This branch will be used to create new branch and create PR."
     required: false
     default: "NONE"
-
+  
+  logger_log_files_prefix:
+    description: "Log files prefix. Only required for logger utility."
+    required: false
+    default: "NONE"
+  
+  logger_sourcetype:
+    description: "Sourcetype for the internal app logs. Required only for logger utility."
+    required: false
+    default: "NONE"
 
 outputs:
   stdout:

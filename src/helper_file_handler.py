@@ -27,7 +27,7 @@ class BaseFileHandler:
 
 
 
-class ConfFileHandler(BaseFileHandler):
+class PartConfFileHandler(BaseFileHandler):
     def _util_write_config_option(self, writer_parser: SplunkConfigParser, sect, key, value):
         if not writer_parser.has_section(sect):
             writer_parser.add_section(sect)
@@ -97,6 +97,8 @@ class PartRawFileHandler(BaseFileHandler):
             # Content found
             if end_index < 0:
                 end_index = len(lower_content) - 1
+
+            # print(f"start_index={start_index}, end_index={end_index}")
 
             updated_content = content[:start_index] + new_content + content[end_index:]
 

@@ -2,6 +2,7 @@
 import helper_github_action as utils
 from helper_github_pr import GitHubPR
 from utilities.whats_inside_app import SplunkAppWhatsInsideDetail
+from utilities.logger import LoggerUtility
 
 
 class SplunkAppUtilities:
@@ -22,12 +23,18 @@ class SplunkAppUtilities:
         for utility in app_utilities:
             if utility == "whats_in_the_app":
                 with GitHubPR(self.is_test) as github:
-                    readme_file_path = SplunkAppWhatsInsideDetail().update_readme()
-                    if readme_file_path:
-                        github.commit_and_pr(file_to_generate_hash=readme_file_path)
-            # elif utility == "logger":
-            #     LoggerUtility(GITHUB_ACTION_DIR, REPO_DIR, app_package_dir, main_branch_name, local_test=local_test)
+                    readme_file_path_hash = SplunkAppWhatsInsideDetail().update_readme()
+                    if readme_file_path_hash:
+                        github.commit_and_pr(hash=readme_file_path_hash)
+            
+            elif utility == "logger":
+                with GitHubPR(self.is_test) as github:
+                    logger_hash = LoggerUtility().add_logger()
+                    if logger_hash:
+                        github.commit_and_pr(hash=logger_hash)
+            
             # elif utility == "common_splunk_js_utilities":
             #     CommonSplunkJSUtility(GITHUB_ACTION_DIR, REPO_DIR, app_package_dir, main_branch_name, local_test=local_test)
+            
             else:
                 utils.error("utility={} is not supported.".format(utility))

@@ -139,12 +139,11 @@ class GitHubPR:
         os.system(r'gh pr create --base {} --head {} --fill'.format(self.DEFAULT_BRANCH_NAME, new_branch))   # Create PR
 
 
-    def commit_and_pr(self, file_to_generate_hash):
+    def commit_and_pr(self, hash):
         if self.is_test:
             return
 
-        _hash = get_file_hash(file_to_generate_hash)
-        new_branch = 'splunk_app_action_{}'.format(_hash)
+        new_branch = 'splunk_app_action_{}'.format(hash)
         utils.info("Branch Name: {}".format(new_branch))
 
         if self._check_branch_does_not_exist(new_branch):

@@ -3,6 +3,7 @@ import os
 import xml.etree.ElementTree as ET
 
 import helper_github_action as utils
+import helper_github_pr
 from helper_file_handler import PartRawFileHandler
 from helper_splunk_config_parser import SplunkConfigParser
 
@@ -58,7 +59,7 @@ class SplunkAppWhatsInsideDetail:
             self.start_marker_to_add, self.end_marker_to_add)
 
         if is_changed:
-            return file_path
+            return helper_github_pr.get_file_hash(file_path)
 
 
 
