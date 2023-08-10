@@ -9,7 +9,7 @@ from helper_splunk_config_parser import SplunkConfigParser
 class SplunkAppBuildGenerator:
 
     def __init__(self) -> None:
-        self.is_generate_build = utils.str_to_boolean(utils.get_input('is_app_inspect_check'))
+        self.is_generate_build = utils.str_to_boolean(utils.get_input('is_generate_build'))
         utils.info("is_generate_build: {}".format(self.is_generate_build))
 
         self.app_dir = utils.get_input('app_dir')
