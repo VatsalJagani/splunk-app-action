@@ -1,5 +1,6 @@
 
 import os
+import re
 import subprocess
 import hashlib
 import helper_github_action as utils
@@ -66,7 +67,16 @@ class GitHubPR:
         if GitHubPR.DEFAULT_BRANCH_NAME:
             return
 
+        os.system(r"git remote show origin | sed -n '/HEAD branch/s/.*: //p'")
+
         os.system(r'git symbolic-ref refs/remotes/origin/HEAD')
+
+        output = subprocess.check_output(['git', 'remote', 'show', 'origin'])
+        utils.info("output of git remote show origin: {}".format(output))
+        match = re.search(r"HEAD branch:\s*([^\n]+)", output)
+        if match:
+            utils.info(f"branch found: {match.group(1)}")
+
 
         _default_branch_name_input = utils.get_input('default_branch_name')
         if _default_branch_name_input and _default_branch_name_input!="NONE":
