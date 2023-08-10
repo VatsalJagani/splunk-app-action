@@ -42,7 +42,12 @@ class GitHubPR:
 
 
     def __enter__(self):
+        utils.info(f"current directory: {os.getcwd()}")
+        utils.list_files(os.getcwd())
+        utils.info(f"new directory: {utils.CommonDirPaths.REPO_DIR}")
         os.chdir(utils.CommonDirPaths.REPO_DIR)
+        utils.info(f"new current directory: {os.getcwd()}")
+        utils.list_files(os.getcwd())
         # checkout default branch
         os.system(r'git checkout {}'.format(self.default_branch_name))
 
