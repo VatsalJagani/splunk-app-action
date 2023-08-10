@@ -9,6 +9,9 @@ from helper_splunk_config_parser import SplunkConfigParser
 class SplunkAppBuildGenerator:
 
     def __init__(self) -> None:
+        self.is_generate_build = utils.str_to_boolean(utils.get_input('is_app_inspect_check'))
+        utils.info("is_generate_build: {}".format(self.is_generate_build))
+
         self.app_dir = utils.get_input('app_dir')
         utils.info("app_dir: {}".format(self.app_dir))
 
@@ -53,7 +56,7 @@ class SplunkAppBuildGenerator:
         # TODO - ensure that you are in a right directory
         # utils.list_files(os.getcwd())
 
-        if self.direct_app_build_path and self.direct_app_build_path != "NONE":
+        if not self.is_generate_build:
             return self.direct_app_build_path, self.app_package_id
 
         self._remove_git_folders()

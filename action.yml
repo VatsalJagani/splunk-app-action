@@ -31,13 +31,13 @@ inputs:
     required: false
 
   app_build_path:
-    description: "Required only when is_generate_build is set to false and you are generating the app-build in previous steps of the workflow action outside VatsalJagani/splunk-app-action GitHub Action."
+    description: "Used only when is_generate_build is set to false."
     required: false
     default: "NONE"
 
 
   app_utilities:
-    description: "Add comma separated list of utilities to use."
+    description: "Add comma separated list of utilities to use. Valid options: whats_in_the_app"
     required: false
     default: ""
 
@@ -51,14 +51,6 @@ inputs:
     required: false
     default: "NONE"
 
-  # TODO - getting the default branch instead with Python
-
-
-  # is_whats_in_app_enable:
-  #   description: "Whether to add content in the README for What's in the App/Add-on"
-  #   required: false
-  #   default: true
-  
 
 outputs:
   stdout:
@@ -67,6 +59,7 @@ outputs:
     description: "Program stderr"
   error:
     description: "A string of 'true' or 'false' that tells if there were errors."
+
 
 runs:
   using: "composite"
@@ -89,11 +82,15 @@ runs:
       run: |
         pwd
         echo "=== Inputs ==="
+        echo "is_generate_build -> ${{inputs.is_generate_build}}"
         echo "app_dir -> ${{inputs.app_dir}}"
-        echo "app_build_path -> ${{inputs.app_build_path}}"
         echo "is_app_inspect_check -> ${{inputs.is_app_inspect_check}}"
-        echo "is_whats_in_app_enable -> ${{inputs.is_whats_in_app_enable}}"
         echo "splunkbase_username -> ${{inputs.splunkbase_username}} (If using Github secret the value will be ***)"
+        echo "splunkbase_password -> ${{inputs.splunkbase_password}} (If using Github secret the value will be ***)"
+        echo "app_build_path -> ${{inputs.app_build_path}}"
+        echo "app_utilities -> ${{inputs.app_utilities}}"
+        echo "my_github_token -> ${{inputs.my_github_token}} (If using Github secret the value will be ***)"
+        echo "default_branch_name -> ${{inputs.default_branch_name}}"
         mkdir app_inspect_reports
 
 
@@ -130,13 +127,15 @@ runs:
     - name: "Running the Splunk App actions"
       shell: bash
       env:
+        SPLUNK_is_generate_build: ${{inputs.is_generate_build}}
         SPLUNK_app_dir: ${{inputs.app_dir}}
-        SPLUNK_app_build_path: ${{inputs.app_build_path}}
         SPLUNK_is_app_inspect_check: ${{inputs.is_app_inspect_check}}
-        SPLUNK_is_whats_in_app_enable: ${{inputs.is_whats_in_app_enable}}
         SPLUNK_splunkbase_username: ${{inputs.splunkbase_username}}
         SPLUNK_splunkbase_password: ${{inputs.splunkbase_password}}
+        SPLUNK_app_build_path: ${{inputs.app_build_path}}
+        SPLUNK_app_utilities: ${{inputs.app_utilities}}
         GITHUB_TOKEN: ${{inputs.my_github_token}}
+        SPLUNK_default_branch_name: ${{inputs.default_branch_name}}
       run: |
         python -u ${{ github.action_path }}/src/main.py
 

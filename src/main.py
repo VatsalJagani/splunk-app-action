@@ -11,9 +11,16 @@ from app_utilities import SplunkAppUtilities
 
 
 
-
 if __name__ == "__main__":
     utils.CommonDirPaths.generate_paths()
+
+    try:
+        build_path, app_package_id = SplunkAppBuildGenerator().generate()    # Generate Build
+        SplunkAppInspect(build_path, app_package_id).run_all_checks()        # Run App Inspect
+    except Exception as e:
+        utils.error("Error in SplunkBase Build Generator or App Inspect Checks: {}".format(e))
+        utils.error(traceback.format_exc())
+
 
     try:
         SplunkAppUtilities()
@@ -22,12 +29,6 @@ if __name__ == "__main__":
         utils.error(traceback.format_exc())
 
 
-    try:
-        build_path, app_package_id = SplunkAppBuildGenerator().generate()    # Generate Build
-        SplunkAppInspect(build_path, app_package_id).run_all_checks()        # Run App Inspect
-    except Exception as e:
-        utils.error("Error in SplunkBase Build Generator or App Inspect Checks: {}".format(e))
-        utils.error(traceback.format_exc())
 
 
 
