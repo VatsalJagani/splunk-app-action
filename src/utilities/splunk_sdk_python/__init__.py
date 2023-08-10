@@ -14,7 +14,7 @@ class SplunkPythonSDKUtility:
             os.mkdir(self.folder_to_install_splunklib)
 
 
-    def _get_splunklib_version(file_path):
+    def _get_splunklib_version(self, file_path):
         try:
             with open(file_path, 'r') as f:
                 match = re.search(r"\n__version_info__\s*=\s*([^\n]+)", f.read())
