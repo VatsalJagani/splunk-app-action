@@ -38,11 +38,6 @@ class SplunkAppBuildGenerator:
         else:
             return self.app_dir
 
-        # TODO - If the repo root folder is App's root folder then app.conf has to have [package] id parameter.
-        # TODO - Do not do exception handling here, handle it at main.py file
-
-        # TODO - Use app package id before folder name from Repo
-
 
     def _remove_git_folders(self):
         utils.info("Removing .git and .github directory from repo.")

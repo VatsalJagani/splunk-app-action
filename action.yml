@@ -12,13 +12,13 @@ inputs:
     default: true
 
   app_dir:
-    description: "Provide app directory. Do not provide the value if the repo's root directory itself if app directory. Required for App Build Generation and for adding App Utility."
+    description: "Provide app directory inside your repository. Do not provide the value if the repo's root directory itself if app directory."
     required: false
     default: "."
 
 
   is_app_inspect_check:
-    description: "Whether to perform the app-inspect checks or not"
+    description: "Whether to perform the Splunk app-inspect checks or not. This would include cloud-inspect checks as well."
     required: false
     default: true
 
@@ -27,11 +27,11 @@ inputs:
     required: false
 
   splunkbase_password:
-    description: "Password required to call the Splunkbase API for App-Inspect. Required when is_app_inspect_check is set to true."
+    description: "Password required to call the Splunkbase API for App-Inspect. Required when is_app_inspect_check is set to true. Strongly recommend to use via GitHub secrets only and specify like `{{secrets.MY_SPLUNK_PASSWORD}}`."
     required: false
 
   app_build_path:
-    description: "Used only when is_generate_build is set to false."
+    description: "Full App build path. Used only when is_generate_build is set to false."
     required: false
     default: "NONE"
 

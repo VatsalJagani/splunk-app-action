@@ -27,18 +27,3 @@ if __name__ == "__main__":
     except Exception as e:
         utils.error("Error Adding Splunk App Utilities: {}".format(e))
         utils.error(traceback.format_exc())
-
-
-
-
-
-# TODO - Maybe use https://github.com/CrossRealms/Splunk-App-Common-Utility-Action/blob/main/main.py
-# For common variables REPO_DIR, APP_DIR
-
-
-# TODO - Make Whats Inside the App by default disable
-# And always add the content to the readme file, if the header is not present, then add it to the end of the file
-
-# TODO - What's inside the file, also, accept the end of file character, ensure that
-
-# TODO - Ensure README changes not go in the build
