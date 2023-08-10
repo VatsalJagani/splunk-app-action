@@ -1,6 +1,6 @@
 
 import os
-import traceback
+import shutil
 
 import helper_github_action as utils
 from helper_splunk_config_parser import SplunkConfigParser
@@ -46,8 +46,14 @@ class SplunkAppBuildGenerator:
 
     def _remove_git_folders(self):
         utils.info("Removing .git and .github directory from repo.")
-        os.system('rm -rf repodir/.github')
-        os.system('rm -rf repodir/.git')
+        os.system('rm -rf repodir_for_build/.github')
+        os.system('rm -rf repodir_for_build/.git')
+
+
+    def _util_generate_build_commands(self):
+        os.system("find {} -type f -exec chmod 644 '{{}}' \;".format(self.app_package_id))
+        os.system("find {} -type d -exec chmod 755 '{{}}' \;".format(self.app_package_id))
+        os.system("tar -czf {}.tgz {}".format(self.app_package_id, self.app_package_id))
 
 
     def generate(self):
@@ -59,31 +65,30 @@ class SplunkAppBuildGenerator:
         if not self.is_generate_build:
             return self.direct_app_build_path, self.app_package_id
 
+        # copy folder to generate build, rather than affecting the original repo checkout
+        shutil.copytree('repodir', 'repodir_for_build')
+
         self._remove_git_folders()
 
         if self.app_dir == '.':
-            os.system('mv repodir {}'.format(self.app_package_id))
-            os.system("find {} -type f -exec chmod 644 '{{}}' \;".format(self.app_package_id))
-            os.system("find {} -type d -exec chmod 755 '{{}}' \;".format(self.app_package_id))
-            os.system("tar -czf {}.tgz {}".format(self.app_package_id, self.app_package_id))
+            os.system('mv repodir_for_build {}'.format(self.app_package_id))
+            self._util_generate_build_commands()
         else:
-            os.chdir('repodir')
-
+            os.chdir('repodir_for_build')
             utils.info("updated cwd={}".format(os.getcwd()))
             # utils.list_files(os.getcwd())
-            
+
             if self.app_dir != self.app_package_id:
                 os.system('mv {} {}'.format(self.app_dir, self.app_package_id))
-            
-            os.system("find {} -type f -exec chmod 644 '{{}}' \;".format(self.app_package_id))
-            os.system("find {} -type d -exec chmod 755 '{{}}' \;".format(self.app_package_id))
-            os.system("tar -czf {}.tgz {}".format(self.app_package_id, self.app_package_id))
+
+            self._util_generate_build_commands()
             os.system('mv {}.tgz ..'.format(self.app_package_id))
 
             os.chdir('..')
 
         utils.info("final cwd={}".format(os.getcwd()))
         utils.list_files(os.getcwd())
+        # TODO - remove above debug lines after testing.
 
         return '{}.tgz'.format(self.app_package_id), self.app_package_id
 

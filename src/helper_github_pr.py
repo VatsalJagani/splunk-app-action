@@ -48,6 +48,7 @@ class GitHubPR:
         os.chdir(utils.CommonDirPaths.REPO_DIR)
         utils.info(f"new current directory: {os.getcwd()}")
         utils.list_files(os.getcwd())
+        # TODO - Remove debug related code from above.
         # checkout default branch
         os.system(r'git checkout {}'.format(self.default_branch_name))
 
