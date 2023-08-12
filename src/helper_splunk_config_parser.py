@@ -73,6 +73,12 @@ class _SplunkStanzaOptions:
     def merge(self, second_options_obj):
         is_changed = False
 
+        original_stanza_pre_comments = self._stanza_pre_comments.copy()
+
+        for _pre_comment_line in second_options_obj._stanza_pre_comments:
+            if _pre_comment_line not in original_stanza_pre_comments:
+                self._stanza_pre_comments.append(_pre_comment_line)
+
         for key_value in second_options_obj:
             if type(key_value) == str:
                 if key_value not in self._stanza_content:
@@ -305,8 +311,8 @@ class SplunkConfigParser:
     def as_string(self) -> str:
         return str(self)
 
-# TODO - Handle comment shifting one line down - DONE
-# TODO - Handle pre-stanza comments not being merged
+# DONE - Handle comment shifting one line down
+# DONE - Handle pre-stanza comments not being merged
 # TODO - Add option to ignore pre-stanza comments while merging
 # TODO - Add option to not merge __FILE__ stanza while merging
 # TODO - Handle extra new lines getting added everywhere
