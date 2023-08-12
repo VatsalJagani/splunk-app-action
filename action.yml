@@ -120,6 +120,7 @@ runs:
       run: |
         pwd
         cd repodir
+        ls
 
         for i in $(seq 1 100); do
             command_name="SPLUNK_APP_ACTION_${i}"

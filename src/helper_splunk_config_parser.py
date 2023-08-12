@@ -10,12 +10,22 @@ NEW_LINE_CHAR = '\n'
 class _SplunkStanzaOptions:
     def __init__(self) -> None:
         self._stanza_content = []
+        self._stanza_pre_comments = []
 
 
     def add(self, key, value=None):
-        if value:
+        if value is not None:
             self._stanza_content.append((key, value))
-        self._stanza_content.append(key)
+        else:
+            self._stanza_content.append(key)
+
+
+    def extend(self, list_of_attributes):
+        self._stanza_content.extend(list_of_attributes)
+
+
+    def add_stanza_pre_comments(self, comments):
+        self._stanza_pre_comments = comments.copy()
 
 
     def __getitem__(self, key):
@@ -24,7 +34,6 @@ class _SplunkStanzaOptions:
                 if key_value[0] == key:
                     return key_value[1]
         raise KeyError(key)
-
 
 
     def __setitem__(self, key, value):
@@ -59,25 +68,6 @@ class _SplunkStanzaOptions:
 
     def __iter__(self):
         return iter(self._stanza_content)
-
-
-    def write_to_file(self, fp):
-        for key_value in self._stanza_content:
-            if type(key_value) == str:
-                fp.write(f'{key_value}\n')
-
-            elif type(key_value) == tuple:
-                option = key_value[0]
-                value = key_value[1]
-
-                if NEW_LINE_CHAR in value:
-                    new_line_ch = NEW_LINE_CHAR+'\n'
-                    value = new_line_ch.join(value.splitlines())
-
-                fp.write(f'{option} = {value}\n')
-
-            else:
-                raise Exception("SplunkConfigParser > _SplunkStanzaOptions: Unexpected parsing error while writing the conf file.")
 
 
     def merge(self, second_options_obj):
@@ -120,6 +110,38 @@ class _SplunkStanzaOptions:
         return is_changed
 
 
+    def __str__(self) -> str:
+        content_str = ''
+        for key_value in self._stanza_content:
+            if type(key_value) == str:
+                content_str += f'{key_value}\n'
+
+            elif type(key_value) == tuple:
+                option = key_value[0]
+                value = key_value[1]
+
+                if NEW_LINE_CHAR in value:
+                    new_line_ch = NEW_LINE_CHAR+'\n'
+                    value = new_line_ch.join(value.splitlines())
+
+                content_str += f'{option} = {value}\n'
+
+        return content_str
+
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+
+    def as_string(self, section) -> str:
+        content_str = "\n".join(self._stanza_pre_comments)
+        content_str += "\n"
+        if section != FILE_SECTION:
+            content_str += f"[{section}]"
+        content_str += "\n"
+        content_str += str(self)
+        return content_str
+
 
 
 class SplunkConfigParser:
@@ -144,22 +166,40 @@ class SplunkConfigParser:
         current_option = None
         current_value = []
 
+        self.comments_before_stanza = []
+
+        def _handle_stanza_pre_comments(next_line_type, line):
+            if next_line_type=="COMMENT":
+                self.comments_before_stanza.append(line)
+            elif (next_line_type=="EMPTY_LINE" or next_line_type=="OPTION"):
+                if self.comments_before_stanza:
+                    self._content[current_section].extend(self.comments_before_stanza)
+                    self.comments_before_stanza = []
+            elif next_line_type=="STANZA" and self.comments_before_stanza:
+                self._content[current_section].add_stanza_pre_comments(self.comments_before_stanza)
+                self.comments_before_stanza = []
+
         for original_line in lines:
             line = original_line.strip()
 
             # Empty Line
             if not line:
                 self._content[current_section].add(original_line)
+                _handle_stanza_pre_comments('EMPTY_LINE', line)
 
             # Comment Line
-            elif line.startswith(COMMENT_CHAR):   # comment character, preserve the line
-                self._content[current_section].add(original_line)
+            elif line.startswith(COMMENT_CHAR):   # comment character, preserve the comments in the conf file
+                _handle_stanza_pre_comments('COMMENT', original_line)
 
             # Stanza line - []
             elif current_option is None and line.startswith('[') and line.endswith(']'):
                 current_section = line[1:-1]
                 if current_section not in self._content:
                     self._content[current_section] = _SplunkStanzaOptions()
+                else:
+                    # TODO - Handle the same stanza in the file again
+                    pass
+                _handle_stanza_pre_comments('STANZA', line)
 
             # New option line
             elif current_option is None and '=' in line:
@@ -173,6 +213,8 @@ class SplunkConfigParser:
                 else:
                     self._content[current_section].add(option, value)
 
+                _handle_stanza_pre_comments('OPTION', line)
+
             # Second line of multi-line option value
             elif current_option:
                 if len(line) > 0 and line[-1] == MULTI_LINE_CHAR:
@@ -182,21 +224,18 @@ class SplunkConfigParser:
                     self._content[current_section].add(current_option, NEW_LINE_CHAR.join(current_value))
                     current_option = None
                     current_value = []
-            
+
             else:
                 raise Exception("SplunkConfigParser: Unable to parse the Splunk config file properly.")
+
+        if self.comments_before_stanza:
+            self._content[current_section].extend(self.comments_before_stanza)
+            self.comments_before_stanza = []
 
 
     def write(self, file):
         with open(file, 'w') as fp:
-            for section, options in self._content.items():
-
-                if section != FILE_SECTION:
-                    fp.write(f'[{section}]\n')
-
-                options.write_to_file(fp)
-
-                fp.write('\n')
+            fp.write(str(self))
 
 
     def sections(self):
@@ -249,3 +288,24 @@ class SplunkConfigParser:
                 is_changed = True
 
         return is_changed
+
+
+    def __str__(self) -> str:
+        content_str = ''
+        for section, options in self._content.items():
+            content_str += options.as_string(section)
+            content_str += '\n'
+        return content_str
+
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+
+    def as_string(self) -> str:
+        return str(self)
+
+# TODO - Handle comment shifting one line down
+# TODO - Handle pre-stanza comments not being merged
+# TODO - Add option to ignore pre-stanza comments while merging
+# TODO - Add option to not merge __FILE__ stanza while merging
