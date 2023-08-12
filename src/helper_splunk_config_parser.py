@@ -70,14 +70,15 @@ class _SplunkStanzaOptions:
         return iter(self._stanza_content)
 
 
-    def merge(self, second_options_obj):
+    def merge(self, second_options_obj, to_merge_pre_stanza_comments=True):
         is_changed = False
 
-        original_stanza_pre_comments = self._stanza_pre_comments.copy()
+        if to_merge_pre_stanza_comments:
+            original_stanza_pre_comments = self._stanza_pre_comments.copy()
 
-        for _pre_comment_line in second_options_obj._stanza_pre_comments:
-            if _pre_comment_line not in original_stanza_pre_comments:
-                self._stanza_pre_comments.append(_pre_comment_line)
+            for _pre_comment_line in second_options_obj._stanza_pre_comments:
+                if _pre_comment_line not in original_stanza_pre_comments:
+                    self._stanza_pre_comments.append(_pre_comment_line)
 
         for key_value in second_options_obj:
             if type(key_value) == str:
@@ -281,7 +282,7 @@ class SplunkConfigParser:
         return self._content.items()
 
 
-    def merge(self, second_conf_parser):
+    def merge(self, second_conf_parser, to_merge_pre_stanza_comments=True, to_merge_file_level_parameters=False):
         is_changed = False
 
         for stanza, options in second_conf_parser.items():
@@ -289,9 +290,10 @@ class SplunkConfigParser:
                 self._content[stanza] = _SplunkStanzaOptions()
                 is_changed = True
 
-            is_changed1 = self._content[stanza].merge(options)
-            if is_changed1:
-                is_changed = True
+            if stanza != FILE_SECTION or to_merge_file_level_parameters:
+                is_changed1 = self._content[stanza].merge(options, to_merge_pre_stanza_comments)
+                if is_changed1:
+                    is_changed = True
 
         return is_changed
 
@@ -313,6 +315,6 @@ class SplunkConfigParser:
 
 # DONE - Handle comment shifting one line down
 # DONE - Handle pre-stanza comments not being merged
-# TODO - Add option to ignore pre-stanza comments while merging
+# DONE - Add option to ignore pre-stanza comments while merging
 # TODO - Add option to not merge __FILE__ stanza while merging
 # TODO - Handle extra new lines getting added everywhere
