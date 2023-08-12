@@ -184,8 +184,8 @@ class SplunkConfigParser:
 
             # Empty Line
             if not line:
-                self._content[current_section].add(original_line)
                 _handle_stanza_pre_comments('EMPTY_LINE', line)
+                self._content[current_section].add(original_line)
 
             # Comment Line
             elif line.startswith(COMMENT_CHAR):   # comment character, preserve the comments in the conf file
@@ -203,6 +203,8 @@ class SplunkConfigParser:
 
             # New option line
             elif current_option is None and '=' in line:
+                _handle_stanza_pre_comments('OPTION', line)
+
                 option, value = line.split('=', 1)
                 option = option.strip()
                 value = value.strip()
@@ -212,8 +214,6 @@ class SplunkConfigParser:
                     current_value.append(value[:-1])
                 else:
                     self._content[current_section].add(option, value)
-
-                _handle_stanza_pre_comments('OPTION', line)
 
             # Second line of multi-line option value
             elif current_option:
@@ -305,7 +305,8 @@ class SplunkConfigParser:
     def as_string(self) -> str:
         return str(self)
 
-# TODO - Handle comment shifting one line down
+# TODO - Handle comment shifting one line down - DONE
 # TODO - Handle pre-stanza comments not being merged
 # TODO - Add option to ignore pre-stanza comments while merging
 # TODO - Add option to not merge __FILE__ stanza while merging
+# TODO - Handle extra new lines getting added everywhere
