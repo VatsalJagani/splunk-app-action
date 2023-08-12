@@ -142,10 +142,12 @@ class _SplunkStanzaOptions:
 
     def as_string(self, section) -> str:
         content_str = "\n".join(self._stanza_pre_comments)
-        content_str += "\n"
+        if content_str:
+            content_str += "\n"
         if section != FILE_SECTION:
             content_str += f"[{section}]"
-        content_str += "\n"
+        if content_str:
+            content_str += "\n"
         content_str += str(self)
         return content_str
 
@@ -302,7 +304,6 @@ class SplunkConfigParser:
         content_str = ''
         for section, options in self._content.items():
             content_str += options.as_string(section)
-            content_str += '\n'
         return content_str
 
 
@@ -312,9 +313,3 @@ class SplunkConfigParser:
 
     def as_string(self) -> str:
         return str(self)
-
-# DONE - Handle comment shifting one line down
-# DONE - Handle pre-stanza comments not being merged
-# DONE - Add option to ignore pre-stanza comments while merging
-# TODO - Add option to not merge __FILE__ stanza while merging
-# TODO - Handle extra new lines getting added everywhere
