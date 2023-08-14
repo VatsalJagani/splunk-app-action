@@ -16,7 +16,6 @@ inputs:
     required: false
     default: "."
 
-
   is_app_inspect_check:
     description: "Whether to perform the Splunk app-inspect checks or not. This would include cloud-inspect checks as well."
     required: false
@@ -35,7 +34,6 @@ inputs:
     required: false
     default: "NONE"
 
-
   app_utilities:
     description: "Add comma separated list of utilities to use. You need to enable read and write permission for workflow to create Pull Requests. Valid options: whats_in_the_app, logger, splunk_python_sdk, common_js_utilities"
     required: false
@@ -50,12 +48,12 @@ inputs:
     description: "It auto detects the default branch, but if you want to use different branch then write branch name in this input. This branch will be used to create new branch and create PR."
     required: false
     default: "NONE"
-  
+
   logger_log_files_prefix:
     description: "Log files prefix. Only required for logger utility."
     required: false
     default: "NONE"
-  
+
   logger_sourcetype:
     description: "Sourcetype for the internal app logs. Required only for logger utility."
     required: false
@@ -69,7 +67,6 @@ outputs:
   error:
     description: "A string of 'true' or 'false' that tells if there were errors."
 
-
 runs:
   using: "composite"
   steps:
@@ -82,9 +79,8 @@ runs:
       uses: actions/checkout@v2
       if: inputs.app_build_path == 'NONE'
       with:
-          ref: ${{ steps.extract_branch.outputs.branch }}
-          path: repodir
-
+        ref: ${{ steps.extract_branch.outputs.branch }}
+        path: repodir
 
     - name: "Pre-tasks"
       shell: bash
@@ -102,8 +98,8 @@ runs:
         echo "default_branch_name -> ${{inputs.default_branch_name}}"
         echo "logger_log_files_prefix -> ${{inputs.logger_log_files_prefix}}"
         echo "logger_sourcetype -> ${{inputs.logger_sourcetype}}"
+        rm -rf app_inspect_reports
         mkdir app_inspect_reports
-
 
     - name: "Install Python"
       uses: actions/setup-python@v2
@@ -112,7 +108,6 @@ runs:
       shell: bash
       run: |
         pip install requests
-
 
     - name: "Running user defined commands"
       shell: bash
@@ -135,7 +130,6 @@ runs:
         cd ..
         pwd
 
-
     - name: "Running the Splunk App actions"
       shell: bash
       env:
@@ -153,14 +147,12 @@ runs:
       run: |
         python -u ${{ github.action_path }}/src/main.py
 
-
     - name: "Upload the app build as artifact"
       uses: actions/upload-artifact@v2
       if: always()
       with:
         name: "App-Build-${{env.app_package_id}}"
         path: ${{env.app_package_id}}.tgz
-
 
     - name: "Upload the app-inspect reports as artifact"
       uses: actions/upload-artifact@v2

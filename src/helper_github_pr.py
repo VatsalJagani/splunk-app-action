@@ -75,10 +75,10 @@ class GitHubPR:
         if is_test:
             return
 
-        utils.info("Finding default branch for the repo.")
         if GitHubPR.DEFAULT_BRANCH_NAME:
             return
 
+        utils.info("Finding default branch for the repo.")
         os.system(r"git remote show origin | sed -n '/HEAD branch/s/.*: //p'")
 
         _default_branch_name_input = utils.get_input('default_branch_name')
@@ -102,10 +102,10 @@ class GitHubPR:
         if is_test:
             return
 
-        utils.info("Configuring git username & credentials.")
         if GitHubPR.IS_GIT_CONFIGURED:
             return
 
+        utils.info("Configuring git username & credentials.")
         if not os.environ.get("GITHUB_TOKEN"):
             raise ValueError(
                 "Please configure the GitHub Token in MY_GITHUB_TOKEN environment secret for actions in the Repo Settings.")
@@ -117,15 +117,16 @@ class GitHubPR:
         GitHubPR.IS_GIT_CONFIGURED = True
 
 
-    def _check_branch_does_not_exist(self, branch_name):
-        # https://stackoverflow.com/questions/5167957/is-there-a-better-way-to-find-out-if-a-local-git-branch-exists
-        os.system('git fetch')
+    def _check_branch_exist(self, branch_name):
         utils.info("Checking whether git branch already present or not.")
-        # ret_code = os.system('git rev-parse --verify {}'.format(branch_name))
-        ret_code = os.system('git checkout {}'.format(branch_name))
-        if ret_code == 0:
+        os.system('git fetch')
+        try:
+            subprocess.check_output(
+                ['git', 'show-ref', '--verify', '--quiet', f'refs/heads/{branch_name}'])
+            return True
+        except subprocess.CalledProcessError:
             return False
-        return True
+
 
 
     def _commit(self, new_branch):
@@ -156,7 +157,7 @@ class GitHubPR:
         new_branch = 'splunk_app_action_{}'.format(hash)
         utils.info("Branch Name: {}".format(new_branch))
 
-        if self._check_branch_does_not_exist(new_branch):
+        if not self._check_branch_exist(new_branch):
             self._commit(new_branch)
             self._pr(new_branch)
         else:
