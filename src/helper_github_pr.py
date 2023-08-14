@@ -106,12 +106,10 @@ class GitHubPR:
                 "Please configure the GitHub Token in MY_GITHUB_TOKEN environment secret for actions in the Repo Settings.")
 
         os.system(r'gh auth setup-git')
-        os.system(r'git config user.name splunk_app_action')
+        os.system(r'git config user.name SplunkAppAction')
         os.system(r'git config user.email splunkappaction@gmail.com')
 
         GitHubPR.IS_GIT_CONFIGURED = True
-
-        # TODO - Create this GitHub account specific for github action
 
 
     def _check_branch_does_not_exist(self, branch_name):
