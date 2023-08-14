@@ -8,7 +8,7 @@ from helper_splunk_config_parser import SplunkConfigParser
 from utilities.base_utility import BaseUtility
 
 
-class SplunkAppWhatsInsideDetail(BaseUtility):
+class WhatsInsideTheAppUtility(BaseUtility):
     IMP_CONF_FILES = {
         'savedsearches': 'Reports and Alerts',
         'commands': 'Custom Commands',
@@ -23,17 +23,16 @@ class SplunkAppWhatsInsideDetail(BaseUtility):
 
 
     def _get_readme_file_location(self):
-        for file in os.listdir(self.app_dir):
+        for file in os.listdir(utils.CommonDirPaths.APP_DIR):
             if file.lower() in ['readme.md', 'readme.txt']:
-                return os.path.join(self.app_dir, file)
+                return os.path.join(utils.CommonDirPaths.APP_DIR, file)
 
 
     def implement_utility(self):
         '''
         It returns the file_path of README file when the file has been changed, otherwise None
         '''
-        self.app_dir = utils.get_input('app_dir')
-        utils.info("app_dir: {}".format(self.app_dir))
+        utils.info("Adding WhatsInsideTheAppUtility.")
 
         start_markers = ["# What's in the App", "What's in the Add-on",
                          "# What's inside the App", "# What's inside the Add-on"]
@@ -49,7 +48,7 @@ class SplunkAppWhatsInsideDetail(BaseUtility):
 
         file_path = self._get_readme_file_location()
         if not file_path:
-            print("No Readme.md file found.")
+            utils.info("No Readme.md file found in the App.")
             return
 
         is_changed = PartRawFileHandler(None, file_path).validate_file_content(
@@ -58,7 +57,9 @@ class SplunkAppWhatsInsideDetail(BaseUtility):
             start_marker_to_add, end_marker_to_add)
 
         if is_changed:
+            utils.info("Readme file updated for WhatsInsideTheAppUtility.")
             return file_path
+        utils.info("No change in Readme file for WhatsInsideTheAppUtility.")
 
 
     def _get_conf_stanzas(self, file_path):
@@ -75,9 +76,9 @@ class SplunkAppWhatsInsideDetail(BaseUtility):
     def _get_stanzas(self, conf_file_name):
         stanzas = set()
         local_conf_file = os.path.join(
-            self.app_dir, 'local', "{}.conf".format(conf_file_name))
+            utils.CommonDirPaths.APP_DIR, 'local', "{}.conf".format(conf_file_name))
         default_conf_file = os.path.join(
-            self.app_dir, 'default', "{}.conf".format(conf_file_name))
+            utils.CommonDirPaths.APP_DIR, 'default', "{}.conf".format(conf_file_name))
 
         if os.path.isfile(local_conf_file):
             stanzas.update(self._get_conf_stanzas(local_conf_file))
@@ -105,7 +106,7 @@ class SplunkAppWhatsInsideDetail(BaseUtility):
 
     def _get_csv_lookup_files(self):
         csv_lookup_files = []
-        lookups_path = os.path.join(self.app_dir, 'lookups')
+        lookups_path = os.path.join(utils.CommonDirPaths.APP_DIR, 'lookups')
         if os.path.isdir(lookups_path):
             csv_lookup_files = [file for file in os.listdir(
                 lookups_path) if file.endswith(".csv") or file.endswith(".CSV")]
@@ -155,7 +156,7 @@ class SplunkAppWhatsInsideDetail(BaseUtility):
         dashboards = {}
 
         local_dashboards_path = os.path.join(
-            self.app_dir, 'local', 'data', 'ui', 'views')
+            utils.CommonDirPaths.APP_DIR, 'local', 'data', 'ui', 'views')
         if os.path.isdir(local_dashboards_path):
             local_xml_files = [file for file in os.listdir(
                 local_dashboards_path) if file.endswith(".xml") or file.endswith(".XML")]
@@ -166,7 +167,7 @@ class SplunkAppWhatsInsideDetail(BaseUtility):
                 dashboards[df] = dashboard_details
 
         default_dashboards_path = os.path.join(
-            self.app_dir, 'default', 'data', 'ui', 'views')
+            utils.CommonDirPaths.APP_DIR, 'default', 'data', 'ui', 'views')
         if os.path.isdir(default_dashboards_path):
             default_xml_files = [file for file in os.listdir(
                 default_dashboards_path) if file.endswith(".xml") or file.endswith(".XML")]
@@ -178,7 +179,7 @@ class SplunkAppWhatsInsideDetail(BaseUtility):
                         os.path.join(default_dashboards_path, df))
                     dashboards[df] = dashboard_details
 
-        # print("dashboards: {}".format(dashboards))
+        # utils.info("dashboards: {}".format(dashboards))
 
         approx_total_viz = 0
         for key, val in dashboards.items():

@@ -216,6 +216,7 @@ class SplunkAppInspect:
 
 
     def run_all_checks(self):
+        utils.info("Running the Splunk App inspect check.")
         if not self.is_app_inspect_check:
             return
 
@@ -232,7 +233,8 @@ class SplunkAppInspect:
         thread_app_inspect.join()
         thread_cloud_inspect.join()
         thread_ssai_inspect.join()
-        utils.info("All threads completed.")
+        utils.info(
+            "All threads for Splunk App Inspect Checkes has been completed.")
 
         if all(i == "Passed" for i in self.app_inspect_result):
             utils.info(

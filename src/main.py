@@ -12,6 +12,8 @@ from app_utilities import SplunkAppUtilities
 
 
 if __name__ == "__main__":
+    utils.info("Running Python script main.py")
+
     utils.CommonDirPaths.generate_paths()
 
     try:
@@ -22,7 +24,6 @@ if __name__ == "__main__":
         utils.error(
             "Error in SplunkBase Build Generator or App Inspect Checks: {}".format(e))
         utils.error(traceback.format_exc())
-
 
     try:
         SplunkAppUtilities()

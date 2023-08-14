@@ -9,6 +9,7 @@ from utilities.base_utility import BaseUtility
 class LoggerUtility(BaseUtility):
 
     def implement_utility(self):
+        utils.info("Adding LoggerUtility.")
         should_execute = True
 
         log_files_prefix = utils.get_input('logger_log_files_prefix')
@@ -37,12 +38,14 @@ class LoggerUtility(BaseUtility):
         update2 = self.add_props_content()
 
         if update1 or update2:
+            utils.info("Updated logger related files.")
             return [
                 os.path.join(utils.CommonDirPaths.APP_DIR,
                              'bin', 'logger_manager.py'),
                 os.path.join(utils.CommonDirPaths.APP_DIR,
                              'default', 'props.conf')
             ]
+        utils.info("No change in logger related files.")
 
 
     def add_logger_manager_py(self):

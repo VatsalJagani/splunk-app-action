@@ -1,6 +1,6 @@
 
 import helper_github_action as utils
-from utilities.whats_inside_app import SplunkAppWhatsInsideDetail
+from utilities.whats_inside_app import WhatsInsideTheAppUtility
 from utilities.logger import LoggerUtility
 from utilities.splunk_sdk_python import SplunkPythonSDKUtility
 from utilities.common_splunk_js_utilities import CommonJSUtilitiesFile
@@ -21,9 +21,10 @@ class SplunkAppUtilities:
 
 
     def add_utilities(self, app_utilities):
+        utils.info(f"Adding utilities: {app_utilities}")
         for utility in app_utilities:
             if utility == "whats_in_the_app":
-                SplunkAppWhatsInsideDetail()
+                WhatsInsideTheAppUtility()
 
             elif utility == "logger":
                 LoggerUtility()

@@ -9,6 +9,8 @@ from utilities.base_utility import BaseUtility
 class CommonJSUtilitiesFile(BaseUtility):
 
     def implement_utility(self):
+        utils.info("Adding CommonJSUtilitiesFile")
+
         folder_path = os.path.join(
             utils.CommonDirPaths.APP_DIR, 'appserver', 'static')
         file_path = os.path.join(
@@ -25,4 +27,6 @@ class CommonJSUtilitiesFile(BaseUtility):
         ).validate_file_content()
 
         if is_updated:
+            utils.info("Change in the file splunk_common_js_v_utilities.js")
             return file_path
+        utils.info("No change in the file splunk_common_js_v_utilities.js")

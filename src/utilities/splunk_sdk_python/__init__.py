@@ -20,6 +20,8 @@ class SplunkPythonSDKUtility(BaseUtility):
 
 
     def implement_utility(self):
+        utils.info("Adding SplunkPythonSDKUtility")
+
         folder_to_install_splunklib = os.path.join(
             utils.CommonDirPaths.APP_DIR, 'bin')
 
@@ -37,17 +39,21 @@ class SplunkPythonSDKUtility(BaseUtility):
         if os.path.exists(splunklib_dir) and os.path.isdir(splunklib_dir) and os.path.isfile(init_file):
             already_exist = True
             previous_version = self._get_splunklib_version(init_file)
-            utils.info(f"previous splunklib version = {previous_version}")
+            utils.info(f"Previous splunklib version = {previous_version}")
 
         if already_exist:
+            utils.info(
+                "splunklib already present under bin directory of the App, upgrading...")
             os.system(
                 f'pip install splunk-sdk --upgrade --target {folder_to_install_splunklib}')
         else:
+            utils.info(
+                "splunklib not present under bin directory of the App, installing...")
             os.system(
                 f'pip install splunk-sdk --target {folder_to_install_splunklib}')
 
         new_version = self._get_splunklib_version(init_file)
-        utils.info(f"new splunklib version = {new_version}")
+        utils.info(f"New splunklib version = {new_version}")
 
         if not already_exist or previous_version != new_version:
             return init_file
