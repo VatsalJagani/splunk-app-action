@@ -30,6 +30,7 @@ def str_to_boolean(value_in_str: str):
 def get_input(name):
     return os.getenv(f"SPLUNK_{name}")
 
+
 def set_input(name, value):
     os.environ["SPLUNK_{}".format(name)] = value
 
@@ -109,10 +110,12 @@ class CommonDirPaths:
         if CommonDirPaths.MAIN_DIR is None:
             CommonDirPaths.MAIN_DIR = os.getcwd()
         if CommonDirPaths.REPO_DIR is None:
-            CommonDirPaths.REPO_DIR = os.path.join(CommonDirPaths.MAIN_DIR, 'repodir')
+            CommonDirPaths.REPO_DIR = os.path.join(
+                CommonDirPaths.MAIN_DIR, 'repodir')
         if CommonDirPaths.APP_DIR is None:
             app_dir = get_input('app_dir')
-            CommonDirPaths.APP_DIR = os.path.join(CommonDirPaths.REPO_DIR, app_dir)
+            CommonDirPaths.APP_DIR = os.path.join(
+                CommonDirPaths.REPO_DIR, app_dir)
 
     def __init__(self):
         CommonDirPaths.generate_static_variable()

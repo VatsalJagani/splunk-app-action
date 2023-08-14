@@ -112,7 +112,8 @@ class _SplunkStanzaOptions:
                     is_changed = True
 
             else:
-                raise Exception("SplunkConfigParser: Unexpected parsing error while writing the conf file.")
+                raise Exception(
+                    "SplunkConfigParser: Unexpected parsing error while writing the conf file.")
 
         return is_changed
 
@@ -128,7 +129,7 @@ class _SplunkStanzaOptions:
                 value = key_value[1]
 
                 if NEW_LINE_CHAR in value:
-                    new_line_ch = NEW_LINE_CHAR+'\n'
+                    new_line_ch = NEW_LINE_CHAR + '\n'
                     value = new_line_ch.join(value.splitlines())
 
                 content_str += f'{option} = {value}\n'
@@ -178,14 +179,16 @@ class SplunkConfigParser:
         self.comments_before_stanza = []
 
         def _handle_stanza_pre_comments(next_line_type, line):
-            if next_line_type=="COMMENT":
+            if next_line_type == "COMMENT":
                 self.comments_before_stanza.append(line)
-            elif (next_line_type=="EMPTY_LINE" or next_line_type=="OPTION"):
+            elif (next_line_type == "EMPTY_LINE" or next_line_type == "OPTION"):
                 if self.comments_before_stanza:
-                    self._content[current_section].extend(self.comments_before_stanza)
+                    self._content[current_section].extend(
+                        self.comments_before_stanza)
                     self.comments_before_stanza = []
-            elif next_line_type=="STANZA" and self.comments_before_stanza:
-                self._content[current_section].add_stanza_pre_comments(self.comments_before_stanza)
+            elif next_line_type == "STANZA" and self.comments_before_stanza:
+                self._content[current_section].add_stanza_pre_comments(
+                    self.comments_before_stanza)
                 self.comments_before_stanza = []
 
         for original_line in lines:
@@ -197,7 +200,8 @@ class SplunkConfigParser:
                 self._content[current_section].add(original_line)
 
             # Comment Line
-            elif line.startswith(COMMENT_CHAR):   # comment character, preserve the comments in the conf file
+            # comment character, preserve the comments in the conf file
+            elif line.startswith(COMMENT_CHAR):
                 _handle_stanza_pre_comments('COMMENT', original_line)
 
             # Stanza line - []
@@ -230,12 +234,14 @@ class SplunkConfigParser:
                     current_value.append(line[:-1])
                 else:
                     current_value.append(line)
-                    self._content[current_section].add(current_option, NEW_LINE_CHAR.join(current_value))
+                    self._content[current_section].add(
+                        current_option, NEW_LINE_CHAR.join(current_value))
                     current_option = None
                     current_value = []
 
             else:
-                raise Exception("SplunkConfigParser: Unable to parse the Splunk config file properly.")
+                raise Exception(
+                    "SplunkConfigParser: Unable to parse the Splunk config file properly.")
 
         if self.comments_before_stanza:
             self._content[current_section].extend(self.comments_before_stanza)
@@ -293,7 +299,8 @@ class SplunkConfigParser:
                 is_changed = True
 
             if stanza != FILE_SECTION or to_merge_file_level_parameters:
-                is_changed1 = self._content[stanza].merge(options, to_merge_pre_stanza_comments)
+                is_changed1 = self._content[stanza].merge(
+                    options, to_merge_pre_stanza_comments)
                 if is_changed1:
                     is_changed = True
 

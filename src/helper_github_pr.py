@@ -14,13 +14,13 @@ def get_file_hash(file_path):
     return hash_md5.hexdigest()
 
 
-def get_folder_hash(folder_path): 
-    hash_md5 = hashlib.md5() 
-    for root, dirs, files in os.walk(folder_path): 
-        for file in files: 
-            file_path = os.path.join(root, file) 
-            file_hash = get_file_hash(file_path) 
-            hash_md5.update(file_hash.encode('utf-8')) 
+def get_folder_hash(folder_path):
+    hash_md5 = hashlib.md5()
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            file_hash = get_file_hash(file_path)
+            hash_md5.update(file_hash.encode('utf-8'))
     return hash_md5.hexdigest()
 
 
@@ -77,16 +77,19 @@ class GitHubPR:
         os.system(r"git remote show origin | sed -n '/HEAD branch/s/.*: //p'")
 
         _default_branch_name_input = utils.get_input('default_branch_name')
-        if _default_branch_name_input and _default_branch_name_input!="NONE":
+        if _default_branch_name_input and _default_branch_name_input != "NONE":
             GitHubPR.DEFAULT_BRANCH_NAME = _default_branch_name_input
         else:
-            output = subprocess.check_output(['git', 'remote', 'show', 'origin'])
+            output = subprocess.check_output(
+                ['git', 'remote', 'show', 'origin'])
             utils.info("output of git remote show origin: {}".format(output))
-            match = re.search(r"HEAD branch:\s*([^\n]+)", output.decode('utf-8'))
+            match = re.search(
+                r"HEAD branch:\s*([^\n]+)", output.decode('utf-8'))
             utils.info(f"branch found: {match.group(1)}")
             GitHubPR.DEFAULT_BRANCH_NAME = match.group(1)
 
-        utils.info("default_branch_name: {}".format(GitHubPR.DEFAULT_BRANCH_NAME))
+        utils.info("default_branch_name: {}".format(
+            GitHubPR.DEFAULT_BRANCH_NAME))
 
 
     @staticmethod
@@ -99,7 +102,8 @@ class GitHubPR:
             return
 
         if not os.environ.get("GITHUB_TOKEN"):
-            raise ValueError("Please configure the GitHub Token in MY_GITHUB_TOKEN environment secret for actions in the Repo Settings.")
+            raise ValueError(
+                "Please configure the GitHub Token in MY_GITHUB_TOKEN environment secret for actions in the Repo Settings.")
 
         os.system(r'gh auth setup-git')
         os.system(r'git config user.name splunk_app_action')
@@ -123,7 +127,8 @@ class GitHubPR:
 
     def _commit(self, new_branch):
         utils.info("Committing the code.")
-        os.system(r'git checkout -b {} {}'.format(new_branch, self.DEFAULT_BRANCH_NAME))   # Create a new branch
+        os.system(r'git checkout -b {} {}'.format(new_branch,
+                  self.DEFAULT_BRANCH_NAME))   # Create a new branch
         os.system(r'git add -A')   # Add app changes
         os.system(r'git commit -m "{}"'.format(new_branch))   # Commit changes
 
@@ -132,11 +137,13 @@ class GitHubPR:
         utils.info("Pushing the code and creating PR.")
 
         return_value = os.system(r'git push -u origin {}'.format(new_branch))
-        if return_value !=0:
-            utils.error("Unable to push changes into the branch={}".format(new_branch))
+        if return_value != 0:
+            utils.error(
+                "Unable to push changes into the branch={}".format(new_branch))
             return
 
-        os.system(r'gh pr create --base {} --head {} --fill'.format(self.DEFAULT_BRANCH_NAME, new_branch))   # Create PR
+        os.system(r'gh pr create --base {} --head {} --fill'.format(
+            self.DEFAULT_BRANCH_NAME, new_branch))   # Create PR
 
 
     def commit_and_pr(self, hash):

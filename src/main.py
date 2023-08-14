@@ -16,9 +16,11 @@ if __name__ == "__main__":
 
     try:
         build_path, app_package_id = SplunkAppBuildGenerator().generate()    # Generate Build
-        SplunkAppInspect(build_path, app_package_id).run_all_checks()        # Run App Inspect
+        # Run App Inspect
+        SplunkAppInspect(build_path, app_package_id).run_all_checks()
     except Exception as e:
-        utils.error("Error in SplunkBase Build Generator or App Inspect Checks: {}".format(e))
+        utils.error(
+            "Error in SplunkBase Build Generator or App Inspect Checks: {}".format(e))
         utils.error(traceback.format_exc())
 
 

@@ -26,7 +26,8 @@ def setup_logging(log_name, log_level=logging.INFO):
     # log_file = os.path.join(log_dir, "%s.log" % log_name)
 
     # Make path till log file (splunk/var/log/splunk dir)
-    log_file = make_splunkhome_path(["var", "log", "splunk", "%s.log" % log_name])
+    log_file = make_splunkhome_path(
+        ["var", "log", "splunk", "%s.log" % log_name])
     log_dir = os.path.dirname(log_file)
 
     # Create directory at the required path to store log file, if not found
@@ -55,4 +56,3 @@ def setup_logging(log_name, log_level=logging.INFO):
             file_handler.setLevel(log_level)
 
     return logger
-

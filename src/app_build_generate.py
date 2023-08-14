@@ -9,7 +9,8 @@ from helper_splunk_config_parser import SplunkConfigParser
 class SplunkAppBuildGenerator:
 
     def __init__(self) -> None:
-        self.is_generate_build = utils.str_to_boolean(utils.get_input('is_generate_build'))
+        self.is_generate_build = utils.str_to_boolean(
+            utils.get_input('is_generate_build'))
         utils.info("is_generate_build: {}".format(self.is_generate_build))
 
         self.app_dir = utils.get_input('app_dir')
@@ -27,14 +28,18 @@ class SplunkAppBuildGenerator:
     def _fetch_app_package_id(self):
         utils.info("Fetching app package id. from app.conf file.")
 
-        config = SplunkConfigParser(os.path.join('repodir', self.app_dir, 'default', 'app.conf'))
+        config = SplunkConfigParser(os.path.join(
+            'repodir', self.app_dir, 'default', 'app.conf'))
         utils.info("app.conf sections: {}".format(config.sections()))
         if 'package' in config and 'id' in config['package']:
-            utils.info("Using app package id found in app.conf - {}".format(config['package']['id']))
+            utils.info(
+                "Using app package id found in app.conf - {}".format(config['package']['id']))
             return config['package']['id']
         elif self.app_dir == ".":
-            utils.error("It is recommended to have `id` attribute in the app.conf's [package] stanza.")
-            raise Exception("Add `id` attribute in the app.conf's [package] stanza.")
+            utils.error(
+                "It is recommended to have `id` attribute in the app.conf's [package] stanza.")
+            raise Exception(
+                "Add `id` attribute in the app.conf's [package] stanza.")
         else:
             return self.app_dir
 
@@ -46,13 +51,17 @@ class SplunkAppBuildGenerator:
 
 
     def _util_generate_build_commands(self):
-        os.system("find {} -type f -exec chmod 644 '{{}}' \;".format(self.app_package_id))
-        os.system("find {} -type d -exec chmod 755 '{{}}' \;".format(self.app_package_id))
-        os.system("tar -czf {}.tgz {}".format(self.app_package_id, self.app_package_id))
+        os.system(
+            "find {} -type f -exec chmod 644 '{{}}' \;".format(self.app_package_id))
+        os.system(
+            "find {} -type d -exec chmod 755 '{{}}' \;".format(self.app_package_id))
+        os.system(
+            "tar -czf {}.tgz {}".format(self.app_package_id, self.app_package_id))
 
 
     def generate(self):
-        utils.info("Generating the app build. app_dir={}, app_package_id={}".format(self.app_dir, self.app_package_id))
+        utils.info("Generating the app build. app_dir={}, app_package_id={}".format(
+            self.app_dir, self.app_package_id))
 
         if not self.is_generate_build:
             return self.direct_app_build_path, self.app_package_id
@@ -77,4 +86,3 @@ class SplunkAppBuildGenerator:
             os.chdir('..')
 
         return '{}.tgz'.format(self.app_package_id), self.app_package_id
-

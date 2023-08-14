@@ -3,6 +3,7 @@ import os
 from helper_github_pr import GitHubPR, get_file_hash, get_multi_files_hash, get_folder_hash
 import helper_github_action as utils
 
+
 class BaseUtility:
     def __init__(self) -> None:
         with GitHubPR() as github:
@@ -26,8 +27,10 @@ class BaseUtility:
             if hash:
                 github.commit_and_pr(hash=hash)
             else:
-                utils.error("Unable to get hash to generate PR for app utility.")
+                utils.error(
+                    "Unable to get hash to generate PR for app utility.")
 
 
     def implement_utility(self):
-        raise NotImplementedError("The implement_utility function must be implemented in the child class.")
+        raise NotImplementedError(
+            "The implement_utility function must be implemented in the child class.")

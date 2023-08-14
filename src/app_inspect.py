@@ -21,8 +21,10 @@ class SplunkAppInspect:
 
 
     def __init__(self, app_build_path, app_package_id) -> None:
-        self.is_app_inspect_check = utils.str_to_boolean(utils.get_input('is_app_inspect_check'))
-        utils.info("is_app_inspect_check: {}".format(self.is_app_inspect_check))
+        self.is_app_inspect_check = utils.str_to_boolean(
+            utils.get_input('is_app_inspect_check'))
+        utils.info("is_app_inspect_check: {}".format(
+            self.is_app_inspect_check))
         if not self.is_app_inspect_check:
             utils.info("Ignoring App-inspect checks.")
             return
@@ -34,7 +36,7 @@ class SplunkAppInspect:
             msg = "splunkbase_username input is not provided."
             utils.error(msg)
             raise Exception(msg)
-        
+
         if not self.splunkbase_password:
             msg = "splunkbase_password input is not provided."
             utils.error(msg)
@@ -49,8 +51,8 @@ class SplunkAppInspect:
         self.headers = None
         self.headers_report = None
         self.app_inspect_result = ["Running", "Running", "Running"]
-                     # app_inspect_result, cloud_inspect_result, ssai_inspect_result
-        
+        # For Above  ->  app_inspect_result, cloud_inspect_result, ssai_inspect_result
+
         self._api_login()
 
 
@@ -60,7 +62,8 @@ class SplunkAppInspect:
             self.splunkbase_username, self.splunkbase_password), data={}, timeout=TIMEOUT_MAX)
 
         if response.status_code != 200:
-            utils.error("Error while logging. status_code={}, response={}".format(response.status_code, response.text))
+            utils.error("Error while logging. status_code={}, response={}".format(
+                response.status_code, response.text))
             raise Exception("Unable to login to Splunkbase.")
 
         res = response.json()
@@ -78,37 +81,44 @@ class SplunkAppInspect:
 
 
     def _perform_checks(self, check_type="APP_INSPECT"):
-        if check_type=="APP_INSPECT":
+        if check_type == "APP_INSPECT":
             payload = {}
-            report_file_name = '{}_app_inspect_check.html'.format(self.app_package_id)
+            report_file_name = '{}_app_inspect_check.html'.format(
+                self.app_package_id)
 
         elif check_type == "CLOUD_INSPECT":
             payload = {'included_tags': 'cloud'}
-            report_file_name = '{}_cloud_inspect_check.html'.format(self.app_package_id)
+            report_file_name = '{}_cloud_inspect_check.html'.format(
+                self.app_package_id)
 
         elif check_type == "SSAI_INSPECT":
             payload = {'included_tags': 'self-service'}
-            report_file_name = '{}_ssai_inspect_check.html'.format(self.app_package_id)
+            report_file_name = '{}_ssai_inspect_check.html'.format(
+                self.app_package_id)
 
         app_build_f = open(self.app_build_path, 'rb')
         app_build_f.seek(0)
 
         files = [
-            ('app_package', (self.app_build_filename, app_build_f, 'application/octet-stream'))
+            ('app_package', (self.app_build_filename,
+             app_build_f, 'application/octet-stream'))
         ]
 
         utils.info("App build submitting (check_type={})".format(check_type))
         response = requests.request(
             "POST", self.SUBMIT_URL, headers=self.headers, files=files, data=payload, timeout=TIMEOUT_MAX)
-        utils.info("App package submit (check_type={}) response: status_code={}, text={}".format(check_type, response.status_code, response.text))
-        
+        utils.info("App package submit (check_type={}) response: status_code={}, text={}".format(
+            check_type, response.status_code, response.text))
+
         if response.status_code != 200:
-            utils.error("Error while requesting for app-inspect check. check_type={}, status_code={}".format(check_type, response.status_code))
+            utils.error("Error while requesting for app-inspect check. check_type={}, status_code={}".format(
+                check_type, response.status_code))
             return "Exception"
 
         res = response.json()
         request_id = res['request_id']
-        utils.info("App package submit (check_type={}) request_id={}".format(check_type, request_id))
+        utils.info("App package submit (check_type={}) request_id={}".format(
+            check_type, request_id))
 
         status = None
         # Status check
@@ -119,23 +129,28 @@ class SplunkAppInspect:
                 response = requests.request("GET", "{}/{}".format(
                     self.STATUS_CHECK_URL, request_id), headers=self.headers, data={}, timeout=TIMEOUT_MAX)
             except:
-                continue   # continue if there is any error (specifically 10 times for timeout error)
+                # continue if there is any error (specifically 10 times for timeout error)
+                continue
 
-            utils.info("App package status check (check_type={}) response: status_code={}, text={}".format(check_type, response.status_code, response.text))
+            utils.info("App package status check (check_type={}) response: status_code={}, text={}".format(
+                check_type, response.status_code, response.text))
 
             if response.status_code != 200:
-                utils.error("Error while requesting for app-inspect check status update. check_type={}, status_code={}".format(check_type, response.status_code))
+                utils.error("Error while requesting for app-inspect check status update. check_type={}, status_code={}".format(
+                    check_type, response.status_code))
                 return "Exception"
 
             res = response.json()
             res_status = res['status']
 
             if res_status == 'PROCESSING':
-                utils.info("Report is processing for check_type={}".format(check_type))
+                utils.info(
+                    "Report is processing for check_type={}".format(check_type))
                 continue
 
             # Processing completed
-            utils.info("App package status success (check_type={}) response: status_code={}, text={}".format(check_type, response.status_code, response.text))
+            utils.info("App package status success (check_type={}) response: status_code={}, text={}".format(
+                check_type, response.status_code, response.text))
 
             if int(res['info']['failure']) != 0:
                 status = "Failure"
@@ -151,9 +166,10 @@ class SplunkAppInspect:
         # HTML Report retrive
         utils.info("Html report generating for check_type={}".format(check_type))
         response = requests.request("GET", "{}/{}".format(self.HTML_RESPONSE_URL,
-                                                        request_id), headers=self.headers_report, data={}, timeout=TIMEOUT_MAX)
+                                                          request_id), headers=self.headers_report, data={}, timeout=TIMEOUT_MAX)
         if response.status_code != 200:
-            utils.error("Error while requesting for app-inspect check report. check_type={}, status_code={}".format(check_type, response.status_code))
+            utils.error("Error while requesting for app-inspect check report. check_type={}, status_code={}".format(
+                check_type, response.status_code))
             return "Exception"
 
         # write results into a file
@@ -218,8 +234,10 @@ class SplunkAppInspect:
         thread_ssai_inspect.join()
         utils.info("All threads completed.")
 
-        if all(i=="Passed" for i in self.app_inspect_result):
-            utils.info("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(self.app_inspect_result))
+        if all(i == "Passed" for i in self.app_inspect_result):
+            utils.info(
+                "All status [app-inspect, cloud-checks, self-service-checks]:{}".format(self.app_inspect_result))
         else:
-            utils.error("All status [app-inspect, cloud-checks, self-service-checks]:{}".format(self.app_inspect_result))
+            utils.error(
+                "All status [app-inspect, cloud-checks, self-service-checks]:{}".format(self.app_inspect_result))
             sys.exit(1)

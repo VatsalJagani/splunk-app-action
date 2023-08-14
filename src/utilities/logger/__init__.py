@@ -13,14 +13,16 @@ class LoggerUtility(BaseUtility):
 
         log_files_prefix = utils.get_input('logger_log_files_prefix')
         utils.info("log_files_prefix: {}".format(log_files_prefix))
-        if not log_files_prefix or log_files_prefix=="NONE":
-            utils.error("skipping the logger adding as logger_log_files_prefix input is not defined.")
+        if not log_files_prefix or log_files_prefix == "NONE":
+            utils.error(
+                "skipping the logger adding as logger_log_files_prefix input is not defined.")
             should_execute = False
 
         logger_sourcetype = utils.get_input('logger_sourcetype')
         utils.info("logger_sourcetype: {}".format(logger_sourcetype))
-        if not logger_sourcetype or logger_sourcetype=="NONE":
-            utils.error("skipping the logger adding as logger_sourcetype input is not defined.")
+        if not logger_sourcetype or logger_sourcetype == "NONE":
+            utils.error(
+                "skipping the logger adding as logger_sourcetype input is not defined.")
             should_execute = False
 
         self.words_for_replacement = {
@@ -36,15 +38,18 @@ class LoggerUtility(BaseUtility):
 
         if update1 or update2:
             return [
-                os.path.join(utils.CommonDirPaths.APP_DIR, 'bin', 'logger_manager.py'),
-                os.path.join(utils.CommonDirPaths.APP_DIR, 'default', 'props.conf')
+                os.path.join(utils.CommonDirPaths.APP_DIR,
+                             'bin', 'logger_manager.py'),
+                os.path.join(utils.CommonDirPaths.APP_DIR,
+                             'default', 'props.conf')
             ]
 
 
     def add_logger_manager_py(self):
         return FullRawFileHandler(
             os.path.join(os.path.dirname(__file__), 'logger_manager.py'),
-            os.path.join(utils.CommonDirPaths.APP_DIR, 'bin', 'logger_manager.py'),
+            os.path.join(utils.CommonDirPaths.APP_DIR,
+                         'bin', 'logger_manager.py'),
             self.words_for_replacement
         ).validate_file_content()
 
@@ -52,6 +57,7 @@ class LoggerUtility(BaseUtility):
     def add_props_content(self):
         return PartConfFileHandler(
             os.path.join(os.path.dirname(__file__), 'props.conf'),
-            os.path.join(utils.CommonDirPaths.APP_DIR, 'default', 'props.conf'),
+            os.path.join(utils.CommonDirPaths.APP_DIR,
+                         'default', 'props.conf'),
             self.words_for_replacement
         ).validate_config()

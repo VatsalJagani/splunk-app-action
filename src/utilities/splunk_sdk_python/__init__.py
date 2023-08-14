@@ -1,5 +1,6 @@
 
-import os, re
+import os
+import re
 
 import helper_github_action as utils
 from utilities.base_utility import BaseUtility
@@ -10,7 +11,8 @@ class SplunkPythonSDKUtility(BaseUtility):
     def _get_splunklib_version(self, file_path):
         try:
             with open(file_path, 'r') as f:
-                match = re.search(r"\n__version_info__\s*=\s*([^\n]+)", f.read())
+                match = re.search(
+                    r"\n__version_info__\s*=\s*([^\n]+)", f.read())
                 version = match.group(1)
                 return version
         except:
@@ -18,7 +20,8 @@ class SplunkPythonSDKUtility(BaseUtility):
 
 
     def implement_utility(self):
-        folder_to_install_splunklib = os.path.join(utils.CommonDirPaths.APP_DIR, 'bin')
+        folder_to_install_splunklib = os.path.join(
+            utils.CommonDirPaths.APP_DIR, 'bin')
 
         os.chdir(folder_to_install_splunklib)
         if not os.path.exists(folder_to_install_splunklib):
@@ -37,9 +40,11 @@ class SplunkPythonSDKUtility(BaseUtility):
             utils.info(f"previous splunklib version = {previous_version}")
 
         if already_exist:
-            os.system(f'pip install splunk-sdk --upgrade --target {folder_to_install_splunklib}')
+            os.system(
+                f'pip install splunk-sdk --upgrade --target {folder_to_install_splunklib}')
         else:
-            os.system(f'pip install splunk-sdk --target {folder_to_install_splunklib}')
+            os.system(
+                f'pip install splunk-sdk --target {folder_to_install_splunklib}')
 
         new_version = self._get_splunklib_version(init_file)
         utils.info(f"new splunklib version = {new_version}")

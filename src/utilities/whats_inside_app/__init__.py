@@ -35,7 +35,8 @@ class SplunkAppWhatsInsideDetail(BaseUtility):
         self.app_dir = utils.get_input('app_dir')
         utils.info("app_dir: {}".format(self.app_dir))
 
-        start_markers = ["# What's in the App", "What's in the Add-on", "# What's inside the App", "# What's inside the Add-on"]
+        start_markers = ["# What's in the App", "What's in the Add-on",
+                         "# What's inside the App", "# What's inside the Add-on"]
         end_markers = ['\n\n\n']
         start_marker_to_add = "# What's inside the App"
         end_marker_to_add = "\n\n\n"
@@ -67,18 +68,20 @@ class SplunkAppWhatsInsideDetail(BaseUtility):
 
 
     def _do_conf_specific_processing(self, file_key, label, stanzas):
-        if len(stanzas)>0:
+        if len(stanzas) > 0:
             return 'No of {}: **{}**'.format(label, len(stanzas))
 
 
     def _get_stanzas(self, conf_file_name):
         stanzas = set()
-        local_conf_file = os.path.join(self.app_dir, 'local', "{}.conf".format(conf_file_name))
-        default_conf_file = os.path.join(self.app_dir, 'default', "{}.conf".format(conf_file_name))
+        local_conf_file = os.path.join(
+            self.app_dir, 'local', "{}.conf".format(conf_file_name))
+        default_conf_file = os.path.join(
+            self.app_dir, 'default', "{}.conf".format(conf_file_name))
 
         if os.path.isfile(local_conf_file):
             stanzas.update(self._get_conf_stanzas(local_conf_file))
-        
+
         if os.path.isfile(default_conf_file):
             stanzas.update(self._get_conf_stanzas(default_conf_file))
 
@@ -92,7 +95,8 @@ class SplunkAppWhatsInsideDetail(BaseUtility):
         details = []
         for file_key, label in self.IMP_CONF_FILES.items():
             _stanzas = self._get_stanzas(file_key)
-            _detail = self._do_conf_specific_processing(file_key, label, _stanzas)
+            _detail = self._do_conf_specific_processing(
+                file_key, label, _stanzas)
             if _detail:
                 details.append(_detail)
 
@@ -103,9 +107,10 @@ class SplunkAppWhatsInsideDetail(BaseUtility):
         csv_lookup_files = []
         lookups_path = os.path.join(self.app_dir, 'lookups')
         if os.path.isdir(lookups_path):
-            csv_lookup_files = [file for file in os.listdir(lookups_path) if file.endswith(".csv") or file.endswith(".CSV")]
+            csv_lookup_files = [file for file in os.listdir(
+                lookups_path) if file.endswith(".csv") or file.endswith(".CSV")]
 
-        if len(csv_lookup_files)>0:
+        if len(csv_lookup_files) > 0:
             return ["No of Static CSV Lookup Files: **{}**".format(len(csv_lookup_files))]
         else:
             return []
@@ -123,7 +128,7 @@ class SplunkAppWhatsInsideDetail(BaseUtility):
                 if child.tag == "label":
                     labels.append(child.text)
                     break
-            dashboard_label = labels[0] if len(labels)>0 else ""
+            dashboard_label = labels[0] if len(labels) > 0 else ""
 
             # Fetch the count of table, chart, map, viz, event, and single elements
             counts = {
@@ -148,34 +153,39 @@ class SplunkAppWhatsInsideDetail(BaseUtility):
 
     def _get_xml_dashboards(self):
         dashboards = {}
-        
-        local_dashboards_path = os.path.join(self.app_dir, 'local', 'data', 'ui', 'views')
+
+        local_dashboards_path = os.path.join(
+            self.app_dir, 'local', 'data', 'ui', 'views')
         if os.path.isdir(local_dashboards_path):
-            local_xml_files = [file for file in os.listdir(local_dashboards_path) if file.endswith(".xml") or file.endswith(".XML")]
+            local_xml_files = [file for file in os.listdir(
+                local_dashboards_path) if file.endswith(".xml") or file.endswith(".XML")]
 
             for df in local_xml_files:
-                dashboard_details = self._get_xml_dashboard_details(os.path.join(local_dashboards_path, df))
+                dashboard_details = self._get_xml_dashboard_details(
+                    os.path.join(local_dashboards_path, df))
                 dashboards[df] = dashboard_details
 
-        default_dashboards_path = os.path.join(self.app_dir, 'default', 'data', 'ui', 'views')
+        default_dashboards_path = os.path.join(
+            self.app_dir, 'default', 'data', 'ui', 'views')
         if os.path.isdir(default_dashboards_path):
-            default_xml_files = [file for file in os.listdir(default_dashboards_path) if file.endswith(".xml") or file.endswith(".XML")]
+            default_xml_files = [file for file in os.listdir(
+                default_dashboards_path) if file.endswith(".xml") or file.endswith(".XML")]
 
             for df in default_xml_files:
                 if df not in dashboards:
                     # local folders' view takes precedence
-                    dashboard_details = self._get_xml_dashboard_details(os.path.join(default_dashboards_path, df))
+                    dashboard_details = self._get_xml_dashboard_details(
+                        os.path.join(default_dashboards_path, df))
                     dashboards[df] = dashboard_details
-        
+
         # print("dashboards: {}".format(dashboards))
 
         approx_total_viz = 0
         for key, val in dashboards.items():
             approx_total_viz += val['total_viz_count']
 
-        if(len(dashboards)>0):
+        if (len(dashboards) > 0):
             return ["No of XML Dashboards: **{}**".format(len(dashboards)),
-                   "Approx Total Viz(Charts/Tables/Map) in XML dashboards: **{}**".format(approx_total_viz)]
+                    "Approx Total Viz(Charts/Tables/Map) in XML dashboards: **{}**".format(approx_total_viz)]
         else:
             return []
-

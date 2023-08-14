@@ -1,5 +1,6 @@
 
-import os, pathlib
+import os
+import pathlib
 from helper_splunk_config_parser import SplunkConfigParser
 
 
@@ -14,7 +15,7 @@ class BaseFileHandler:
         input_content = None
         with open(self.input_file_path, 'r') as fr:
             input_content = fr.read()
-        
+
         for word, replacement in self.words_for_replacement.items():
             input_content = input_content.replace(word, replacement)
 
@@ -85,7 +86,7 @@ class PartRawFileHandler(BaseFileHandler):
         with open(self.output_file_path, 'r') as file:
             content = file.read()
             lower_content = content.lower()
-        
+
         for sm in start_markers:
             start_index = lower_content.find(sm.lower())
             if start_index >= 0:
@@ -105,7 +106,8 @@ class PartRawFileHandler(BaseFileHandler):
 
             # print(f"start_index={start_index}, end_index={end_index}")
 
-            updated_content = content[:start_index] + new_content + content[end_index:]
+            updated_content = content[:start_index] + \
+                new_content + content[end_index:]
 
         else:
             # Content not found in the file
