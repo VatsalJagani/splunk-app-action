@@ -46,12 +46,19 @@ class GitHubPR:
         GitHubPR.set_default_branch(is_test)
 
 
+    def _reset_the_git_repo(self):
+        os.system("git checkout --")
+        os.system(r'git checkout {}'.format(self.DEFAULT_BRANCH_NAME))
+        os.system("git clean -df")
+        os.system(r'git checkout {}'.format(self.DEFAULT_BRANCH_NAME))
+        os.system("git pull")
+
+
     def __enter__(self):
         if self.is_test:
             return self
 
-        # checkout default branch
-        os.system(r'git checkout {}'.format(self.DEFAULT_BRANCH_NAME))
+        self._reset_the_git_repo()
         return self
 
 
@@ -59,9 +66,7 @@ class GitHubPR:
         if self.is_test:
             return
 
-        # checkout default branch
-        os.system(r'git checkout {}'.format(self.DEFAULT_BRANCH_NAME))
-
+        self._reset_the_git_repo()
         os.chdir(utils.CommonDirPaths.MAIN_DIR)
 
 
@@ -82,7 +87,7 @@ class GitHubPR:
         else:
             output = subprocess.check_output(
                 ['git', 'remote', 'show', 'origin'])
-            utils.info("output of git remote show origin: {}".format(output))
+            # utils.debug("output of git remote show origin: {}".format(output))
             match = re.search(
                 r"HEAD branch:\s*([^\n]+)", output.decode('utf-8'))
             utils.info(f"branch found: {match.group(1)}")

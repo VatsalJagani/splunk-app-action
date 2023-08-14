@@ -254,7 +254,7 @@ class SplunkConfigParser:
 
 
     def sections(self):
-        return self._content.keys()
+        return [element for element in self._content.keys() if not element == FILE_SECTION]
 
 
     def __getitem__(self, key):

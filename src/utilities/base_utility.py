@@ -12,8 +12,9 @@ class BaseUtility:
 
             if not files_or_folders_updated:
                 utils.info(f"Utility={type(self).__name__} has no change.")
+                return
 
-            elif type(files_or_folders_updated) == list:
+            if type(files_or_folders_updated) == list:
                 hash = get_multi_files_hash(files_or_folders_updated)
 
             else:
