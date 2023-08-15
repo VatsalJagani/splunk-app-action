@@ -44,12 +44,12 @@ class SplunkPythonSDKUtility(BaseUtility):
         if already_exist:
             utils.info(
                 "splunklib already present under bin directory of the App, upgrading...")
-            os.system(
+            utils.execute_system_command(
                 f'pip install splunk-sdk --upgrade --target {folder_to_install_splunklib}')
         else:
             utils.info(
                 "splunklib not present under bin directory of the App, installing...")
-            os.system(
+            utils.execute_system_command(
                 f'pip install splunk-sdk --target {folder_to_install_splunklib}')
 
         new_version = self._get_splunklib_version(init_file)

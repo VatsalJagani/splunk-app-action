@@ -46,16 +46,16 @@ class SplunkAppBuildGenerator:
 
     def _remove_git_folders(self):
         utils.info("Removing .git and .github directory from repo.")
-        os.system('rm -rf repodir_for_build/.github')
-        os.system('rm -rf repodir_for_build/.git')
+        utils.execute_system_command('rm -rf repodir_for_build/.github')
+        utils.execute_system_command('rm -rf repodir_for_build/.git')
 
 
     def _util_generate_build_commands(self):
-        os.system(
+        utils.execute_system_command(
             "find {} -type f -exec chmod 644 '{{}}' \;".format(self.app_package_id))
-        os.system(
+        utils.execute_system_command(
             "find {} -type d -exec chmod 755 '{{}}' \;".format(self.app_package_id))
-        os.system(
+        utils.execute_system_command(
             "tar -czf {}.tgz {}".format(self.app_package_id, self.app_package_id))
 
 
@@ -67,22 +67,25 @@ class SplunkAppBuildGenerator:
             return self.direct_app_build_path, self.app_package_id
 
         # copy folder to generate build, rather than affecting the original repo checkout
-        os.system("rm -rf repodir_for_build")
+        utils.execute_system_command("rm -rf repodir_for_build")
         shutil.copytree('repodir', 'repodir_for_build')
 
         self._remove_git_folders()
 
         if self.app_dir == '.':
-            os.system('mv repodir_for_build {}'.format(self.app_package_id))
+            utils.execute_system_command(
+                'mv repodir_for_build {}'.format(self.app_package_id))
             self._util_generate_build_commands()
         else:
             os.chdir('repodir_for_build')
 
             if self.app_dir != self.app_package_id:
-                os.system('mv {} {}'.format(self.app_dir, self.app_package_id))
+                utils.execute_system_command(
+                    'mv {} {}'.format(self.app_dir, self.app_package_id))
 
             self._util_generate_build_commands()
-            os.system('mv {}.tgz ..'.format(self.app_package_id))
+            utils.execute_system_command(
+                'mv {}.tgz ..'.format(self.app_package_id))
 
             os.chdir('..')
 

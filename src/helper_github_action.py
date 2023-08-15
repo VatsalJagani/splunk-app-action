@@ -1,4 +1,5 @@
 import os
+import subprocess
 from datetime import datetime
 
 
@@ -119,3 +120,23 @@ class CommonDirPaths:
 
     def __init__(self):
         CommonDirPaths.generate_static_variable()
+
+
+
+def execute_system_command(command):
+    try:
+        result = subprocess.run(
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=True
+        )
+        debug(
+            f"Command Execution Successful: CMD={command}, ReturnCode={result.returncode}, Output={result.stdout}")
+        return result.returncode, result.stdout
+    except subprocess.CalledProcessError as e:
+        debug(
+            f"Command Execution Failed: CMD={command}, ReturnCode={e.returncode}, Output={e.stderr}")
+        return e.returncode, e.stderr

@@ -47,11 +47,13 @@ class GitHubPR:
 
 
     def _reset_the_git_repo(self):
-        os.system("git checkout --")
-        os.system(r'git checkout {}'.format(self.DEFAULT_BRANCH_NAME))
-        os.system("git clean -df")
-        os.system(r'git checkout {}'.format(self.DEFAULT_BRANCH_NAME))
-        os.system("git pull")
+        utils.execute_system_command("git checkout --")
+        utils.execute_system_command(
+            r'git checkout {}'.format(self.DEFAULT_BRANCH_NAME))
+        utils.execute_system_command("git clean -df")
+        utils.execute_system_command(
+            r'git checkout {}'.format(self.DEFAULT_BRANCH_NAME))
+        utils.execute_system_command("git pull")
 
 
     def __enter__(self):
@@ -79,15 +81,13 @@ class GitHubPR:
             return
 
         utils.info("Finding default branch for the repo.")
-        os.system(r"git remote show origin | sed -n '/HEAD branch/s/.*: //p'")
 
         _default_branch_name_input = utils.get_input('default_branch_name')
         if _default_branch_name_input and _default_branch_name_input != "NONE":
             GitHubPR.DEFAULT_BRANCH_NAME = _default_branch_name_input
         else:
-            output = subprocess.check_output(
-                ['git', 'remote', 'show', 'origin'])
-            # utils.debug("output of git remote show origin: {}".format(output))
+            ret_code, output = utils.execute_system_command(
+                "git remote show origin")
             match = re.search(
                 r"HEAD branch:\s*([^\n]+)", output.decode('utf-8'))
             utils.info(f"branch found: {match.group(1)}")
@@ -110,9 +110,10 @@ class GitHubPR:
             raise ValueError(
                 "Please configure the GitHub Token in MY_GITHUB_TOKEN environment secret for actions in the Repo Settings.")
 
-        os.system(r'gh auth setup-git')
-        os.system(r'git config user.name SplunkAppAction')
-        os.system(r'git config user.email splunkappaction@gmail.com')
+        utils.execute_system_command(r'gh auth setup-git')
+        utils.execute_system_command(r'git config user.name SplunkAppAction')
+        utils.execute_system_command(
+            r'git config user.email splunkappaction@gmail.com')
 
         GitHubPR.IS_GIT_CONFIGURED = True
 
@@ -120,37 +121,32 @@ class GitHubPR:
     def _check_branch_exist(self, branch_name):
         # NOTE - Somehow this function is not working for GitHub action and fails to recognize the existing branches
         utils.info("Checking whether git branch already present or not.")
-        os.system('git fetch')
-        ret_code = os.system(
+        utils.execute_system_command('git fetch')
+        ret_code, output = utils.execute_system_command(
             f"git show-ref --verify refs/heads/{branch_name}")   # Use --quiet to avoid output
         return ret_code == 0
-        # try:
-        #     subprocess.check_output(
-        #         ['git', 'show-ref', '--verify', '--quiet', f'refs/heads/{branch_name}'])
-        #     return True
-        # except subprocess.CalledProcessError:
-        #     return False
-
 
 
     def _commit(self, new_branch):
         utils.info("Committing the code.")
-        os.system(r'git checkout -b {} {}'.format(new_branch,
-                  self.DEFAULT_BRANCH_NAME))   # Create a new branch
-        os.system(r'git add -A')   # Add app changes
-        os.system(r'git commit -m "{}"'.format(new_branch))   # Commit changes
+        utils.execute_system_command(r'git checkout -b {} {}'.format(
+            new_branch, self.DEFAULT_BRANCH_NAME))   # Create a new branch
+        utils.execute_system_command(r'git add -A')   # Add app changes
+        utils.execute_system_command(
+            r'git commit -m "{}"'.format(new_branch))   # Commit changes
 
 
     def _pr(self, new_branch):
         utils.info("Pushing the code and creating PR.")
 
-        return_value = os.system(r'git push -u origin {}'.format(new_branch))
+        return_value, output = utils.execute_system_command(
+            r'git push -u origin {}'.format(new_branch))
         if return_value != 0:
             utils.error(
                 "Unable to push changes into the branch={}".format(new_branch))
             return
 
-        os.system(r'gh pr create --base {} --head {} --fill'.format(
+        utils.execute_system_command(r'gh pr create --base {} --head {} --fill'.format(
             self.DEFAULT_BRANCH_NAME, new_branch))   # Create PR
 
 
