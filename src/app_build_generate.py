@@ -67,6 +67,7 @@ class SplunkAppBuildGenerator:
             return self.direct_app_build_path, self.app_package_id
 
         # copy folder to generate build, rather than affecting the original repo checkout
+        os.system("rm -rf repodir_for_build")
         shutil.copytree('repodir', 'repodir_for_build')
 
         self._remove_git_folders()

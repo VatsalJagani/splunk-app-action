@@ -120,12 +120,17 @@ class GitHubPR:
     def _check_branch_exist(self, branch_name):
         utils.info("Checking whether git branch already present or not.")
         os.system('git fetch')
-        try:
-            subprocess.check_output(
-                ['git', 'show-ref', '--verify', '--quiet', f'refs/heads/{branch_name}'])
+        ret_code = os.system(
+            f"git show-ref --verify refs/heads/{branch_name}")   # Use --quiet to avoid output
+        if ret_code == 0:
             return True
-        except subprocess.CalledProcessError:
-            return False
+        return False
+        # try:
+        #     subprocess.check_output(
+        #         ['git', 'show-ref', '--verify', '--quiet', f'refs/heads/{branch_name}'])
+        #     return True
+        # except subprocess.CalledProcessError:
+        #     return False
 
 
 
