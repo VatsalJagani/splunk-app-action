@@ -133,10 +133,10 @@ def execute_system_command(command):
             text=True,
             check=True
         )
-        debug(
+        info(
             f"Command Execution Successful: CMD={command}, ReturnCode={result.returncode}, Output={result.stdout}")
         return result.returncode, result.stdout
     except subprocess.CalledProcessError as e:
-        debug(
+        info(
             f"Command Execution Failed: CMD={command}, ReturnCode={e.returncode}, Output={e.stderr}")
         return e.returncode, e.stderr
