@@ -89,7 +89,7 @@ class GitHubPR:
             ret_code, output = utils.execute_system_command(
                 "git remote show origin")
             match = re.search(
-                r"HEAD branch:\s*([^\n]+)", output.decode('utf-8'))
+                r"HEAD branch:\s*([^\n]+)", output)
             utils.info(f"branch found: {match.group(1)}")
             GitHubPR.DEFAULT_BRANCH_NAME = match.group(1)
 
