@@ -118,13 +118,12 @@ class GitHubPR:
 
 
     def _check_branch_exist(self, branch_name):
+        # NOTE - Somehow this function is not working for GitHub action and fails to recognize the existing branches
         utils.info("Checking whether git branch already present or not.")
         os.system('git fetch')
         ret_code = os.system(
             f"git show-ref --verify refs/heads/{branch_name}")   # Use --quiet to avoid output
-        if ret_code == 0:
-            return True
-        return False
+        return ret_code == 0
         # try:
         #     subprocess.check_output(
         #         ['git', 'show-ref', '--verify', '--quiet', f'refs/heads/{branch_name}'])
@@ -163,7 +162,11 @@ class GitHubPR:
         utils.info("Branch Name: {}".format(new_branch))
 
         if not self._check_branch_exist(new_branch):
-            self._commit(new_branch)
-            self._pr(new_branch)
+            try:
+                self._commit(new_branch)
+                self._pr(new_branch)
+            except Exception as e:
+                utils.warning(
+                    f"Fail to push the code for utility, this could be due to that the PR is already open for it. {e}")
         else:
             utils.info("Branch already present.")
