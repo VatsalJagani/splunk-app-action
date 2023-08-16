@@ -1,4 +1,5 @@
 import os
+import subprocess
 from datetime import datetime
 
 
@@ -25,8 +26,14 @@ def str_to_boolean(value_in_str: str):
     return True
 
 
+
+
 def get_input(name):
     return os.getenv(f"SPLUNK_{name}")
+
+
+def set_input(name, value):
+    os.environ["SPLUNK_{}".format(name)] = value
 
 
 def set_env(name, value):
@@ -37,7 +44,8 @@ def set_env(name, value):
 
 
 def set_output(name, value):
-    print(f"::set-output name={name}::{_escape_data(value)}")
+    os.system('echo "{' + name + '}={' +
+              _escape_data(value) + '}" >> $GITHUB_OUTPUT')
 
 
 def format_message(message):
@@ -92,3 +100,53 @@ def save_state(name, value):
 def _escape_data(value: str):
     return value.replace("%", "%25").replace("\r", "%0D")
     # .replace("\n", "%0A")
+
+
+class CommonDirPaths:
+    MAIN_DIR = None
+    REPO_DIR = None
+    REPO_DIR_FOR_UTILITIES = None
+    APP_DIR = None
+    APP_DIR_FOR_UTILITIES = None
+
+    @staticmethod
+    def generate_paths():
+        if CommonDirPaths.MAIN_DIR is None:
+            CommonDirPaths.MAIN_DIR = os.getcwd()
+        if CommonDirPaths.REPO_DIR is None:
+            CommonDirPaths.REPO_DIR = os.path.join(
+                CommonDirPaths.MAIN_DIR, 'repodir')
+        if CommonDirPaths.REPO_DIR_FOR_UTILITIES is None:
+            CommonDirPaths.REPO_DIR_FOR_UTILITIES = os.path.join(
+                CommonDirPaths.MAIN_DIR, 'repodir_for_utilities')
+        if CommonDirPaths.APP_DIR is None:
+            app_dir = get_input('app_dir')
+            CommonDirPaths.APP_DIR = os.path.join(
+                CommonDirPaths.REPO_DIR, app_dir)
+        if CommonDirPaths.APP_DIR_FOR_UTILITIES is None:
+            app_dir = get_input('app_dir')
+            CommonDirPaths.APP_DIR_FOR_UTILITIES = os.path.join(
+                CommonDirPaths.REPO_DIR_FOR_UTILITIES, app_dir)
+
+    def __init__(self):
+        CommonDirPaths.generate_static_variable()
+
+
+
+def execute_system_command(command):
+    try:
+        result = subprocess.run(
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=True
+        )
+        info(
+            f"Command Execution Successful: CMD={command}, ReturnCode={result.returncode}, Output={result.stdout}")
+        return result.returncode, result.stdout
+    except subprocess.CalledProcessError as e:
+        info(
+            f"Command Execution Failed: CMD={command}, ReturnCode={e.returncode}, Output={e.stderr}")
+        return e.returncode, e.stderr
