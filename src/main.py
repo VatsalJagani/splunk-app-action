@@ -17,16 +17,16 @@ if __name__ == "__main__":
     utils.CommonDirPaths.generate_paths()
 
     try:
+        SplunkAppUtilities()
+    except Exception as e:
+        utils.error("Error Adding Splunk App Utilities: {}".format(e))
+        utils.error(traceback.format_exc())
+
+    try:
         build_path, app_package_id = SplunkAppBuildGenerator().generate()    # Generate Build
         # Run App Inspect
         SplunkAppInspect(build_path, app_package_id).run_all_checks()
     except Exception as e:
         utils.error(
             "Error in SplunkBase Build Generator or App Inspect Checks: {}".format(e))
-        utils.error(traceback.format_exc())
-
-    try:
-        SplunkAppUtilities()
-    except Exception as e:
-        utils.error("Error Adding Splunk App Utilities: {}".format(e))
         utils.error(traceback.format_exc())

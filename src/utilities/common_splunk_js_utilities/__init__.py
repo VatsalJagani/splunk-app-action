@@ -12,11 +12,11 @@ class CommonJSUtilitiesFile(BaseUtility):
         utils.info("Adding CommonJSUtilitiesFile")
 
         folder_path = os.path.join(
-            utils.CommonDirPaths.APP_DIR, 'appserver', 'static')
+            utils.CommonDirPaths.APP_DIR_FOR_UTILITIES, 'appserver', 'static')
         file_path = os.path.join(
             folder_path, 'splunk_common_js_v_utilities.js')
 
-        os.chdir(utils.CommonDirPaths.APP_DIR)
+        os.chdir(utils.CommonDirPaths.APP_DIR_FOR_UTILITIES)
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 

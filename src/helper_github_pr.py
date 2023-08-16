@@ -37,10 +37,10 @@ class GitHubPR:
     DEFAULT_BRANCH_NAME = None
     IS_GIT_CONFIGURED = False
 
-    def __init__(self, is_test=False) -> None:
+    def __init__(self, repo_dir, is_test=False) -> None:
         self.is_test = is_test
 
-        os.chdir(utils.CommonDirPaths.REPO_DIR)
+        os.chdir(repo_dir)
 
         GitHubPR.configure_git(is_test)
         GitHubPR.set_default_branch(is_test)

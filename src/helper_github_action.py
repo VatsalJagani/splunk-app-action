@@ -105,7 +105,9 @@ def _escape_data(value: str):
 class CommonDirPaths:
     MAIN_DIR = None
     REPO_DIR = None
+    REPO_DIR_FOR_UTILITIES = None
     APP_DIR = None
+    APP_DIR_FOR_UTILITIES = None
 
     @staticmethod
     def generate_paths():
@@ -114,10 +116,17 @@ class CommonDirPaths:
         if CommonDirPaths.REPO_DIR is None:
             CommonDirPaths.REPO_DIR = os.path.join(
                 CommonDirPaths.MAIN_DIR, 'repodir')
+        if CommonDirPaths.REPO_DIR_FOR_UTILITIES is None:
+            CommonDirPaths.REPO_DIR_FOR_UTILITIES = os.path.join(
+                CommonDirPaths.MAIN_DIR, 'repodir_for_utilities')
         if CommonDirPaths.APP_DIR is None:
             app_dir = get_input('app_dir')
             CommonDirPaths.APP_DIR = os.path.join(
                 CommonDirPaths.REPO_DIR, app_dir)
+        if CommonDirPaths.APP_DIR_FOR_UTILITIES is None:
+            app_dir = get_input('app_dir')
+            CommonDirPaths.APP_DIR_FOR_UTILITIES = os.path.join(
+                CommonDirPaths.REPO_DIR_FOR_UTILITIES, app_dir)
 
     def __init__(self):
         CommonDirPaths.generate_static_variable()

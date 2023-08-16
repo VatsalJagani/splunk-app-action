@@ -104,8 +104,6 @@ runs:
         echo "default_branch_name -> ${{inputs.default_branch_name}}"
         echo "logger_log_files_prefix -> ${{inputs.logger_log_files_prefix}}"
         echo "logger_sourcetype -> ${{inputs.logger_sourcetype}}"
-        rm -rf app_inspect_reports
-        mkdir app_inspect_reports
 
     - name: "Install Python"
       uses: actions/setup-python@v2

@@ -1,4 +1,6 @@
 
+import os
+import shutil
 import helper_github_action as utils
 from utilities.whats_inside_app import WhatsInsideTheAppUtility
 from utilities.logger import LoggerUtility
@@ -16,6 +18,11 @@ class SplunkAppUtilities:
         else:
             app_utilities = app_utilities.split(',')
             app_utilities = [u.strip() for u in app_utilities]
+
+        os.chdir(utils.CommonDirPaths.MAIN_DIR)
+        # copy folder to generate build, rather than affecting the original repo checkout
+        utils.execute_system_command("rm -rf repodir_for_utilities")
+        shutil.copytree('repodir', 'repodir_for_utilities')
 
         self.add_utilities(app_utilities)
 

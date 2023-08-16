@@ -40,9 +40,9 @@ class LoggerUtility(BaseUtility):
         if update1 or update2:
             utils.info("Updated logger related files.")
             return [
-                os.path.join(utils.CommonDirPaths.APP_DIR,
+                os.path.join(utils.CommonDirPaths.APP_DIR_FOR_UTILITIES,
                              'bin', 'logger_manager.py'),
-                os.path.join(utils.CommonDirPaths.APP_DIR,
+                os.path.join(utils.CommonDirPaths.APP_DIR_FOR_UTILITIES,
                              'default', 'props.conf')
             ]
         utils.info("No change in logger related files.")
@@ -51,7 +51,7 @@ class LoggerUtility(BaseUtility):
     def add_logger_manager_py(self):
         return FullRawFileHandler(
             os.path.join(os.path.dirname(__file__), 'logger_manager.py'),
-            os.path.join(utils.CommonDirPaths.APP_DIR,
+            os.path.join(utils.CommonDirPaths.APP_DIR_FOR_UTILITIES,
                          'bin', 'logger_manager.py'),
             self.words_for_replacement
         ).validate_file_content()
@@ -60,7 +60,7 @@ class LoggerUtility(BaseUtility):
     def add_props_content(self):
         return PartConfFileHandler(
             os.path.join(os.path.dirname(__file__), 'props.conf'),
-            os.path.join(utils.CommonDirPaths.APP_DIR,
+            os.path.join(utils.CommonDirPaths.APP_DIR_FOR_UTILITIES,
                          'default', 'props.conf'),
             self.words_for_replacement
         ).validate_config()

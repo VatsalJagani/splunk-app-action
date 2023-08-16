@@ -6,7 +6,7 @@ import helper_github_action as utils
 
 class BaseUtility:
     def __init__(self) -> None:
-        with GitHubPR() as github:
+        with GitHubPR(utils.CommonDirPaths.REPO_DIR_FOR_UTILITIES) as github:
             files_or_folders_updated = self.implement_utility()
             hash = None
 

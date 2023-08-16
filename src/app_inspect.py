@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 import requests
 from requests.auth import HTTPBasicAuth
@@ -48,12 +49,17 @@ class SplunkAppInspect:
         self.app_build_filename = os.path.basename(app_build_path)
         self.app_inspect_report_dir = "{}_reports".format(self.app_package_id)
 
+        shutil.rmtree(self.app_inspect_report_dir)
+        os.mkdir(self.app_inspect_report_dir)
+
         self.headers = None
         self.headers_report = None
         self.app_inspect_result = ["Running", "Running", "Running"]
         # For Above  ->  app_inspect_result, cloud_inspect_result, ssai_inspect_result
 
         self._api_login()
+
+        os.chdir(utils.CommonDirPaths.MAIN_DIR)
 
 
     def _api_login(self):
@@ -173,7 +179,10 @@ class SplunkAppInspect:
             return "Exception"
 
         # write results into a file
-        with open(os.path.join(self.app_inspect_report_dir, report_file_name), 'w+') as f:
+        report_file = os.path.join(
+            self.app_inspect_report_dir, report_file_name)
+        with open(report_file, 'w+') as f:
+            utils.info(f"Writing the App-inspect report in file={report_file}")
             f.write(response.text)
 
         return status
