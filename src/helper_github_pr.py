@@ -47,12 +47,12 @@ class GitHubPR:
 
 
     def _reset_the_git_repo(self):
-        utils.execute_system_command("git checkout --")
+        utils.execute_system_command("git fetch")
         utils.execute_system_command(
-            r'git checkout {}'.format(self.DEFAULT_BRANCH_NAME))
+            f"git checkout {self.DEFAULT_BRANCH_NAME}")
+        utils.execute_system_command(
+            f"git reset --hard origin/{self.DEFAULT_BRANCH_NAME}")
         utils.execute_system_command("git clean -df")
-        utils.execute_system_command(
-            r'git checkout {}'.format(self.DEFAULT_BRANCH_NAME))
         utils.execute_system_command("git pull")
 
 
@@ -68,7 +68,6 @@ class GitHubPR:
         if self.is_test:
             return
 
-        self._reset_the_git_repo()
         os.chdir(utils.CommonDirPaths.MAIN_DIR)
 
 
