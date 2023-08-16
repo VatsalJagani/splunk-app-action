@@ -81,8 +81,7 @@ runs:
       id: extract_branch
 
     - name: "Clone the Repository"
-      uses: actions/checkout@v2
-      if: inputs.app_build_path == 'NONE'
+      uses: actions/checkout@v3
       with:
         ref: ${{ steps.extract_branch.outputs.branch }}
         path: repodir
@@ -106,7 +105,7 @@ runs:
         echo "logger_sourcetype -> ${{inputs.logger_sourcetype}}"
 
     - name: "Install Python"
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
 
     - name: "Install required packages"
       shell: bash
@@ -153,14 +152,14 @@ runs:
         python -u ${{ github.action_path }}/src/main.py
 
     - name: "Upload the app build as artifact"
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       if: always()
       with:
         name: "App-Build-${{env.app_package_id}}"
         path: ${{env.app_package_id}}.tgz
 
     - name: "Upload the app-inspect reports as artifact"
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       if: always()
       with:
         name: "App-Inspect-Reports-${{env.app_package_id}}"
