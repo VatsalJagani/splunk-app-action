@@ -77,13 +77,14 @@ runs:
   steps:
     - name: "Extracting the current branch name"
       shell: bash
-      run: echo "GITHUB_CURRENT_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+      run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      id: extract_branch
 
     - name: "Clone the Repository"
       uses: actions/checkout@v2
       if: inputs.app_build_path == 'NONE'
       with:
-        ref: $GITHUB_CURRENT_BRANCH
+        ref: ${{ steps.extract_branch.outputs.branch }}
         path: repodir
 
     - name: "Pre-tasks"
