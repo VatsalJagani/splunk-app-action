@@ -70,6 +70,17 @@ class SplunkAppBuildGenerator:
             "tar -czf {}.tgz {}".format(self.app_package_id, self.app_package_id))
 
 
+    def run_custom_user_defined_commands(self):
+        utils.info("Executing custom user defined commands.")
+        for no in range(1, 100):
+            try:
+                cmd = utils.get_input(f"APP_ACTION_{no}")
+                if cmd:
+                    utils.execute_system_command(cmd)
+            except Exception as e:
+                utils.warning("Error ")
+
+
     def generate(self):
         utils.info("Generating the app build. app_dir={}, app_package_id={}".format(
             self.app_dir, self.app_package_id))
@@ -84,11 +95,16 @@ class SplunkAppBuildGenerator:
         self._remove_git_folders()
 
         if self.app_dir == '.':
+            os.chdir('repodir_for_build')
+            self.run_custom_user_defined_commands()
+            os.chdir("..")
+
             utils.execute_system_command(
                 'mv repodir_for_build {}'.format(self.app_package_id))
             self._util_generate_build_commands()
         else:
             os.chdir('repodir_for_build')
+            self.run_custom_user_defined_commands()
 
             if self.app_dir != self.app_package_id:
                 utils.execute_system_command(
