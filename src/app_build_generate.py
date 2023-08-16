@@ -22,6 +22,11 @@ class SplunkAppBuildGenerator:
         self.app_package_id = self._fetch_app_package_id()
         utils.set_env('app_package_id', self.app_package_id)
 
+        self.to_make_permission_changes = utils.str_to_boolean(
+            utils.get_input("to_make_permission_changes"))
+        utils.set_env('to_make_permission_changes',
+                      self.to_make_permission_changes)
+
         os.chdir(utils.CommonDirPaths.MAIN_DIR)
 
 
@@ -51,10 +56,16 @@ class SplunkAppBuildGenerator:
 
 
     def _util_generate_build_commands(self):
-        utils.execute_system_command(
-            "find {} -type f -exec chmod 644 '{{}}' \;".format(self.app_package_id))
-        utils.execute_system_command(
-            "find {} -type d -exec chmod 755 '{{}}' \;".format(self.app_package_id))
+        if self.to_make_permission_changes:
+            # Permission Changes
+            utils.execute_system_command(
+                "find {} -type f -exec chmod 644 '{{}}' \;".format(self.app_package_id))
+            utils.execute_system_command(
+                "find {} -type f -name *.sh -exec chmod 755 '{{}}' \;".format(self.app_package_id))
+            utils.execute_system_command(
+                "find {} -type d -exec chmod 755 '{{}}' \;".format(self.app_package_id))
+
+        # Generate Build
         utils.execute_system_command(
             "tar -czf {}.tgz {}".format(self.app_package_id, self.app_package_id))
 

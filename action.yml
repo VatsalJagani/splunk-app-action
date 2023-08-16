@@ -6,15 +6,20 @@ branding:
   icon: "play"
 
 inputs:
+  app_dir:
+    description: "Provide app directory inside your repository. Do not provide the value if the repo's root directory itself if app directory."
+    required: false
+    default: "."
+
   is_generate_build:
     description: "Whether to generate the App Build or not."
     required: false
     default: true
 
-  app_dir:
-    description: "Provide app directory inside your repository. Do not provide the value if the repo's root directory itself if app directory."
+  to_make_permission_changes:
+    description: "Whether to apply file and folder permission changes according to Splunk App Inspect expectation before generating the build."
     required: false
-    default: "."
+    default: true
 
   is_app_inspect_check:
     description: "Whether to perform the Splunk app-inspect checks or not. This would include cloud-inspect checks as well."
@@ -87,8 +92,9 @@ runs:
       run: |
         pwd
         echo "=== Inputs ==="
-        echo "is_generate_build -> ${{inputs.is_generate_build}}"
         echo "app_dir -> ${{inputs.app_dir}}"
+        echo "is_generate_build -> ${{inputs.is_generate_build}}"
+        echo "to_make_permission_changes -> ${{inputs.to_make_permission_changes}}"
         echo "is_app_inspect_check -> ${{inputs.is_app_inspect_check}}"
         echo "splunkbase_username -> ${{inputs.splunkbase_username}} (If using Github secret the value will be ***)"
         echo "splunkbase_password -> ${{inputs.splunkbase_password}} (If using Github secret the value will be ***)"
@@ -133,8 +139,9 @@ runs:
     - name: "Running the Splunk App actions"
       shell: bash
       env:
-        SPLUNK_is_generate_build: ${{inputs.is_generate_build}}
         SPLUNK_app_dir: ${{inputs.app_dir}}
+        SPLUNK_is_generate_build: ${{inputs.is_generate_build}}
+        SPLUNK_to_make_permission_changes: ${{inputs.to_make_permission_changes}}
         SPLUNK_is_app_inspect_check: ${{inputs.is_app_inspect_check}}
         SPLUNK_splunkbase_username: ${{inputs.splunkbase_username}}
         SPLUNK_splunkbase_password: ${{inputs.splunkbase_password}}

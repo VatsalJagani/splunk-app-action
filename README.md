@@ -123,15 +123,21 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 
 
 ## Inputs
-#### is_generate_build
-* description: "Whether to generate the App Build or not."
-* required: false
-* default: true
 
 #### app_dir
 * description: "Provide app directory inside your repository. Do not provide the value if the repo's root directory itself if app directory."
 * required: false
 * default: ".", meaning root folder of the repository.
+
+#### is_generate_build
+* description: "Whether to generate the App Build or not."
+* required: false
+* default: true
+
+#### to_make_permission_changes
+* description: "Whether to apply file and folder permission changes according to Splunk App Inspect expectation before generating the build."
+* required: false
+* default: true
 
 #### is_app_inspect_check
 * description: "Whether to perform the Splunk app-inspect checks or not. This would include cloud-inspect checks as well."
