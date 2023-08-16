@@ -49,7 +49,10 @@ class SplunkAppInspect:
         self.app_build_filename = os.path.basename(app_build_path)
         self.app_inspect_report_dir = "{}_reports".format(self.app_package_id)
 
-        shutil.rmtree(self.app_inspect_report_dir)
+        try:
+            shutil.rmtree(self.app_inspect_report_dir)
+        except:
+            pass   # nothing to delete if folder not exist
         os.mkdir(self.app_inspect_report_dir)
 
         self.headers = None
@@ -249,6 +252,7 @@ class SplunkAppInspect:
             utils.info(
                 "All status [app-inspect, cloud-checks, self-service-checks]:{}".format(self.app_inspect_result))
         else:
-            utils.error(
-                "All status [app-inspect, cloud-checks, self-service-checks]:{}".format(self.app_inspect_result))
-            sys.exit(1)
+            msg = "All status [app-inspect, cloud-checks, self-service-checks]:{}".format(
+                self.app_inspect_result)
+            utils.error(msg)
+            raise Exception(msg)

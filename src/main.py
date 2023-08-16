@@ -30,3 +30,6 @@ if __name__ == "__main__":
         utils.error(
             "Error in SplunkBase Build Generator or App Inspect Checks: {}".format(e))
         utils.error(traceback.format_exc())
+
+        sys.exit(1)
+        # Failure in build generation or App Inspect means failure for Workflow
