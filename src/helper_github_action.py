@@ -44,7 +44,8 @@ def set_env(name, value):
 
 
 def set_output(name, value):
-    print(f"::set-output name={name}::{_escape_data(value)}")
+    os.system('echo "{' + name + '}={' +
+              _escape_data(value) + '}" >> $GITHUB_OUTPUT')
 
 
 def format_message(message):
