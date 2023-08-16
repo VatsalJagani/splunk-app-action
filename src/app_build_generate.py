@@ -35,7 +35,7 @@ class SplunkAppBuildGenerator:
 
         config = SplunkConfigParser(os.path.join(
             'repodir', self.app_dir, 'default', 'app.conf'))
-        utils.info("app.conf sections: {}".format(config.sections()))
+        # utils.info("app.conf sections: {}".format(config.sections()))
         if 'package' in config and 'id' in config['package']:
             utils.info(
                 "Using app package id found in app.conf - {}".format(config['package']['id']))
