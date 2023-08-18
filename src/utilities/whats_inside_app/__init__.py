@@ -186,8 +186,12 @@ class WhatsInsideTheAppUtility(BaseUtility):
         for key, val in dashboards.items():
             approx_total_viz += val['total_viz_count']
 
-        if (len(dashboards) > 0):
-            return ["No of XML Dashboards: **{}**".format(len(dashboards)),
-                    "Approx Total Viz(Charts/Tables/Map) in XML dashboards: **{}**".format(approx_total_viz)]
-        else:
-            return []
+        things_to_return = []
+
+        if len(dashboards) > 0:
+            things_to_return.append("No of XML Dashboards: **{}**".format(len(dashboards)))
+
+        if approx_total_viz > 0:
+            things_to_return.append("Approx Total Viz(Charts/Tables/Map) in XML dashboards: **{}**".format(approx_total_viz))
+
+        return things_to_return
