@@ -53,6 +53,7 @@ class SplunkAppBuildGenerator:
         utils.info("Removing .git and .github directory from repo.")
         utils.execute_system_command('rm -rf repodir_for_build/.github')
         utils.execute_system_command('rm -rf repodir_for_build/.git')
+        utils.execute_system_command('rm -rf repodir_for_build/.gitignore')
 
 
     def _util_generate_build_commands(self):
