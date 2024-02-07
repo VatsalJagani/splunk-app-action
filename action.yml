@@ -116,6 +116,7 @@ runs:
       shell: bash
       run: |
         pip install requests
+        pip install splunk-add-on-ucc-framework
 
     - name: "Running the Splunk App actions"
       shell: bash
