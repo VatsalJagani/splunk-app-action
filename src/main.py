@@ -7,6 +7,7 @@ sys.path.append(os.path.dirname(__file__))
 import helper_github_action as utils
 from app_inspect import SplunkAppInspect
 from app_build_generate import SplunkAppBuildGenerator
+from app_build_with_ucc import SplunkAppBuildWithUCC
 from app_utilities import SplunkAppUtilities
 
 
@@ -23,7 +24,12 @@ if __name__ == "__main__":
         utils.error(traceback.format_exc())
 
     try:
-        build_path, app_package_id = SplunkAppBuildGenerator().generate()    # Generate Build
+        # Build Add-on with UCC
+        _new_app_dir, _new_app_package_id = SplunkAppBuildWithUCC().build()
+
+        # Generate Build
+        build_path, app_package_id = SplunkAppBuildGenerator(app_dir=_new_app_dir, app_package_id=_new_app_package_id).generate()
+        
         # Run App Inspect
         SplunkAppInspect(build_path, app_package_id).run_all_checks()
     except Exception as e:

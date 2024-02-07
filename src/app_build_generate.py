@@ -8,19 +8,25 @@ from helper_splunk_config_parser import SplunkConfigParser
 
 class SplunkAppBuildGenerator:
 
-    def __init__(self) -> None:
+    def __init__(self, app_dir=None, app_package_id=None) -> None:
         self.is_generate_build = utils.str_to_boolean(
             utils.get_input('is_generate_build'))
         utils.info("is_generate_build: {}".format(self.is_generate_build))
 
-        self.app_dir = utils.get_input('app_dir')
-        utils.info("app_dir: {}".format(self.app_dir))
+        if app_dir:
+            self.app_dir = app_dir
+        else:
+            self.app_dir = utils.get_input('app_dir')
+            utils.info("app_dir: {}".format(self.app_dir))
 
         self.direct_app_build_path = utils.get_input('app_build_path')
         utils.info("app_build_path: {}".format(self.direct_app_build_path))
 
-        self.app_package_id = self._fetch_app_package_id()
-        utils.set_env('app_package_id', self.app_package_id)
+        if app_package_id:
+            self.app_package_id = app_package_id
+        else:
+            self.app_package_id = self._fetch_app_package_id()
+            utils.set_env('app_package_id', self.app_package_id)
 
         self.to_make_permission_changes = utils.str_to_boolean(
             utils.get_input("to_make_permission_changes"))
@@ -34,7 +40,7 @@ class SplunkAppBuildGenerator:
         utils.info("Fetching app package id. from app.conf file.")
 
         config = SplunkConfigParser(os.path.join(
-            'repodir', self.app_dir, 'default', 'app.conf'))
+            utils.CommonDirPaths.REPO_DIR, self.app_dir, 'default', 'app.conf'))
         # utils.info("app.conf sections: {}".format(config.sections()))
         if 'package' in config and 'id' in config['package']:
             utils.info(
