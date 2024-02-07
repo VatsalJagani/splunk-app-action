@@ -34,8 +34,6 @@ class WhatsInsideTheAppUtility(BaseUtility):
         '''
         utils.info("Adding WhatsInsideTheAppUtility.")
 
-        utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
-
         start_markers = ["# What's in the App", "What's in the Add-on",
                          "# What's inside the App", "# What's inside the Add-on"]
         end_markers = ['\n\n\n']
