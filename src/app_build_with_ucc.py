@@ -68,6 +68,6 @@ class SplunkAppBuildWithUCC:
         utils.execute_system_command(f"ucc-gen build --ta-version {self.app_version}")
 
         os.chdir(utils.CommonDirPaths.MAIN_DIR)
-        utils.copytree(os.path.join('repodir_for_ucc', 'output', self.app_package_id), 'ucc_gen_ta')
+        shutil.copytree(os.path.join('repodir_for_ucc', 'output', self.app_package_id), 'ucc_gen_ta')
 
         return 'ucc_gen_ta', self.app_package_id

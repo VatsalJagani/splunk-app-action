@@ -9,7 +9,7 @@ def list_files(startpath):
         level = root.replace(startpath, '').count(os.sep)
 
         # only until level 2
-        if level > 2:
+        if level > 3:
             continue
 
         indent = ' ' * 4 * (level)
