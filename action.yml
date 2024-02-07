@@ -110,7 +110,9 @@ runs:
         echo "logger_sourcetype -> ${{inputs.logger_sourcetype}}"
 
     - name: "Install Python"
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
 
     - name: "Install required packages"
       shell: bash
