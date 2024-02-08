@@ -28,7 +28,7 @@ if __name__ == "__main__":
         _new_app_dir, _new_app_package_id = SplunkAppBuildWithUCC().build()
 
     try:
-        SplunkAppUtilities(use_ucc_gen=use_ucc_gen)
+        SplunkAppUtilities(use_ucc_gen=use_ucc_gen, new_app_dir=_new_app_dir)
     except Exception as e:
         utils.error("Error Adding Splunk App Utilities: {}".format(e))
         utils.error(traceback.format_exc())

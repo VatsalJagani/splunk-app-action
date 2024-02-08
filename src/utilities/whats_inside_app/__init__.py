@@ -76,9 +76,9 @@ class WhatsInsideTheAppUtility(BaseUtility):
     def _get_stanzas(self, conf_file_name):
         stanzas = set()
         local_conf_file = os.path.join(
-            utils.CommonDirPaths.APP_DIR_FOR_UTILITIES, 'local', "{}.conf".format(conf_file_name))
+            self.read_content_dir, 'local', "{}.conf".format(conf_file_name))
         default_conf_file = os.path.join(
-            utils.CommonDirPaths.APP_DIR_FOR_UTILITIES, 'default', "{}.conf".format(conf_file_name))
+            self.read_content_dir, 'default', "{}.conf".format(conf_file_name))
 
         if os.path.isfile(local_conf_file):
             stanzas.update(self._get_conf_stanzas(local_conf_file))
@@ -107,7 +107,7 @@ class WhatsInsideTheAppUtility(BaseUtility):
     def _get_csv_lookup_files(self):
         csv_lookup_files = []
         lookups_path = os.path.join(
-            utils.CommonDirPaths.APP_DIR_FOR_UTILITIES, 'lookups')
+            self.read_content_dir, 'lookups')
         if os.path.isdir(lookups_path):
             csv_lookup_files = [file for file in os.listdir(
                 lookups_path) if file.endswith(".csv") or file.endswith(".CSV")]
@@ -157,7 +157,7 @@ class WhatsInsideTheAppUtility(BaseUtility):
         dashboards = {}
 
         local_dashboards_path = os.path.join(
-            utils.CommonDirPaths.APP_DIR_FOR_UTILITIES, 'local', 'data', 'ui', 'views')
+            self.read_content_dir, 'local', 'data', 'ui', 'views')
         if os.path.isdir(local_dashboards_path):
             local_xml_files = [file for file in os.listdir(
                 local_dashboards_path) if file.endswith(".xml") or file.endswith(".XML")]
@@ -168,7 +168,7 @@ class WhatsInsideTheAppUtility(BaseUtility):
                 dashboards[df] = dashboard_details
 
         default_dashboards_path = os.path.join(
-            utils.CommonDirPaths.APP_DIR_FOR_UTILITIES, 'default', 'data', 'ui', 'views')
+            self.read_content_dir, 'default', 'data', 'ui', 'views')
         if os.path.isdir(default_dashboards_path):
             default_xml_files = [file for file in os.listdir(
                 default_dashboards_path) if file.endswith(".xml") or file.endswith(".XML")]

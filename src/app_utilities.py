@@ -9,8 +9,9 @@ from utilities.common_splunk_js_utilities import CommonJSUtilitiesFile
 
 
 class SplunkAppUtilities:
-    def __init__(self, use_ucc_gen=False, is_test=False) -> None:
+    def __init__(self, use_ucc_gen=False, new_app_dir=None, is_test=False) -> None:
         self.use_ucc_gen = use_ucc_gen
+        self.new_app_dir = new_app_dir
         self.is_test = is_test
         # Get Inputs
         app_utilities = utils.get_input('app_utilities')
@@ -32,16 +33,16 @@ class SplunkAppUtilities:
         utils.info(f"Adding utilities: {app_utilities}")
         for utility in app_utilities:
             if utility == "whats_in_the_app":
-                WhatsInsideTheAppUtility(use_ucc_gen=self.use_ucc_gen)
+                WhatsInsideTheAppUtility(use_ucc_gen=self.use_ucc_gen, new_app_dir=self.new_app_dir)
 
             elif utility == "logger":
-                LoggerUtility(use_ucc_gen=self.use_ucc_gen)
+                LoggerUtility(use_ucc_gen=self.use_ucc_gen, new_app_dir=self.new_app_dir)
 
             elif utility == "splunk_python_sdk":
-                SplunkPythonSDKUtility(use_ucc_gen=self.use_ucc_gen)
+                SplunkPythonSDKUtility(use_ucc_gen=self.use_ucc_gen, new_app_dir=self.new_app_dir)
 
             elif utility == "common_js_utilities":
-                CommonJSUtilitiesFile(use_ucc_gen=self.use_ucc_gen)
+                CommonJSUtilitiesFile(use_ucc_gen=self.use_ucc_gen, new_app_dir=self.new_app_dir)
 
             else:
                 utils.error("utility={} is not supported.".format(utility))
