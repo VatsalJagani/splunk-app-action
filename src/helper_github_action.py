@@ -9,7 +9,7 @@ def list_files(startpath):
         level = root.replace(startpath, '').count(os.sep)
 
         # only until level 2
-        if level > 2:
+        if level > 3:
             continue
 
         indent = ' ' * 4 * (level)
@@ -104,29 +104,29 @@ def _escape_data(value: str):
 
 class CommonDirPaths:
     MAIN_DIR = None
+
+    REPO_DIR_NAME = "repodir"
     REPO_DIR = None
-    REPO_DIR_FOR_UTILITIES = None
+
     APP_DIR = None
-    APP_DIR_FOR_UTILITIES = None
+
+    BUILD_DIR_NAME = "repodir_for_build"
+    BUILD_FINAL_DIR_NAME = "app_final"
+
 
     @staticmethod
     def generate_paths():
         if CommonDirPaths.MAIN_DIR is None:
             CommonDirPaths.MAIN_DIR = os.getcwd()
+
         if CommonDirPaths.REPO_DIR is None:
             CommonDirPaths.REPO_DIR = os.path.join(
-                CommonDirPaths.MAIN_DIR, 'repodir')
-        if CommonDirPaths.REPO_DIR_FOR_UTILITIES is None:
-            CommonDirPaths.REPO_DIR_FOR_UTILITIES = os.path.join(
-                CommonDirPaths.MAIN_DIR, 'repodir_for_utilities')
+                CommonDirPaths.MAIN_DIR, CommonDirPaths.REPO_DIR_NAME)
+
         if CommonDirPaths.APP_DIR is None:
             app_dir = get_input('app_dir')
             CommonDirPaths.APP_DIR = os.path.join(
                 CommonDirPaths.REPO_DIR, app_dir)
-        if CommonDirPaths.APP_DIR_FOR_UTILITIES is None:
-            app_dir = get_input('app_dir')
-            CommonDirPaths.APP_DIR_FOR_UTILITIES = os.path.join(
-                CommonDirPaths.REPO_DIR_FOR_UTILITIES, app_dir)
 
     def __init__(self):
         CommonDirPaths.generate_static_variable()

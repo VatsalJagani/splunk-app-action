@@ -21,6 +21,11 @@ inputs:
     required: false
     default: true
 
+  use_ucc_gen:
+    description: "Use ucc-gen command to generate the build for Add-on. The repo must have a folder named 'package', a file named 'globalConfig.json' in the root directory for this to work. Use the app_dir param value as package."
+    required: false
+    default: false
+
   is_app_inspect_check:
     description: "Whether to perform the Splunk app-inspect checks or not. This would include cloud-inspect checks as well."
     required: false
@@ -105,12 +110,15 @@ runs:
         echo "logger_sourcetype -> ${{inputs.logger_sourcetype}}"
 
     - name: "Install Python"
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
 
     - name: "Install required packages"
       shell: bash
       run: |
         pip install requests
+        pip install splunk-add-on-ucc-framework
 
     - name: "Running the Splunk App actions"
       shell: bash

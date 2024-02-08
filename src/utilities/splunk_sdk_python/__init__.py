@@ -23,7 +23,7 @@ class SplunkPythonSDKUtility(BaseUtility):
         utils.info("Adding SplunkPythonSDKUtility")
 
         folder_to_install_splunklib = os.path.join(
-            utils.CommonDirPaths.APP_DIR_FOR_UTILITIES, 'bin')
+            self.app_write_dir, 'bin')
 
         os.chdir(folder_to_install_splunklib)
         if not os.path.exists(folder_to_install_splunklib):

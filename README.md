@@ -139,6 +139,11 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 * required: false
 * default: true
 
+#### use_ucc_gen
+* description: "Use ucc-gen command to generate the build for Add-on. The repo must have a folder named 'package', a file named 'globalConfig.json' in the root directory for this to work. Use the app_dir param value as package."
+* required: false
+* default: false
+
 #### is_app_inspect_check
 * description: "Whether to perform the Splunk app-inspect checks or not. This would include cloud-inspect checks as well."
 * required: false
