@@ -38,6 +38,7 @@ if __name__ == "__main__":
         app_package_id = app_build_with_ucc.fetch_app_package_id()
     else:
         app_package_id = app_build_generate.fetch_app_package_id(utils.CommonDirPaths.APP_DIR, app_dir_input)
+    utils.set_env("app_package_id", app_package_id)   # For yml file to artifact build and app-inspect report
 
 
     if use_ucc_gen:
@@ -45,7 +46,7 @@ if __name__ == "__main__":
         app_build_dir_name, app_build_dir_path = app_build_with_ucc.build(app_package_id, app_version)
 
         utils.info("ucc-gen command Completed.")
-        utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
+        # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
 
     else:
         utils.execute_system_command(f"rm -rf {utils.CommonDirPaths.BUILD_FINAL_DIR_NAME}")
@@ -58,15 +59,16 @@ if __name__ == "__main__":
         app_build_dir_name = utils.CommonDirPaths.BUILD_FINAL_DIR_NAME
         app_build_dir_path = os.path.join(utils.CommonDirPaths.MAIN_DIR, utils.CommonDirPaths.BUILD_FINAL_DIR_NAME)
 
+        utils.info("Copied the code for build process.")
+
 
     try:
         SplunkAppUtilities(app_read_dir=app_build_dir_path, app_write_dir=os.path.join(utils.CommonDirPaths.REPO_DIR, app_dir_input))
+        # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
+        utils.info("SplunkAppUtilities completed.")
     except Exception as e:
         utils.error("Error Adding Splunk App Utilities: {}".format(e))
         utils.error(traceback.format_exc())
-
-    utils.info("AppUtilities Completed.")
-    utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
 
 
     try:
@@ -78,6 +80,8 @@ if __name__ == "__main__":
 
         # Run App Inspect
         SplunkAppInspect(build_path, app_package_id).run_all_checks()
+        utils.info("SplunkAppInspect Completed.")
+        # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
 
     except Exception as e:
         utils.error(
