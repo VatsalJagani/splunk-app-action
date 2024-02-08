@@ -25,7 +25,7 @@ def fetch_app_package_id(app_dir_path, app_dir_input):
         return app_dir_input
 
 
-def fetch_app_version_number(app_dir_path,):
+def fetch_app_version_number(app_dir_path):
     app_config = _read_app_conf(app_dir_path)
     if 'launcher' in app_config and 'version' in app_config['launcher']:
         utils.info(
