@@ -142,12 +142,12 @@ runs:
       uses: actions/upload-artifact@v3
       if: always()
       with:
-        name: "App-Build-${{env.app_package_id}}"
-        path: ${{env.app_package_id}}.tgz
+        name: "App-Build-${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}"
+        path: ${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}.tgz
 
     - name: "Upload the app-inspect reports as artifact"
       uses: actions/upload-artifact@v3
       if: always()
       with:
-        name: "App-Inspect-Reports-${{env.app_package_id}}"
-        path: ${{env.app_package_id}}_reports
+        name: "App-Inspect-Reports-${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}"
+        path: ${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}_reports
