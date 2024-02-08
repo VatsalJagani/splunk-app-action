@@ -6,63 +6,51 @@ import json
 import helper_github_action as utils
 
 
-class SplunkAppBuildWithUCC:
+def fetch_app_package_id():
+    utils.info("Fetching app package id from globalConfig.json file.")
 
-    def __init__(self) -> None:
-        os.chdir(utils.CommonDirPaths.MAIN_DIR)
+    _app_package_id = None
 
-        self.app_package_id = self._fetch_app_package_id()
-        utils.set_env('app_package_id', self.app_package_id)
+    with open(os.path.join(utils.CommonDirPaths.REPO_DIR, 'globalConfig.json'), 'r') as f:
+        global_config = json.loads(f.read())
 
-        self.app_version = self._fetch_app_version()
-        utils.set_env('app_version', self.app_version)
+        _app_package_id = global_config["meta"]["name"]
 
+    if not _app_package_id:
+        raise Exception("Unable to fetch the app package id from globalConfig.json file")
 
-    def _fetch_app_package_id(self):
-        utils.info("Fetching app package id from globalConfig.json file.")
-
-        _app_package_id = None
-
-        with open(os.path.join(utils.CommonDirPaths.REPO_DIR, 'globalConfig.json'), 'r') as f:
-            global_config = json.loads(f.read())
-
-            _app_package_id = global_config["meta"]["name"]
-
-        if not _app_package_id:
-            raise Exception("Unable to fetch the app package id from globalConfig.json file")
-
-        return _app_package_id
+    return _app_package_id
 
 
-    def _fetch_app_version(self):
-        utils.info("Fetching app version number from globalConfig.json file.")
+def fetch_app_version():
+    utils.info("Fetching app version number from globalConfig.json file.")
 
-        _app_version = None
+    _app_version = None
 
-        with open(os.path.join(utils.CommonDirPaths.REPO_DIR, 'globalConfig.json'), 'r') as f:
-            global_config = json.loads(f.read())
+    with open(os.path.join(utils.CommonDirPaths.REPO_DIR, 'globalConfig.json'), 'r') as f:
+        global_config = json.loads(f.read())
 
-            _app_version = global_config["meta"]["version"]
+        _app_version = global_config["meta"]["version"]
 
-        if not _app_version:
-            raise Exception("Unable to fetch the app package id from globalConfig.json file")
+    if not _app_version:
+        raise Exception("Unable to fetch the app package id from globalConfig.json file")
 
-        return _app_version
+    return _app_version
 
 
-    def build(self):
-        utils.info("Running ucc-gen command.")
+def build(app_package_id, app_version):
+    utils.info("Running ucc-gen command.")
 
-        # copy folder to generate build, rather than affecting the original repo checkout
-        utils.execute_system_command(f"rm -rf {utils.CommonDirPaths.UCC_DIR_NAME}")
-        shutil.copytree(utils.CommonDirPaths.REPO_DIR_NAME, utils.CommonDirPaths.UCC_DIR_NAME)
+    # copy folder to generate build, rather than affecting the original repo checkout
+    utils.execute_system_command(f"rm -rf {utils.CommonDirPaths.BUILD_DIR_NAME}")
+    shutil.copytree(utils.CommonDirPaths.REPO_DIR_NAME, utils.CommonDirPaths.BUILD_DIR_NAME)
 
-        os.chdir(utils.CommonDirPaths.UCC_DIR_NAME)
+    os.chdir(utils.CommonDirPaths.BUILD_DIR_NAME)
 
-        utils.execute_system_command(f"ucc-gen build --ta-version {self.app_version}")
+    utils.execute_system_command(f"ucc-gen build --ta-version {app_version}")
 
-        os.chdir(utils.CommonDirPaths.MAIN_DIR)
+    os.chdir(utils.CommonDirPaths.MAIN_DIR)
 
-        shutil.copytree(os.path.join(utils.CommonDirPaths.UCC_DIR_NAME, 'output', self.app_package_id), 'ucc_gen_ta')
+    shutil.copytree(os.path.join(utils.CommonDirPaths.BUILD_DIR_NAME, 'output', app_package_id), utils.CommonDirPaths.BUILD_FINAL_DIR_NAME)
 
-        return 'ucc_gen_ta', self.app_package_id
+    return utils.CommonDirPaths.BUILD_FINAL_DIR_NAME, os.path.join(utils.CommonDirPaths.MAIN_DIR, utils.CommonDirPaths.BUILD_FINAL_DIR_NAME)

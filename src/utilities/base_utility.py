@@ -5,12 +5,11 @@ import helper_github_action as utils
 
 
 class BaseUtility:
-    def __init__(self, use_ucc_gen=False, new_app_dir=None) -> None:
-        self.use_ucc_gen = use_ucc_gen
-        self.new_app_dir = new_app_dir
-        self.read_content_dir = new_app_dir if new_app_dir else utils.CommonDirPaths.REPO_DIR_FOR_UTILITIES
+    def __init__(self, app_read_dir, app_write_dir) -> None:
+        self.app_read_dir = app_read_dir
+        self.app_write_dir = app_write_dir
 
-        with GitHubPR(utils.CommonDirPaths.REPO_DIR_FOR_UTILITIES) as github:
+        with GitHubPR(app_write_dir) as github:
             files_or_folders_updated = self.implement_utility()
             hash = None
 
