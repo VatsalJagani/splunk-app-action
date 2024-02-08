@@ -27,16 +27,25 @@ if __name__ == "__main__":
     if use_ucc_gen:
         _new_app_dir, _new_app_package_id = SplunkAppBuildWithUCC().build()
 
+    utils.info("ucc-gen Completed.")
+    utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
+
     try:
         SplunkAppUtilities(use_ucc_gen=use_ucc_gen, new_app_dir=_new_app_dir)
     except Exception as e:
         utils.error("Error Adding Splunk App Utilities: {}".format(e))
         utils.error(traceback.format_exc())
 
+    utils.info("AppUtilities Completed.")
+    utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
+
     try:
         # Generate Build
         build_path, app_package_id = SplunkAppBuildGenerator(app_dir=_new_app_dir, app_package_id=_new_app_package_id).generate()
-        
+
+        utils.info("AppBuildGenerator Completed.")
+        utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
+
         # Run App Inspect
         SplunkAppInspect(build_path, app_package_id).run_all_checks()
     except Exception as e:

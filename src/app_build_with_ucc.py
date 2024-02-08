@@ -63,8 +63,6 @@ class SplunkAppBuildWithUCC:
 
         os.chdir(utils.CommonDirPaths.MAIN_DIR)
 
-        utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
-
         shutil.copytree(os.path.join(utils.CommonDirPaths.UCC_DIR_NAME, 'output', self.app_package_id), 'ucc_gen_ta')
 
         return 'ucc_gen_ta', self.app_package_id
