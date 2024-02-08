@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
 
     try:
-        SplunkAppUtilities(app_read_dir=app_build_dir_path, app_write_dir=utils.CommonDirPaths.REPO_DIR)
+        SplunkAppUtilities(app_read_dir=app_build_dir_path, app_write_dir=os.path.join(utils.CommonDirPaths.REPO_DIR, app_dir_input))
     except Exception as e:
         utils.error("Error Adding Splunk App Utilities: {}".format(e))
         utils.error(traceback.format_exc())

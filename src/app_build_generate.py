@@ -61,7 +61,7 @@ def run_custom_user_defined_commands():
 
 
 def generate_build(app_package_id, app_build_dir_name, app_build_dir_path):
-    utils.info(f"Generating the app build. app_dir={app_dir}, app_dir_path={self.app_dir_path}, app_package_id={self.app_package_id}")
+    utils.info(f"Generating the app build., app_dir_path={app_build_dir_path}, app_package_id={app_package_id}")
 
     is_generate_build = utils.str_to_boolean(
         utils.get_input('is_generate_build'))
