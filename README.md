@@ -121,6 +121,17 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
         my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
 
+#### Add additional_packaging.py file for UCC built Add-on
+* This utility adds additional_packaging.py file that contains code to better generate input handler python file to easily re-generate code on change, rather than making manual changes.
+
+```
+- uses: VatsalJagani/splunk-app-action@v2
+    with:
+        app_dir: "package"
+        app_utilities: "ucc_additional_packaging"
+        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+```
+
 
 ## Inputs
 
@@ -162,7 +173,7 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 * required: false
 
 #### app_utilities
-* description: "Add comma separated list of utilities to use. You need to enable read and write permission for workflow to create Pull Requests. Valid options: whats_in_the_app, logger, splunk_python_sdk, common_js_utilities"
+* description: "Add comma separated list of utilities to use. You need to enable read and write permission for workflow to create Pull Requests. Valid options: whats_in_the_app, logger, splunk_python_sdk, common_js_utilities, ucc_additional_packaging"
 * required: false
 * default: "", meaning no utilities
 
