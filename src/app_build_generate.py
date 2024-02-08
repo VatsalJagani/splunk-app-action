@@ -58,7 +58,8 @@ def remove_unwanted_files():
     utils.execute_system_command("rm -rf .github")
     utils.execute_system_command("rm -rf .git")
     utils.execute_system_command("rm -rf .gitignore")
-    utils.execute_system_command('find . -name "*.pyc" -type f -delete')
+    utils.execute_system_command('find . -name "*.py[co]" -type f -delete')
+    utils.execute_system_command('find . -name "__pycache__" -type d -delete')
 
 
 def util_generate_build_commands(app_package_id, app_version_encoded, app_build_number_encoded):
