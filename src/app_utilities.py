@@ -9,7 +9,8 @@ from utilities.common_splunk_js_utilities import CommonJSUtilitiesFile
 
 
 class SplunkAppUtilities:
-    def __init__(self, is_test=False) -> None:
+    def __init__(self, use_ucc_gen=False, is_test=False) -> None:
+        self.use_ucc_gen = use_ucc_gen
         self.is_test = is_test
         # Get Inputs
         app_utilities = utils.get_input('app_utilities')
@@ -21,8 +22,8 @@ class SplunkAppUtilities:
 
         os.chdir(utils.CommonDirPaths.MAIN_DIR)
         # copy folder to generate build, rather than affecting the original repo checkout
-        utils.execute_system_command("rm -rf repodir_for_utilities")
-        shutil.copytree('repodir', 'repodir_for_utilities')
+        utils.execute_system_command(f"rm -rf {utils.CommonDirPaths.UTILITIES_DIR_NAME}")
+        shutil.copytree(utils.CommonDirPaths.REPO_DIR_NAME, utils.CommonDirPaths.UTILITIES_DIR_NAME)
 
         self.add_utilities(app_utilities)
 
@@ -31,16 +32,16 @@ class SplunkAppUtilities:
         utils.info(f"Adding utilities: {app_utilities}")
         for utility in app_utilities:
             if utility == "whats_in_the_app":
-                WhatsInsideTheAppUtility()
+                WhatsInsideTheAppUtility(use_ucc_gen=self.use_ucc_gen)
 
             elif utility == "logger":
-                LoggerUtility()
+                LoggerUtility(use_ucc_gen=self.use_ucc_gen)
 
             elif utility == "splunk_python_sdk":
-                SplunkPythonSDKUtility()
+                SplunkPythonSDKUtility(use_ucc_gen=self.use_ucc_gen)
 
             elif utility == "common_js_utilities":
-                CommonJSUtilitiesFile()
+                CommonJSUtilitiesFile(use_ucc_gen=self.use_ucc_gen)
 
             else:
                 utils.error("utility={} is not supported.".format(utility))

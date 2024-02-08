@@ -9,9 +9,13 @@ import helper_github_action as utils
 class SplunkAppBuildWithUCC:
 
     def __init__(self) -> None:
-        self.use_ucc_gen = utils.str_to_boolean(
-            utils.get_input('use_ucc_gen'))
-        utils.info("use_ucc_gen: {}".format(self.use_ucc_gen))
+        os.chdir(utils.CommonDirPaths.MAIN_DIR)
+
+        self.app_package_id = self._fetch_app_package_id()
+        utils.set_env('app_package_id', self.app_package_id)
+
+        self.app_version = self._fetch_app_version()
+        utils.set_env('app_version', self.app_version)
 
 
     def _fetch_app_package_id(self):
@@ -47,23 +51,13 @@ class SplunkAppBuildWithUCC:
 
 
     def build(self):
-        if not self.use_ucc_gen:
-            return None, None
-
         utils.info("Running ucc-gen command.")
-        os.chdir(utils.CommonDirPaths.MAIN_DIR)
-
-        self.app_package_id = self._fetch_app_package_id()
-        utils.set_env('app_package_id', self.app_package_id)
-
-        self.app_version = self._fetch_app_version()
-        utils.set_env('app_version', self.app_version)
 
         # copy folder to generate build, rather than affecting the original repo checkout
-        utils.execute_system_command("rm -rf repodir_for_ucc")
-        shutil.copytree('repodir', 'repodir_for_ucc')
+        utils.execute_system_command(f"rm -rf {utils.CommonDirPaths.UCC_DIR_NAME}")
+        shutil.copytree(utils.CommonDirPaths.REPO_DIR_NAME, utils.CommonDirPaths.UCC_DIR_NAME)
 
-        os.chdir('repodir_for_ucc')
+        os.chdir(utils.CommonDirPaths.UCC_DIR_NAME)
 
         utils.execute_system_command(f"ucc-gen build --ta-version {self.app_version}")
 
@@ -71,6 +65,6 @@ class SplunkAppBuildWithUCC:
 
         utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
 
-        shutil.copytree(os.path.join('repodir_for_ucc', 'output', self.app_package_id), 'ucc_gen_ta')
+        shutil.copytree(os.path.join(utils.CommonDirPaths.UCC_DIR_NAME, 'output', self.app_package_id), 'ucc_gen_ta')
 
         return 'ucc_gen_ta', self.app_package_id

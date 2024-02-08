@@ -17,16 +17,23 @@ if __name__ == "__main__":
 
     utils.CommonDirPaths.generate_paths()
 
+    # Build Add-on with UCC
+    use_ucc_gen = utils.str_to_boolean(
+            utils.get_input('use_ucc_gen'))
+    utils.info("use_ucc_gen: {}".format(use_ucc_gen))
+
+    _new_app_dir = None
+    _new_app_package_id = None
+    if use_ucc_gen:
+        _new_app_dir, _new_app_package_id = SplunkAppBuildWithUCC().build()
+
     try:
-        SplunkAppUtilities()
+        SplunkAppUtilities(use_ucc_gen=use_ucc_gen)
     except Exception as e:
         utils.error("Error Adding Splunk App Utilities: {}".format(e))
         utils.error(traceback.format_exc())
 
     try:
-        # Build Add-on with UCC
-        _new_app_dir, _new_app_package_id = SplunkAppBuildWithUCC().build()
-
         # Generate Build
         build_path, app_package_id = SplunkAppBuildGenerator(app_dir=_new_app_dir, app_package_id=_new_app_package_id).generate()
         

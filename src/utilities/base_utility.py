@@ -5,7 +5,8 @@ import helper_github_action as utils
 
 
 class BaseUtility:
-    def __init__(self) -> None:
+    def __init__(self, use_ucc_gen=False) -> None:
+        self.use_ucc_gen = use_ucc_gen
         with GitHubPR(utils.CommonDirPaths.REPO_DIR_FOR_UTILITIES) as github:
             files_or_folders_updated = self.implement_utility()
             hash = None

@@ -57,9 +57,9 @@ class SplunkAppBuildGenerator:
 
     def _remove_git_folders(self):
         utils.info("Removing .git and .github directory from repo.")
-        utils.execute_system_command('rm -rf repodir_for_build/.github')
-        utils.execute_system_command('rm -rf repodir_for_build/.git')
-        utils.execute_system_command('rm -rf repodir_for_build/.gitignore')
+        utils.execute_system_command(f'rm -rf {utils.CommonDirPaths.BUILD_DIR_NAME}/.github')
+        utils.execute_system_command(f'rm -rf {utils.CommonDirPaths.BUILD_DIR_NAME}/.git')
+        utils.execute_system_command(f'rm -rf {utils.CommonDirPaths.BUILD_DIR_NAME}/.gitignore')
 
 
     def _util_generate_build_commands(self):
@@ -96,21 +96,21 @@ class SplunkAppBuildGenerator:
             return self.direct_app_build_path, self.app_package_id
 
         # copy folder to generate build, rather than affecting the original repo checkout
-        utils.execute_system_command("rm -rf repodir_for_build")
-        shutil.copytree('repodir', 'repodir_for_build')
+        utils.execute_system_command(f"rm -rf {utils.CommonDirPaths.BUILD_DIR_NAME}")
+        shutil.copytree(utils.CommonDirPaths.REPO_DIR_NAME, utils.CommonDirPaths.BUILD_DIR_NAME)
 
         self._remove_git_folders()
 
         if self.app_dir == '.':
-            os.chdir('repodir_for_build')
+            os.chdir(utils.CommonDirPaths.BUILD_DIR_NAME)
             self.run_custom_user_defined_commands()
             os.chdir("..")
 
             utils.execute_system_command(
-                'mv repodir_for_build {}'.format(self.app_package_id))
+                f'mv {utils.CommonDirPaths.BUILD_DIR_NAME} {self.app_package_id}')
             self._util_generate_build_commands()
         else:
-            os.chdir('repodir_for_build')
+            os.chdir(utils.CommonDirPaths.BUILD_DIR_NAME)
             self.run_custom_user_defined_commands()
 
             if self.app_dir != self.app_package_id:
