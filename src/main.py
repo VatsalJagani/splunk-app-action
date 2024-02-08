@@ -1,6 +1,7 @@
 import os
 import shutil
 import sys
+import re
 import traceback
 
 sys.path.append(os.path.dirname(__file__))
@@ -36,15 +37,14 @@ if __name__ == "__main__":
 
     if use_ucc_gen:
         app_package_id = app_build_with_ucc.fetch_app_package_id()
+        app_version = app_build_with_ucc.fetch_app_version()
     else:
         app_package_id = app_build_generate.fetch_app_package_id(utils.CommonDirPaths.APP_DIR, app_dir_input)
-    utils.set_env("app_package_id", app_package_id)   # For yml file to artifact build and app-inspect report
+        app_version = app_build_generate.fetch_app_version_number(utils.CommonDirPaths.APP_DIR)
 
 
     if use_ucc_gen:
-        app_version = app_build_with_ucc.fetch_app_version()
         app_build_dir_name, app_build_dir_path = app_build_with_ucc.build(app_package_id, app_version)
-
         utils.info("ucc-gen command Completed.")
         # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
 
@@ -62,6 +62,17 @@ if __name__ == "__main__":
         utils.info("Copied the code for build process.")
 
 
+    # For yml file to artifact build and app-inspect report
+    utils.set_env("app_package_id", app_package_id)
+
+    app_version_encoded = re.sub('[^0-9a-zA-Z]+', '_', app_version)
+    utils.set_env("app_version_encoded", app_version_encoded)
+
+    app_build_number = app_build_generate.fetch_app_build_number(app_build_dir_path)
+    app_build_number_encoded = re.sub('[^0-9a-zA-Z]+', '_', app_build_number)
+    utils.set_env("app_build_number_encoded", app_build_number_encoded)
+
+
     try:
         SplunkAppUtilities(app_read_dir=app_build_dir_path, app_write_dir=os.path.join(utils.CommonDirPaths.REPO_DIR, app_dir_input))
         # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
@@ -73,13 +84,13 @@ if __name__ == "__main__":
 
     try:
         # Generate Build
-        build_path = app_build_generate.generate_build(app_package_id, app_build_dir_name, app_build_dir_path)
+        build_path = app_build_generate.generate_build(app_package_id, app_build_dir_name, app_build_dir_path, app_version_encoded, app_build_number_encoded)
 
         utils.info("generate_build Completed.")
-        utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
+        # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
 
         # Run App Inspect
-        SplunkAppInspect(build_path, app_package_id).run_all_checks()
+        SplunkAppInspect(build_path, app_package_id, app_version_encoded, app_build_number_encoded).run_all_checks()
         utils.info("SplunkAppInspect Completed.")
         # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
 

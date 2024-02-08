@@ -21,7 +21,7 @@ class SplunkAppInspect:
     HTML_RESPONSE_URL = "{}/report".format(BASE_URL)
 
 
-    def __init__(self, app_build_path, app_package_id) -> None:
+    def __init__(self, app_build_path, app_package_id, app_version_encoded, app_build_number_encoded) -> None:
         self.is_app_inspect_check = utils.str_to_boolean(
             utils.get_input('is_app_inspect_check'))
         utils.info("is_app_inspect_check: {}".format(
@@ -44,10 +44,11 @@ class SplunkAppInspect:
             raise Exception(msg)
 
         self.app_build_path = app_build_path
-        self.app_package_id = app_package_id
+
+        self.report_name_prefix = f"{app_package_id}_{app_version_encoded}_{app_build_number_encoded}"
 
         self.app_build_filename = os.path.basename(app_build_path)
-        self.app_inspect_report_dir = "{}_reports".format(self.app_package_id)
+        self.app_inspect_report_dir = "{}_reports".format(self.report_name_prefix)
 
         try:
             shutil.rmtree(self.app_inspect_report_dir)
@@ -93,17 +94,17 @@ class SplunkAppInspect:
         if check_type == "APP_INSPECT":
             payload = {}
             report_file_name = '{}_app_inspect_check.html'.format(
-                self.app_package_id)
+                self.report_name_prefix)
 
         elif check_type == "CLOUD_INSPECT":
             payload = {'included_tags': 'cloud'}
             report_file_name = '{}_cloud_inspect_check.html'.format(
-                self.app_package_id)
+                self.report_name_prefix)
 
         elif check_type == "SSAI_INSPECT":
             payload = {'included_tags': 'self-service'}
             report_file_name = '{}_ssai_inspect_check.html'.format(
-                self.app_package_id)
+                self.report_name_prefix)
 
         app_build_f = open(self.app_build_path, 'rb')
         app_build_f.seek(0)
