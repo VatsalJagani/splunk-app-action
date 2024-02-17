@@ -53,11 +53,13 @@ def fetch_app_build_number(app_dir_path):
         return "1"
 
 
-def remove_git_folders():
+def remove_unwanted_files():
     utils.info("Removing .git and .github directory from repo.")
     utils.execute_system_command("rm -rf .github")
     utils.execute_system_command("rm -rf .git")
     utils.execute_system_command("rm -rf .gitignore")
+    utils.execute_system_command('find . -name "*.py[co]" -type f -delete')
+    utils.execute_system_command('find . -name "__pycache__" -type d -delete')
 
 
 def util_generate_build_commands(app_package_id, app_version_encoded, app_build_number_encoded):
@@ -106,7 +108,7 @@ def generate_build(app_package_id, app_build_dir_name, app_build_dir_path, app_v
     os.chdir(utils.CommonDirPaths.MAIN_DIR)
     os.chdir(app_build_dir_path)
 
-    remove_git_folders()
+    remove_unwanted_files()
     run_custom_user_defined_commands()
 
     os.chdir(utils.CommonDirPaths.MAIN_DIR)
