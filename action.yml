@@ -126,6 +126,7 @@ runs:
       env:
         SPLUNK_app_dir: ${{inputs.app_dir}}
         SPLUNK_is_generate_build: ${{inputs.is_generate_build}}
+        SPLUNK_use_ucc_gen: ${{inputs.use_ucc_gen}}
         SPLUNK_to_make_permission_changes: ${{inputs.to_make_permission_changes}}
         SPLUNK_is_app_inspect_check: ${{inputs.is_app_inspect_check}}
         SPLUNK_splunkbase_username: ${{inputs.splunkbase_username}}
