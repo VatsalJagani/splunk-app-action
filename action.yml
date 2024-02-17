@@ -98,6 +98,7 @@ runs:
         echo "=== Inputs ==="
         echo "app_dir -> ${{inputs.app_dir}}"
         echo "is_generate_build -> ${{inputs.is_generate_build}}"
+        echo "use_ucc_gen -> ${{inputs.use_ucc_gen}}"
         echo "to_make_permission_changes -> ${{inputs.to_make_permission_changes}}"
         echo "is_app_inspect_check -> ${{inputs.is_app_inspect_check}}"
         echo "splunkbase_username -> ${{inputs.splunkbase_username}} (If using Github secret the value will be ***)"
