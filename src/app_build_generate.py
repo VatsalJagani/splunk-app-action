@@ -6,8 +6,8 @@ import helper_github_action as utils
 from helper_splunk_config_parser import SplunkConfigParser
 
 
-def _read_app_conf():
-    return SplunkConfigParser(os.path.join(utils.CommonDirPaths.APP_DIR, 'default', 'app.conf'))
+def _read_app_conf(app_build_dir=utils.CommonDirPaths.APP_DIR):
+    return SplunkConfigParser(os.path.join(app_build_dir, 'default', 'app.conf'))
 
 
 def fetch_app_package_id(app_dir_input):
@@ -42,8 +42,8 @@ def fetch_app_version_number():
             "Add `id` attribute in the app.conf's [launcher] stanza.")
 
 
-def fetch_app_build_number():
-    app_config = _read_app_conf()
+def fetch_app_build_number(app_build_dir):
+    app_config = _read_app_conf(app_build_dir)
     if 'install' in app_config and 'build' in app_config['install']:
         utils.info(
             "Using app build number found in app.conf [install] - {}".format(app_config['install']['build']))
