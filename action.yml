@@ -101,7 +101,7 @@ runs:
         echo "app_build_path -> ${{inputs.app_build_path}}"
         echo "app_utilities -> ${{inputs.app_utilities}}"
         echo "my_github_token -> ${{inputs.my_github_token}} (If using Github secret the value will be ***)"
-        echo "current_branch_name -> ${{steps.extract_branch.outputs.branch}}
+        echo "current_branch_name -> ${{steps.extract_branch.outputs.branch}}"
         echo "logger_log_files_prefix -> ${{inputs.logger_log_files_prefix}}"
         echo "logger_sourcetype -> ${{inputs.logger_sourcetype}}"
 
