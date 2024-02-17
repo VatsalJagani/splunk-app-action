@@ -75,7 +75,8 @@ if __name__ == "__main__":
 
 
     try:
-        SplunkAppUtilities(app_read_dir=app_build_dir_path, app_write_dir=os.path.join(utils.CommonDirPaths.REPO_DIR, app_dir_input))
+        app_write_dir = os.path.join(utils.CommonDirPaths.REPO_DIR, app_dir_input, 'package') if use_ucc_gen else os.path.join(utils.CommonDirPaths.REPO_DIR, app_dir_input)
+        SplunkAppUtilities(app_read_dir=app_build_dir_path, app_write_dir=app_write_dir)
         # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
         utils.info("SplunkAppUtilities completed.")
     except Exception as e:
