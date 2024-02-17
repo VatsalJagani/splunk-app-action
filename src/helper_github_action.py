@@ -21,8 +21,7 @@ def list_files(startpath):
 
 def str_to_boolean(value_in_str: str):
     value_in_str = str(value_in_str).lower()
-    print(f"value_in_str: {value_in_str}")
-    if value_in_str in ("false", "f", "0"):
+    if value_in_str in ("false", "f", "0", "none"):
         return False
     return True
 

@@ -23,7 +23,6 @@ if __name__ == "__main__":
     utils.info("app_dir_input: {}".format(app_dir_input))
 
     # Build Add-on with UCC
-    utils.info(f"utils.get_input('use_ucc_gen'): {utils.get_input('use_ucc_gen')}")
     use_ucc_gen = utils.str_to_boolean(
             utils.get_input('use_ucc_gen'))
     utils.info("use_ucc_gen: {}".format(use_ucc_gen))
