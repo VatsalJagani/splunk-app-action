@@ -181,10 +181,6 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 * description: "GitHub Secret Token to automatically create Pull request. (Make sure to put it in the Repo secret on GitHub as `MY_GITHUB_TOKEN` and then use it like `{{ secrets.MY_GITHUB_TOKEN }}`. Do not write it in plain text.) Only required if app_utilities is being used."
 * required: false
 
-#### default_branch_name
-* description: "It auto detects the default branch, but if you want to use different branch then write branch name in this input. This branch will be used to create new branch and create PR."
-* required: false
-
 #### logger_log_files_prefix
 * description: "Log files prefix. Only required for logger utility."
 * required: false

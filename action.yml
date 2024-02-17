@@ -54,11 +54,6 @@ inputs:
     required: false
     default: "NONE"
 
-  default_branch_name:
-    description: "It auto detects the default branch, but if you want to use different branch then write branch name in this input. This branch will be used to create new branch and create PR."
-    required: false
-    default: "NONE"
-
   logger_log_files_prefix:
     description: "Log files prefix. Only required for logger utility."
     required: false
@@ -106,7 +101,7 @@ runs:
         echo "app_build_path -> ${{inputs.app_build_path}}"
         echo "app_utilities -> ${{inputs.app_utilities}}"
         echo "my_github_token -> ${{inputs.my_github_token}} (If using Github secret the value will be ***)"
-        echo "default_branch_name -> ${{inputs.default_branch_name}}"
+        echo "current_branch_name -> ${{steps.extract_branch.outputs.branch}}
         echo "logger_log_files_prefix -> ${{inputs.logger_log_files_prefix}}"
         echo "logger_sourcetype -> ${{inputs.logger_sourcetype}}"
 
@@ -134,7 +129,7 @@ runs:
         SPLUNK_app_build_path: ${{inputs.app_build_path}}
         SPLUNK_app_utilities: ${{inputs.app_utilities}}
         GITHUB_TOKEN: ${{inputs.my_github_token}}
-        SPLUNK_default_branch_name: ${{inputs.default_branch_name}}
+        SPLUNK_current_branch_name: ${{steps.extract_branch.outputs.branch}}
         SPLUNK_logger_log_files_prefix: ${{inputs.logger_log_files_prefix}}
         SPLUNK_logger_sourcetype: ${{inputs.logger_sourcetype}}
       run: |

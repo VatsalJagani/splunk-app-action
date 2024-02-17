@@ -34,7 +34,7 @@ def get_multi_files_hash(file_paths):
 
 
 class GitHubPR:
-    DEFAULT_BRANCH_NAME = None
+    CURRENT_BRANCH_NAME = None
     IS_GIT_CONFIGURED = False
 
     def __init__(self, repo_dir, is_test=False) -> None:
@@ -43,15 +43,15 @@ class GitHubPR:
         os.chdir(repo_dir)
 
         GitHubPR.configure_git(is_test)
-        GitHubPR.set_default_branch(is_test)
+        GitHubPR.set_current_branch(is_test)
 
 
     def _reset_the_git_repo(self):
         utils.execute_system_command("git fetch")
         utils.execute_system_command(
-            f"git checkout {self.DEFAULT_BRANCH_NAME}")
+            f"git checkout {self.CURRENT_BRANCH_NAME}")
         utils.execute_system_command(
-            f"git reset --hard origin/{self.DEFAULT_BRANCH_NAME}")
+            f"git reset --hard origin/{self.CURRENT_BRANCH_NAME}")
         utils.execute_system_command("git clean -df")
         utils.execute_system_command("git pull")
 
@@ -72,28 +72,28 @@ class GitHubPR:
 
 
     @staticmethod
-    def set_default_branch(is_test):
+    def set_current_branch(is_test):
         if is_test:
             return
 
-        if GitHubPR.DEFAULT_BRANCH_NAME:
+        if GitHubPR.CURRENT_BRANCH_NAME:
             return
 
-        utils.info("Finding default branch for the repo.")
+        utils.info("Finding current branch for the repo on which GitHub action is being executed.")
 
-        _default_branch_name_input = utils.get_input('default_branch_name')
-        if _default_branch_name_input and _default_branch_name_input != "NONE":
-            GitHubPR.DEFAULT_BRANCH_NAME = _default_branch_name_input
+        _current_branch_name_input = utils.get_input('current_branch_name')
+        if _current_branch_name_input and _current_branch_name_input != "NONE":
+            GitHubPR.CURRENT_BRANCH_NAME = _current_branch_name_input
         else:
             ret_code, output = utils.execute_system_command(
                 "git remote show origin")
             match = re.search(
                 r"HEAD branch:\s*([^\n]+)", output)
             utils.info(f"branch found: {match.group(1)}")
-            GitHubPR.DEFAULT_BRANCH_NAME = match.group(1)
+            GitHubPR.CURRENT_BRANCH_NAME = match.group(1)
 
-        utils.info("default_branch_name: {}".format(
-            GitHubPR.DEFAULT_BRANCH_NAME))
+        utils.info("current_branch_name: {}".format(
+            GitHubPR.CURRENT_BRANCH_NAME))
 
 
     @staticmethod
@@ -128,7 +128,7 @@ class GitHubPR:
     def _commit(self, new_branch):
         utils.info("Committing the code.")
         utils.execute_system_command(r'git checkout -b {} {}'.format(
-            new_branch, self.DEFAULT_BRANCH_NAME))   # Create a new branch
+            new_branch, self.CURRENT_BRANCH_NAME))   # Create a new branch
         utils.execute_system_command(r'git add -A')   # Add app changes
         utils.execute_system_command(
             r'git commit -m "{}"'.format(new_branch))   # Commit changes
@@ -145,7 +145,7 @@ class GitHubPR:
             return
 
         utils.execute_system_command(r'gh pr create --base {} --head {} --fill'.format(
-            self.DEFAULT_BRANCH_NAME, new_branch))   # Create PR
+            self.CURRENT_BRANCH_NAME, new_branch))   # Create PR
 
 
     def commit_and_pr(self, hash):
