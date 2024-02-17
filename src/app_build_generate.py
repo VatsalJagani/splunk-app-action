@@ -63,7 +63,7 @@ def remove_unwanted_files():
 
 
 def util_generate_build_commands(app_package_id, app_version_encoded, app_build_number_encoded):
-    to_make_permission_changes = utils.str_to_boolean(
+    to_make_permission_changes = utils.str_to_boolean_default_true(
             utils.get_input("to_make_permission_changes"))
 
     if to_make_permission_changes:
@@ -95,7 +95,7 @@ def run_custom_user_defined_commands():
 def generate_build(app_package_id, app_build_dir_name, app_build_dir_path, app_version_encoded, app_build_number_encoded):
     utils.info(f"Generating the app build., app_dir_path={app_build_dir_path}, app_package_id={app_package_id}, app_version_encoded={app_version_encoded}, app_build_number_encoded={app_build_number_encoded}")
 
-    is_generate_build = utils.str_to_boolean(
+    is_generate_build = utils.str_to_boolean_default_true(
         utils.get_input('is_generate_build'))
     utils.info("is_generate_build: {}".format(is_generate_build))
 

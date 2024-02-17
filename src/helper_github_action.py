@@ -19,11 +19,17 @@ def list_files(startpath):
             print('{}{}'.format(subindent, f))
 
 
-def str_to_boolean(value_in_str: str):
+def str_to_boolean_default_true(value_in_str: str):
     value_in_str = str(value_in_str).lower()
-    if value_in_str in ("false", "f", "0", "none"):
+    if value_in_str in ("false", "f", "0", "n", "no"):
         return False
     return True
+
+def str_to_boolean_default_false(value_in_str: str):
+    value_in_str = str(value_in_str).lower()
+    if value_in_str in ("true", "t", "1", "y", "yes"):
+        return True
+    return False
 
 
 

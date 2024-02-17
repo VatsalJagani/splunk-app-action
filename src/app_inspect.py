@@ -22,7 +22,7 @@ class SplunkAppInspect:
 
 
     def __init__(self, app_build_path, app_package_id, app_version_encoded, app_build_number_encoded) -> None:
-        self.is_app_inspect_check = utils.str_to_boolean(
+        self.is_app_inspect_check = utils.str_to_boolean_default_true(
             utils.get_input('is_app_inspect_check'))
         utils.info("is_app_inspect_check: {}".format(
             self.is_app_inspect_check))
