@@ -11,7 +11,7 @@ class UCCAdditionalPackagingUtility(BaseUtility):
     def implement_utility(self):
         utils.info("Adding UCCAdditionalPackagingUtility")
 
-        folder_path = utils.CommonDirPaths.REPO_DIR   # additional_packaging.py file has to be in the root directory of the repo instead of in the package
+        folder_path = utils.CommonDirPaths.REPO_DIR   # additional_packaging.py file has to be in the app_dir folder of the repo instead of in the package folder
         file_path = os.path.join(folder_path, 'additional_packaging.py')
 
         if not os.path.exists(folder_path):

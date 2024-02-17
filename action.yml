@@ -22,7 +22,7 @@ inputs:
     default: true
 
   use_ucc_gen:
-    description: "Use ucc-gen command to generate the build for Add-on. The repo must have a folder named 'package', a file named 'globalConfig.json' in the root directory for this to work. Use the app_dir param value as package."
+    description: "Use ucc-gen command to generate the build for Add-on. The 'app_dir' folder must have a sub-folder named 'package', and a file named 'globalConfig.json' for this to work."
     required: false
     default: false
 

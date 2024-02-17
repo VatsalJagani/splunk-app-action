@@ -39,12 +39,12 @@ if __name__ == "__main__":
         app_package_id = app_build_with_ucc.fetch_app_package_id()
         app_version = app_build_with_ucc.fetch_app_version()
     else:
-        app_package_id = app_build_generate.fetch_app_package_id(utils.CommonDirPaths.APP_DIR, app_dir_input)
-        app_version = app_build_generate.fetch_app_version_number(utils.CommonDirPaths.APP_DIR)
+        app_package_id = app_build_generate.fetch_app_package_id(app_dir_input)
+        app_version = app_build_generate.fetch_app_version_number()
 
 
     if use_ucc_gen:
-        app_build_dir_name, app_build_dir_path = app_build_with_ucc.build(app_package_id, app_version)
+        app_build_dir_name, app_build_dir_path = app_build_with_ucc.build(app_dir_input, app_package_id, app_version)
         utils.info("ucc-gen command Completed.")
         # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
 

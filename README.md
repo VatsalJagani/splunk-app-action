@@ -127,7 +127,7 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 ```
 - uses: VatsalJagani/splunk-app-action@v2
     with:
-        app_dir: "package"
+        app_dir: "."
         app_utilities: "ucc_additional_packaging"
         my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
@@ -151,7 +151,7 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 * default: true
 
 #### use_ucc_gen
-* description: "Use ucc-gen command to generate the build for Add-on. The repo must have a folder named 'package', a file named 'globalConfig.json' in the root directory for this to work. Use the app_dir param value as package."
+* description: "Use ucc-gen command to generate the build for Add-on. The 'app_dir' folder must have a sub-folder named 'package', and a file named 'globalConfig.json' for this to work."
 * required: false
 * default: false
 
