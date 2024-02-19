@@ -131,6 +131,8 @@ class CommonDirPaths:
 
         if CommonDirPaths.APP_DIR is None:
             app_dir = get_input('app_dir')
+            debug(f"CommonDirPaths.REPO_DIR = {CommonDirPaths.REPO_DIR}")
+            debug(f"Input app_dir value = {app_dir}")
             CommonDirPaths.APP_DIR = os.path.join(
                 CommonDirPaths.REPO_DIR, app_dir)
 
