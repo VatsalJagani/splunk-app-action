@@ -5,9 +5,9 @@ import helper_github_action as utils
 from helper_splunk_config_parser import SplunkConfigParser
 
 
-def _read_app_conf(app_build_dir=utils.CommonDirPaths.APP_DIR):
-    utils.debug(f"utils.CommonDirPaths.APP_DIR = {utils.CommonDirPaths.APP_DIR}")
-    utils.debug(f"_read_app_conf.app_build_dir = {app_build_dir}")
+def _read_app_conf(app_build_dir=None):
+    if not app_build_dir:
+        app_build_dir = utils.CommonDirPaths.APP_DIR
     return SplunkConfigParser(os.path.join(app_build_dir, 'default', 'app.conf'))
 
 
