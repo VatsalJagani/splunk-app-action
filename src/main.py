@@ -23,7 +23,8 @@ if __name__ == "__main__":
     utils.info("app_dir_input: {}".format(app_dir_input))
 
     # Build Add-on with UCC
-    use_ucc_gen = utils.str_to_boolean(
+    utils.debug(f"Input use_ucc_gen value = {utils.get_input('use_ucc_gen')}")
+    use_ucc_gen = utils.str_to_boolean_default_false(
             utils.get_input('use_ucc_gen'))
     utils.info("use_ucc_gen: {}".format(use_ucc_gen))
 
@@ -39,12 +40,12 @@ if __name__ == "__main__":
         app_package_id = app_build_with_ucc.fetch_app_package_id()
         app_version = app_build_with_ucc.fetch_app_version()
     else:
-        app_package_id = app_build_generate.fetch_app_package_id(utils.CommonDirPaths.APP_DIR, app_dir_input)
-        app_version = app_build_generate.fetch_app_version_number(utils.CommonDirPaths.APP_DIR)
+        app_package_id = app_build_generate.fetch_app_package_id(app_dir_input)
+        app_version = app_build_generate.fetch_app_version_number()
 
 
     if use_ucc_gen:
-        app_build_dir_name, app_build_dir_path = app_build_with_ucc.build(app_package_id, app_version)
+        app_build_dir_name, app_build_dir_path = app_build_with_ucc.build(app_dir_input, app_package_id, app_version)
         utils.info("ucc-gen command Completed.")
         # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
 
@@ -74,7 +75,8 @@ if __name__ == "__main__":
 
 
     try:
-        SplunkAppUtilities(app_read_dir=app_build_dir_path, app_write_dir=os.path.join(utils.CommonDirPaths.REPO_DIR, app_dir_input))
+        app_write_dir = os.path.join(utils.CommonDirPaths.REPO_DIR, app_dir_input, 'package') if use_ucc_gen else os.path.join(utils.CommonDirPaths.REPO_DIR, app_dir_input)
+        SplunkAppUtilities(app_read_dir=app_build_dir_path, app_write_dir=app_write_dir)
         # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
         utils.info("SplunkAppUtilities completed.")
     except Exception as e:

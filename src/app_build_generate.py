@@ -1,17 +1,18 @@
 
 import os
-import shutil
 
 import helper_github_action as utils
 from helper_splunk_config_parser import SplunkConfigParser
 
 
-def _read_app_conf(app_dir_path):
-    return SplunkConfigParser(os.path.join(app_dir_path, 'default', 'app.conf'))
+def _read_app_conf(app_build_dir=None):
+    if not app_build_dir:
+        app_build_dir = utils.CommonDirPaths.APP_DIR
+    return SplunkConfigParser(os.path.join(app_build_dir, 'default', 'app.conf'))
 
 
-def fetch_app_package_id(app_dir_path, app_dir_input):
-    app_config = _read_app_conf(app_dir_path)
+def fetch_app_package_id(app_dir_input):
+    app_config = _read_app_conf()
     if 'package' in app_config and 'id' in app_config['package']:
         utils.info(
             "Using app package id found in app.conf - {}".format(app_config['package']['id']))
@@ -25,8 +26,8 @@ def fetch_app_package_id(app_dir_path, app_dir_input):
         return app_dir_input
 
 
-def fetch_app_version_number(app_dir_path):
-    app_config = _read_app_conf(app_dir_path)
+def fetch_app_version_number():
+    app_config = _read_app_conf()
     if 'launcher' in app_config and 'version' in app_config['launcher']:
         utils.info(
             "Using app version number found in app.conf [launcher] - {}".format(app_config['launcher']['version']))
@@ -42,8 +43,8 @@ def fetch_app_version_number(app_dir_path):
             "Add `id` attribute in the app.conf's [launcher] stanza.")
 
 
-def fetch_app_build_number(app_dir_path):
-    app_config = _read_app_conf(app_dir_path)
+def fetch_app_build_number(app_build_dir):
+    app_config = _read_app_conf(app_build_dir)
     if 'install' in app_config and 'build' in app_config['install']:
         utils.info(
             "Using app build number found in app.conf [install] - {}".format(app_config['install']['build']))
@@ -63,7 +64,7 @@ def remove_unwanted_files():
 
 
 def util_generate_build_commands(app_package_id, app_version_encoded, app_build_number_encoded):
-    to_make_permission_changes = utils.str_to_boolean(
+    to_make_permission_changes = utils.str_to_boolean_default_true(
             utils.get_input("to_make_permission_changes"))
 
     if to_make_permission_changes:
@@ -95,7 +96,7 @@ def run_custom_user_defined_commands():
 def generate_build(app_package_id, app_build_dir_name, app_build_dir_path, app_version_encoded, app_build_number_encoded):
     utils.info(f"Generating the app build., app_dir_path={app_build_dir_path}, app_package_id={app_package_id}, app_version_encoded={app_version_encoded}, app_build_number_encoded={app_build_number_encoded}")
 
-    is_generate_build = utils.str_to_boolean(
+    is_generate_build = utils.str_to_boolean_default_true(
         utils.get_input('is_generate_build'))
     utils.info("is_generate_build: {}".format(is_generate_build))
 

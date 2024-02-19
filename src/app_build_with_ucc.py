@@ -11,7 +11,7 @@ def fetch_app_package_id():
 
     _app_package_id = None
 
-    with open(os.path.join(utils.CommonDirPaths.REPO_DIR, 'globalConfig.json'), 'r') as f:
+    with open(os.path.join(utils.CommonDirPaths.APP_DIR, 'globalConfig.json'), 'r') as f:
         global_config = json.loads(f.read())
 
         _app_package_id = global_config["meta"]["name"]
@@ -27,7 +27,7 @@ def fetch_app_version():
 
     _app_version = None
 
-    with open(os.path.join(utils.CommonDirPaths.REPO_DIR, 'globalConfig.json'), 'r') as f:
+    with open(os.path.join(utils.CommonDirPaths.APP_DIR, 'globalConfig.json'), 'r') as f:
         global_config = json.loads(f.read())
 
         _app_version = global_config["meta"]["version"]
@@ -38,19 +38,21 @@ def fetch_app_version():
     return _app_version
 
 
-def build(app_package_id, app_version):
+def build(app_dir_input, app_package_id, app_version):
     utils.info("Running ucc-gen command.")
 
     # copy folder to generate build, rather than affecting the original repo checkout
     utils.execute_system_command(f"rm -rf {utils.CommonDirPaths.BUILD_DIR_NAME}")
     shutil.copytree(utils.CommonDirPaths.REPO_DIR_NAME, utils.CommonDirPaths.BUILD_DIR_NAME)
 
-    os.chdir(utils.CommonDirPaths.BUILD_DIR_NAME)
+    org_ta_dir = os.path.join(utils.CommonDirPaths.BUILD_DIR_NAME, app_dir_input)
+
+    os.chdir(org_ta_dir)
 
     utils.execute_system_command(f"ucc-gen build --ta-version {app_version}")
 
     os.chdir(utils.CommonDirPaths.MAIN_DIR)
 
-    shutil.copytree(os.path.join(utils.CommonDirPaths.BUILD_DIR_NAME, 'output', app_package_id), utils.CommonDirPaths.BUILD_FINAL_DIR_NAME)
+    shutil.copytree(os.path.join(org_ta_dir, 'output', app_package_id), utils.CommonDirPaths.BUILD_FINAL_DIR_NAME)
 
     return utils.CommonDirPaths.BUILD_FINAL_DIR_NAME, os.path.join(utils.CommonDirPaths.MAIN_DIR, utils.CommonDirPaths.BUILD_FINAL_DIR_NAME)

@@ -12,7 +12,7 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 * Change file and directory permissions to avoid app-inspect failures.
 
 ```
-- uses: VatsalJagani/splunk-app-action@v2
+- uses: VatsalJagani/splunk-app-action@v3
     with:
     app_dir: "my_app"
 ```
@@ -26,7 +26,7 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
         with:
         app_dir: "my_splunk_app"
 
-    - uses: VatsalJagani/splunk-app-action@v2
+    - uses: VatsalJagani/splunk-app-action@v3
         with:
         app_dir: "my_splunk_add-on"
     ```
@@ -34,7 +34,7 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 * #### Running Commands Before Generating App Build
     * If you wish to run the commands before generating the App build, set the environment variables `SPLUNK_APP_ACTION_<n>`.
         ```
-        - uses: VatsalJagani/splunk-app-action@v2
+        - uses: VatsalJagani/splunk-app-action@v3
             env:
             SPLUNK_APP_ACTION_1: "find my_app -type f -name *.sh -exec chmod +x '{}' \\;"
             with:
@@ -62,7 +62,7 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 * It requires to set inputs: splunkbase_username and splunkbase_password.
 
 ```
-- uses: VatsalJagani/splunk-app-action@v2
+- uses: VatsalJagani/splunk-app-action@v3
     with:
         app_dir: "my_app"
         splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
@@ -79,7 +79,7 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 #### Utility that adds information about the App inside the README.md file
 * The splunk-app-action has utility which automatically adds information about the App, like how many alerts does it have, how many dashboards does it have, etc inside the App's README.md file.
 ```
-- uses: VatsalJagani/splunk-app-action@v2
+- uses: VatsalJagani/splunk-app-action@v3
     with:
         app_dir: "my_app"
         app_utilities: "whats_in_the_app"
@@ -90,7 +90,7 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 * Auto adds python logger manager, including python file necessary, props.conf to assign right sourcetype for it under the internal logs.
 
 ```
-- uses: VatsalJagani/splunk-app-action@v2
+- uses: VatsalJagani/splunk-app-action@v3
     with:
         app_dir: "my_app"
         app_utilities: "logger"
@@ -103,7 +103,7 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 * This utility adds the splunklib or Splunk SDK for Python to the App and auto upgrades it whenever new version is available.
 
 ```
-- uses: VatsalJagani/splunk-app-action@v2
+- uses: VatsalJagani/splunk-app-action@v3
     with:
         app_dir: "my_app"
         app_utilities: "splunk_python_sdk"
@@ -114,7 +114,7 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 * This utility adds a JavaScript file that contains commonly used functionality for a JavaScript code for a Splunk App.
 
 ```
-- uses: VatsalJagani/splunk-app-action@v2
+- uses: VatsalJagani/splunk-app-action@v3
     with:
         app_dir: "my_app"
         app_utilities: "common_js_utilities"
@@ -125,9 +125,9 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 * This utility adds additional_packaging.py file that contains code to better generate input handler python file to easily re-generate code on change, rather than making manual changes.
 
 ```
-- uses: VatsalJagani/splunk-app-action@v2
+- uses: VatsalJagani/splunk-app-action@v3
     with:
-        app_dir: "package"
+        app_dir: "."
         app_utilities: "ucc_additional_packaging"
         my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
@@ -151,7 +151,7 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 * default: true
 
 #### use_ucc_gen
-* description: "Use ucc-gen command to generate the build for Add-on. The repo must have a folder named 'package', a file named 'globalConfig.json' in the root directory for this to work. Use the app_dir param value as package."
+* description: "Use ucc-gen command to generate the build for Add-on. The 'app_dir' folder must have a sub-folder named 'package', and a file named 'globalConfig.json' for this to work."
 * required: false
 * default: false
 
@@ -181,10 +181,6 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 * description: "GitHub Secret Token to automatically create Pull request. (Make sure to put it in the Repo secret on GitHub as `MY_GITHUB_TOKEN` and then use it like `{{ secrets.MY_GITHUB_TOKEN }}`. Do not write it in plain text.) Only required if app_utilities is being used."
 * required: false
 
-#### default_branch_name
-* description: "It auto detects the default branch, but if you want to use different branch then write branch name in this input. This branch will be used to create new branch and create PR."
-* required: false
-
 #### logger_log_files_prefix
 * description: "Log files prefix. Only required for logger utility."
 * required: false
@@ -211,6 +207,27 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 
 ## See Examples Here
 * [Splunk Apps and Add-ons Dependents on Splunk App Action](https://github.com/VatsalJagani/splunk-app-action/network/dependents)
+
+
+## Release Notes
+
+### v3
+* use_ucc_gen parameter added to support UCC build Add-on support. (It uses `ucc-gen build` command to generate the build dynamically on the GitHub action directly.)
+* Added new utility `ucc_additional_packaging` for better way to generate proper Python Input handler file structure.
+* Better way to Auto detect App package id, App version number and App build number.
+* Better naming convention for App and Add-on build names.
+* Run App utilities on current branch instead of on default branch for better support and easier to deal with in codebase.
+* Automatically delete unwanted files from the build to avoid App inspect check issues.
+
+
+### v2
+* Fix Splunk App Inspect Failure due to file permission issue. The App/Add-on build process automatically fixes that.
+* App utilities added: `whats_in_the_app` (information to be added to README file about no. of alerts, dashboards, etc), `logger` (Python logger file and props.conf configs for the internal logs), `splunk_python_sdk` (Automatically upgrade Splunklib Python SDK), `common_js_utilities` (Common JS utilities file)
+
+### v1
+* GitHub App action created for Splunk Apps.
+* It can generate App and Add-ons's Builds.
+* It can automatically run Splunk App Inspect.
 
 
 ## Contribute

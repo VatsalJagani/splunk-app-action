@@ -22,7 +22,7 @@ inputs:
     default: true
 
   use_ucc_gen:
-    description: "Use ucc-gen command to generate the build for Add-on. The repo must have a folder named 'package', a file named 'globalConfig.json' in the root directory for this to work. Use the app_dir param value as package."
+    description: "Use ucc-gen command to generate the build for Add-on. The 'app_dir' folder must have a sub-folder named 'package', and a file named 'globalConfig.json' for this to work."
     required: false
     default: false
 
@@ -51,11 +51,6 @@ inputs:
 
   my_github_token:
     description: "GitHub Secret Token to automatically create Pull request. (Make sure to put it in the Repo secret on GitHub as `MY_GITHUB_TOKEN` and then use it like `{{ secrets.MY_GITHUB_TOKEN }}`. Do not write it in plain text.) Only required if app_utilities is being used."
-    required: false
-    default: "NONE"
-
-  default_branch_name:
-    description: "It auto detects the default branch, but if you want to use different branch then write branch name in this input. This branch will be used to create new branch and create PR."
     required: false
     default: "NONE"
 
@@ -98,6 +93,7 @@ runs:
         echo "=== Inputs ==="
         echo "app_dir -> ${{inputs.app_dir}}"
         echo "is_generate_build -> ${{inputs.is_generate_build}}"
+        echo "use_ucc_gen -> ${{inputs.use_ucc_gen}}"
         echo "to_make_permission_changes -> ${{inputs.to_make_permission_changes}}"
         echo "is_app_inspect_check -> ${{inputs.is_app_inspect_check}}"
         echo "splunkbase_username -> ${{inputs.splunkbase_username}} (If using Github secret the value will be ***)"
@@ -105,7 +101,7 @@ runs:
         echo "app_build_path -> ${{inputs.app_build_path}}"
         echo "app_utilities -> ${{inputs.app_utilities}}"
         echo "my_github_token -> ${{inputs.my_github_token}} (If using Github secret the value will be ***)"
-        echo "default_branch_name -> ${{inputs.default_branch_name}}"
+        echo "current_branch_name -> ${{steps.extract_branch.outputs.branch}}"
         echo "logger_log_files_prefix -> ${{inputs.logger_log_files_prefix}}"
         echo "logger_sourcetype -> ${{inputs.logger_sourcetype}}"
 
@@ -125,6 +121,7 @@ runs:
       env:
         SPLUNK_app_dir: ${{inputs.app_dir}}
         SPLUNK_is_generate_build: ${{inputs.is_generate_build}}
+        SPLUNK_use_ucc_gen: ${{inputs.use_ucc_gen}}
         SPLUNK_to_make_permission_changes: ${{inputs.to_make_permission_changes}}
         SPLUNK_is_app_inspect_check: ${{inputs.is_app_inspect_check}}
         SPLUNK_splunkbase_username: ${{inputs.splunkbase_username}}
@@ -132,7 +129,7 @@ runs:
         SPLUNK_app_build_path: ${{inputs.app_build_path}}
         SPLUNK_app_utilities: ${{inputs.app_utilities}}
         GITHUB_TOKEN: ${{inputs.my_github_token}}
-        SPLUNK_default_branch_name: ${{inputs.default_branch_name}}
+        SPLUNK_current_branch_name: ${{steps.extract_branch.outputs.branch}}
         SPLUNK_logger_log_files_prefix: ${{inputs.logger_log_files_prefix}}
         SPLUNK_logger_sourcetype: ${{inputs.logger_sourcetype}}
       run: |
