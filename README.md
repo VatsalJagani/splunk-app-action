@@ -1,5 +1,8 @@
 # splunk-app-action
-Github Action to automatically generate Splunk App and Add-on builds, run app-inspect checks (with the App-Inspect/Splunkbase API) on commit/push etc on GitHub repo. It also performs Splunk cloud checks.
+* Github Action to automatically generate Splunk App and Add-on builds, run app-inspect checks (with the App-Inspect/Splunkbase API) on commit/push etc on GitHub repo. It also performs Splunk cloud checks.
+* It also has capability to generate build based on UCC Generator function for Add-ons.
+* It has some common utilities needed for Splunk Apps and Add-ons.
+* It also works in Private Repositories on GitHub.
 
 
 ## Capabilities & Usage
@@ -22,7 +25,7 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 
 * Supports multiple Apps/Add-ons in single repository.
     ```
-    - uses: VatsalJagani/splunk-app-action@2
+    - uses: VatsalJagani/splunk-app-action@v3
         with:
         app_dir: "my_splunk_app"
 
@@ -31,7 +34,19 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
         app_dir: "my_splunk_add-on"
     ```
 
-* #### Running Commands Before Generating App Build
+* Supports Add-on build with UCC Generator
+    * With `ucc-gen build` command.
+    * Reference - [https://splunk.github.io/addonfactory-ucc-generator/](https://splunk.github.io/addonfactory-ucc-generator/)
+    * The `app_dir` folder must have a sub-folder named `package`, and a file named `globalConfig.json` for this to work.
+    * You need to use `ucc-gen init` command locally first to initial the Add-on/Repository before using this or `ucc-gen build` command. See [documentation of UCC Framework](https://splunk.github.io/addonfactory-ucc-generator/quickstart/).
+    ```
+    - uses: VatsalJagani/splunk-app-action@3
+        with:
+        app_dir: "TA_my_addon"
+        use_ucc_gen: true
+    ```
+
+* #### Running Commands Before Generating the final App Build
     * If you wish to run the commands before generating the App build, set the environment variables `SPLUNK_APP_ACTION_<n>`.
         ```
         - uses: VatsalJagani/splunk-app-action@v3
@@ -128,6 +143,7 @@ Github Action to automatically generate Splunk App and Add-on builds, run app-in
 - uses: VatsalJagani/splunk-app-action@v3
     with:
         app_dir: "."
+        use_ucc_gen: true
         app_utilities: "ucc_additional_packaging"
         my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
