@@ -91,7 +91,7 @@
 * In order to do that all utilities require common input called `my_github_token`.
 
 
-#### Utility that adds information about the App inside the README.md file
+#### `whats_in_the_app` - Utility that adds information about the App inside the README.md file
 * The splunk-app-action has utility which automatically adds information about the App, like how many alerts does it have, how many dashboards does it have, etc inside the App's README.md file.
 ```
 - uses: VatsalJagani/splunk-app-action@v3
@@ -101,7 +101,7 @@
         my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
 
-#### Add Python Logger
+#### `logger` - Add Python Logger
 * Auto adds python logger manager, including python file necessary, props.conf to assign right sourcetype for it under the internal logs.
 
 ```
@@ -114,7 +114,7 @@
         logger_sourcetype: "my_app:logs"
 ```
 
-#### Add Splunklib or Splunk SDK for Python and Auto Upgrades It
+#### `splunk_python_sdk` - Add Splunklib or Splunk SDK for Python and Auto Upgrades It
 * This utility adds the splunklib or Splunk SDK for Python to the App and auto upgrades it whenever new version is available.
 
 ```
@@ -125,7 +125,7 @@
         my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
 
-#### Add Common JavaScript Utilities File
+#### `common_js_utilities` - Add Common JavaScript Utilities File
 * This utility adds a JavaScript file that contains commonly used functionality for a JavaScript code for a Splunk App.
 
 ```
@@ -136,7 +136,7 @@
         my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
 
-#### Add additional_packaging.py file for UCC built Add-on
+#### `ucc_additional_packaging` - Add additional_packaging.py file for UCC built Add-on
 * This utility adds additional_packaging.py file that contains code to better generate input handler python file to easily re-generate code on change, rather than making manual changes.
 
 ```
@@ -147,6 +147,25 @@
         app_utilities: "ucc_additional_packaging"
         my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
+
+* The input file in which you need to write code is `<Input_Name>_handler.py`. And it would start with below content and you need to copy into your `package/bin` folder and write code into it to collect the data and ingest into Splunk.
+
+```
+from splunklib import modularinput as smi
+
+
+def validate_input(input_script: smi.Script, definition: smi.ValidationDefinition):
+    return
+
+
+def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_writer: smi.EventWriter):
+    return
+```
+
+* Update the content in `validate_input` and `stream_events`.
+    * `validate_input` is optional.
+    * `stream_events` function is compulsory to collect and ingest the events into Splunk.
+
 
 
 ## Inputs
