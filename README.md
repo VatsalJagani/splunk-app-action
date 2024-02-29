@@ -46,6 +46,9 @@
         use_ucc_gen: true
     ```
 
+* **NOTE* - <ins>IF YOU HAVE EXECUTABLE FILES IN YOUR APP OTHER THAN `.sh` scripts then add `to_make_permission_changes: false` PARAMETER IN THE CONFIGURATION TO AVOID LOSING THE EXECUTABLE PERMISSIONS ON THOSE FILES.</ins>
+
+
 * #### Running Commands Before Generating the final App Build
     * If you wish to run the commands before generating the App build, set the environment variables `SPLUNK_APP_ACTION_<n>`.
         ```
