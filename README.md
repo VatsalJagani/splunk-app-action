@@ -70,8 +70,8 @@
         ```
 
 
-* #### Running Commands Before Generating the final App Build
-    * If you wish to run the commands before generating the App build, set the environment variables `SPLUNK_APP_ACTION_<n>`.
+* #### Running User Defined Commands Before Generating the final App Build
+    * If you wish to run the user defined linux commands before generating the App build, set the environment variables `SPLUNK_APP_ACTION_<n>`.
         ```
         - uses: VatsalJagani/splunk-app-action@v3
           env:
@@ -88,6 +88,14 @@
 
     * It allows you to run command before building the App build.
         * This could be useful if you wish to remove some files that you don't want in the build, change permission of some files before running the rest of the app build or app-inspect check.
+        ```
+        - uses: VatsalJagani/splunk-app-action@v3
+          env:
+            SPLUNK_APP_ACTION_1: "rm -rf my_app/extra_test_folder"
+          with:
+            app_dir: "my_app"
+        ```
+        * The above example would remove unwanted tests folder going into the final App build.
 
 
 ### Run App-Inspect (with Splunkbase API)

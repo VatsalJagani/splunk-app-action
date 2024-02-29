@@ -108,16 +108,15 @@ def generate_build(app_package_id, app_build_dir_name, app_build_dir_path, app_v
 
     if not is_generate_build:
         return direct_app_build_path
-    
-    os.chdir(utils.CommonDirPaths.MAIN_DIR)
-    os.chdir(app_build_dir_path)
-
-    remove_unwanted_files()
-    run_custom_user_defined_commands()
 
     os.chdir(utils.CommonDirPaths.MAIN_DIR)
     utils.execute_system_command(
             f'mv {app_build_dir_name} {app_package_id}')
+
+    os.chdir(utils.CommonDirPaths.MAIN_DIR)
+    os.chdir(app_build_dir_path)
+    remove_unwanted_files()
+    run_custom_user_defined_commands()
 
     build_name = util_generate_build_commands(app_package_id, app_version_encoded, app_build_number_encoded)
 
