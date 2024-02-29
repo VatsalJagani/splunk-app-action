@@ -49,12 +49,35 @@
 * **NOTE* - <ins>IF YOU HAVE EXECUTABLE FILES IN YOUR APP OTHER THAN `.sh` scripts then add `to_make_permission_changes: false` PARAMETER IN THE CONFIGURATION TO AVOID LOSING THE EXECUTABLE PERMISSIONS ON THOSE FILES.</ins>
 
 
+* #### Avoid File and Folder Permission Issue on Your App Build
+    * **NOTE** - This might break your App.
+        * Avoid this parameter if your App has executable files other than `.sh` and `.exe`.
+    * You can add `to_make_permission_changes: true` parameter to fix the issues with file and folder permissions to avoid App-inspect check automatically.
+        ```
+        - uses: VatsalJagani/splunk-app-action@v3
+          with:
+            app_dir: "my_app"
+            to_make_permission_changes: true
+            splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+            splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+        ```
+    * We will run below commands to avoid App inspect checks related to file and folder permissions.
+        ```
+        find my_app -type f -exec chmod 644 '{}' \;
+        find my_app -type f -name '*.sh' -exec chmod 755 '{}' \;
+        find my_app -type f -name '*.exe' -exec chmod 755 '{}' \;
+        find my_app -type d -exec chmod 755 '{}' \;
+        ```
+
+
 * #### Running Commands Before Generating the final App Build
     * If you wish to run the commands before generating the App build, set the environment variables `SPLUNK_APP_ACTION_<n>`.
         ```
         - uses: VatsalJagani/splunk-app-action@v3
           env:
-            SPLUNK_APP_ACTION_1: "find my_app -type f -name *.sh -exec chmod +x '{}' \\;"
+            SPLUNK_APP_ACTION_1: "find my_app -type f -exec chmod 644 '{}' \;"
+            SPLUNK_APP_ACTION_2: "find my_app -type f -name '*.sh' -exec chmod +x '{}' \\;"
+            SPLUNK_APP_ACTION_3: "find my_app -type d -exec chmod 755 '{}' \;"
           with:
             app_dir: "my_app"
         ```
@@ -186,7 +209,7 @@ def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_w
 #### to_make_permission_changes
 * description: "Whether to apply file and folder permission changes according to Splunk App Inspect expectation before generating the build."
 * required: false
-* default: true
+* default: false
 
 #### use_ucc_gen
 * description: "Use ucc-gen command to generate the build for Add-on. The 'app_dir' folder must have a sub-folder named 'package', and a file named 'globalConfig.json' for this to work."

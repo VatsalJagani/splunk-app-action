@@ -64,7 +64,7 @@ def remove_unwanted_files():
 
 
 def util_generate_build_commands(app_package_id, app_version_encoded, app_build_number_encoded):
-    to_make_permission_changes = utils.str_to_boolean_default_true(
+    to_make_permission_changes = utils.str_to_boolean_default_false(
             utils.get_input("to_make_permission_changes"))
 
     if to_make_permission_changes:
@@ -72,7 +72,7 @@ def util_generate_build_commands(app_package_id, app_version_encoded, app_build_
         utils.execute_system_command(
             "find {} -type f -exec chmod 644 '{{}}' \;".format(app_package_id))
         utils.execute_system_command(
-            "find {} -type f -name *.sh -exec chmod 755 '{{}}' \;".format(app_package_id))
+            "find {} -type f -name '*.sh' -exec chmod 755 '{{}}' \;".format(app_package_id))
         utils.execute_system_command(
             "find {} -type d -exec chmod 755 '{{}}' \;".format(app_package_id))
 
