@@ -1,6 +1,6 @@
 
 import os
-from helper_github_pr import GitHubPR, get_file_hash, get_multi_files_hash, get_folder_hash
+from helpers.git_manager import GitHubPR, get_file_hash, get_multi_files_hash, get_folder_hash
 import helper_github_action as utils
 
 
