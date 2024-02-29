@@ -16,7 +16,7 @@
 
 ```
 - uses: VatsalJagani/splunk-app-action@v3
-    with:
+  with:
     app_dir: "my_app"
 ```
     * Here even app_dir is optional parameter if you want to generate the build.
@@ -26,11 +26,11 @@
 * Supports multiple Apps/Add-ons in single repository.
     ```
     - uses: VatsalJagani/splunk-app-action@v3
-        with:
+      with:
         app_dir: "my_splunk_app"
 
     - uses: VatsalJagani/splunk-app-action@v3
-        with:
+      with:
         app_dir: "my_splunk_add-on"
     ```
 
@@ -41,7 +41,7 @@
     * You need to use `ucc-gen init` command locally first to initial the Add-on/Repository before using this or `ucc-gen build` command. See [documentation of UCC Framework](https://splunk.github.io/addonfactory-ucc-generator/quickstart/).
     ```
     - uses: VatsalJagani/splunk-app-action@3
-        with:
+      with:
         app_dir: "TA_my_addon"
         use_ucc_gen: true
     ```
@@ -50,9 +50,9 @@
     * If you wish to run the commands before generating the App build, set the environment variables `SPLUNK_APP_ACTION_<n>`.
         ```
         - uses: VatsalJagani/splunk-app-action@v3
-            env:
+          env:
             SPLUNK_APP_ACTION_1: "find my_app -type f -name *.sh -exec chmod +x '{}' \\;"
-            with:
+          with:
             app_dir: "my_app"
         ```
         * Above use-case is very common as if your App/Add-on has shell scripts in bin directory and you want to make sure it has executable permission.
@@ -78,10 +78,10 @@
 
 ```
 - uses: VatsalJagani/splunk-app-action@v3
-    with:
-        app_dir: "my_app"
-        splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
-        splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+  with:
+    app_dir: "my_app"
+    splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+    splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
 
 
@@ -91,62 +91,81 @@
 * In order to do that all utilities require common input called `my_github_token`.
 
 
-#### Utility that adds information about the App inside the README.md file
+#### `whats_in_the_app` - Utility that adds information about the App inside the README.md file
 * The splunk-app-action has utility which automatically adds information about the App, like how many alerts does it have, how many dashboards does it have, etc inside the App's README.md file.
 ```
 - uses: VatsalJagani/splunk-app-action@v3
-    with:
-        app_dir: "my_app"
-        app_utilities: "whats_in_the_app"
-        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+  with:
+    app_dir: "my_app"
+    app_utilities: "whats_in_the_app"
+    my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
 
-#### Add Python Logger
+#### `logger` - Add Python Logger
 * Auto adds python logger manager, including python file necessary, props.conf to assign right sourcetype for it under the internal logs.
 
 ```
 - uses: VatsalJagani/splunk-app-action@v3
-    with:
-        app_dir: "my_app"
-        app_utilities: "logger"
-        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
-        logger_log_files_prefix: "my_app"
-        logger_sourcetype: "my_app:logs"
+  with:
+    app_dir: "my_app"
+    app_utilities: "logger"
+    my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+    logger_log_files_prefix: "my_app"
+    logger_sourcetype: "my_app:logs"
 ```
 
-#### Add Splunklib or Splunk SDK for Python and Auto Upgrades It
+#### `splunk_python_sdk` - Add Splunklib or Splunk SDK for Python and Auto Upgrades It
 * This utility adds the splunklib or Splunk SDK for Python to the App and auto upgrades it whenever new version is available.
 
 ```
 - uses: VatsalJagani/splunk-app-action@v3
-    with:
-        app_dir: "my_app"
-        app_utilities: "splunk_python_sdk"
-        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+  with:
+    app_dir: "my_app"
+    app_utilities: "splunk_python_sdk"
+    my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
 
-#### Add Common JavaScript Utilities File
+#### `common_js_utilities` - Add Common JavaScript Utilities File
 * This utility adds a JavaScript file that contains commonly used functionality for a JavaScript code for a Splunk App.
 
 ```
 - uses: VatsalJagani/splunk-app-action@v3
-    with:
-        app_dir: "my_app"
-        app_utilities: "common_js_utilities"
-        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+  with:
+    app_dir: "my_app"
+    app_utilities: "common_js_utilities"
+    my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
 
-#### Add additional_packaging.py file for UCC built Add-on
+#### `ucc_additional_packaging` - Add additional_packaging.py file for UCC built Add-on
 * This utility adds additional_packaging.py file that contains code to better generate input handler python file to easily re-generate code on change, rather than making manual changes.
 
 ```
 - uses: VatsalJagani/splunk-app-action@v3
-    with:
-        app_dir: "."
-        use_ucc_gen: true
-        app_utilities: "ucc_additional_packaging"
-        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+  with:
+    app_dir: "."
+    use_ucc_gen: true
+    app_utilities: "ucc_additional_packaging"
+    my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
+
+* The input file in which you need to write code is `<Input_Name>_handler.py`. And it would start with below content and you need to copy into your `package/bin` folder and write code into it to collect the data and ingest into Splunk.
+
+```
+from splunklib import modularinput as smi
+
+
+def validate_input(input_script: smi.Script, definition: smi.ValidationDefinition):
+    return
+
+
+def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_writer: smi.EventWriter):
+    return
+```
+
+* Update the content in `validate_input` and `stream_events`.
+    * `validate_input` is optional.
+    * `stream_events` function is compulsory to collect and ingest the events into Splunk.
+
 
 
 ## Inputs
