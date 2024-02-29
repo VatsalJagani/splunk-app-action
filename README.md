@@ -71,6 +71,9 @@
 
 
 * #### Running User Defined Commands Before Generating the final App Build
+    * TODO - Now your user-defined custom command would run in a context of your App's folder.
+    * TODO - Write 
+
     * If you wish to run the user defined linux commands before generating the App build, set the environment variables `SPLUNK_APP_ACTION_<n>`.
         ```
         - uses: VatsalJagani/splunk-app-action@v3
@@ -280,6 +283,18 @@ def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_w
 
 
 ## Release Notes
+
+### v4
+* TODO - Now your user-defined custom command would run in a context of your App's folder.
+
+
+### v3 to v4 - Upgrade Guide
+* TODO - Now your user-defined custom command would run in a context of your App's folder.
+```
+change from this to this
+```
+* to_make_permission_changes - default value has been changed, so if you wish to enable it, enable it explicitly.
+
 
 ### v3
 * use_ucc_gen parameter added to support UCC build Add-on support. (It uses `ucc-gen build` command to generate the build dynamically on the GitHub action directly.)
