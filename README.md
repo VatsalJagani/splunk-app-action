@@ -65,7 +65,8 @@
         ```
         find my_app -type f -exec chmod 644 '{}' \;
         find my_app -type f -name '*.sh' -exec chmod 755 '{}' \;
-        find my_app -type f -name '*.exe' -exec chmod 755 '{}' \;
+           ... we run the same command for following other file extensions: .exe, .bat, .msi, .cmd
+           ... Keep note that Linux executables are generally without extension, in that case avoid this parameter.
         find my_app -type d -exec chmod 755 '{}' \;
         ```
 

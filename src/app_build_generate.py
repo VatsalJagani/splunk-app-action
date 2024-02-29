@@ -71,8 +71,11 @@ def util_generate_build_commands(app_package_id, app_version_encoded, app_build_
         # Permission Changes
         utils.execute_system_command(
             "find {} -type f -exec chmod 644 '{{}}' \;".format(app_package_id))
-        utils.execute_system_command(
-            "find {} -type f -name '*.sh' -exec chmod 755 '{{}}' \;".format(app_package_id))
+
+        for file_ext in [".sh", ".exe", ".cmd", ".msi", ".bat"]:
+            utils.execute_system_command(
+                "find {} -type f -name '*{}' -exec chmod 755 '{{}}' \;".format(app_package_id, file_ext))
+
         utils.execute_system_command(
             "find {} -type d -exec chmod 755 '{{}}' \;".format(app_package_id))
 
