@@ -12,7 +12,6 @@
 
 ### Generate Splunk App/Add-on Build artifact
 * The action automatically generates build artifact from github repo.
-* Change file and directory permissions to avoid app-inspect failures.
 
 ```
 - uses: VatsalJagani/splunk-app-action@v3
@@ -46,7 +45,7 @@
         use_ucc_gen: true
     ```
 
-* **NOTE* - <ins>IF YOU HAVE EXECUTABLE FILES IN YOUR APP OTHER THAN `.sh` scripts then add `to_make_permission_changes: false` PARAMETER IN THE CONFIGURATION TO AVOID LOSING THE EXECUTABLE PERMISSIONS ON THOSE FILES.</ins>
+* **NOTE* - <ins>If you have executable files in your App other than `.sh` then explicitly add `to_make_permission_changes: false` for splunk-app-action earlier than `v4`. From version `v4` the default value has been changed to `false` so you don't have to explicitly add but do not enable it. Otherwise you lose the executable permissions on those executable files.</ins>
 
 
 * #### Avoid File and Folder Permission Issue on Your App Build
@@ -209,6 +208,7 @@ def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_w
 
 #### to_make_permission_changes
 * description: "Whether to apply file and folder permission changes according to Splunk App Inspect expectation before generating the build."
+* Before you add this parameter, read the instruction from [Avoid File and Folder Permission Issue on Your App Build](#-Avoid-File-and-Folder-Permission-Issue-on-Your-App-Build) section.
 * required: false
 * default: false
 
