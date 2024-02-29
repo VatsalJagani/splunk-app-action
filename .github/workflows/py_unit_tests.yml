@@ -1,0 +1,50 @@
+# This is a basic workflow to run automated test-cases on GitHub App Action
+name: Running Python Unit Tests for Splunk-App-Action
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+on:
+  push:
+    branches:
+      - 'develop'
+
+  pull_request:
+    branches:
+      - '*'
+      - '*/*'
+      - '**'
+
+  workflow_dispatch:
+
+jobs:
+  python-unit-tests:
+    name: "Running Python Unit Test Cases"
+    runs-on: "ubuntu-latest"
+
+    steps:
+        - uses: actions/checkout@v4
+
+        - name: Set up Python
+          uses: actions/setup-python@v4
+
+        - name: Display Python version
+          run: python -c "import sys; print(sys.version)"
+
+        - name: Install dependencies
+          run: |
+            python -m pip install --upgrade pip
+            pip install -r tests/requirements.txt
+
+        - name: Run Python Unit Tests
+          run: pytest tests/py_unit_tests.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+
+        - name: Linting with Ruff
+          run: ruff --output-format=github .
+          continue-on-error: true   # need to remove this later on to catch the errors anf fail the workflow on linting errors
+
+        - name: Upload pytest test results
+          uses: actions/upload-artifact@v4
+          with:
+            name: pytest-results
+            path: junit/test-results.xml
+          # Use always() to always run this step to publish test results when there are test failures
+          if: ${{ always() }}

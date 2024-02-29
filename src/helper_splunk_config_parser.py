@@ -167,6 +167,8 @@ class SplunkConfigParser:
             with open(self.file_path, 'r', encoding=encoding) as file:
                 content = file.read()
             self._parse(content)
+        else:
+            raise Exception("Splunk Conf File Not Found.")
 
 
     def _parse(self, content):
@@ -286,8 +288,8 @@ class SplunkConfigParser:
     def __iter__(self):
         return iter(self._content)
 
-    def items(self):
-        return self._content.items()
+    # def items(self):
+    #     return self._content.items()
 
 
     def merge(self, second_conf_parser, to_merge_pre_stanza_comments=True, to_merge_file_level_parameters=False):
@@ -308,6 +310,7 @@ class SplunkConfigParser:
 
 
     def __str__(self) -> str:
+        # NOTE - Do not change the code of this function as this might fail the working or even fail some test-cases
         content_str = ''
         for section, options in self._content.items():
             content_str += options.as_string(section)
