@@ -19,7 +19,7 @@ inputs:
   to_make_permission_changes:
     description: "Whether to apply file and folder permission changes according to Splunk App Inspect expectation before generating the build."
     required: false
-    default: true
+    default: false
 
   use_ucc_gen:
     description: "Use ucc-gen command to generate the build for Add-on. The 'app_dir' folder must have a sub-folder named 'package', and a file named 'globalConfig.json' for this to work."

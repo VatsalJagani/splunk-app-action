@@ -12,11 +12,10 @@
 
 ### Generate Splunk App/Add-on Build artifact
 * The action automatically generates build artifact from github repo.
-* Change file and directory permissions to avoid app-inspect failures.
 
 ```
 - uses: VatsalJagani/splunk-app-action@v3
-    with:
+  with:
     app_dir: "my_app"
 ```
     * Here even app_dir is optional parameter if you want to generate the build.
@@ -26,11 +25,11 @@
 * Supports multiple Apps/Add-ons in single repository.
     ```
     - uses: VatsalJagani/splunk-app-action@v3
-        with:
+      with:
         app_dir: "my_splunk_app"
 
     - uses: VatsalJagani/splunk-app-action@v3
-        with:
+      with:
         app_dir: "my_splunk_add-on"
     ```
 
@@ -41,18 +40,45 @@
     * You need to use `ucc-gen init` command locally first to initial the Add-on/Repository before using this or `ucc-gen build` command. See [documentation of UCC Framework](https://splunk.github.io/addonfactory-ucc-generator/quickstart/).
     ```
     - uses: VatsalJagani/splunk-app-action@3
-        with:
+      with:
         app_dir: "TA_my_addon"
         use_ucc_gen: true
     ```
 
-* #### Running Commands Before Generating the final App Build
-    * If you wish to run the commands before generating the App build, set the environment variables `SPLUNK_APP_ACTION_<n>`.
+* **NOTE* - <ins>If you have executable files in your App other than `.sh` then explicitly add `to_make_permission_changes: false` for splunk-app-action earlier than `v4`. From version `v4` the default value has been changed to `false` so you don't have to explicitly add but do not enable it. Otherwise you lose the executable permissions on those executable files.</ins>
+
+
+* #### Avoid File and Folder Permission Issue on Your App Build
+    * **NOTE** - This might break your App.
+        * Avoid this parameter if your App has executable files other than `.sh` and `.exe`.
+    * You can add `to_make_permission_changes: true` parameter to fix the issues with file and folder permissions to avoid App-inspect check automatically.
         ```
         - uses: VatsalJagani/splunk-app-action@v3
-            env:
-            SPLUNK_APP_ACTION_1: "find my_app -type f -name *.sh -exec chmod +x '{}' \\;"
-            with:
+          with:
+            app_dir: "my_app"
+            to_make_permission_changes: true
+            splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+            splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+        ```
+    * We will run below commands to avoid App inspect checks related to file and folder permissions.
+        ```
+        find my_app -type f -exec chmod 644 '{}' \;
+        find my_app -type f -name '*.sh' -exec chmod 755 '{}' \;
+           ... we run the same command for following other file extensions: .exe, .bat, .msi, .cmd
+           ... Keep note that Linux executables are generally without extension, in that case avoid this parameter.
+        find my_app -type d -exec chmod 755 '{}' \;
+        ```
+
+
+* #### Running User Defined Commands Before Generating the final App Build
+    * If you wish to run the user defined linux commands before generating the App build, set the environment variables `SPLUNK_APP_ACTION_<n>`.
+        ```
+        - uses: VatsalJagani/splunk-app-action@v3
+          env:
+            SPLUNK_APP_ACTION_1: "find my_app -type f -exec chmod 644 '{}' \;"
+            SPLUNK_APP_ACTION_2: "find my_app -type f -name '*.sh' -exec chmod +x '{}' \\;"
+            SPLUNK_APP_ACTION_3: "find my_app -type d -exec chmod 755 '{}' \;"
+          with:
             app_dir: "my_app"
         ```
         * Above use-case is very common as if your App/Add-on has shell scripts in bin directory and you want to make sure it has executable permission.
@@ -62,6 +88,14 @@
 
     * It allows you to run command before building the App build.
         * This could be useful if you wish to remove some files that you don't want in the build, change permission of some files before running the rest of the app build or app-inspect check.
+        ```
+        - uses: VatsalJagani/splunk-app-action@v3
+          env:
+            SPLUNK_APP_ACTION_1: "rm -rf my_app/extra_test_folder"
+          with:
+            app_dir: "my_app"
+        ```
+        * The above example would remove unwanted tests folder going into the final App build.
 
 
 ### Run App-Inspect (with Splunkbase API)
@@ -78,10 +112,10 @@
 
 ```
 - uses: VatsalJagani/splunk-app-action@v3
-    with:
-        app_dir: "my_app"
-        splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
-        splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+  with:
+    app_dir: "my_app"
+    splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+    splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
 
 
@@ -91,62 +125,81 @@
 * In order to do that all utilities require common input called `my_github_token`.
 
 
-#### Utility that adds information about the App inside the README.md file
+#### `whats_in_the_app` - Utility that adds information about the App inside the README.md file
 * The splunk-app-action has utility which automatically adds information about the App, like how many alerts does it have, how many dashboards does it have, etc inside the App's README.md file.
 ```
 - uses: VatsalJagani/splunk-app-action@v3
-    with:
-        app_dir: "my_app"
-        app_utilities: "whats_in_the_app"
-        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+  with:
+    app_dir: "my_app"
+    app_utilities: "whats_in_the_app"
+    my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
 
-#### Add Python Logger
+#### `logger` - Add Python Logger
 * Auto adds python logger manager, including python file necessary, props.conf to assign right sourcetype for it under the internal logs.
 
 ```
 - uses: VatsalJagani/splunk-app-action@v3
-    with:
-        app_dir: "my_app"
-        app_utilities: "logger"
-        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
-        logger_log_files_prefix: "my_app"
-        logger_sourcetype: "my_app:logs"
+  with:
+    app_dir: "my_app"
+    app_utilities: "logger"
+    my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+    logger_log_files_prefix: "my_app"
+    logger_sourcetype: "my_app:logs"
 ```
 
-#### Add Splunklib or Splunk SDK for Python and Auto Upgrades It
+#### `splunk_python_sdk` - Add Splunklib or Splunk SDK for Python and Auto Upgrades It
 * This utility adds the splunklib or Splunk SDK for Python to the App and auto upgrades it whenever new version is available.
 
 ```
 - uses: VatsalJagani/splunk-app-action@v3
-    with:
-        app_dir: "my_app"
-        app_utilities: "splunk_python_sdk"
-        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+  with:
+    app_dir: "my_app"
+    app_utilities: "splunk_python_sdk"
+    my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
 
-#### Add Common JavaScript Utilities File
+#### `common_js_utilities` - Add Common JavaScript Utilities File
 * This utility adds a JavaScript file that contains commonly used functionality for a JavaScript code for a Splunk App.
 
 ```
 - uses: VatsalJagani/splunk-app-action@v3
-    with:
-        app_dir: "my_app"
-        app_utilities: "common_js_utilities"
-        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+  with:
+    app_dir: "my_app"
+    app_utilities: "common_js_utilities"
+    my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
 
-#### Add additional_packaging.py file for UCC built Add-on
+#### `ucc_additional_packaging` - Add additional_packaging.py file for UCC built Add-on
 * This utility adds additional_packaging.py file that contains code to better generate input handler python file to easily re-generate code on change, rather than making manual changes.
 
 ```
 - uses: VatsalJagani/splunk-app-action@v3
-    with:
-        app_dir: "."
-        use_ucc_gen: true
-        app_utilities: "ucc_additional_packaging"
-        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+  with:
+    app_dir: "."
+    use_ucc_gen: true
+    app_utilities: "ucc_additional_packaging"
+    my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
+
+* The input file in which you need to write code is `<Input_Name>_handler.py`. And it would start with below content and you need to copy into your `package/bin` folder and write code into it to collect the data and ingest into Splunk.
+
+```
+from splunklib import modularinput as smi
+
+
+def validate_input(input_script: smi.Script, definition: smi.ValidationDefinition):
+    return
+
+
+def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_writer: smi.EventWriter):
+    return
+```
+
+* Update the content in `validate_input` and `stream_events`.
+    * `validate_input` is optional.
+    * `stream_events` function is compulsory to collect and ingest the events into Splunk.
+
 
 
 ## Inputs
@@ -163,8 +216,9 @@
 
 #### to_make_permission_changes
 * description: "Whether to apply file and folder permission changes according to Splunk App Inspect expectation before generating the build."
+* Before you add this parameter, read the instruction from [Avoid File and Folder Permission Issue on Your App Build](#-Avoid-File-and-Folder-Permission-Issue-on-Your-App-Build) section.
 * required: false
-* default: true
+* default: false
 
 #### use_ucc_gen
 * description: "Use ucc-gen command to generate the build for Add-on. The 'app_dir' folder must have a sub-folder named 'package', and a file named 'globalConfig.json' for this to work."
