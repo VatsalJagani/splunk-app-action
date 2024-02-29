@@ -6,7 +6,7 @@ from threading import Thread
 from time import sleep
 import traceback
 
-import helper_github_action as utils
+import helpers.github_action_utils as utils
 from helpers.global_variables import GlobalVariables
 
 

@@ -1,7 +1,7 @@
 
 import os
 from helpers.git_manager import GitHubPR, get_file_hash, get_multi_files_hash, get_folder_hash
-import helper_github_action as utils
+import helpers.github_action_utils as utils
 
 
 class BaseUtility:

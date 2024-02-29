@@ -8,7 +8,7 @@ sys.path.append(os.path.dirname(__file__))
 
 from helpers.global_variables import GlobalVariables
 from helpers import splunk_app_details
-import helper_github_action as utils
+import helpers.github_action_utils as utils
 from app_inspect import SplunkAppInspect
 import ucc_gen
 import app_build_generate

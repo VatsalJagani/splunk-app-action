@@ -1,7 +1,7 @@
 
 import os
 import shutil
-import helper_github_action as utils
+import helpers.github_action_utils as utils
 from helpers.global_variables import GlobalVariables
 
 
