@@ -6,6 +6,8 @@ import traceback
 
 sys.path.append(os.path.dirname(__file__))
 
+from helpers.global_variables import GlobalVariables
+from helpers import splunk_app_details
 import helper_github_action as utils
 from app_inspect import SplunkAppInspect
 import app_build_with_ucc
@@ -17,10 +19,11 @@ from app_utilities import SplunkAppUtilities
 if __name__ == "__main__":
     utils.info("Running Python script main.py")
 
-    utils.CommonDirPaths.generate_paths()
-
     app_dir_input = utils.get_input('app_dir')
     utils.info("app_dir_input: {}".format(app_dir_input))
+
+    GlobalVariables.initiate(app_dir_name=app_dir_input)
+
 
     # Build Add-on with UCC
     utils.debug(f"Input use_ucc_gen value = {utils.get_input('use_ucc_gen')}")
@@ -29,53 +32,60 @@ if __name__ == "__main__":
     utils.info("use_ucc_gen: {}".format(use_ucc_gen))
 
 
-    app_package_id = None
-    app_version = None
+    if use_ucc_gen:
+        global_config_json_file_path = os.path.join(GlobalVariables.ORIGINAL_APP_DIR_PATH, 'globalConfig.json')
+        app_package_id = splunk_app_details.fetch_app_package_id_from_global_config_json(
+            global_config_json_file_path
+        )
+        app_version = splunk_app_details.fetch_app_version_from_global_config_json(
+            global_config_json_file_path
+        )
+    else:
+        app_conf_file_path = os.path.join(GlobalVariables.ORIGINAL_APP_DIR_PATH, 'default', 'app.conf')
+        app_package_id = splunk_app_details.fetch_app_package_id_from_app_conf(
+            app_conf_file_path, app_dir_input
+        )
+        app_version = splunk_app_details.fetch_app_version_number_from_app_conf(
+            app_conf_file_path
+        )
+
+    GlobalVariables.set_app_package_id(app_package_id)
+    GlobalVariables.set_app_version(app_version)
+    # For yml file to artifact build and app-inspect report
+    utils.set_env("app_package_id", GlobalVariables.APP_PACKAGE_ID)
+    utils.set_env("app_version_encoded", GlobalVariables.APP_BUILD_NUMBER_ENCODED)
+
+
     app_build_dir_name = None
     app_build_dir_path = None
-    build_path = None
-
 
     if use_ucc_gen:
-        app_package_id = app_build_with_ucc.fetch_app_package_id()
-        app_version = app_build_with_ucc.fetch_app_version()
-    else:
-        app_package_id = app_build_generate.fetch_app_package_id(app_dir_input)
-        app_version = app_build_generate.fetch_app_version_number()
-
-
-    if use_ucc_gen:
-        app_build_dir_name, app_build_dir_path = app_build_with_ucc.build(app_dir_input, app_package_id, app_version)
+        app_build_dir_name = app_build_with_ucc.build()
         utils.info("ucc-gen command Completed.")
         # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
 
     else:
-        utils.execute_system_command(f"rm -rf {utils.CommonDirPaths.BUILD_FINAL_DIR_NAME}")
+        app_build_dir_name = "without_ucc_build"
 
-        if app_dir_input == '.':
-            shutil.copytree(utils.CommonDirPaths.REPO_DIR_NAME, utils.CommonDirPaths.BUILD_FINAL_DIR_NAME)
-        else:
-            shutil.copytree(os.path.join(utils.CommonDirPaths.REPO_DIR_NAME, app_dir_input), utils.CommonDirPaths.BUILD_FINAL_DIR_NAME)
+        os.chdir(GlobalVariables.ROOT_DIR_PATH)
+        utils.execute_system_command(f"rm -rf {app_build_dir_name}")
 
-        app_build_dir_name = utils.CommonDirPaths.BUILD_FINAL_DIR_NAME
-        app_build_dir_path = os.path.join(utils.CommonDirPaths.MAIN_DIR, utils.CommonDirPaths.BUILD_FINAL_DIR_NAME)
-
+        shutil.copytree(GlobalVariables.ORIGINAL_APP_DIR_PATH, app_build_dir_name)
         utils.info("Copied the code for build process.")
+
+    app_build_dir_path = os.path.join(GlobalVariables.ROOT_DIR_PATH, app_build_dir_name)
 
 
     # For yml file to artifact build and app-inspect report
-    utils.set_env("app_package_id", app_package_id)
-
-    app_version_encoded = re.sub('[^0-9a-zA-Z]+', '_', app_version)
-    utils.set_env("app_version_encoded", app_version_encoded)
-
-    app_build_number = app_build_generate.fetch_app_build_number(app_build_dir_path)
-    app_build_number_encoded = re.sub('[^0-9a-zA-Z]+', '_', app_build_number)
-    utils.set_env("app_build_number_encoded", app_build_number_encoded)
+    app_build_number = splunk_app_details.fetch_app_build_number_from_app_conf(
+        app_build_dir_path
+    )
+    GlobalVariables.set_app_build_number(app_build_number)
+    utils.set_env("app_build_number_encoded", GlobalVariables.APP_BUILD_NUMBER_ENCODED)
 
 
     try:
-        app_write_dir = os.path.join(utils.CommonDirPaths.REPO_DIR, app_dir_input, 'package') if use_ucc_gen else os.path.join(utils.CommonDirPaths.REPO_DIR, app_dir_input)
+        app_write_dir = os.path.join(GlobalVariables.ORIGINAL_APP_DIR_PATH, 'package') if use_ucc_gen else GlobalVariables.ORIGINAL_APP_DIR_PATH
         SplunkAppUtilities(app_read_dir=app_build_dir_path, app_write_dir=app_write_dir)
         # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
         utils.info("SplunkAppUtilities completed.")
@@ -86,13 +96,13 @@ if __name__ == "__main__":
 
     try:
         # Generate Build
-        build_path = app_build_generate.generate_build(app_package_id, app_build_dir_name, app_build_dir_path, app_version_encoded, app_build_number_encoded)
+        build_path = app_build_generate.generate_build(app_build_dir_name, app_build_dir_path)
 
         utils.info("generate_build Completed.")
         # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
 
         # Run App Inspect
-        SplunkAppInspect(build_path, app_package_id, app_version_encoded, app_build_number_encoded).run_all_checks()
+        SplunkAppInspect(build_path).run_all_checks()
         utils.info("SplunkAppInspect Completed.")
         # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
 

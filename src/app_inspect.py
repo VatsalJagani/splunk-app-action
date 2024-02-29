@@ -1,6 +1,5 @@
 import os
 import shutil
-import sys
 import requests
 from requests.auth import HTTPBasicAuth
 from threading import Thread
@@ -8,6 +7,8 @@ from time import sleep
 import traceback
 
 import helper_github_action as utils
+from helpers.global_variables import GlobalVariables
+
 
 TIMEOUT_MAX = 240
 
@@ -21,7 +22,7 @@ class SplunkAppInspect:
     HTML_RESPONSE_URL = "{}/report".format(BASE_URL)
 
 
-    def __init__(self, app_build_path, app_package_id, app_version_encoded, app_build_number_encoded) -> None:
+    def __init__(self, app_build_path) -> None:
         self.is_app_inspect_check = utils.str_to_boolean_default_true(
             utils.get_input('is_app_inspect_check'))
         utils.info("is_app_inspect_check: {}".format(
@@ -45,7 +46,7 @@ class SplunkAppInspect:
 
         self.app_build_path = app_build_path
 
-        self.report_name_prefix = f"{app_package_id}_{app_version_encoded}_{app_build_number_encoded}"
+        self.report_name_prefix = f"{GlobalVariables.APP_PACKAGE_ID}_{GlobalVariables.APP_VERSION_ENCODED}_{GlobalVariables.APP_BUILD_NUMBER_ENCODED}"
 
         self.app_build_filename = os.path.basename(app_build_path)
         self.app_inspect_report_dir = "{}_reports".format(self.report_name_prefix)

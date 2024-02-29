@@ -1,7 +1,7 @@
 
 import os
 import pathlib
-from helper_splunk_config_parser import SplunkConfigParser
+from helpers.splunk_config_parser import SplunkConfigParser
 import helper_github_action as utils
 
 
