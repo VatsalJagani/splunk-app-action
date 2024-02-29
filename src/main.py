@@ -10,7 +10,7 @@ from helpers.global_variables import GlobalVariables
 from helpers import splunk_app_details
 import helper_github_action as utils
 from app_inspect import SplunkAppInspect
-import app_build_with_ucc
+import ucc_gen
 import app_build_generate
 from app_utilities import SplunkAppUtilities
 
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     app_build_dir_path = None
 
     if use_ucc_gen:
-        app_build_dir_name = app_build_with_ucc.build()
+        app_build_dir_name = ucc_gen.build()
         utils.info("ucc-gen command Completed.")
         # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
 
