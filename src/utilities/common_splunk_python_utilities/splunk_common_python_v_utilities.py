@@ -17,7 +17,7 @@ def is_false(val: str):
 
 
 
-class SplunkCredentialManager(object):
+class VSplunkCredentialManager(object):
     '''
     Credential manager to store and retrieve password
     '''
@@ -81,7 +81,7 @@ class SplunkCredentialManager(object):
 
 
 
-class SplunkConfigManager:
+class VSplunkConfigManager:
     def __init__(self, logger, session_key) -> None:
         self.logger = logger
         self.session_key = session_key

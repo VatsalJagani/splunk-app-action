@@ -6,6 +6,7 @@ from utilities.whats_inside_app import WhatsInsideTheAppUtility
 from utilities.logger import LoggerUtility
 from utilities.splunk_sdk_python import SplunkPythonSDKUtility
 from utilities.common_splunk_js_utilities import CommonJSUtilitiesFile
+from utilities.common_splunk_python_utilities import CommonPythonUtilitiesFile
 from utilities.ucc_additional_packaging import UCCAdditionalPackagingUtility
 
 
@@ -41,6 +42,9 @@ class SplunkAppUtilities:
 
             elif utility == "common_js_utilities":
                 CommonJSUtilitiesFile(self.app_read_dir, self.app_write_dir)
+
+            elif utility == "common_python_utilities":
+                CommonPythonUtilitiesFile(self.app_read_dir, self.app_write_dir)
 
             elif utility == "ucc_additional_packaging":
                 UCCAdditionalPackagingUtility(self.app_read_dir, self.app_write_dir)
