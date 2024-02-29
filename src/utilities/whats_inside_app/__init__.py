@@ -3,7 +3,7 @@ import os
 import xml.etree.ElementTree as ET
 
 import helper_github_action as utils
-from helper_file_handler import PartRawFileHandler
+from helpers.file_manager import PartRawFileHandler
 from helpers.splunk_config_parser import SplunkConfigParser
 from utilities.base_utility import BaseUtility
 

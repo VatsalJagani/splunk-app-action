@@ -2,7 +2,7 @@
 import os
 
 import helper_github_action as utils
-from helper_file_handler import FullRawFileHandler
+from helpers.file_manager import FullRawFileHandler
 from utilities.base_utility import BaseUtility
 
 
