@@ -1,6 +1,6 @@
 # splunk-app-action
 * Github Action to automatically generate Splunk App and Add-on builds, run app-inspect checks (with the App-Inspect/Splunkbase API) on commit/push etc on GitHub repo. It also performs Splunk cloud checks.
-* It also has capability to generate build based on UCC Generator function for Add-ons.
+* It also has capability to generate build based on UCC Generator (`ucc-gen`) function [Splunk Add-on UCC Framework](https://splunk.github.io/addonfactory-ucc-generator/) for Add-ons.
 * It has some common utilities needed for Splunk Apps and Add-ons.
 * It also works in Private Repositories on GitHub.
 
@@ -71,21 +71,20 @@
 
 
 * #### Running User Defined Commands Before Generating the final App Build
-    * TODO - Now your user-defined custom command would run in a context of your App's folder.
-    * TODO - Write 
+    * **NOTE** - Read the `Upgrade Guide from v3 to v4` if you are migrating from splunk-app-action version before `v4`.
 
     * If you wish to run the user defined linux commands before generating the App build, set the environment variables `SPLUNK_APP_ACTION_<n>`.
         ```
         - uses: VatsalJagani/splunk-app-action@v3
           env:
-            SPLUNK_APP_ACTION_1: "find my_app -type f -exec chmod 644 '{}' \;"
-            SPLUNK_APP_ACTION_2: "find my_app -type f -name '*.sh' -exec chmod +x '{}' \\;"
-            SPLUNK_APP_ACTION_3: "find my_app -type d -exec chmod 755 '{}' \;"
+            SPLUNK_APP_ACTION_1: "find . -type f -exec chmod 644 '{}' \;"
+            SPLUNK_APP_ACTION_2: "find . -type f -name '*.sh' -exec chmod +x '{}' \\;"
+            SPLUNK_APP_ACTION_3: "find . -type d -exec chmod 755 '{}' \;"
           with:
             app_dir: "my_app"
         ```
         * Above use-case is very common as if your App/Add-on has shell scripts in bin directory and you want to make sure it has executable permission.
-        * Run the command in the context of your repo's root directory. (Assume current working directory is your repo's root directory.)
+        * Run the command in the context of your App's root directory. (Assume current working directory is your App's root directory.)
         * Maximum 100 commands can be executed. So from `SPLUNK_APP_ACTION_1` to `SPLUNK_APP_ACTION_99`.
         * The command will be executed in incremented order from `SPLUNK_APP_ACTION_1` to `SPLUNK_APP_ACTION_99`.
 
@@ -94,11 +93,12 @@
         ```
         - uses: VatsalJagani/splunk-app-action@v3
           env:
-            SPLUNK_APP_ACTION_1: "rm -rf my_app/extra_test_folder"
+            SPLUNK_APP_ACTION_1: "rm -rf extra_test_folder"
           with:
             app_dir: "my_app"
         ```
         * The above example would remove unwanted tests folder going into the final App build.
+        * Run the command in the context of your App's root directory. (Assume current working directory is your App's root directory.)
 
 
 ### Run App-Inspect (with Splunkbase API)
@@ -284,16 +284,36 @@ def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_w
 
 ## Release Notes
 
-### v4
-* TODO - Now your user-defined custom command would run in a context of your App's folder.
+### (IN PROGRESS) v4
+* Run the user-defined commands in the context of your App's root directory instead of Repo's root directory. Refer to `Running User Defined Commands Before Generating the final App Build` for more details.
+
+* `to_make_permission_changes` parameter's default value has been changed to `false`. Refer to `Avoid File and Folder Permission Issue on Your App Build` for more details.
+    * Automatic file permission changes now also add executable permissions to following file extensions, `.msi`, `.exe`, `.cmd`, `.bat`, along with `.sh`.
 
 
-### v3 to v4 - Upgrade Guide
-* TODO - Now your user-defined custom command would run in a context of your App's folder.
-```
-change from this to this
-```
-* to_make_permission_changes - default value has been changed, so if you wish to enable it, enable it explicitly.
+### (IN PROGRESS) Upgrade Guide from v3 to v4
+* From `v4` of the `splunk-app-action`, your user-defined custom command (Refer to `Running User Defined Commands Before Generating the final App Build` section) would run in a context of your App's folder instead of root folder.
+    * So you need to change the code from this:
+        ```
+        - uses: VatsalJagani/splunk-app-action@v3
+          env:
+            SPLUNK_APP_ACTION_1: "rm -rf my_app/extra_test_folder"
+            SPLUNK_APP_ACTION_2: "cat 'abc,123' >> my_app/lookups/my_custom_lookup.csv"
+          with:
+            app_dir: "my_app"
+        ```
+        * to
+        ```
+        - uses: VatsalJagani/splunk-app-action@v3
+          env:
+            SPLUNK_APP_ACTION_1: "rm -rf extra_test_folder"
+            SPLUNK_APP_ACTION_2: "cat 'abc,123' >> lookups/my_custom_lookup.csv"
+          with:
+            app_dir: "my_app"
+        ```
+        * because this command would now run in context of your App's directory.
+
+* `to_make_permission_changes` - default value has been changed to `false` from `true`. This means if you were to apply file and folder permission changes automatically, you have to explicitly add this parameter to your workflow. Refer to `Avoid File and Folder Permission Issue on Your App Build` for more details.
 
 
 ### v3
