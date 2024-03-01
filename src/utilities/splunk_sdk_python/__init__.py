@@ -2,7 +2,7 @@
 import os
 import re
 
-import helper_github_action as utils
+import helpers.github_action_utils as utils
 from utilities.base_utility import BaseUtility
 
 

@@ -3,7 +3,7 @@ import os
 import re
 import subprocess
 import hashlib
-import helper_github_action as utils
+import helpers.github_action_utils as utils
 
 
 def get_file_hash(file_path):

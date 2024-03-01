@@ -1,7 +1,7 @@
 
 import os
 import shutil
-import helper_github_action as utils
+import helpers.github_action_utils as utils
 from utilities.whats_inside_app import WhatsInsideTheAppUtility
 from utilities.logger import LoggerUtility
 from utilities.splunk_sdk_python import SplunkPythonSDKUtility

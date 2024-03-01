@@ -1,57 +1,9 @@
 
 import os
 
-import helper_github_action as utils
-from helper_splunk_config_parser import SplunkConfigParser
+import helpers.github_action_utils as utils
+from helpers.global_variables import GlobalVariables
 
-
-def _read_app_conf(app_build_dir=None):
-    if not app_build_dir:
-        app_build_dir = utils.CommonDirPaths.APP_DIR
-    return SplunkConfigParser(os.path.join(app_build_dir, 'default', 'app.conf'))
-
-
-def fetch_app_package_id(app_dir_input):
-    app_config = _read_app_conf()
-    if 'package' in app_config and 'id' in app_config['package']:
-        utils.info(
-            "Using app package id found in app.conf - {}".format(app_config['package']['id']))
-        return app_config['package']['id']
-    elif app_dir_input == ".":
-        utils.error(
-            "It is recommended to have `id` attribute in the app.conf's [package] stanza.")
-        raise Exception(
-            "Add `id` attribute in the app.conf's [package] stanza.")
-    else:
-        return app_dir_input
-
-
-def fetch_app_version_number():
-    app_config = _read_app_conf()
-    if 'launcher' in app_config and 'version' in app_config['launcher']:
-        utils.info(
-            "Using app version number found in app.conf [launcher] - {}".format(app_config['launcher']['version']))
-        return app_config['launcher']['version']
-    elif 'id' in app_config and 'version' in app_config['id']:
-        utils.info(
-            "Using app version number found in app.conf [id] - {}".format(app_config['id']['version']))
-        return app_config['id']['version']
-    else:
-        utils.error(
-            "It is recommended to have `version` attribute in the app.conf's [launcher] stanza.")
-        raise Exception(
-            "Add `id` attribute in the app.conf's [launcher] stanza.")
-
-
-def fetch_app_build_number(app_build_dir):
-    app_config = _read_app_conf(app_build_dir)
-    if 'install' in app_config and 'build' in app_config['install']:
-        utils.info(
-            "Using app build number found in app.conf [install] - {}".format(app_config['install']['build']))
-        return app_config['install']['build']
-    else:
-        utils.info("No app build number found, defaulting to 1.")
-        return "1"
 
 
 def remove_unwanted_files():
@@ -63,26 +15,21 @@ def remove_unwanted_files():
     utils.execute_system_command('find . -name "__pycache__" -type d -delete')
 
 
-def util_generate_build_commands(app_package_id, app_version_encoded, app_build_number_encoded):
+def file_folder_permission_changes():
     to_make_permission_changes = utils.str_to_boolean_default_false(
             utils.get_input("to_make_permission_changes"))
 
     if to_make_permission_changes:
         # Permission Changes
         utils.execute_system_command(
-            "find {} -type f -exec chmod 644 '{{}}' \;".format(app_package_id))
+            "find . -type f -exec chmod 644 '{}' \;")
 
         for file_ext in [".sh", ".exe", ".cmd", ".msi", ".bat"]:
             utils.execute_system_command(
-                "find {} -type f -name '*{}' -exec chmod 755 '{{}}' \;".format(app_package_id, file_ext))
+                "find . -type f -name '*{}' -exec chmod 755 '{}' \;".format(file_ext))
 
         utils.execute_system_command(
-            "find {} -type d -exec chmod 755 '{{}}' \;".format(app_package_id))
-
-    # Generate Build
-    build_name = f"{app_package_id}_{app_version_encoded}_{app_build_number_encoded}.tgz"
-    utils.execute_system_command(f"tar -czf {build_name} {app_package_id}")
-    return build_name
+            "find . -type d -exec chmod 755 '{}' \;")
 
 
 def run_custom_user_defined_commands():
@@ -96,8 +43,8 @@ def run_custom_user_defined_commands():
             utils.warning("Error ")
 
 
-def generate_build(app_package_id, app_build_dir_name, app_build_dir_path, app_version_encoded, app_build_number_encoded):
-    utils.info(f"Generating the app build., app_dir_path={app_build_dir_path}, app_package_id={app_package_id}, app_version_encoded={app_version_encoded}, app_build_number_encoded={app_build_number_encoded}")
+def generate_build(app_build_dir_name, app_build_dir_path):
+    utils.info(f"Generating the app build., app_dir_path={app_build_dir_path}, app_package_id={GlobalVariables.APP_PACKAGE_ID}, app_version_encoded={GlobalVariables.APP_VERSION_ENCODED}, app_build_number_encoded={GlobalVariables.APP_BUILD_NUMBER_ENCODED}")
 
     is_generate_build = utils.str_to_boolean_default_true(
         utils.get_input('is_generate_build'))
@@ -109,15 +56,16 @@ def generate_build(app_package_id, app_build_dir_name, app_build_dir_path, app_v
     if not is_generate_build:
         return direct_app_build_path
 
-    os.chdir(utils.CommonDirPaths.MAIN_DIR)
+    os.chdir(GlobalVariables.ROOT_DIR_PATH)
     utils.execute_system_command(
-            f'mv {app_build_dir_name} {app_package_id}')
+            f'mv {app_build_dir_name} {GlobalVariables.APP_PACKAGE_ID}')
+    os.chdir(GlobalVariables.APP_PACKAGE_ID)
 
-    os.chdir(utils.CommonDirPaths.MAIN_DIR)
-    os.chdir(app_build_dir_path)
     remove_unwanted_files()
     run_custom_user_defined_commands()
+    file_folder_permission_changes()
 
-    build_name = util_generate_build_commands(app_package_id, app_version_encoded, app_build_number_encoded)
-
-    return build_name
+    # Generate Build
+    build_name = f"{GlobalVariables.APP_PACKAGE_ID}_{GlobalVariables.APP_VERSION_ENCODED}_{GlobalVariables.APP_BUILD_NUMBER_ENCODED}.tgz"
+    utils.execute_system_command(f"tar -czf {build_name} {GlobalVariables.APP_PACKAGE_ID}")
+    return os.path.join(GlobalVariables.ROOT_DIR_PATH, build_name)
