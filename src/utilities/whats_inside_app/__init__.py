@@ -2,9 +2,9 @@
 import os
 import xml.etree.ElementTree as ET
 
-import helper_github_action as utils
-from helper_file_handler import PartRawFileHandler
-from helper_splunk_config_parser import SplunkConfigParser
+import helpers.github_action_utils as utils
+from helpers.file_manager import PartRawFileHandler
+from helpers.splunk_config_parser import SplunkConfigParser
 from utilities.base_utility import BaseUtility
 
 

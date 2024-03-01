@@ -1,8 +1,8 @@
 
 import os
 import pathlib
-from helper_splunk_config_parser import SplunkConfigParser
-import helper_github_action as utils
+from helpers.splunk_config_parser import SplunkConfigParser
+import helpers.github_action_utils as utils
 
 
 class BaseFileHandler:

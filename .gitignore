@@ -2,6 +2,5 @@
 *.pyc
 __pycache__
 src/utilities/logger/props.conf_temp
-
 junit/**
 tests2/**

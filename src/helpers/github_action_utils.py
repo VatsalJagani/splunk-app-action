@@ -108,38 +108,6 @@ def _escape_data(value: str):
     # .replace("\n", "%0A")
 
 
-class CommonDirPaths:
-    MAIN_DIR = None
-
-    REPO_DIR_NAME = "repodir"
-    REPO_DIR = None
-
-    APP_DIR = None
-
-    BUILD_DIR_NAME = "repodir_for_build"
-    BUILD_FINAL_DIR_NAME = "app_final"
-
-
-    @staticmethod
-    def generate_paths():
-        if CommonDirPaths.MAIN_DIR is None:
-            CommonDirPaths.MAIN_DIR = os.getcwd()
-
-        if CommonDirPaths.REPO_DIR is None:
-            CommonDirPaths.REPO_DIR = os.path.join(
-                CommonDirPaths.MAIN_DIR, CommonDirPaths.REPO_DIR_NAME)
-
-        if CommonDirPaths.APP_DIR is None:
-            app_dir = get_input('app_dir')
-            debug(f"CommonDirPaths.REPO_DIR = {CommonDirPaths.REPO_DIR}")
-            debug(f"Input app_dir value = {app_dir}")
-            CommonDirPaths.APP_DIR = os.path.join(
-                CommonDirPaths.REPO_DIR, app_dir)
-
-    def __init__(self):
-        CommonDirPaths.generate_static_variable()
-
-
 
 def execute_system_command(command):
     try:
