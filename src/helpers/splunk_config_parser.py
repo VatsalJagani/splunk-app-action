@@ -297,7 +297,7 @@ class SplunkConfigParser:
     def merge(self, second_conf_parser, to_merge_pre_stanza_comments=True, to_merge_file_level_parameters=False):
         is_changed = False
 
-        for stanza, options in second_conf_parser.items():
+        for stanza, options in second_conf_parser._content.items():
             if stanza not in self._content:
                 self._content[stanza] = _SplunkStanzaOptions()
                 is_changed = True
