@@ -72,19 +72,14 @@ jobs:
             junitxml-path: ./unit/test-results.xml
             title: Pytest Coverage
 
-        - name: Convert Data to Right Value for Formatting of Report
-          id: lowercase
-          run: |
-            YOUR_STRING="Hello World"
-            LOWERCASE_STRING=$(echo "${{ steps.pytest_coverage.outputs.color }}" | tr '[:upper:]' '[:lower:]')
-            echo "::set-output name=pytest_coverage_color_lower::$LOWERCASE_STRING"
-
         - name: Write Pytest Coverage Report to Job Summary
           run: |
             echo "# Pytest Coverage Report" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "## Detailed Report" >> $GITHUB_STEP_SUMMARY
             echo "- **Coverage:** ${{ steps.pytest_coverage.outputs.coverage }}" >> $GITHUB_STEP_SUMMARY
-            echo "- **Color:** :${{ steps.lowercase.outputs.pytest_coverage_color_lower }}_circle: ${{ steps.pytest_coverage.outputs.color }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Color:** :${{ steps.pytest_coverage.outputs.color }}_circle: ${{ steps.pytest_coverage.outputs.color }}" >> $GITHUB_STEP_SUMMARY
             echo "- **Warnings:** ${{ steps.pytest_coverage.outputs.warnings }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Summary Report - ${{ steps.pytest_coverage.outputs.summaryReport }}"
             echo "" >> $GITHUB_STEP_SUMMARY
