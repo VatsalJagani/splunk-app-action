@@ -4,3 +4,5 @@ __pycache__
 src/utilities/logger/props.conf_temp
 junit/**
 tests2/**
+.coverage
+coverage.xml
