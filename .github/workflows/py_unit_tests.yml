@@ -68,8 +68,8 @@ jobs:
           id: pytest_coverage
           uses: MishaKav/pytest-coverage-comment@main
           with:
-            pytest-xml-coverage-path: ./pytest-coverage.xml
-            junitxml-path: ./pytest.xml
+            pytest-xml-coverage-path: ./coverage.xml
+            junitxml-path: ./unit/test-results.xml
             title: Pytest Coverage
 
         - name: Write Pytest Coverage Report to Job Summary
