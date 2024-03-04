@@ -49,7 +49,7 @@ jobs:
           # Use always() to always run this step to publish test results when there are test failures
           if: ${{ always() }}
 
-        - name: Surface Test-Results
+        - name: Write Pytest Results to Job Summary
           if: always()
           uses: pmeier/pytest-results-action@main
           with:
@@ -65,8 +65,33 @@ jobs:
             title: Pytest Results
 
         - name: Pytest Coverage Comment
+          id: pytest_coverage
           uses: MishaKav/pytest-coverage-comment@main
           with:
             pytest-xml-coverage-path: ./pytest-coverage.xml
             junitxml-path: ./pytest.xml
             title: Pytest Coverage
+
+        - name: Write Pytest Coverage Report to Job Summary
+          run: |
+            echo "# Pytest Coverage Report" >> $GITHUB_STEP_SUMMARY
+            echo "[![Coverage](https://img.shields.io/badge/coverage-${{ steps.pytest_coverage.outputs.coverage }}%25-red)](example_coverage_report_url)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "## Summary" >> $GITHUB_STEP_SUMMARY
+            echo "- **Tests:** ${{ steps.pytest_coverage.outputs.tests }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Skipped:** ${{ steps.pytest_coverage.outputs.skipped }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Failures:** ${{ steps.pytest_coverage.outputs.failures }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Errors:** ${{ steps.pytest_coverage.outputs.errors }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Time:** ${{ steps.pytest_coverage.outputs.time }} seconds" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "## Detailed Report" >> $GITHUB_STEP_SUMMARY
+            echo "- **Coverage:** ${{ steps.pytest_coverage.outputs.coverage }}%" >> $GITHUB_STEP_SUMMARY
+            echo "- **Color:** Red" >> $GITHUB_STEP_SUMMARY
+            echo "- **Warnings:** ${{ steps.pytest_coverage.outputs.warnings }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "## Test Details" >> $GITHUB_STEP_SUMMARY
+            echo "- **Not Successful Test Info:** ${{ steps.pytest_coverage.outputs.notSuccessTestInfo }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "---" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "*Note: Replace 'example_coverage_report_url' with the actual URL where your coverage report is hosted.*" >> $GITHUB_STEP_SUMMARY
