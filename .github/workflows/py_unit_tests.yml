@@ -69,7 +69,7 @@ jobs:
           uses: MishaKav/pytest-coverage-comment@main
           with:
             pytest-xml-coverage-path: ./coverage.xml
-            junitxml-path: ./unit/test-results.xml
+            junitxml-path: test-results.xml
             title: Pytest Coverage
 
         - name: Write Pytest Coverage Report to Job Summary
@@ -81,5 +81,5 @@ jobs:
             echo "- **Color:** :${{ steps.pytest_coverage.outputs.color }}_circle: ${{ steps.pytest_coverage.outputs.color }}" >> $GITHUB_STEP_SUMMARY
             echo "- **Warnings:** ${{ steps.pytest_coverage.outputs.warnings }}" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Summary Report - ${{ steps.pytest_coverage.outputs.summaryReport }}"
+            echo "Summary Report - ${{ steps.pytest_coverage.outputs.summaryReport }}" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
