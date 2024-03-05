@@ -16,10 +16,6 @@ class GlobalVariables:
     APP_BUILD_NUMBER = None
     APP_BUILD_NUMBER_ENCODED = None
 
-    BUILD_REPO_DIR_NAME = "repodir_for_build"
-    BUILD_REPO_DIR_PATH = None
-
-    # TODO - validate and remove variables which are unused
 
     @staticmethod
     def initiate(app_dir_name, repodir_name=None, root_dir_path=None) -> None:
@@ -30,8 +26,6 @@ class GlobalVariables:
 
         GlobalVariables.APP_DIR_NAME = app_dir_name
         GlobalVariables.ORIGINAL_APP_DIR_PATH = os.path.join(GlobalVariables.ORIGINAL_REPO_DIR_PATH, GlobalVariables.APP_DIR_NAME)
-
-        GlobalVariables.BUILD_REPO_DIR_PATH = os.path.join(GlobalVariables.ROOT_DIR_PATH, GlobalVariables.BUILD_REPO_DIR_NAME)
 
 
     @staticmethod
