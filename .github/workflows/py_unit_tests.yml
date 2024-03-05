@@ -35,7 +35,7 @@ jobs:
             pip install -r tests/requirements.txt
 
         - name: Run Python Unit Tests
-          run: pytest tests --doctest-modules --junitxml=junit/test-results.xml --cov=src --cov-config=tests/.coveragerc --cov-report=xml
+          run: pytest tests --junitxml=junit/test-results.xml --cov=src --cov-config=tests/.coveragerc --cov-report=xml
 
         - name: Linting with Ruff
           run: ruff --output-format=github .

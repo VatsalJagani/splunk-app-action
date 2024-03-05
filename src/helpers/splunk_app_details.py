@@ -5,39 +5,33 @@ from helpers.splunk_config_parser import SplunkConfigParser
 
 
 def fetch_app_package_id_from_global_config_json(global_config_file_path):
-    utils.info("Fetching app package id from globalConfig.json file.")
+    utils.info("Fetching app_package_id from globalConfig.json file.")
 
-    _app_package_id = None
+    try:
+        with open(global_config_file_path, 'r') as f:
+            global_config = json.loads(f.read())
+            _app_package_id = global_config["meta"]["name"]
 
-    with open(global_config_file_path, 'r') as f:
-        global_config = json.loads(f.read())
-
-        _app_package_id = global_config["meta"]["name"]
-
-    if not _app_package_id:
-        raise Exception("Unable to fetch the app package id from globalConfig.json file")
+    except Exception as e:
+        utils.error(f"Exception while fetching app_package_id from globalConfig.json file. exception={e}")
+        raise Exception("Unable to fetch the app_package_id from globalConfig.json file.")
 
     return _app_package_id
 
 
 def fetch_app_version_from_global_config_json(global_config_file_path):
-    utils.info("Fetching app version number from globalConfig.json file.")
+    utils.info("Fetching app_version_number from globalConfig.json file.")
 
-    _app_version = None
+    try:
+        with open(global_config_file_path, 'r') as f:
+            global_config = json.loads(f.read())
+            _app_version = global_config["meta"]["version"]
 
-    with open(global_config_file_path, 'r') as f:
-        global_config = json.loads(f.read())
-
-        _app_version = global_config["meta"]["version"]
-
-    if not _app_version:
-        raise Exception("Unable to fetch the app package id from globalConfig.json file")
+    except Exception as e:
+        utils.error(f"Exception while fetching app_version_number from globalConfig.json file. exception={e}")
+        raise Exception("Unable to fetch the app_version_number from globalConfig.json file.")
 
     return _app_version
-
-
-def _read_app_conf(app_dir_path):
-    return SplunkConfigParser(os.path.join(app_build_dir, 'default', 'app.conf'))
 
 
 def fetch_app_package_id_from_app_conf(app_conf_file_path, app_dir_input):
