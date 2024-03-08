@@ -84,7 +84,7 @@ def group(title):
 
 
 def end_group():
-    print(f"::endgroup::")
+    print("::endgroup::")
 
 
 def add_mask(value):
@@ -92,11 +92,11 @@ def add_mask(value):
 
 
 def stop_commands():
-    print(f"::stop-commands::pause-commands")
+    print("::stop-commands::pause-commands")
 
 
 def resume_commands():
-    print(f"::pause-commands::")
+    print("::pause-commands::")
 
 
 def save_state(name, value):

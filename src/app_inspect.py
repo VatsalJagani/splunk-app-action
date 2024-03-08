@@ -53,8 +53,9 @@ class SplunkAppInspect:
 
         try:
             shutil.rmtree(self.app_inspect_report_dir)
-        except:
-            pass   # nothing to delete if folder not exist
+        except Exception as e:
+            # nothing to delete if folder not exist
+            utils.debug(f"No folder present nothing to be done. {e}")
         os.mkdir(self.app_inspect_report_dir)
 
         self.headers = None

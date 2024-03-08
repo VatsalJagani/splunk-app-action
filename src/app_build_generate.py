@@ -26,7 +26,7 @@ def file_folder_permission_changes():
 
         for file_ext in [".sh", ".exe", ".cmd", ".msi", ".bat"]:
             utils.execute_system_command(
-                "find . -type f -name '*{}' -exec chmod 755 '{}' \;".format(file_ext))
+                f"find . -type f -name '*{file_ext}' -exec chmod 755 '{{}}' \;")
 
         utils.execute_system_command(
             "find . -type d -exec chmod 755 '{}' \;")
@@ -40,7 +40,7 @@ def run_custom_user_defined_commands():
             if cmd:
                 utils.execute_system_command(cmd)
         except Exception as e:
-            utils.warning("Error ")
+            utils.warning(f"Error - {e}")
 
 
 def generate_build(app_build_dir_name, app_build_dir_path):

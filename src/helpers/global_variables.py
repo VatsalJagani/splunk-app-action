@@ -1,4 +1,5 @@
-import os, re
+import os
+import re
 
 
 class GlobalVariables:
