@@ -38,7 +38,7 @@ jobs:
           run: pytest tests --junitxml=junit/test-results.xml --cov=src --cov-config=tests/.coveragerc --cov-report=xml
 
         - name: Adding GitHub action step summary
-          uses: VatsalJagani/pytest-cov-action@v0.4
+          uses: VatsalJagani/pytest-cov-action@v0.5
           with:
             pytest_results_file: "junit/test-results.xml"
             pytest_cov_file: "coverage.xml"
