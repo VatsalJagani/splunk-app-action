@@ -31,7 +31,7 @@ def test_get_file_hash_with_tmp_file(sample_file):
 def test_get_folder_hash_empty_folder():
     folder_path = "empty_folder"
     os.makedirs(folder_path)
-    expected_hash = "d41d8cd98f00b204e9800998ecf8427e"  # MD5 hash of an empty string
+    expected_hash = "d41d8cd98f00b204e9800998ecf8427"  # MD5 hash of an empty string
     assert get_folder_hash(folder_path) == expected_hash
     os.rmdir(folder_path)
 
