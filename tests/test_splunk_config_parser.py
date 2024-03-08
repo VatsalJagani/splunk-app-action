@@ -19,11 +19,11 @@ class TestSplunkConfigParser(unittest.TestCase):
 
     def test_file_not_found(self):
         with self.assertRaises(Exception):
-            conf = SplunkConfigParser(self._util_conf_path('no_file.conf'))
+            SplunkConfigParser(self._util_conf_path('no_file.conf'))
 
     def test_read_config_file(self):
         conf = SplunkConfigParser(self._util_conf_path('read_config_file.conf'))
-        assert conf != None
+        assert conf is not None
 
     def test_get_config_sections(self):
         conf = SplunkConfigParser(self._util_conf_path('read_config_file.conf'))
@@ -55,7 +55,7 @@ class TestSplunkConfigParser(unittest.TestCase):
 
     def test_invalid_config(self):
         with self.assertRaisesRegex(Exception, "SplunkConfigParser: Unable to parse the Splunk config file properly."):
-            conf = SplunkConfigParser(self._util_conf_path('invalid_config.conf'))
+            SplunkConfigParser(self._util_conf_path('invalid_config.conf'))
 
     def test_empty_config(self):
         conf = SplunkConfigParser(self._util_conf_path('empty_config.conf'))
