@@ -46,6 +46,6 @@ jobs:
           if: ${{ always() }}
 
         - name: Linting with Ruff
-          run: ruff --ignore=E721,E722,E401 --output-format=github .
-          continue-on-error: true   # need to remove this later on to catch the errors anf fail the workflow on linting errors
+          run: ruff check --ignore=E721,E722,E401 --output-format=github .
+          # continue-on-error: true   # need to remove this later on to catch the errors anf fail the workflow on linting errors
   
