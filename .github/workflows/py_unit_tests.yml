@@ -50,7 +50,7 @@ jobs:
           if: ${{ always() }}
 
         - name: Adding GitHub action step summary
-          uses: VatsalJagani/pytest-cov-action@v0.2
+          uses: VatsalJagani/pytest-cov-action@v0.3
           with:
             pytest_results_file: "junit/test-results.xml"
             pytest_cov_file: "coverage.xml"
