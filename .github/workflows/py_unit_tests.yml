@@ -49,37 +49,8 @@ jobs:
           # Use always() to always run this step to publish test results when there are test failures
           if: ${{ always() }}
 
-        - name: Write Pytest Results to Job Summary
-          if: always()
-          uses: pmeier/pytest-results-action@main
+        - name: Adding GitHub action step summary
+          uses: VatsalJagani/pytest-cov-action@v0.2
           with:
-            path: junit/test-results.xml
-            # (Optional) Add a summary of the results at the top of the report
-            summary: true
-            # (Optional) Select which results should be included in the report.
-            # Follows the same syntax as `pytest -r`
-            display-options: fEX
-            # (Optional) Fail the workflow if no JUnit XML was found.
-            fail-on-empty: true
-            # (Optional) Title of the test results section in the workflow summary
-            title: Pytest Results
-
-        - name: Pytest Coverage Comment
-          id: pytest_coverage
-          uses: MishaKav/pytest-coverage-comment@main
-          with:
-            pytest-xml-coverage-path: ./coverage.xml
-            junitxml-path: test-results.xml
-            title: Pytest Coverage
-
-        - name: Write Pytest Coverage Report to Job Summary
-          run: |
-            echo "# Pytest Coverage Report" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "## Detailed Report" >> $GITHUB_STEP_SUMMARY
-            echo "- **Coverage:** ${{ steps.pytest_coverage.outputs.coverage }}" >> $GITHUB_STEP_SUMMARY
-            echo "- **Color:** :${{ steps.pytest_coverage.outputs.color }}_circle: ${{ steps.pytest_coverage.outputs.color }}" >> $GITHUB_STEP_SUMMARY
-            echo "- **Warnings:** ${{ steps.pytest_coverage.outputs.warnings }}" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Summary Report - ${{ steps.pytest_coverage.outputs.summaryReport }}" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
+            pytest_results_file: "junit/test-results.xml"
+            pytest_cov_file: "coverage.xml"
