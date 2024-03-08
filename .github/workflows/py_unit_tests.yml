@@ -42,6 +42,7 @@ jobs:
           with:
             pytest_results_file: "junit/test-results.xml"
             pytest_cov_file: "coverage.xml"
+          if: ${{ always() }}
 
         - name: Linting with Ruff
           run: ruff --output-format=github .
