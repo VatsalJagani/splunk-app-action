@@ -25,13 +25,13 @@ def test_get_file_hash_nonexistent_file():
         get_file_hash(file_path)
 
 def test_get_file_hash_with_tmp_file(sample_file):
-    expected_hash = "0b26e313ed4a7ca6904b0e9369e5b95"  # MD5 hash of "This is a test file"
+    expected_hash = "0b26e313ed4a7ca6904b0e9369e5b957"  # MD5 hash of "This is a test file"
     assert get_file_hash(sample_file) == expected_hash
 
 def test_get_folder_hash_empty_folder():
     folder_path = "empty_folder"
     os.makedirs(folder_path)
-    expected_hash = "d41d8cd98f00b204e9800998ecf8427"  # MD5 hash of an empty string
+    expected_hash = "d41d8cd98f00b204e9800998ecf8427e"  # MD5 hash of an empty string
     assert get_folder_hash(folder_path) == expected_hash
     os.rmdir(folder_path)
 
