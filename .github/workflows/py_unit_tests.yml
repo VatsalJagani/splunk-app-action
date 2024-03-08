@@ -41,13 +41,6 @@ jobs:
           run: ruff --output-format=github .
           continue-on-error: true   # need to remove this later on to catch the errors anf fail the workflow on linting errors
 
-        - name: Upload pytest test results
-          uses: actions/upload-artifact@v4
-          with:
-            name: pytest-results
-            path: junit/test-results.xml
-          # Use always() to always run this step to publish test results when there are test failures
-          if: ${{ always() }}
 
         - name: Adding GitHub action step summary
           uses: VatsalJagani/pytest-cov-action@v0.3
