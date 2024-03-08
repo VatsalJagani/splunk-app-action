@@ -140,8 +140,9 @@ class SplunkAppInspect:
             try:
                 response = requests.request("GET", "{}/{}".format(
                     self.STATUS_CHECK_URL, request_id), headers=self.headers, data={}, timeout=TIMEOUT_MAX)
-            except:
+            except Exception as e:
                 # continue if there is any error (specifically 10 times for timeout error)
+                utils.debug(f"No action needed. {e}")
                 continue
 
             utils.info("App package status check (check_type={}) response: status_code={}, text={}".format(

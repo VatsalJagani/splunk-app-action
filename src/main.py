@@ -1,7 +1,6 @@
 import os
 import shutil
 import sys
-import re
 import traceback
 
 sys.path.append(os.path.dirname(__file__))

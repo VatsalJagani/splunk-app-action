@@ -85,7 +85,7 @@ def test_fetch_app_package_id_from_app_conf_valid():
 [package]
 id = my_app
 ''') as file_path:
-        with pytest.raises(Exception) as excinfo:
+        with pytest.raises(Exception):
             app_package_id = fetch_app_package_id_from_app_conf(file_path)
             assert app_package_id == "my_app"
 

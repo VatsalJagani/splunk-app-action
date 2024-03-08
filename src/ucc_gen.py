@@ -9,7 +9,7 @@ def build():
     utils.info("Running ucc-gen command.")
 
     # copy folder to generate build, rather than affecting the original repo checkout
-    utils.execute_system_command(f"rm -rf ucc_build_dir")
+    utils.execute_system_command("rm -rf ucc_build_dir")
     shutil.copytree(GlobalVariables.ORIGINAL_REPO_DIR_NAME, "ucc_build_dir")
 
     org_ta_dir = os.path.join(GlobalVariables.ORIGINAL_REPO_DIR_NAME, GlobalVariables.APP_DIR_NAME)

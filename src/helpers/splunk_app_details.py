@@ -1,4 +1,3 @@
-import os
 import json
 import helpers.github_action_utils as utils
 from helpers.splunk_config_parser import SplunkConfigParser
