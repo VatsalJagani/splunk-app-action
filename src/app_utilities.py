@@ -1,6 +1,5 @@
 
 import os
-import shutil
 import helpers.github_action_utils as utils
 from utilities.whats_inside_app import WhatsInsideTheAppUtility
 from utilities.logger import LoggerUtility
