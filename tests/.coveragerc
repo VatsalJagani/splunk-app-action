@@ -1,0 +1,6 @@
+[run]
+omit = 
+    # omit extra utilities files
+    utilities/common_splunk_js_utilities/splunk_common_js_v_utilities.js
+    utilities/logger/logger_manager.py
+    utilities/ucc_additional_packaging/additional_packaging.py

@@ -4,6 +4,8 @@ import os
 MULTI_LINE_CHAR = '\\'
 COMMENT_CHAR = '#'
 FILE_SECTION = '___FILE___'
+GLOBAL_SETTING = '___FILE___'
+DEFAULT_SETTING = '___FILE___'
 NEW_LINE_CHAR = '\n'
 
 
@@ -167,6 +169,8 @@ class SplunkConfigParser:
             with open(self.file_path, 'r', encoding=encoding) as file:
                 content = file.read()
             self._parse(content)
+        else:
+            raise Exception("Splunk Conf File Not Found.")
 
 
     def _parse(self, content):
@@ -286,14 +290,14 @@ class SplunkConfigParser:
     def __iter__(self):
         return iter(self._content)
 
-    def items(self):
-        return self._content.items()
+    # def items(self):
+    #     return self._content.items()
 
 
     def merge(self, second_conf_parser, to_merge_pre_stanza_comments=True, to_merge_file_level_parameters=False):
         is_changed = False
 
-        for stanza, options in second_conf_parser.items():
+        for stanza, options in second_conf_parser._content.items():
             if stanza not in self._content:
                 self._content[stanza] = _SplunkStanzaOptions()
                 is_changed = True
@@ -308,6 +312,7 @@ class SplunkConfigParser:
 
 
     def __str__(self) -> str:
+        # NOTE - Do not change the code of this function as this might fail the working or even fail some test-cases
         content_str = ''
         for section, options in self._content.items():
             content_str += options.as_string(section)
