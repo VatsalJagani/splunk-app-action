@@ -15,6 +15,8 @@ def get_file_hash(file_path):
 
 def get_folder_hash(folder_path):
     hash_md5 = hashlib.md5()
+    if not os.path.isdir(folder_path):
+        raise Exception("Incorrect folder_path provided.")
     for root, dirs, files in os.walk(folder_path):
         for file in files:
             file_path = os.path.join(root, file)
