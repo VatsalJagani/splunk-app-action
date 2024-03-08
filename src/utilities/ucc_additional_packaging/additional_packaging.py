@@ -77,7 +77,7 @@ def modify_original_input_py_file(addon_name, input_name):
     # print(f"file_content2 = {file_content}")
 
     # Update validate_input method
-    pattern_validate_input_fun = rf"def validate_input[\w\W]*return\n"
+    pattern_validate_input_fun = r"def validate_input[\w\W]*return\n"
     replacement_content_validate_input_fun = f"def validate_input(self, definition: smi.ValidationDefinition):\n        {input_name}_handler.validate_input(self, definition)\n\n"
 
     file_content = re.sub(pattern_validate_input_fun, replacement_content_validate_input_fun, file_content)
@@ -85,7 +85,7 @@ def modify_original_input_py_file(addon_name, input_name):
     # print(f"file_content3 = {file_content}")
 
     # Update stream_events method
-    pattern_stream_events_fun = rf"def stream_events[\w\W]*(?:\n\n)"
+    pattern_stream_events_fun = r"def stream_events[\w\W]*(?:\n\n)"
     replacement_content_stream_events_fun = f"def stream_events(self, inputs: smi.InputDefinition, event_writer: smi.EventWriter):\n        {input_name}_handler.stream_events(self, inputs, event_writer)\n\n\n"
 
     file_content = re.sub(pattern_stream_events_fun, replacement_content_stream_events_fun, file_content)
