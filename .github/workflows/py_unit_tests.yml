@@ -42,6 +42,7 @@ jobs:
           with:
             pytest_results_file: "junit/test-results.xml"
             pytest_cov_file: "coverage.xml"
+            pytest_cov_failure_threshold: 40
           if: ${{ always() }}
 
         - name: Linting with Ruff
