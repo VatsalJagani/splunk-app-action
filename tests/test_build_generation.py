@@ -8,74 +8,12 @@ sys.path.insert(0, os.path.join(
 )
 
 import unittest
-from unittest.mock import patch
 
 import glob
-import shutil
 import tarfile
-from contextlib import contextmanager
 
+from .helper import setup_action_yml
 from main import main
-
-
-@contextmanager
-def setup_action_yml_work(test_app_repo,
-                            app_dir=".",
-                            use_ucc_gen="false",
-                            to_make_permission_changes="false",
-                            is_app_inspect_check="true",
-                            splunkbase_username="NONE",
-                            splunkbase_password="NONE",
-                            app_utilities="",
-                            my_github_token="NONE",
-                            current_branch="NONE",
-                            logger_log_files_prefix="NONE",
-                            logger_sourcetype="NONE"):
-
-    app_dir_path = os.path.join(os.path.dirname(__file__), "test_app_repos", test_app_repo)
-    print(f"TestIntegration.setup_action_yml_work -> app_dir_path={app_dir_path}")
-
-    # copy the app module there
-    shutil.copytree(app_dir_path, os.path.join("repodir"))
-
-    # setup inputs
-    os.environ["SPLUNK_app_dir"] = app_dir
-    os.environ["SPLUNK_use_ucc_gen"] = use_ucc_gen
-    os.environ["SPLUNK_to_make_permission_changes"] = to_make_permission_changes
-    os.environ["SPLUNK_is_app_inspect_check"] = is_app_inspect_check
-    os.environ["SPLUNK_splunkbase_username"] = splunkbase_username
-    os.environ["SPLUNK_splunkbase_password"] = splunkbase_password
-    os.environ["SPLUNK_app_utilities"] = app_utilities
-    os.environ["GITHUB_TOKEN"] = my_github_token
-    os.environ["SPLUNK_current_branch_name"] = current_branch
-    os.environ["SPLUNK_logger_log_files_prefix"] = logger_log_files_prefix
-    os.environ["SPLUNK_logger_sourcetype"] = logger_sourcetype
-
-    try:
-        yield
-    finally:
-        print("TestIntegration Cleanup after each test-case.")
-        try:
-            shutil.rmtree("repodir")
-        except:
-            pass
-
-        try:
-            shutil.rmtree("without_ucc_build")
-        except:
-            pass
-
-        try:
-            shutil.rmtree("ucc_build_dir")
-        except:
-            pass
-
-        for filename in os.listdir():
-            if filename.startswith("my_app_"):
-                if os.path.isdir(filename):
-                    shutil.rmtree(filename)
-                else:
-                    os.remove(filename)
 
 
 
@@ -128,19 +66,7 @@ def get_file_permissions(filepath):
     return file_permissions
 
 
-class TestIntegration(unittest.TestCase):
-    def setup_method(self, test_method):
-        print("TestIntegration.setup_method")
-
-        # Mock the set_env function during the test
-        patcher = patch("helpers.github_action_utils.set_env")
-        self.mock_set_env = patcher.start()
-
-        def mock_set_env(name, value):
-            print(f"Mocked set_env called with args: name={name}, value={value}")
-            os.environ[name] = value
-        self.mock_set_env.side_effect = mock_set_env
-
+class TestAppBuild(unittest.TestCase):
 
     def extract_app_build(self, tgz_file):
         # Create a temporary directory to extract the contents
@@ -191,7 +117,7 @@ class TestIntegration(unittest.TestCase):
 
 
     def test_build_1_regular(self):
-        with setup_action_yml_work("repo_1_regular_build", app_dir="my_app_1", is_app_inspect_check="false"):
+        with setup_action_yml("repo_1_regular_build", app_dir="my_app_1", is_app_inspect_check="false"):
             main()
 
             app_build_name = "my_app_1_1_1_2_1.tgz"
@@ -206,7 +132,7 @@ class TestIntegration(unittest.TestCase):
 
 
     def test_build_repo_root_as_app_dir(self):
-        with setup_action_yml_work("repo_root_as_app_dir", app_dir=".", is_app_inspect_check="false"):
+        with setup_action_yml("repo_root_as_app_dir", app_dir=".", is_app_inspect_check="false"):
             main()
 
             app_build_name = "my_app_1_1_1_2_1.tgz"
@@ -221,7 +147,7 @@ class TestIntegration(unittest.TestCase):
 
 
     def test_ucc_build_1_regular(self):
-        with setup_action_yml_work("repo_ucc_1_regular_build", app_dir="my_ta", use_ucc_gen="true", is_app_inspect_check="false"):
+        with setup_action_yml("repo_ucc_1_regular_build", app_dir="my_ta", use_ucc_gen="true", is_app_inspect_check="false"):
             main()
 
             app_build_name_pattern = "my_app_ucc_1_1_0_1_*"
@@ -248,7 +174,7 @@ class TestIntegration(unittest.TestCase):
 
 
     def test_ucc_build_repo_root_as_app_dir(self):
-        with setup_action_yml_work("repo_ucc_2_repo_root_as_app_dir", app_dir=".", use_ucc_gen="true", is_app_inspect_check="false"):
+        with setup_action_yml("repo_ucc_2_repo_root_as_app_dir", app_dir=".", use_ucc_gen="true", is_app_inspect_check="false"):
             main()
 
             app_build_name_pattern = "my_app_ucc_1_1_0_1_*"
@@ -275,7 +201,7 @@ class TestIntegration(unittest.TestCase):
 
 
     def test_file_permission_check_no_change(self):
-        with setup_action_yml_work("repo_file_permission", app_dir="my_app_2", is_app_inspect_check="false"):
+        with setup_action_yml("repo_file_permission", app_dir="my_app_2", is_app_inspect_check="false"):
             main()
 
             app_build_name = "my_app_2_1_1_2_1.tgz"
@@ -293,7 +219,7 @@ class TestIntegration(unittest.TestCase):
 
 
     def test_file_auto_change_permission(self):
-        with setup_action_yml_work("repo_file_permission", app_dir="my_app_2", to_make_permission_changes="true", is_app_inspect_check="false"):
+        with setup_action_yml("repo_file_permission", app_dir="my_app_2", to_make_permission_changes="true", is_app_inspect_check="false"):
             main()
 
             app_build_name = "my_app_2_1_1_2_1.tgz"
@@ -311,7 +237,7 @@ class TestIntegration(unittest.TestCase):
 
 
     def test_file_permission_check_no_change_2(self):
-        with setup_action_yml_work("repo_file_permission_repo_root_as_app_dir", app_dir=".", is_app_inspect_check="false"):
+        with setup_action_yml("repo_file_permission_repo_root_as_app_dir", app_dir=".", is_app_inspect_check="false"):
             main()
 
             app_build_name = "my_app_2_1_1_2_1.tgz"
@@ -329,7 +255,7 @@ class TestIntegration(unittest.TestCase):
 
 
     def test_file_auto_change_permission_2(self):
-        with setup_action_yml_work("repo_file_permission_repo_root_as_app_dir", app_dir=".", to_make_permission_changes="true", is_app_inspect_check="false"):
+        with setup_action_yml("repo_file_permission_repo_root_as_app_dir", app_dir=".", to_make_permission_changes="true", is_app_inspect_check="false"):
             main()
 
             app_build_name = "my_app_2_1_1_2_1.tgz"
@@ -347,7 +273,7 @@ class TestIntegration(unittest.TestCase):
 
 
     def test_file_permission_change_via_user_commands(self):
-        with setup_action_yml_work("repo_file_permission", app_dir="my_app_2", is_app_inspect_check="false"):
+        with setup_action_yml("repo_file_permission", app_dir="my_app_2", is_app_inspect_check="false"):
             os.environ["SPLUNK_APP_ACTION_1"] = "find . -type f -exec chmod 644 '{}' \\;"
             os.environ["SPLUNK_APP_ACTION_2"] = "find . -type f -name '*.sh' -exec chmod +x '{}' \\;"
             os.environ["SPLUNK_APP_ACTION_3"] = "find . -type d -exec chmod 755 '{}' \\;"
@@ -373,7 +299,7 @@ class TestIntegration(unittest.TestCase):
 
 
     def test_file_permission_change_via_user_commands_root_dir(self):
-        with setup_action_yml_work("repo_file_permission_repo_root_as_app_dir", app_dir=".", is_app_inspect_check="false"):
+        with setup_action_yml("repo_file_permission_repo_root_as_app_dir", app_dir=".", is_app_inspect_check="false"):
             os.environ["SPLUNK_APP_ACTION_1"] = "find . -type f -exec chmod 644 '{}' \\;"
             os.environ["SPLUNK_APP_ACTION_2"] = "find . -type f -name '*.sh' -exec chmod +x '{}' \\;"
             os.environ["SPLUNK_APP_ACTION_3"] = "find . -type d -exec chmod 755 '{}' \\;"
