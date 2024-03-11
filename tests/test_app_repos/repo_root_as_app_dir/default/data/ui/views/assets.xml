@@ -1,0 +1,94 @@
+<form version="1.1">
+  <label>Assets</label>
+  <row>
+    <panel>
+      <title>Total Assets</title>
+      <single>
+        <search>
+          <query>`ls_assets_data`  | eval id=coalesce(AssetID,id)| dedup id | stats count</query>
+          <earliest>-4h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Asset States</title>
+      <table>
+        <search>
+          <query>`ls_assets_data`  | eval id=coalesce(AssetID,id)| dedup id  | stats count by Statename</query>
+          <earliest>-4h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Agent</title>
+      <table>
+        <search>
+          <query>`ls_assets_data`  Statename=$tkn_asset_state|s$  
+| eval id=coalesce(AssetID,id) 
+| dedup id 
+| eval LsAgentVersion=if(isnull(LsAgentVersion),"No Agent",LsAgentVersion) | stats count as AssetCount by LsAgentVersion</query>
+          <earliest>-4h@m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Asset Types</title>
+      <table>
+        <search>
+          <query>`ls_assets_data`  | eval id=coalesce(AssetID,id) | dedup id | stats count by AssetTypename</query>
+          <earliest>-4h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>All Assets</title>
+      <input type="dropdown" token="tkn_asset_state">
+        <label>State</label>
+        <choice value="*">All</choice>
+        <default>*</default>
+        <fieldForLabel>State</fieldForLabel>
+        <fieldForValue>State</fieldForValue>
+        <search>
+          <query>`ls_assets_data`   | dedup Statename</query>
+          <earliest>-4h@h</earliest>
+          <latest>now</latest>
+        </search>
+      </input>
+      <table>
+        <search>
+          <query>`ls_assets_data`  Statename=$tkn_asset_state|s$  
+| eval id=coalesce(AssetID,id) 
+| dedup id 
+| rename AssetName as Name, AssetTypename as Type, Statename as State, Userdomain as Domain, AssetGroup as GroupName, IPAddress as IPAddress, Mac as MacAddress, OScode as OSVersion, Username as User, Firstseen as FirstSeen, Lastseen as LastSeen, LastChanged as LastChanged 
+| fields Name, OS, Type, State, Domain, GroupName, IPAddress, MacAddress, OSVersion, User, FirstSeen, LastSeen, LastChanged, BuildNumber, Description ,DNSName,Domain,FQDN,IPLocation,LastLsAgent,LsAgentVersion,Manufacturer,Model,Memory,Processor,Serialnumber,ServiceVersion,Version 
+| table  State,GroupName,Name, Description,IPAddress,MacAddress,FQDN,IPLocation,Domain,User,Type, OS,OSVersion,LsAgentVersion,LastLsAgent,LastSeen,LastChanged,Memory,Manufacturer,Model,Processor,Serialnumber</query>
+          <earliest>-4h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">true</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>
