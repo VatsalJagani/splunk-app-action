@@ -83,6 +83,55 @@ def setup_action_yml_work(test_app_repo,
 
 
 
+def get_file_permissions(filepath):
+    """
+    Gets the Linux permissions of a file as a string.
+
+    Args:
+        filepath (str): The path to the file for which permissions are needed.
+
+    Returns:
+        str: A string representation of the file permissions (e.g., "rwxr-xr-x").
+    """
+    try:
+        # Get file stat information
+        stat = os.stat(filepath)
+    except OSError as e:
+        # Handle potential errors (e.g., file not found, permission denied)
+        print(f"Error getting file permissions: {e}")
+        return None
+
+    # Extract permission bits using stat.st_mode
+    permissions = stat.st_mode
+
+    # Define permission character mappings for readability
+    permission_map = {
+        0: '-',  # No permission
+        1: '--x',  # Execute
+        2: '-w-',  # Write
+        3: '-wx',  # Write + Execute
+        4: 'r--',  # Read
+        5: 'r-x',  # Read + Execute
+        6: 'rw-',  # Read + Write
+        7: 'rwx'   # Read + Write + Execute
+    }
+
+    # Separate permission sets for owner, group, and others
+    owner_perms = (permissions >> 6) & 0o7  # User permissions
+    group_perms = (permissions >> 3) & 0o7  # Group permissions
+    other_perms = permissions & 0o7  # Other permissions
+
+    # Convert permission bits to characters using the map
+    owner_str = permission_map[owner_perms]
+    group_str = permission_map[group_perms]
+    other_str = permission_map[other_perms]
+
+    # Combine permission strings for owner, group, and others
+    file_permissions = f"{owner_str}{group_str}{other_str}"
+
+    return file_permissions
+
+
 class TestIntegration(unittest.TestCase):
     def setup_method(self, test_method):
         print("TestIntegration.setup_method")
@@ -125,11 +174,11 @@ class TestIntegration(unittest.TestCase):
                 # Print relative paths of files
                 for file in files:
                     relative_path = os.path.relpath(os.path.join(root, file), extract_dir)
-                    print("DEBUG: File:", relative_path)
+                    # print("DEBUG: File:", relative_path)
                     all_files.append(relative_path)
 
-            print("DEBUG: Total Files:", file_count)
-            print("DEBUG: Total Folders:", folder_count)
+            # print("DEBUG: Total Files:", file_count)
+            # print("DEBUG: Total Folders:", folder_count)
             # print(f"All Files: {all_files}")
             return file_count, folder_count, all_files
 
@@ -228,3 +277,74 @@ class TestIntegration(unittest.TestCase):
             assert all("my_app_ucc_1/globalConfig.json" not in s for s in all_files), "'globalConfig.json' file shouldn't be in the root of the App."
             assert all("additional_packaging.py" not in s for s in all_files), "'additional_packaging.py' file shouldn't be part of the App build."
 
+
+    def test_file_permission_check_no_change(self):
+        with setup_action_yml_work("repo_file_permission", app_dir="my_app_2", is_app_inspect_check="false"):
+            main()
+
+            app_build_name = "my_app_2_1_1_2_1.tgz"
+            assert os.path.isfile(app_build_name)
+
+            file_count, folder_count, all_files = self.extract_app_build(app_build_name)
+            assert "my_app_2/bin/file1.sh" in all_files
+            assert get_file_permissions("my_app_2/bin/file1.sh") == "rwxr-xr-x"
+            assert "my_app_2/bin/file2.sh" in all_files
+            assert get_file_permissions("my_app_2/bin/file2.sh") == "rw-r--r--"
+            assert "my_app_2/bin/file3.txt" in all_files
+            assert get_file_permissions("my_app_2/bin/file3.txt") == "rwxr-xr-x"
+            assert "my_app_2/bin/file4.txt" in all_files
+            assert get_file_permissions("my_app_2/bin/file4.txt") == "rw-r--r--"
+
+
+    def test_file_auto_change_permission(self):
+        with setup_action_yml_work("repo_file_permission", app_dir="my_app_2", to_make_permission_changes="true", is_app_inspect_check="false"):
+            main()
+
+            app_build_name = "my_app_2_1_1_2_1.tgz"
+            assert os.path.isfile(app_build_name)
+
+            file_count, folder_count, all_files = self.extract_app_build(app_build_name)
+            assert "my_app_2/bin/file1.sh" in all_files
+            assert get_file_permissions("my_app_2/bin/file1.sh") == "rwxr-xr-x"
+            assert "my_app_2/bin/file2.sh" in all_files
+            assert get_file_permissions("my_app_2/bin/file2.sh") == "rwxr-xr-x"
+            assert "my_app_2/bin/file3.txt" in all_files
+            assert get_file_permissions("my_app_2/bin/file3.txt") == "rw-r--r--"
+            assert "my_app_2/bin/file4.txt" in all_files
+            assert get_file_permissions("my_app_2/bin/file4.txt") == "rw-r--r--"
+
+
+    def test_file_permission_check_no_change_2(self):
+        with setup_action_yml_work("repo_file_permission_repo_root_as_app_dir", app_dir=".", is_app_inspect_check="false"):
+            main()
+
+            app_build_name = "my_app_2_1_1_2_1.tgz"
+            assert os.path.isfile(app_build_name)
+
+            file_count, folder_count, all_files = self.extract_app_build(app_build_name)
+            assert "my_app_2/bin/file1.sh" in all_files
+            assert get_file_permissions("my_app_2/bin/file1.sh") == "rwxr-xr-x"
+            assert "my_app_2/bin/file2.sh" in all_files
+            assert get_file_permissions("my_app_2/bin/file2.sh") == "rw-r--r--"
+            assert "my_app_2/bin/file3.txt" in all_files
+            assert get_file_permissions("my_app_2/bin/file3.txt") == "rwxr-xr-x"
+            assert "my_app_2/bin/file4.txt" in all_files
+            assert get_file_permissions("my_app_2/bin/file4.txt") == "rw-r--r--"
+
+
+    def test_file_auto_change_permission_2(self):
+        with setup_action_yml_work("repo_file_permission_repo_root_as_app_dir", app_dir=".", to_make_permission_changes="true", is_app_inspect_check="false"):
+            main()
+
+            app_build_name = "my_app_2_1_1_2_1.tgz"
+            assert os.path.isfile(app_build_name)
+
+            file_count, folder_count, all_files = self.extract_app_build(app_build_name)
+            assert "my_app_2/bin/file1.sh" in all_files
+            assert get_file_permissions("my_app_2/bin/file1.sh") == "rwxr-xr-x"
+            assert "my_app_2/bin/file2.sh" in all_files
+            assert get_file_permissions("my_app_2/bin/file2.sh") == "rwxr-xr-x"
+            assert "my_app_2/bin/file3.txt" in all_files
+            assert get_file_permissions("my_app_2/bin/file3.txt") == "rw-r--r--"
+            assert "my_app_2/bin/file4.txt" in all_files
+            assert get_file_permissions("my_app_2/bin/file4.txt") == "rw-r--r--"
