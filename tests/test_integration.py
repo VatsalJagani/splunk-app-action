@@ -9,7 +9,6 @@ sys.path.insert(0, os.path.join(
 
 import unittest
 from unittest.mock import patch
-import pytest
 
 import os
 import sys
@@ -18,7 +17,6 @@ import tarfile
 from contextlib import contextmanager
 
 from main import main
-from helpers.github_action_utils import set_env
 
 
 @contextmanager
