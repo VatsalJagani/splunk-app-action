@@ -190,7 +190,7 @@ class TestIntegration(unittest.TestCase):
 
             file_count, folder_count, all_files = self.extract_app_build(app_build_name)
             assert folder_count == 57
-            assert file_count == 300
+            assert file_count == 362
             assert "my_app_ucc_1/default/app.conf" in all_files
             assert "my_app_ucc_1/appserver/static/js/build/globalConfig.json" in all_files
             assert "my_app_ucc_1/lib/splunklib/client.py" in all_files
@@ -217,7 +217,7 @@ class TestIntegration(unittest.TestCase):
 
             file_count, folder_count, all_files = self.extract_app_build(app_build_name)
             assert folder_count == 57
-            assert file_count == 300
+            assert file_count == 362
             assert "my_app_ucc_1/default/app.conf" in all_files
             assert "my_app_ucc_1/appserver/static/js/build/globalConfig.json" in all_files
             assert "my_app_ucc_1/lib/splunklib/client.py" in all_files
