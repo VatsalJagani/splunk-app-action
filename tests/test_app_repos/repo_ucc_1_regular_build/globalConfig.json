@@ -1,0 +1,378 @@
+{
+    "pages": {
+        "configuration": {
+            "tabs": [
+                {
+                    "name": "account",
+                    "table": {
+                        "actions": [
+                            "edit",
+                            "delete",
+                            "clone"
+                        ],
+                        "header": [
+                            {
+                                "label": "Name",
+                                "field": "name"
+                            },
+                            {
+                                "field": "url",
+                                "label": "URL"
+                            },
+                            {
+                                "field": "client_id",
+                                "label": "Client ID"
+                            }
+                        ]
+                    },
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Account Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique name for the account.",
+                            "required": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "URL",
+                            "field": "url",
+                            "required": true,
+                            "help": "TODO - Add URL to fetch data from."
+                        },
+                        {
+                            "type": "text",
+                            "label": "Client Id",
+                            "field": "client_id",
+                            "required": true,
+                            "help": "Enter the Client Id for this account."
+                        },
+                        {
+                            "type": "text",
+                            "label": "Client Secret",
+                            "field": "client_secret",
+                            "encrypted": true,
+                            "required": true,
+                            "help": "Enter the Client Secret key for this account."
+                        }
+                    ],
+                    "title": "Accounts"
+                },
+                {
+                    "name": "logging",
+                    "entity": [
+                        {
+                            "type": "singleSelect",
+                            "label": "Log level",
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "DEBUG",
+                                        "label": "DEBUG"
+                                    },
+                                    {
+                                        "value": "INFO",
+                                        "label": "INFO"
+                                    },
+                                    {
+                                        "value": "WARN",
+                                        "label": "WARN"
+                                    },
+                                    {
+                                        "value": "ERROR",
+                                        "label": "ERROR"
+                                    },
+                                    {
+                                        "value": "CRITICAL",
+                                        "label": "CRITICAL"
+                                    }
+                                ]
+                            },
+                            "defaultValue": "INFO",
+                            "field": "loglevel"
+                        }
+                    ],
+                    "title": "Logging"
+                }
+            ],
+            "title": "Configuration",
+            "description": "Set up your add-on"
+        },
+        "inputs": {
+            "services": [
+                {
+                    "name": "my_input",
+                    "restHandlerModule": "addon_helper",
+                    "restHandlerClass": "InputHelperRestHandler",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique name for the data input.",
+                            "required": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be an integer.",
+                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$"
+                                }
+                            ],
+                            "defaultValue": "300",
+                            "field": "interval",
+                            "help": "Time interval of the data input, in seconds.",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account to use",
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Account to use for this input.",
+                            "field": "account",
+                            "required": true
+                        },
+                        {
+                            "field": "index",
+                            "label": "Index",
+                            "type": "singleSelect",
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes",
+                                "createSearchChoice": true,
+                                "denyList": "^_.*$"
+                            },
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 80,
+                                    "errorMsg": "Length of index name should be between 1 and 80."
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Start Date",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Invalid date and time format",
+                                    "pattern": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}z)?$"
+                                }
+                            ],
+                            "field": "start_date",
+                            "help": "The datetime after which to query and start indexing data, in this format: \"YYYY-MM-DDThh:mm:ss.000z\".\nDefaults to 30 days earlier from now.",
+                            "tooltip": "Changing this parameter may result in gaps or duplication in data collection.",
+                            "required": false
+                        }
+                    ],
+                    "title": "My Input Data"
+                },
+                {
+                    "name": "my_input2",
+                    "restHandlerModule": "addon_helper",
+                    "restHandlerClass": "InputHelperRestHandler",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique name for the data input.",
+                            "required": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be an integer.",
+                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$"
+                                }
+                            ],
+                            "defaultValue": "300",
+                            "field": "interval",
+                            "help": "Time interval of the data input, in seconds.",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account to use",
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Account to use for this input.",
+                            "field": "account",
+                            "required": true
+                        },
+                        {
+                            "field": "index",
+                            "label": "Index",
+                            "type": "singleSelect",
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes",
+                                "createSearchChoice": true,
+                                "denyList": "^_.*$"
+                            },
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 80,
+                                    "errorMsg": "Length of index name should be between 1 and 80."
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Start Date",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Invalid date and time format",
+                                    "pattern": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}z)?$"
+                                }
+                            ],
+                            "field": "start_date",
+                            "help": "The datetime after which to query and start indexing data, in this format: \"YYYY-MM-DDThh:mm:ss.000z\".\nDefaults to 30 days earlier from now.",
+                            "tooltip": "Changing this parameter may result in gaps or duplication in data collection.",
+                            "required": false
+                        }
+                    ],
+                    "title": "My Input2 Data"
+                }
+            ],
+            "title": "Inputs",
+            "description": "Manage your data inputs",
+            "table": {
+                "actions": [
+                    "edit",
+                    "enable",
+                    "delete",
+                    "clone"
+                ],
+                "header": [
+                    {
+                        "label": "Name",
+                        "field": "name"
+                    },
+                    {
+                        "label": "Input Type",
+                        "field": "serviceTitle"
+                    },
+                    {
+                        "label": "Interval",
+                        "field": "interval"
+                    },
+                    {
+                        "label": "Index",
+                        "field": "index"
+                    },
+                    {
+                        "label": "Status",
+                        "field": "disabled"
+                    }
+                ],
+                "moreInfo": [
+                    {
+                        "label": "Name",
+                        "field": "name"
+                    },
+                    {
+                        "label": "Input Type ID",
+                        "field": "serviceName"
+                    },
+                    {
+                        "label": "Input Type Title",
+                        "field": "serviceTitle"
+                    },
+                    {
+                        "label": "Interval",
+                        "field": "interval"
+                    },
+                    {
+                        "label": "Index",
+                        "field": "index"
+                    },
+                    {
+                        "label": "Status",
+                        "field": "disabled",
+                        "mapping": {
+                            "true": "Disabled",
+                            "false": "Enabled"
+                        }
+                    }
+                ]
+            }
+        },
+        "dashboard": {
+            "panels": [
+                {
+                    "name": "addon_version"
+                },
+                {
+                    "name": "events_ingested_by_sourcetype"
+                },
+                {
+                    "name": "errors_in_the_addon"
+                }
+            ]
+        }
+    },
+    "meta": {
+        "name": "my_app_ucc_1",
+        "restRoot": "my_app_ucc_1",
+        "version": "1.0.1",
+        "displayName": "My UCC App-1",
+        "schemaVersion": "0.0.3"
+    }
+}
