@@ -106,7 +106,7 @@ def main():
             "Error in SplunkBase Build Generator or App Inspect Checks: {}".format(e))
         utils.error(traceback.format_exc())
 
-        sys.exit(1)
+        sys.exit(5)
         # Failure in build generation or App Inspect means failure for Workflow
 
 
