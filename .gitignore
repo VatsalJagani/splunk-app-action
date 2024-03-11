@@ -11,4 +11,5 @@ junit
 
 repodir
 without_ucc_build
+ucc_build_dir
 my_app_*

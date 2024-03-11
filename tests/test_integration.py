@@ -10,8 +10,7 @@ sys.path.insert(0, os.path.join(
 import unittest
 from unittest.mock import patch
 
-import os
-import sys
+import glob
 import shutil
 import tarfile
 from contextlib import contextmanager
@@ -71,7 +70,7 @@ def setup_action_yml_work(test_app_repo,
             pass
 
         try:
-            shutil.rmtree("with_ucc_build")
+            shutil.rmtree("ucc_build_dir")
         except:
             pass
 
@@ -126,11 +125,12 @@ class TestIntegration(unittest.TestCase):
                 # Print relative paths of files
                 for file in files:
                     relative_path = os.path.relpath(os.path.join(root, file), extract_dir)
-                    # print("File:", relative_path)
+                    print("DEBUG: File:", relative_path)
                     all_files.append(relative_path)
 
-            # print("Total Files:", file_count)
-            # print("Total Folders:", folder_count)
+            print("DEBUG: Total Files:", file_count)
+            print("DEBUG: Total Folders:", folder_count)
+            # print(f"All Files: {all_files}")
             return file_count, folder_count, all_files
 
         finally:
@@ -173,3 +173,58 @@ class TestIntegration(unittest.TestCase):
             assert "my_app_1/static/appIconAlt.png" in all_files
             assert "my_app_1/default/data/ui/views/assets.xml" in all_files
             assert "my_app_1/default/app.conf" in all_files
+
+
+    def test_ucc_build_1_regular(self):
+        with setup_action_yml_work("repo_ucc_1_regular_build", app_dir="my_ta", use_ucc_gen="true", is_app_inspect_check="false"):
+            main()
+
+            app_build_name_pattern = "my_app_ucc_1_1_0_1_*"
+            app_build_files = glob.glob(app_build_name_pattern)
+
+            if not app_build_files or len(app_build_files) <= 0:
+                assert f"No app build with name {app_build_name_pattern} found."
+
+            app_build_name = app_build_files[0]
+            assert os.path.isfile(app_build_name)
+
+            file_count, folder_count, all_files = self.extract_app_build(app_build_name)
+            assert folder_count == 57
+            assert file_count == 300
+            assert "my_app_ucc_1/default/app.conf" in all_files
+            assert "my_app_ucc_1/appserver/static/js/build/globalConfig.json" in all_files
+            assert "my_app_ucc_1/lib/splunklib/client.py" in all_files
+            assert "my_app_ucc_1/default/data/ui/views/inputs.xml" in all_files
+            assert "my_app_ucc_1/bin/api.py" in all_files
+            assert "my_app_ucc_1/bin/my_input.py" in all_files
+            assert all("package/" not in s for s in all_files), "'package' folder should not be present in folder structure of the build."
+            assert all("my_app_ucc_1/globalConfig.json" not in s for s in all_files), "'globalConfig.json' file shouldn't be in the root of the App."
+            assert all("additional_packaging.py" not in s for s in all_files), "'additional_packaging.py' file shouldn't be part of the App build."
+
+
+    def test_ucc_build_repo_root_as_app_dir(self):
+        with setup_action_yml_work("repo_ucc_2_repo_root_as_app_dir", app_dir=".", use_ucc_gen="true", is_app_inspect_check="false"):
+            main()
+
+            app_build_name_pattern = "my_app_ucc_1_1_0_1_*"
+            app_build_files = glob.glob(app_build_name_pattern)
+
+            if not app_build_files or len(app_build_files) <= 0:
+                assert f"No app build with name {app_build_name_pattern} found."
+
+            app_build_name = app_build_files[0]
+            assert os.path.isfile(app_build_name)
+
+            file_count, folder_count, all_files = self.extract_app_build(app_build_name)
+            assert folder_count == 57
+            assert file_count == 300
+            assert "my_app_ucc_1/default/app.conf" in all_files
+            assert "my_app_ucc_1/appserver/static/js/build/globalConfig.json" in all_files
+            assert "my_app_ucc_1/lib/splunklib/client.py" in all_files
+            assert "my_app_ucc_1/default/data/ui/views/inputs.xml" in all_files
+            assert "my_app_ucc_1/bin/api.py" in all_files
+            assert "my_app_ucc_1/bin/my_input.py" in all_files
+            assert all("package/" not in s for s in all_files), "'package' folder should not be present in folder structure of the build."
+            assert all("my_app_ucc_1/globalConfig.json" not in s for s in all_files), "'globalConfig.json' file shouldn't be in the root of the App."
+            assert all("additional_packaging.py" not in s for s in all_files), "'additional_packaging.py' file shouldn't be part of the App build."
+
