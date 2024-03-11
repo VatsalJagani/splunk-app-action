@@ -1,12 +1,4 @@
-import os, sys
-
-# path to be added -> /<this-repo>/tests/src
-sys.path.insert(0, os.path.join(
-    os.path.dirname(os.path.dirname(__file__)),
-    'src'
-    )
-)
-
+import os
 import pytest
 from helpers.git_manager import get_file_hash, get_folder_hash, get_multi_files_hash
 
