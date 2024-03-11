@@ -15,7 +15,7 @@ from app_utilities import SplunkAppUtilities
 
 
 
-if __name__ == "__main__":
+def main():
     utils.info("Running Python script main.py")
 
     app_dir_input = utils.get_input('app_dir')
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     GlobalVariables.set_app_version(app_version)
     # For yml file to artifact build and app-inspect report
     utils.set_env("app_package_id", GlobalVariables.APP_PACKAGE_ID)
-    utils.set_env("app_version_encoded", GlobalVariables.APP_BUILD_NUMBER_ENCODED)
+    utils.set_env("app_version_encoded", GlobalVariables.APP_VERSION_ENCODED)
 
 
     app_build_dir_name = None
@@ -61,7 +61,6 @@ if __name__ == "__main__":
     if use_ucc_gen:
         app_build_dir_name = ucc_gen.build()
         utils.info("ucc-gen command Completed.")
-        # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
 
     else:
         app_build_dir_name = "without_ucc_build"
@@ -77,7 +76,7 @@ if __name__ == "__main__":
 
     # For yml file to artifact build and app-inspect report
     app_build_number = splunk_app_details.fetch_app_build_number_from_app_conf(
-        app_build_dir_path
+        app_conf_file_path = os.path.join(app_build_dir_path, 'default', 'app.conf')
     )
     GlobalVariables.set_app_build_number(app_build_number)
     utils.set_env("app_build_number_encoded", GlobalVariables.APP_BUILD_NUMBER_ENCODED)
@@ -86,7 +85,6 @@ if __name__ == "__main__":
     try:
         app_write_dir = os.path.join(GlobalVariables.ORIGINAL_APP_DIR_PATH, 'package') if use_ucc_gen else GlobalVariables.ORIGINAL_APP_DIR_PATH
         SplunkAppUtilities(app_read_dir=app_build_dir_path, app_write_dir=app_write_dir)
-        # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
         utils.info("SplunkAppUtilities completed.")
     except Exception as e:
         utils.error("Error Adding Splunk App Utilities: {}".format(e))
@@ -98,12 +96,10 @@ if __name__ == "__main__":
         build_path = app_build_generate.generate_build(app_build_dir_name, app_build_dir_path)
 
         utils.info("generate_build Completed.")
-        # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
 
         # Run App Inspect
         SplunkAppInspect(build_path).run_all_checks()
         utils.info("SplunkAppInspect Completed.")
-        # utils.list_files(utils.CommonDirPaths.MAIN_DIR)   # TODO - FOR TEST ONLY
 
     except Exception as e:
         utils.error(
@@ -112,3 +108,7 @@ if __name__ == "__main__":
 
         sys.exit(1)
         # Failure in build generation or App Inspect means failure for Workflow
+
+
+if __name__ == "__main__":
+    main()

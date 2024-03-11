@@ -3,6 +3,7 @@ import os
 import re
 import hashlib
 import helpers.github_action_utils as utils
+from helpers.global_variables import GlobalVariables
 
 
 def get_file_hash(file_path):
@@ -69,7 +70,7 @@ class GitHubPR:
         if self.is_test:
             return
 
-        os.chdir(utils.CommonDirPaths.MAIN_DIR)
+        os.chdir(GlobalVariables.ROOT_DIR_PATH)
 
 
     @staticmethod

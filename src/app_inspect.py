@@ -65,7 +65,7 @@ class SplunkAppInspect:
 
         self._api_login()
 
-        os.chdir(utils.CommonDirPaths.MAIN_DIR)
+        os.chdir(GlobalVariables.ROOT_DIR_PATH)
 
 
     def _api_login(self):

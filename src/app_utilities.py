@@ -1,6 +1,7 @@
 
 import os
 import helpers.github_action_utils as utils
+from helpers.global_variables import GlobalVariables
 from utilities.whats_inside_app import WhatsInsideTheAppUtility
 from utilities.logger import LoggerUtility
 from utilities.splunk_sdk_python import SplunkPythonSDKUtility
@@ -21,7 +22,7 @@ class SplunkAppUtilities:
             app_utilities = app_utilities.split(',')
             app_utilities = [u.strip() for u in app_utilities]
 
-        os.chdir(utils.CommonDirPaths.MAIN_DIR)
+        os.chdir(GlobalVariables.ROOT_DIR_PATH)
 
         self.add_utilities(app_utilities)
 
