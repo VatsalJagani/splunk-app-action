@@ -77,9 +77,9 @@
         ```
         - uses: VatsalJagani/splunk-app-action@v3
           env:
-            SPLUNK_APP_ACTION_1: "find . -type f -exec chmod 644 '{}' \;"
+            SPLUNK_APP_ACTION_1: "find . -type f -exec chmod 644 '{}' \\;"
             SPLUNK_APP_ACTION_2: "find . -type f -name '*.sh' -exec chmod +x '{}' \\;"
-            SPLUNK_APP_ACTION_3: "find . -type d -exec chmod 755 '{}' \;"
+            SPLUNK_APP_ACTION_3: "find . -type d -exec chmod 755 '{}' \\;"
           with:
             app_dir: "my_app"
         ```

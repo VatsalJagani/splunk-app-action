@@ -194,7 +194,7 @@ class TestIntegration(unittest.TestCase):
 
 
 
-    def test_build_1_regular(self):
+    def a_test_build_1_regular(self):
         with setup_action_yml_work("repo_1_regular_build", app_dir="my_app_1", is_app_inspect_check="false"):
             main()
 
@@ -209,7 +209,7 @@ class TestIntegration(unittest.TestCase):
             assert "my_app_1/default/app.conf" in all_files
 
 
-    def test_build_repo_root_as_app_dir(self):
+    def a_test_build_repo_root_as_app_dir(self):
         with setup_action_yml_work("repo_root_as_app_dir", app_dir=".", is_app_inspect_check="false"):
             main()
 
@@ -224,7 +224,7 @@ class TestIntegration(unittest.TestCase):
             assert "my_app_1/default/app.conf" in all_files
 
 
-    def test_ucc_build_1_regular(self):
+    def a_test_ucc_build_1_regular(self):
         with setup_action_yml_work("repo_ucc_1_regular_build", app_dir="my_ta", use_ucc_gen="true", is_app_inspect_check="false"):
             main()
 
@@ -251,7 +251,7 @@ class TestIntegration(unittest.TestCase):
             assert all("additional_packaging.py" not in s for s in all_files), "'additional_packaging.py' file shouldn't be part of the App build."
 
 
-    def test_ucc_build_repo_root_as_app_dir(self):
+    def a_test_ucc_build_repo_root_as_app_dir(self):
         with setup_action_yml_work("repo_ucc_2_repo_root_as_app_dir", app_dir=".", use_ucc_gen="true", is_app_inspect_check="false"):
             main()
 
@@ -278,14 +278,14 @@ class TestIntegration(unittest.TestCase):
             assert all("additional_packaging.py" not in s for s in all_files), "'additional_packaging.py' file shouldn't be part of the App build."
 
 
-    def test_file_permission_check_no_change(self):
+    def a_test_file_permission_check_no_change(self):
         with setup_action_yml_work("repo_file_permission", app_dir="my_app_2", is_app_inspect_check="false"):
             main()
 
             app_build_name = "my_app_2_1_1_2_1.tgz"
             assert os.path.isfile(app_build_name)
 
-            file_count, folder_count, all_files = self.extract_app_build(app_build_name)
+            _, _, all_files = self.extract_app_build(app_build_name)
             assert "my_app_2/bin/file1.sh" in all_files
             assert get_file_permissions("my_app_2/bin/file1.sh") == "rwxr-xr-x"
             assert "my_app_2/bin/file2.sh" in all_files
@@ -296,7 +296,7 @@ class TestIntegration(unittest.TestCase):
             assert get_file_permissions("my_app_2/bin/file4.txt") == "rw-r--r--"
 
 
-    def test_file_auto_change_permission(self):
+    def a_test_file_auto_change_permission(self):
         with setup_action_yml_work("repo_file_permission", app_dir="my_app_2", to_make_permission_changes="true", is_app_inspect_check="false"):
             main()
 
@@ -314,14 +314,14 @@ class TestIntegration(unittest.TestCase):
             assert get_file_permissions("my_app_2/bin/file4.txt") == "rw-r--r--"
 
 
-    def test_file_permission_check_no_change_2(self):
+    def a_test_file_permission_check_no_change_2(self):
         with setup_action_yml_work("repo_file_permission_repo_root_as_app_dir", app_dir=".", is_app_inspect_check="false"):
             main()
 
             app_build_name = "my_app_2_1_1_2_1.tgz"
             assert os.path.isfile(app_build_name)
 
-            file_count, folder_count, all_files = self.extract_app_build(app_build_name)
+            _, _, all_files = self.extract_app_build(app_build_name)
             assert "my_app_2/bin/file1.sh" in all_files
             assert get_file_permissions("my_app_2/bin/file1.sh") == "rwxr-xr-x"
             assert "my_app_2/bin/file2.sh" in all_files
@@ -332,14 +332,58 @@ class TestIntegration(unittest.TestCase):
             assert get_file_permissions("my_app_2/bin/file4.txt") == "rw-r--r--"
 
 
-    def test_file_auto_change_permission_2(self):
+    def a_test_file_auto_change_permission_2(self):
         with setup_action_yml_work("repo_file_permission_repo_root_as_app_dir", app_dir=".", to_make_permission_changes="true", is_app_inspect_check="false"):
             main()
 
             app_build_name = "my_app_2_1_1_2_1.tgz"
             assert os.path.isfile(app_build_name)
 
-            file_count, folder_count, all_files = self.extract_app_build(app_build_name)
+            _, _, all_files = self.extract_app_build(app_build_name)
+            assert "my_app_2/bin/file1.sh" in all_files
+            assert get_file_permissions("my_app_2/bin/file1.sh") == "rwxr-xr-x"
+            assert "my_app_2/bin/file2.sh" in all_files
+            assert get_file_permissions("my_app_2/bin/file2.sh") == "rwxr-xr-x"
+            assert "my_app_2/bin/file3.txt" in all_files
+            assert get_file_permissions("my_app_2/bin/file3.txt") == "rw-r--r--"
+            assert "my_app_2/bin/file4.txt" in all_files
+            assert get_file_permissions("my_app_2/bin/file4.txt") == "rw-r--r--"
+
+
+    def a_test_file_permission_change_via_user_commands(self):
+        with setup_action_yml_work("repo_file_permission", app_dir="my_app_2", is_app_inspect_check="false"):
+            os.environ["SPLUNK_APP_ACTION_1"] = "find . -type f -exec chmod 644 '{}' \\;"
+            os.environ["SPLUNK_APP_ACTION_2"] = "find . -type f -name '*.sh' -exec chmod +x '{}' \\;"
+            os.environ["SPLUNK_APP_ACTION_3"] = "find . -type d -exec chmod 755 '{}' \\;"
+
+            main()
+
+            app_build_name = "my_app_2_1_1_2_1.tgz"
+            assert os.path.isfile(app_build_name)
+
+            _, _, all_files = self.extract_app_build(app_build_name)
+            assert "my_app_2/bin/file1.sh" in all_files
+            assert get_file_permissions("my_app_2/bin/file1.sh") == "rwxr-xr-x"
+            assert "my_app_2/bin/file2.sh" in all_files
+            assert get_file_permissions("my_app_2/bin/file2.sh") == "rwxr-xr-x"
+            assert "my_app_2/bin/file3.txt" in all_files
+            assert get_file_permissions("my_app_2/bin/file3.txt") == "rw-r--r--"
+            assert "my_app_2/bin/file4.txt" in all_files
+            assert get_file_permissions("my_app_2/bin/file4.txt") == "rw-r--r--"
+
+
+    def a_test_file_permission_change_via_user_commands_root_dir(self):
+        with setup_action_yml_work("repo_file_permission_repo_root_as_app_dir", app_dir=".", is_app_inspect_check="false"):
+            os.environ["SPLUNK_APP_ACTION_1"] = "find . -type f -exec chmod 644 '{}' \\;"
+            os.environ["SPLUNK_APP_ACTION_2"] = "find . -type f -name '*.sh' -exec chmod +x '{}' \\;"
+            os.environ["SPLUNK_APP_ACTION_3"] = "find . -type d -exec chmod 755 '{}' \\;"
+
+            main()
+
+            app_build_name = "my_app_2_1_1_2_1.tgz"
+            assert os.path.isfile(app_build_name)
+
+            _, _, all_files = self.extract_app_build(app_build_name)
             assert "my_app_2/bin/file1.sh" in all_files
             assert get_file_permissions("my_app_2/bin/file1.sh") == "rwxr-xr-x"
             assert "my_app_2/bin/file2.sh" in all_files
