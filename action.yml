@@ -11,11 +11,6 @@ inputs:
     required: false
     default: "."
 
-  is_generate_build:
-    description: "Whether to generate the App Build or not."
-    required: false
-    default: true
-
   to_make_permission_changes:
     description: "Whether to apply file and folder permission changes according to Splunk App Inspect expectation before generating the build."
     required: false
@@ -38,11 +33,6 @@ inputs:
   splunkbase_password:
     description: "Password required to call the Splunkbase API for App-Inspect. Required when is_app_inspect_check is set to true. Strongly recommend to use via GitHub secrets only and specify like `{{secrets.MY_SPLUNK_PASSWORD}}`."
     required: false
-
-  app_build_path:
-    description: "Full App build path. Used only when is_generate_build is set to false."
-    required: false
-    default: "NONE"
 
   app_utilities:
     description: "Add comma separated list of utilities to use. You need to enable read and write permission for workflow to create Pull Requests. Valid options: whats_in_the_app, logger, splunk_python_sdk, common_js_utilities, ucc_additional_packaging"
@@ -92,13 +82,11 @@ runs:
         pwd
         echo "=== Inputs ==="
         echo "app_dir -> ${{inputs.app_dir}}"
-        echo "is_generate_build -> ${{inputs.is_generate_build}}"
         echo "use_ucc_gen -> ${{inputs.use_ucc_gen}}"
         echo "to_make_permission_changes -> ${{inputs.to_make_permission_changes}}"
         echo "is_app_inspect_check -> ${{inputs.is_app_inspect_check}}"
         echo "splunkbase_username -> ${{inputs.splunkbase_username}} (If using Github secret the value will be ***)"
         echo "splunkbase_password -> ${{inputs.splunkbase_password}} (If using Github secret the value will be ***)"
-        echo "app_build_path -> ${{inputs.app_build_path}}"
         echo "app_utilities -> ${{inputs.app_utilities}}"
         echo "my_github_token -> ${{inputs.my_github_token}} (If using Github secret the value will be ***)"
         echo "current_branch_name -> ${{steps.extract_branch.outputs.branch}}"
@@ -120,13 +108,11 @@ runs:
       shell: bash
       env:
         SPLUNK_app_dir: ${{inputs.app_dir}}
-        SPLUNK_is_generate_build: ${{inputs.is_generate_build}}
         SPLUNK_use_ucc_gen: ${{inputs.use_ucc_gen}}
         SPLUNK_to_make_permission_changes: ${{inputs.to_make_permission_changes}}
         SPLUNK_is_app_inspect_check: ${{inputs.is_app_inspect_check}}
         SPLUNK_splunkbase_username: ${{inputs.splunkbase_username}}
         SPLUNK_splunkbase_password: ${{inputs.splunkbase_password}}
-        SPLUNK_app_build_path: ${{inputs.app_build_path}}
         SPLUNK_app_utilities: ${{inputs.app_utilities}}
         GITHUB_TOKEN: ${{inputs.my_github_token}}
         SPLUNK_current_branch_name: ${{steps.extract_branch.outputs.branch}}

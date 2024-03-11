@@ -21,13 +21,11 @@ from main import main
 @contextmanager
 def setup_action_yml_work(test_app_repo,
                             app_dir=".",
-                            is_generate_build="true",
                             use_ucc_gen="false",
                             to_make_permission_changes="false",
                             is_app_inspect_check="true",
                             splunkbase_username="NONE",
                             splunkbase_password="NONE",
-                            app_build_path="NONE",
                             app_utilities="",
                             my_github_token="NONE",
                             current_branch="NONE",
@@ -42,13 +40,11 @@ def setup_action_yml_work(test_app_repo,
 
     # setup inputs
     os.environ["SPLUNK_app_dir"] = app_dir
-    os.environ["SPLUNK_is_generate_build"] = is_generate_build
     os.environ["SPLUNK_use_ucc_gen"] = use_ucc_gen
     os.environ["SPLUNK_to_make_permission_changes"] = to_make_permission_changes
     os.environ["SPLUNK_is_app_inspect_check"] = is_app_inspect_check
     os.environ["SPLUNK_splunkbase_username"] = splunkbase_username
     os.environ["SPLUNK_splunkbase_password"] = splunkbase_password
-    os.environ["SPLUNK_app_build_path"] = app_build_path
     os.environ["SPLUNK_app_utilities"] = app_utilities
     os.environ["GITHUB_TOKEN"] = my_github_token
     os.environ["SPLUNK_current_branch_name"] = current_branch
