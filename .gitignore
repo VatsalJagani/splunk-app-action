@@ -8,3 +8,7 @@ coverage.xml
 .pytest_cache
 htmlcov
 junit
+
+repodir
+without_ucc_build
+my_app_*

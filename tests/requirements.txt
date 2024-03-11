@@ -1,3 +1,7 @@
 pytest
 pytest-cov
 ruff
+
+# modules for pytests
+requests
+splunk-add-on-ucc-framework
