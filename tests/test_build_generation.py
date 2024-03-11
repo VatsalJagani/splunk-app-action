@@ -354,6 +354,10 @@ class TestIntegration(unittest.TestCase):
 
             main()
 
+            os.environ.pop("SPLUNK_APP_ACTION_1")
+            os.environ.pop("SPLUNK_APP_ACTION_2")
+            os.environ.pop("SPLUNK_APP_ACTION_3")
+
             app_build_name = "my_app_2_1_1_2_1.tgz"
             assert os.path.isfile(app_build_name)
 
@@ -375,6 +379,10 @@ class TestIntegration(unittest.TestCase):
             os.environ["SPLUNK_APP_ACTION_3"] = "find . -type d -exec chmod 755 '{}' \\;"
 
             main()
+
+            os.environ.pop("SPLUNK_APP_ACTION_1")
+            os.environ.pop("SPLUNK_APP_ACTION_2")
+            os.environ.pop("SPLUNK_APP_ACTION_3")
 
             app_build_name = "my_app_2_1_1_2_1.tgz"
             assert os.path.isfile(app_build_name)
