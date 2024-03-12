@@ -12,15 +12,21 @@ class BaseFileHandler:
         self.words_for_replacement: dict = words_for_replacement
 
 
+    def text_words_replacement(self, content):
+        # do words replacement for file content
+        for word, replacement in self.words_for_replacement.items():
+            content = content.replace(word, replacement)
+
+        return content
+
+
+
     def get_input_file_content(self):
         input_content = None
         with open(self.input_file_path, 'r') as fr:
             input_content = fr.read()
 
-        for word, replacement in self.words_for_replacement.items():
-            input_content = input_content.replace(word, replacement)
-
-        return input_content
+        return self.text_words_replacement(input_content)
 
 
     def create_output_directory_path_if_not_exist(self):
@@ -82,6 +88,8 @@ class FullRawFileHandler(BaseFileHandler):
 class PartRawFileHandler(BaseFileHandler):
 
     def validate_file_content(self, new_content, start_markers, end_markers, start_marker_to_add='', end_marker_to_add=''):
+        new_content = self.text_words_replacement(new_content)
+
         content = ''
         lower_content = ''
         start_index = -1
