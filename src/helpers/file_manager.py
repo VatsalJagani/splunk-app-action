@@ -45,8 +45,11 @@ class PartConfFileHandler(BaseFileHandler):
         input_parser = SplunkConfigParser(temp_file)
 
         self.create_output_directory_path_if_not_exist()
-        output_parser = SplunkConfigParser(self.output_file_path)
+        if not os.path.exists(self.output_file_path):
+            with open(self.output_file_path, 'w') as f:
+                pass   # writing empty file
 
+        output_parser = SplunkConfigParser(self.output_file_path)
         is_file_changed = output_parser.merge(input_parser)
 
         if is_file_changed:

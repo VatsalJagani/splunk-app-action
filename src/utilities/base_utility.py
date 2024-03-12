@@ -9,7 +9,9 @@ class BaseUtility:
         self.app_read_dir = app_read_dir
         self.app_write_dir = app_write_dir
 
-        with GitHubPR(app_write_dir) as github:
+
+    def add(self):
+        with GitHubPR(self.app_write_dir) as github:
             files_or_folders_updated = self.implement_utility()
             hash = None
 

@@ -60,3 +60,16 @@ def setup_action_yml(test_app_repo,
                     shutil.rmtree(filename)
                 else:
                     os.remove(filename)
+
+
+@contextmanager
+def get_temp_directory():
+    temp_dir = os.path.join(os.path.dirname(__file__), 'tempdir')
+    if not os.path.exists(temp_dir):
+        os.mkdir(temp_dir)
+
+    try:
+        yield temp_dir
+    finally:
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
