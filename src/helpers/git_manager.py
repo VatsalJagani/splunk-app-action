@@ -1,6 +1,5 @@
 
 import os
-import re
 import hashlib
 import helpers.github_action_utils as utils
 

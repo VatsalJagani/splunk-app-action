@@ -98,8 +98,21 @@ def main():
         utils.info("generate_build Completed.")
 
         # Run App Inspect
-        SplunkAppInspect(build_path).run_all_checks()
-        utils.info("SplunkAppInspect Completed.")
+        is_app_inspect_check = utils.str_to_boolean_default_true(
+            utils.get_input('is_app_inspect_check')
+        )
+        utils.info("is_app_inspect_check: {}".format(is_app_inspect_check))
+
+        if is_app_inspect_check:
+            splunkbase_username = utils.get_input('splunkbase_username')
+            splunkbase_password = utils.get_input('splunkbase_password')
+
+            SplunkAppInspect(build_path, splunkbase_username, splunkbase_password).run_all_checks()
+            utils.info("SplunkAppInspect Completed.")
+        else:
+            utils.info("Ignoring App-inspect checks.")
+            return
+
 
     except Exception as e:
         utils.error(

@@ -35,6 +35,9 @@ jobs:
             pip install -r tests/requirements.txt
 
         - name: Run Python Unit Tests
+          env:
+            SPLUNKBASE_USERNAME_FOR_TEST: ${{ secrets.SPLUNKBASE_USERNAME }}
+            SPLUNKBASE_PASSWORD_FOR_TEST: ${{ secrets.SPLUNKBASE_PASSWORD }}
           run: pytest tests --junitxml=junit/test-results.xml --cov=src --cov-config=tests/.coveragerc --cov-report=xml
 
         - name: Adding GitHub action step summary
