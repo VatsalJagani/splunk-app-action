@@ -1,6 +1,10 @@
 import os
 import pytest
-from helpers.git_manager import get_file_hash, get_folder_hash, get_multi_files_hash
+import subprocess
+
+from .helper import get_temp_git_repo, stdout_capture
+
+from helpers.git_manager import get_file_hash, get_folder_hash, get_multi_files_hash, GitHubPR
 
 
 # Use a fixture to create temporary files with known content for testing
@@ -47,3 +51,60 @@ def test_get_multi_files_hash_multiple_files(sample_file):
     file_paths = [sample_file, sample_file]  # Use the same file twice for simplicity
     expected_hash = "91405dbee0a9c47e7bc657bda7cb29a9"  # Hypothetical hash of the combined hashes
     assert get_multi_files_hash(file_paths) == expected_hash
+
+
+def test_commit_and_pr_new_branch():
+    with get_temp_git_repo() as repo_path:
+        with GitHubPR(repo_dir=repo_path) as github_pr:
+
+            # write test-file
+            with open('test_file.txt', 'w') as f:
+                f.write('This is test file')
+
+            # Call the commit_and_pr method
+            github_pr.commit_and_pr('my_hash')
+
+            # Check that a new branch was created but no pull request was created
+            output = subprocess.run(['git', 'branch', '-a'], capture_output=True, text=True)
+            assert 'splunk_app_action_my_hash' in output.stdout.strip()
+
+            output = subprocess.run(['git', 'log', '--oneline', '--grep', 'splunk_app_action_my_hash'], 
+                                    capture_output=True, text=True)
+            assert 'splunk_app_action_my_hash' in output.stdout.strip()
+
+
+def test_commit_and_pr_new_branch_no_change():
+    with get_temp_git_repo() as repo_path:
+        with GitHubPR(repo_dir=repo_path) as github_pr:
+
+            with stdout_capture() as captured_stdout:
+                # calling without any file change
+                github_pr.commit_and_pr('my_hash')
+
+                # Get the captured output
+                output = captured_stdout.getvalue()
+                assert 'CMD=git commit -m "splunk_app_action_my_hash", ReturnCode=1' in output.strip()
+
+            # Check that a new branch was created but no pull request was created
+            output = subprocess.run(['git', 'branch', '-a'], capture_output=True, text=True)
+            assert 'splunk_app_action_my_hash' in output.stdout.strip()
+
+            output = subprocess.run(['git', 'log', '--oneline', '--grep', 'splunk_app_action_my_hash'], 
+                                    capture_output=True, text=True)
+            assert output.stdout.strip() == ""
+
+
+def test_commit_and_pr_existing_branch():
+    with get_temp_git_repo() as repo_path:
+        with GitHubPR(repo_dir=repo_path) as github_pr:
+            # Create a branch with the same name as the one we will try to create
+            subprocess.run(['git', 'checkout', '-b', 'splunk_app_action_my_hash'], check=True)
+
+            with stdout_capture() as captured_stdout:
+                # calling without any file change
+                github_pr.commit_and_pr('my_hash')
+
+                # Get the captured output
+                output = captured_stdout.getvalue()
+                assert "Branch already present." in output.strip() or \
+                    "a branch named 'splunk_app_action_my_hash' already exists" in output.strip()

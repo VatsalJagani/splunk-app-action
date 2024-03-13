@@ -3,7 +3,6 @@ import os
 import re
 import hashlib
 import helpers.github_action_utils as utils
-from helpers.global_variables import GlobalVariables
 
 
 def get_file_hash(file_path):
@@ -39,13 +38,11 @@ class GitHubPR:
     CURRENT_BRANCH_NAME = None
     IS_GIT_CONFIGURED = False
 
-    def __init__(self, repo_dir, is_test=False) -> None:
-        self.is_test = is_test
-
+    def __init__(self, repo_dir) -> None:
         os.chdir(repo_dir)
 
-        GitHubPR.configure_git(is_test)
-        GitHubPR.set_current_branch(is_test)
+        GitHubPR.configure_git()
+        GitHubPR.set_current_branch()
 
 
     def _reset_the_git_repo(self):
@@ -59,50 +56,26 @@ class GitHubPR:
 
 
     def __enter__(self):
-        if self.is_test:
-            return self
-
         self._reset_the_git_repo()
         return self
 
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.is_test:
-            return
-
-        os.chdir(GlobalVariables.ROOT_DIR_PATH)
+        pass   # do nothing as part of cleanup
 
 
     @staticmethod
-    def set_current_branch(is_test):
-        if is_test:
-            return
-
+    def set_current_branch():
         if GitHubPR.CURRENT_BRANCH_NAME:
             return
 
-        utils.info("Finding current branch for the repo on which GitHub action is being executed.")
-
-        _current_branch_name_input = utils.get_input('current_branch_name')
-        if _current_branch_name_input and _current_branch_name_input != "NONE":
-            GitHubPR.CURRENT_BRANCH_NAME = _current_branch_name_input
-        else:
-            ret_code, output = utils.execute_system_command(
-                "git remote show origin")
-            match = re.search(
-                r"HEAD branch:\s*([^\n]+)", output)
-            utils.info(f"branch found: {match.group(1)}")
-            GitHubPR.CURRENT_BRANCH_NAME = match.group(1)
-
+        GitHubPR.CURRENT_BRANCH_NAME = utils.get_input('current_branch_name')
         utils.info("current_branch_name: {}".format(
             GitHubPR.CURRENT_BRANCH_NAME))
 
 
     @staticmethod
-    def configure_git(is_test):
-        if is_test:
-            return
-
+    def configure_git():
         if GitHubPR.IS_GIT_CONFIGURED:
             return
 
@@ -151,9 +124,6 @@ class GitHubPR:
 
 
     def commit_and_pr(self, hash):
-        if self.is_test:
-            return
-
         new_branch = 'splunk_app_action_{}'.format(hash)
         utils.info("Branch Name: {}".format(new_branch))
 

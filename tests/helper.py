@@ -1,5 +1,8 @@
 import os
+import sys
+import io
 import shutil
+import subprocess
 from contextlib import contextmanager
 
 @contextmanager
@@ -73,3 +76,56 @@ def get_temp_directory():
     finally:
         if os.path.exists(temp_dir):
             shutil.rmtree(temp_dir)
+
+
+@contextmanager
+def get_temp_git_repo(current_branch="my_current_branch"):
+    temp_dir = os.path.join(os.path.dirname(__file__), 'temprepo')
+    if not os.path.exists(temp_dir):
+        os.mkdir(temp_dir)
+
+    original_pwd = os.getcwd()
+
+    os.chdir(temp_dir)
+
+    os.environ["GITHUB_TOKEN"] = "this_is_my_github_token"
+    os.environ["SPLUNK_current_branch_name"] = current_branch
+
+    # Initialize a git repository
+    subprocess.run(['git', 'init'], check=True)
+    subprocess.run(['git', 'config', 'user.name', 'Test User'], check=True)
+    subprocess.run(['git', 'config', 'user.email', 'test@example.com'], check=True)
+
+    # Create some initial files and commit them
+    with open('file1.txt', 'w') as f:
+        f.write('Initial content')
+    subprocess.run(['git', 'add', 'file1.txt'], check=True)
+    subprocess.run(['git', 'commit', '-m', 'Initial commit'], check=True)
+
+    # Create a branch
+    subprocess.run(['git', 'checkout', '-b', current_branch], check=True)
+
+    try:
+        yield temp_dir
+    finally:
+        del os.environ["GITHUB_TOKEN"]
+        del os.environ["SPLUNK_current_branch_name"]
+
+        os.chdir(original_pwd)  # go back to original directory
+
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
+
+
+
+@contextmanager
+def stdout_capture():
+    # Redirect stdout to a StringIO object
+    captured_output = io.StringIO()
+    sys.stdout = captured_output
+
+    try:
+        yield captured_output
+    finally:
+        # Reset stdout to its original value
+        sys.stdout = sys.__stdout__
