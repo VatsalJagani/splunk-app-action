@@ -57,5 +57,5 @@ patcher_app_inspect_login = patch("app_inspect.SplunkAppInspect._api_login")
 mock_app_inspect_login = patcher_app_inspect_login.start()
 
 def mock_app_inspect_login_fn():
-    print(f"Mocked app_inspect.SplunkAppInspect._app_inspect_login called.")
+    print("Mocked app_inspect.SplunkAppInspect._app_inspect_login called.")
 mock_app_inspect_login.side_effect = mock_app_inspect_login_fn
