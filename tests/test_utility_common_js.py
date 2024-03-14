@@ -93,4 +93,4 @@ def test_implement_utility_file_not_updated():
         common_js_utilities_file = CommonJSUtilitiesFile(input_file_path, temp_dir)
         result = common_js_utilities_file.implement_utility()
 
-        assert result == None
+        assert result is None

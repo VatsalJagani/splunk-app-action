@@ -59,4 +59,4 @@ def test_implement_utility_file_not_updated():
         utilities_file = UCCAdditionalPackagingUtility(input_file_path, os.path.join(temp_dir, "my_app"))
         result = utilities_file.implement_utility()
 
-        assert result == None
+        assert result is None
