@@ -49,3 +49,13 @@ mock_github_reset_the_git_repo = patcher_github_reset_the_git_repo.start()
 def mock_github_reset_the_git_repo_fn():
     print("Mocked git_manager.GitHubPR._reset_the_git_repo called.")
 mock_github_reset_the_git_repo.side_effect = mock_github_reset_the_git_repo_fn
+
+
+
+# Mock the App Inspect API related function _api_login
+patcher_app_inspect_login = patch("app_inspect.SplunkAppInspect._api_login")
+mock_app_inspect_login = patcher_app_inspect_login.start()
+
+def mock_app_inspect_login_fn():
+    print(f"Mocked app_inspect.SplunkAppInspect._app_inspect_login called.")
+mock_app_inspect_login.side_effect = mock_app_inspect_login_fn

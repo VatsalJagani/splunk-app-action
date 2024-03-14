@@ -53,7 +53,7 @@ UNINSTALL ADD-ON
 -------------
 1. SSH to the Splunk instance.
 2. Navigate to apps ($SPLUNK_HOME/etc/apps).
-3. Remove the `app_inspect_pass` folder from the `apps` directory.
+3. Remove the `my_app_inspect_pass` folder from the `apps` directory.
 4. Restart Splunk.
 
 
