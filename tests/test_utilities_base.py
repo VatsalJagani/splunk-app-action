@@ -60,6 +60,6 @@ class TestBaseUtility(unittest.TestCase):
                 assert "Unable to get hash to generate PR for app utility." in output
 
 
-    # def test_implement_utility_not_implemented(self):
-    #     with self.assertRaises(NotImplementedError):
-    #         self.base_utility.implement_utility()
+    def test_implement_utility_not_implemented(self):
+        with self.assertRaises(NotImplementedError):
+            self.base_utility.implement_utility()
