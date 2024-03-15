@@ -29,12 +29,14 @@ class TestBaseUtility(unittest.TestCase):
                 output = stdout.getvalue()
                 assert "Committing and creating PR for the code change." in output
 
-    # @patch('helpers.git_manager.get_folder_hash', return_value='hash')
-    # @patch('helpers.git_manager.GitHubPR')
-    # def test_add_folder_changed(self, mock_github_pr, mock_get_folder_hash):
-    #     with patch.object(self.base_utility, 'implement_utility', return_value='/path/to/updated_folder'):
-    #         self.base_utility.add()
-    #         mock_github_pr.commit_and_pr.assert_called_once_with(hash='hash')
+    @patch('helpers.git_manager.GitHubPR')
+    def test_add_folder_changed(self, mock_github_pr):
+        folder_path = os.path.join(os.path.dirname(__file__), "dummy_utility_files")
+        with patch.object(self.base_utility, 'implement_utility', return_value=folder_path):
+            with stdout_capture() as stdout:
+                self.base_utility.add()
+                output = stdout.getvalue()
+                assert "Committing and creating PR for the code change." in output
 
     # @patch('helpers.git_manager.get_multi_files_hash', return_value='hash')
     # @patch('helpers.git_manager.GitHubPR')
