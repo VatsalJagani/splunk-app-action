@@ -2,14 +2,14 @@
 *.pyc
 __pycache__
 /src/utilities/logger/props.conf_temp
-/tests2
-/.coverage
-/coverage.xml
-/.pytest_cache
-/htmlcov
-/junit
 
-/repodir
-/without_ucc_build
-/ucc_build_dir
-/my_app_*
+# /.coverage
+# /coverage.xml
+# /.pytest_cache
+# /htmlcov
+# /junit
+
+# /repodir
+# /without_ucc_build
+# /ucc_build_dir
+# /my_app_*

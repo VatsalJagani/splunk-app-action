@@ -6,7 +6,6 @@ from .helper import stdout_capture
 from utilities.base_utility import BaseUtility
 
 
-
 class TestBaseUtility(unittest.TestCase):
 
     def setUp(self):
@@ -14,11 +13,13 @@ class TestBaseUtility(unittest.TestCase):
         self.app_write_dir = os.path.join(os.path.dirname(__file__), 'test_app_repos')
         self.base_utility = BaseUtility(self.app_read_dir, self.app_write_dir)
 
+
     @patch('helpers.git_manager.GitHubPR')
     def test_add_no_change(self, mock_github_pr):
         with patch.object(self.base_utility, 'implement_utility', return_value=None):
             self.base_utility.add()
             mock_github_pr.assert_not_called()
+
 
     @patch('helpers.git_manager.GitHubPR')
     def test_add_single_file_changed(self, mock_github_pr):
