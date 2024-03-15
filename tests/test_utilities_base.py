@@ -53,8 +53,12 @@ class TestBaseUtility(unittest.TestCase):
     @patch('helpers.git_manager.GitHubPR')
     def test_add_invalid_file(self, mock_github_pr):
         with patch.object(self.base_utility, 'implement_utility', return_value='/path/to/invalid_file'):
-            with self.assertRaises(Exception):
+            with stdout_capture() as stdout:
                 self.base_utility.add()
+                output = stdout.getvalue()
+                assert "File to generate hash is invalid." in output
+                assert "Unable to get hash to generate PR for app utility." in output
+
 
     # def test_implement_utility_not_implemented(self):
     #     with self.assertRaises(NotImplementedError):

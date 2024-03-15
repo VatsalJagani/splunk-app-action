@@ -28,7 +28,7 @@ class BaseUtility:
                 elif os.path.isdir(files_or_folders_updated):
                     hash = get_folder_hash(files_or_folders_updated)
                 else:
-                    utils.error("File to generate has is invalid.")
+                    utils.error("File to generate hash is invalid.")
 
             if hash:
                 utils.debug("Committing and creating PR for the code change.")
