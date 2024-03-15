@@ -1,14 +1,5 @@
-import os, sys
-
-# path to be added -> /<this-repo>/tests/src
-sys.path.insert(0, os.path.join(
-    os.path.dirname(os.path.dirname(__file__)),
-    'src'
-    )
-)
-
+import os
 import unittest
-
 
 from helpers.splunk_config_parser import SplunkConfigParser, FILE_SECTION, DEFAULT_SETTING, GLOBAL_SETTING
 

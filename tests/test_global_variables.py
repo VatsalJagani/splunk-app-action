@@ -1,13 +1,4 @@
-
-import os, sys
-
-# path to be added -> /<this-repo>/tests/src
-sys.path.insert(0, os.path.join(
-    os.path.dirname(os.path.dirname(__file__)),
-    'src'
-    )
-)
-
+import os
 from helpers.global_variables import GlobalVariables
 
 def test_initiate_valid_args():

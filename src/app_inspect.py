@@ -22,17 +22,9 @@ class SplunkAppInspect:
     HTML_RESPONSE_URL = "{}/report".format(BASE_URL)
 
 
-    def __init__(self, app_build_path) -> None:
-        self.is_app_inspect_check = utils.str_to_boolean_default_true(
-            utils.get_input('is_app_inspect_check'))
-        utils.info("is_app_inspect_check: {}".format(
-            self.is_app_inspect_check))
-        if not self.is_app_inspect_check:
-            utils.info("Ignoring App-inspect checks.")
-            return
-
-        self.splunkbase_username = utils.get_input('splunkbase_username')
-        self.splunkbase_password = utils.get_input('splunkbase_password')
+    def __init__(self, app_build_path, splunkbase_username, splunkbase_password) -> None:
+        self.splunkbase_username = splunkbase_username
+        self.splunkbase_password = splunkbase_password
 
         if not self.splunkbase_username:
             msg = "splunkbase_username input is not provided."
@@ -65,7 +57,7 @@ class SplunkAppInspect:
 
         self._api_login()
 
-        os.chdir(utils.CommonDirPaths.MAIN_DIR)
+        os.chdir(GlobalVariables.ROOT_DIR_PATH)
 
 
     def _api_login(self):
@@ -233,8 +225,6 @@ class SplunkAppInspect:
 
     def run_all_checks(self):
         utils.info("Running the Splunk App inspect check.")
-        if not self.is_app_inspect_check:
-            return
 
         thread_app_inspect = Thread(target=self._perform_app_inspect_check)
         thread_app_inspect.start()

@@ -35,17 +35,18 @@ jobs:
             pip install -r tests/requirements.txt
 
         - name: Run Python Unit Tests
+          env:
+            SPLUNKBASE_USERNAME_FOR_TEST: ${{ secrets.SPLUNKBASE_USERNAME }}
+            SPLUNKBASE_PASSWORD_FOR_TEST: ${{ secrets.SPLUNKBASE_PASSWORD }}
           run: pytest tests --junitxml=junit/test-results.xml --cov=src --cov-config=tests/.coveragerc --cov-report=xml
 
         - name: Adding GitHub action step summary
-          uses: VatsalJagani/pytest-cov-action@v0.5
+          uses: VatsalJagani/pytest-cov-action@v0.6
           with:
             pytest_results_file: "junit/test-results.xml"
             pytest_cov_file: "coverage.xml"
-            pytest_cov_failure_threshold: 40
           if: ${{ always() }}
 
         - name: Linting with Ruff
-          run: ruff check --ignore=E721,E722,E401 --output-format=github .
+          run: ruff check --ignore=E721,E722,E401 --output-format=github --exclude=tests/test_app_repos . 
           # continue-on-error: true   # need to remove this later on to catch the errors anf fail the workflow on linting errors
-  

@@ -9,7 +9,9 @@ class BaseUtility:
         self.app_read_dir = app_read_dir
         self.app_write_dir = app_write_dir
 
-        with GitHubPR(app_write_dir) as github:
+
+    def add(self):
+        with GitHubPR(self.app_write_dir) as github:
             files_or_folders_updated = self.implement_utility()
             hash = None
 
@@ -26,9 +28,10 @@ class BaseUtility:
                 elif os.path.isdir(files_or_folders_updated):
                     hash = get_folder_hash(files_or_folders_updated)
                 else:
-                    utils.error("File to generate has is invalid.")
+                    utils.error("File to generate hash is invalid.")
 
             if hash:
+                utils.debug("Committing and creating PR for the code change.")
                 github.commit_and_pr(hash=hash)
             else:
                 utils.error(

@@ -1,11 +1,3 @@
-import os, sys
-
-# path to be added -> /<this-repo>/tests/src
-sys.path.insert(0, os.path.join(
-    os.path.dirname(os.path.dirname(__file__)),
-    'src'
-    )
-)
 
 from helpers.github_action_utils import str_to_boolean_default_false, str_to_boolean_default_true
 

@@ -77,9 +77,9 @@
         ```
         - uses: VatsalJagani/splunk-app-action@v3
           env:
-            SPLUNK_APP_ACTION_1: "find . -type f -exec chmod 644 '{}' \;"
+            SPLUNK_APP_ACTION_1: "find . -type f -exec chmod 644 '{}' \\;"
             SPLUNK_APP_ACTION_2: "find . -type f -name '*.sh' -exec chmod +x '{}' \\;"
-            SPLUNK_APP_ACTION_3: "find . -type d -exec chmod 755 '{}' \;"
+            SPLUNK_APP_ACTION_3: "find . -type d -exec chmod 755 '{}' \\;"
           with:
             app_dir: "my_app"
         ```
@@ -212,11 +212,6 @@ def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_w
 * required: false
 * default: ".", meaning root folder of the repository.
 
-#### is_generate_build
-* description: "Whether to generate the App Build or not."
-* required: false
-* default: true
-
 #### to_make_permission_changes
 * description: "Whether to apply file and folder permission changes according to Splunk App Inspect expectation before generating the build."
 * Before you add this parameter, read the instruction from [Avoid File and Folder Permission Issue on Your App Build](#-Avoid-File-and-Folder-Permission-Issue-on-Your-App-Build) section.
@@ -239,10 +234,6 @@ def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_w
 
 #### splunkbase_password
 * description: "Password required to call the Splunkbase API for App-Inspect. Required when is_app_inspect_check is set to true. Strongly recommend to use via GitHub secrets only and specify like `{{secrets.MY_SPLUNK_PASSWORD}}`."
-* required: false
-
-#### app_build_path
-* description: "Full App build path. Used only when is_generate_build is set to false."
 * required: false
 
 #### app_utilities
@@ -290,6 +281,8 @@ def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_w
 * `to_make_permission_changes` parameter's default value has been changed to `false`. Refer to `Avoid File and Folder Permission Issue on Your App Build` for more details.
     * Automatic file permission changes now also add executable permissions to following file extensions, `.msi`, `.exe`, `.cmd`, `.bat`, along with `.sh`.
 
+* The input parameters `is_generate_build` and `app_build_path` has been removed.
+
 
 ### (IN PROGRESS) Upgrade Guide from v3 to v4
 * From `v4` of the `splunk-app-action`, your user-defined custom command (Refer to `Running User Defined Commands Before Generating the final App Build` section) would run in a context of your App's folder instead of root folder.
@@ -314,6 +307,8 @@ def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_w
         * because this command would now run in context of your App's directory.
 
 * `to_make_permission_changes` - default value has been changed to `false` from `true`. This means if you were to apply file and folder permission changes automatically, you have to explicitly add this parameter to your workflow. Refer to `Avoid File and Folder Permission Issue on Your App Build` for more details.
+
+* The input parameters `is_generate_build` and `app_build_path` has been removed from GitHub action from `v4` onwards, hence if you are using them then migrate the action config properly before version update.
 
 
 ### v3

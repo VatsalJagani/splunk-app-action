@@ -22,14 +22,14 @@ def file_folder_permission_changes():
     if to_make_permission_changes:
         # Permission Changes
         utils.execute_system_command(
-            "find . -type f -exec chmod 644 '{}' \;")
+            "find . -type f -exec chmod 644 '{}' \\;")
 
         for file_ext in [".sh", ".exe", ".cmd", ".msi", ".bat"]:
             utils.execute_system_command(
-                f"find . -type f -name '*{file_ext}' -exec chmod 755 '{{}}' \;")
+                f"find . -type f -name '*{file_ext}' -exec chmod 755 '{{}}' \\;")
 
         utils.execute_system_command(
-            "find . -type d -exec chmod 755 '{}' \;")
+            "find . -type d -exec chmod 755 '{}' \\;")
 
 
 def run_custom_user_defined_commands():
@@ -46,24 +46,15 @@ def run_custom_user_defined_commands():
 def generate_build(app_build_dir_name, app_build_dir_path):
     utils.info(f"Generating the app build., app_dir_path={app_build_dir_path}, app_package_id={GlobalVariables.APP_PACKAGE_ID}, app_version_encoded={GlobalVariables.APP_VERSION_ENCODED}, app_build_number_encoded={GlobalVariables.APP_BUILD_NUMBER_ENCODED}")
 
-    is_generate_build = utils.str_to_boolean_default_true(
-        utils.get_input('is_generate_build'))
-    utils.info("is_generate_build: {}".format(is_generate_build))
-
-    direct_app_build_path = utils.get_input('app_build_path')
-    utils.info("app_build_path: {}".format(direct_app_build_path))
-
-    if not is_generate_build:
-        return direct_app_build_path
-
     os.chdir(GlobalVariables.ROOT_DIR_PATH)
     utils.execute_system_command(
             f'mv {app_build_dir_name} {GlobalVariables.APP_PACKAGE_ID}')
-    os.chdir(GlobalVariables.APP_PACKAGE_ID)
 
+    os.chdir(GlobalVariables.APP_PACKAGE_ID)
     remove_unwanted_files()
     run_custom_user_defined_commands()
     file_folder_permission_changes()
+    os.chdir(GlobalVariables.ROOT_DIR_PATH)
 
     # Generate Build
     build_name = f"{GlobalVariables.APP_PACKAGE_ID}_{GlobalVariables.APP_VERSION_ENCODED}_{GlobalVariables.APP_BUILD_NUMBER_ENCODED}.tgz"

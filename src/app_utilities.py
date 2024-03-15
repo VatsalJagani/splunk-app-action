@@ -1,6 +1,7 @@
 
 import os
 import helpers.github_action_utils as utils
+from helpers.global_variables import GlobalVariables
 from utilities.whats_inside_app import WhatsInsideTheAppUtility
 from utilities.logger import LoggerUtility
 from utilities.splunk_sdk_python import SplunkPythonSDKUtility
@@ -21,7 +22,7 @@ class SplunkAppUtilities:
             app_utilities = app_utilities.split(',')
             app_utilities = [u.strip() for u in app_utilities]
 
-        os.chdir(utils.CommonDirPaths.MAIN_DIR)
+        os.chdir(GlobalVariables.ROOT_DIR_PATH)
 
         self.add_utilities(app_utilities)
 
@@ -33,16 +34,16 @@ class SplunkAppUtilities:
                 WhatsInsideTheAppUtility(self.app_read_dir, self.app_write_dir)
 
             elif utility == "logger":
-                LoggerUtility(self.app_read_dir, self.app_write_dir)
+                LoggerUtility(self.app_read_dir, self.app_write_dir).add()
 
             elif utility == "splunk_python_sdk":
-                SplunkPythonSDKUtility(self.app_read_dir, self.app_write_dir)
+                SplunkPythonSDKUtility(self.app_read_dir, self.app_write_dir).add()
 
             elif utility == "common_js_utilities":
-                CommonJSUtilitiesFile(self.app_read_dir, self.app_write_dir)
+                CommonJSUtilitiesFile(self.app_read_dir, self.app_write_dir).add()
 
             elif utility == "ucc_additional_packaging":
-                UCCAdditionalPackagingUtility(self.app_read_dir, self.app_write_dir)
+                UCCAdditionalPackagingUtility(self.app_read_dir, self.app_write_dir).add()
 
             else:
                 utils.error("utility={} is not supported.".format(utility))
