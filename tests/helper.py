@@ -129,3 +129,14 @@ def stdout_capture():
     finally:
         # Reset stdout to its original value
         sys.stdout = sys.__stdout__
+
+
+@contextmanager
+def setup_temporary_env_vars(vars):
+    for name, value in vars.items():
+        os.environ[name] = value
+    try:
+        yield
+    finally:
+        for name, value in vars.items():
+            del os.environ[name]
