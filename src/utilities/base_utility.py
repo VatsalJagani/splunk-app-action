@@ -25,6 +25,7 @@ class BaseUtility:
             else:
                 if os.path.isfile(files_or_folders_updated):
                     hash = get_file_hash(files_or_folders_updated)
+                    print(f"hash = {hash}")
                 elif os.path.isdir(files_or_folders_updated):
                     hash = get_folder_hash(files_or_folders_updated)
                 else:
