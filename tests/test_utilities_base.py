@@ -34,7 +34,7 @@ class TestBaseUtility(unittest.TestCase):
         with patch.object(self.base_utility, 'implement_utility', return_value=file_path):
             self.base_utility.add()
             # mock_get_file_hash.assert_called_once_with('/path/to/updated_file.txt')
-            mock_github_pr.commit_and_pr.assert_called_once_with(hash='hash')
+            mock_github_pr.commit_and_pr.assert_called_once_with(hash='900150983cd24fb0d6963f7d28e17f72')
 
     # @patch('helpers.git_manager.get_folder_hash', return_value='hash')
     # @patch('helpers.git_manager.GitHubPR')
