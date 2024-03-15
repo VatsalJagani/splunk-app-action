@@ -50,11 +50,11 @@ class TestBaseUtility(unittest.TestCase):
                 assert "Committing and creating PR for the code change." in output
 
 
-    # @patch('helpers.git_manager.GitHubPR')
-    # def test_add_invalid_file(self, mock_github_pr):
-    #     with patch.object(self.base_utility, 'implement_utility', return_value='/path/to/invalid_file'):
-    #         with self.assertRaises(Exception):
-    #             self.base_utility.add()
+    @patch('helpers.git_manager.GitHubPR')
+    def test_add_invalid_file(self, mock_github_pr):
+        with patch.object(self.base_utility, 'implement_utility', return_value='/path/to/invalid_file'):
+            with self.assertRaises(Exception):
+                self.base_utility.add()
 
     # def test_implement_utility_not_implemented(self):
     #     with self.assertRaises(NotImplementedError):
