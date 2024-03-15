@@ -1,12 +1,8 @@
 import os
-from contextlib import contextmanager
-from unittest.mock import patch
 from .helper import get_temp_directory, setup_temporary_env_vars
 
 from utilities.logger import LoggerUtility
 
-
-# UTILITIES_FOLDER_PATH = os.path.join(os.path.dirname(__file__), os.path.pardir, 'src', 'utilities', 'common_splunk_js_utilities')
 
 
 def test_logger_utility_skipped_due_to_missing_prefix_1():
