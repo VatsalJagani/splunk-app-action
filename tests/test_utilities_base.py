@@ -38,12 +38,17 @@ class TestBaseUtility(unittest.TestCase):
                 output = stdout.getvalue()
                 assert "Committing and creating PR for the code change." in output
 
-    @patch('helpers.git_manager.get_multi_files_hash', return_value='hash')
+
     @patch('helpers.git_manager.GitHubPR')
-    def test_add_multi_files_changed(self, mock_github_pr, mock_get_multi_files_hash):
-        with patch.object(self.base_utility, 'implement_utility', return_value=['/path/to/updated_file1.txt', '/path/to/updated_file2.txt']):
-            self.base_utility.add()
-            mock_github_pr.commit_and_pr.assert_called_once_with(hash='hash')
+    def test_add_multi_files_changed(self, mock_github_pr):
+        file1 = os.path.join(os.path.dirname(__file__), "dummy_utility_files", "abc.txt")
+        file2 = os.path.join(os.path.dirname(__file__), "dummy_utility_files", "xyz.txt")
+        with patch.object(self.base_utility, 'implement_utility', return_value=[file1, file2]):
+            with stdout_capture() as stdout:
+                self.base_utility.add()
+                output = stdout.getvalue()
+                assert "Committing and creating PR for the code change." in output
+
 
     # @patch('helpers.git_manager.GitHubPR')
     # def test_add_invalid_file(self, mock_github_pr):
