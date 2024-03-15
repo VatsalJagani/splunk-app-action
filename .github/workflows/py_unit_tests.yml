@@ -24,7 +24,9 @@ jobs:
         - uses: actions/checkout@v4
 
         - name: Set up Python
-          uses: actions/setup-python@v4
+          uses: actions/setup-python@v5
+          with:
+            python-version: '3.11'
 
         - name: Display Python version
           run: python -c "import sys; print(sys.version)"
@@ -33,6 +35,10 @@ jobs:
           run: |
             python -m pip install --upgrade pip
             pip install -r tests/requirements.txt
+
+        - name: Linting with Ruff
+          run: ruff check --ignore=E721,E722,E401 --output-format=github --exclude=tests/test_app_repos --exclude=repodir/tests/test_app_repos . 
+          # continue-on-error: true   # to ignore ruff errors
 
         - name: Run Python Unit Tests
           env:
@@ -46,7 +52,3 @@ jobs:
             pytest_results_file: "junit/test-results.xml"
             pytest_cov_file: "coverage.xml"
           if: ${{ always() }}
-
-        - name: Linting with Ruff
-          run: ruff check --ignore=E721,E722,E401 --output-format=github --exclude=tests/test_app_repos . 
-          # continue-on-error: true   # need to remove this later on to catch the errors anf fail the workflow on linting errors
