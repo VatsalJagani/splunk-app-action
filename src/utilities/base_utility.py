@@ -25,13 +25,13 @@ class BaseUtility:
             else:
                 if os.path.isfile(files_or_folders_updated):
                     hash = get_file_hash(files_or_folders_updated)
-                    print(f"hash = {hash}")
                 elif os.path.isdir(files_or_folders_updated):
                     hash = get_folder_hash(files_or_folders_updated)
                 else:
                     utils.error("File to generate has is invalid.")
 
             if hash:
+                utils.debug("Committing and creating PR for the code change.")
                 github.commit_and_pr(hash=hash)
             else:
                 utils.error(
