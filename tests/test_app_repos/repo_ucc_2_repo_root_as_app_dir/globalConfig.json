@@ -51,7 +51,7 @@
                             "label": "URL",
                             "field": "url",
                             "required": true,
-                            "help": "TODO - Add URL to fetch data from."
+                            "help": "Add URL to fetch data from."
                         },
                         {
                             "type": "text",

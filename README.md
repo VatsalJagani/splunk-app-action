@@ -24,13 +24,14 @@ graph TD
   H --> |Yes| I(Build Successful)
   H --> |No| J(Build Failed - App-Inspect Errors)
 
-  I --> K([Optionally: Add App Utilities])
+  I --> K{Is Add App Utilities?}
   J --> K
-  K --> L{Any changes to code?}
-  L --> |Yes| M([Pull Request Created])
 
-  L --> |No| N([Build Artifacts Created])
-  M --> N
+  K --> |Yes| L([Adding App Utilities])
+  L --> M{Any changes to code?}
+  M --> |Yes| N([Pull Request Created])
+  M --> |No| O([Build Artifacts Created])
+  N --> O
 ```
 
 
@@ -306,7 +307,7 @@ def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_w
 
 ## Release Notes
 
-### (IN PROGRESS) v4
+### v4
 * Run the user-defined commands in the context of your App's root directory instead of Repo's root directory. Refer to `Running User Defined Commands Before Generating the final App Build` for more details.
 
 * `to_make_permission_changes` parameter's default value has been changed to `false`. Refer to `Avoid File and Folder Permission Issue on Your App Build` for more details.
@@ -315,7 +316,7 @@ def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_w
 * The input parameters `is_generate_build` and `app_build_path` has been removed.
 
 
-### (IN PROGRESS) Upgrade Guide from v3 to v4
+### Upgrade Guide from v3 to v4
 * From `v4` of the `splunk-app-action`, your user-defined custom command (Refer to `Running User Defined Commands Before Generating the final App Build` section) would run in a context of your App's folder instead of root folder.
     * So you need to change the code from this:
         ```

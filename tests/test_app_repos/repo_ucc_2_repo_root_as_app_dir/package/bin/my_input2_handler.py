@@ -12,7 +12,7 @@ class MyInput1Input(AddonInput):
     def collect(self, account_details, last_checkpoint):
         api = API(self.logger, self, account_details, self.proxy_settings)
 
-        _start_date = self.input_item.get("start_date") if self.input_item.get("start_date") else "1999/01/01"  # TODO - need to set proper default value
+        _start_date = self.input_item.get("start_date") if self.input_item.get("start_date") else "1999/01/01"
 
         ckpt = MyInput2Checkpoint(self.logger, account_details.url, _start_date)
         ckpt.read(last_checkpoint)

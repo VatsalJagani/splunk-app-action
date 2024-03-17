@@ -18,7 +18,7 @@ class API:
         self.input_item = addon_input.input_item
         self.account_details = account_details
         self.proxy_settings = proxy_settings
-        self.verify = False   # TODO - need to add this to UI if needed, for Splunkbase App Inspect
+        self.verify = False
 
         self.logger.debug(f"Account Details: {account_details}")
         self.base_url = account_details.url
@@ -34,7 +34,7 @@ class API:
         self.logger.debug(f"HTTP request. data={data}")
 
         try:
-            response = requests.request(method, full_url, params=params, json=data, headers=headers, proxies=self.proxy_settings, verify=self.verify, timeout=280)   # TODO - add timeout as global variable
+            response = requests.request(method, full_url, params=params, json=data, headers=headers, proxies=self.proxy_settings, verify=self.verify, timeout=280)
             status_code = response.status_code
 
             self.logger.info("HTTP response. URL={}: status_code={}".format(full_url, status_code))
