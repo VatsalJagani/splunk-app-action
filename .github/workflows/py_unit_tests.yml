@@ -50,5 +50,5 @@ jobs:
           uses: VatsalJagani/pytest-cov-action@v1
           with:
             pytest_results_file: "junit/test-results.xml"
-            # pytest_cov_file: "coverage.xml"
+            pytest_cov_file: "coverage.xml"
           if: ${{ always() }}
