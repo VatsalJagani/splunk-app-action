@@ -32,6 +32,8 @@ graph TD
   M --> |Yes| N([Pull Request Created])
   M --> |No| O([Build Artifacts Created])
   N --> O
+
+  K --> |No| O
 ```
 
 
