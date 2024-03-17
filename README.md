@@ -5,13 +5,38 @@
 * It also works in Private Repositories on GitHub.
 
 
+
+## Flow Diagram (What does this GitHub action do?)
+
+graph LR
+  A[Start] --> B{Push to GitHub}
+  B --> C{**Action Triggered**}
+  C --> D{Generate Build}
+    D --> E{Use UCC Gen? (Yes)}
+      E --> F{ucc-gen build}
+    D --> E{No}
+  C --> F --> G{App Inspect Check}
+    G --> H{Passes? (Yes)}
+      H --> I{**Build Successful**}
+    G --> H{No}
+      H --> J{**Build Failed (App-Inspect Errors)**}
+  C --> F --> K{Run User Defined Commands? (Yes)}
+    K --> L{Execute User Commands}
+  C --> F --> K{No}
+  F --> M{**Build Artifacts Created**}
+  M --> N{**Optionally:** Utilities (e.g., update README)}
+    N --> O{**Pull Request Created** (if enabled)}
+  M --> O
+
+
+
 ## Capabilities & Usage
 
 * You can get more information about GitHub workflow files [here](https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions). As this document will not go in detail about it.
 
 
 ### Generate Splunk App/Add-on Build artifact
-* The action automatically generates build artifact from github repo.
+* The action automatically generates build artifact from GitHub repo.
 
 ```
 - uses: VatsalJagani/splunk-app-action@v3
@@ -33,7 +58,7 @@
         app_dir: "my_splunk_add-on"
     ```
 
-* Supports Add-on build with UCC Generator
+* Supports Add-on build with **UCC Add-on Generator**
     * With `ucc-gen build` command.
     * Reference - [https://splunk.github.io/addonfactory-ucc-generator/](https://splunk.github.io/addonfactory-ucc-generator/)
     * The `app_dir` folder must have a sub-folder named `package`, and a file named `globalConfig.json` for this to work.
@@ -51,6 +76,7 @@
 * #### Avoid File and Folder Permission Issue on Your App Build
     * **NOTE** - This might break your App.
         * Avoid this parameter if your App has executable files other than `.sh` and `.exe`.
+        * Alternatively you can use `Running User Defined Commands Before Generating the final App Build` section here to see how you can assign right permission for your App/Add-on.
     * You can add `to_make_permission_changes: true` parameter to fix the issues with file and folder permissions to avoid App-inspect check automatically.
         ```
         - uses: VatsalJagani/splunk-app-action@v3
@@ -103,7 +129,7 @@
 
 ### Run App-Inspect (with Splunkbase API)
 * It runs app-inspect with Splunkbase API.
-    * Past Story: I've tried to use CLI version of the App-inspect check, I've also tried to use github action with CLI version from Splunk, but all fails as they are always way behind the Splunkbase API. Hence you end up failing the checks when you try to upload a new version of Splunkbase.
+    * Past Story: I've tried to use CLI version of the App-inspect check, I've also tried to use GitHub action with CLI version from Splunk, but all fails as they are always way behind the Splunkbase API. Hence you end up failing the checks when you try to upload a new version of Splunkbase.
 * This is the automation of Splunkbase API or postman version of App-inspect checks.
 * Fails the GitHub workflow if there is failure or error in App-inspect check or Cloud checks.
 
