@@ -1,5 +1,5 @@
-name: "Run Splunk App Inspect Check"
-description: "Splunk App build generation and App-inspect checks with API automatically on change."
+name: "Generate App Build, App Inspect Check and Splunk App Utilities"
+description: "Github Action to automatically generate Splunk App and Add-on builds, run app-inspect checks (with the App-Inspect/Splunkbase API) on commit/push etc on GitHub repo. It also performs Splunk cloud checks. Optionally add common Splunk App utilities."
 
 branding:
   color: "purple"
