@@ -9,24 +9,24 @@
 ## Flow Diagram (What does this GitHub action do?)
 
 ```mermaid
-graph LR
-  A[Start] --> B{Push to GitHub}
-  B --> C{**Action Triggered**}
-  C --> D{Generate Build}
-    D --> E{Use UCC Gen? (Yes)}
-      E --> F{ucc-gen build}
+graph TD
+  A[Start] --> B([Push to GitHub])
+  B --> C>Action Triggered]
+  C --> D([Generate Build])
+    D --> E{Use UCC Gen? - Yes}
+      E --> F([ucc-gen build])
     D --> E{No}
-  C --> F --> G{App Inspect Check}
-    G --> H{Passes? (Yes)}
-      H --> I{**Build Successful**}
+  C --> F --> G([App Inspect Check])
+    G --> H{Passes? - Yes}
+      H --> I(**Build Successful**)
     G --> H{No}
-      H --> J{**Build Failed (App-Inspect Errors)**}
-  C --> F --> K{Run User Defined Commands? (Yes)}
-    K --> L{Execute User Commands}
+      H --> J(**Build Failed - App-Inspect Errors**)
+  C --> F --> K{Run User Defined Commands? - Yes}
+    K --> L([Execute User Commands])
   C --> F --> K{No}
-  F --> M{**Build Artifacts Created**}
-  M --> N{**Optionally:** Utilities (e.g., update README)}
-    N --> O{**Pull Request Created** (if enabled)}
+  F --> M([**Build Artifacts Created**])
+  M --> N([**Optionally:** App Utilities])
+    N --> O([**Pull Request Created**])
   M --> O
 ```
 
