@@ -8,6 +8,7 @@
 
 ## Flow Diagram (What does this GitHub action do?)
 
+```mermaid
 graph LR
   A[Start] --> B{Push to GitHub}
   B --> C{**Action Triggered**}
@@ -27,6 +28,7 @@ graph LR
   M --> N{**Optionally:** Utilities (e.g., update README)}
     N --> O{**Pull Request Created** (if enabled)}
   M --> O
+```
 
 
 
