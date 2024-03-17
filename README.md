@@ -214,7 +214,7 @@ def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_w
 
 #### to_make_permission_changes
 * description: "Whether to apply file and folder permission changes according to Splunk App Inspect expectation before generating the build."
-* Before you add this parameter, read the instruction from [Avoid File and Folder Permission Issue on Your App Build](#-Avoid-File-and-Folder-Permission-Issue-on-Your-App-Build) section.
+* Before you add this parameter, read the instruction from [Avoid File and Folder Permission Issue on Your App Build](#avoid-file-and-folder-permission-issue-on-your-app-build) section.
 * required: false
 * default: false
 
@@ -239,7 +239,7 @@ def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_w
 #### app_utilities
 * description: "Add comma separated list of utilities to use. You need to enable read and write permission for workflow to create Pull Requests. Valid options: whats_in_the_app, logger, splunk_python_sdk, common_js_utilities, ucc_additional_packaging"
 * required: false
-* default: "", meaning no utilities
+* default: "" (meaning no utilities)
 
 #### my_github_token
 * description: "GitHub Secret Token to automatically create Pull request. (Make sure to put it in the Repo secret on GitHub as `MY_GITHUB_TOKEN` and then use it like `{{ secrets.MY_GITHUB_TOKEN }}`. Do not write it in plain text.) Only required if app_utilities is being used."
@@ -323,6 +323,7 @@ def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_w
 ### v2
 * Fix Splunk App Inspect Failure due to file permission issue. The App/Add-on build process automatically fixes that.
 * App utilities added: `whats_in_the_app` (information to be added to README file about no. of alerts, dashboards, etc), `logger` (Python logger file and props.conf configs for the internal logs), `splunk_python_sdk` (Automatically upgrade Splunklib Python SDK), `common_js_utilities` (Common JS utilities file)
+
 
 ### v1
 * GitHub App action created for Splunk Apps.
