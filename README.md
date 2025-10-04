@@ -1,4 +1,4 @@
-# Create a GitHub Action Using JavaScript
+# Github Action for Splunk App
 
 [![GitHub Super-Linter](https://github.com/actions/javascript-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
 ![CI](https://github.com/actions/javascript-action/actions/workflows/ci.yml/badge.svg)
@@ -6,30 +6,7 @@
 [![CodeQL](https://github.com/actions/javascript-action/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/actions/javascript-action/actions/workflows/codeql-analysis.yml)
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
-Use this template to bootstrap the creation of a JavaScript action. :rocket:
-
-This template includes compilation support, tests, a validation workflow,
-publishing, and versioning guidance.
-
-If you are new, there's also a simpler introduction in the
-[Hello world JavaScript action repository](https://github.com/actions/hello-world-javascript-action).
-
-## Create Your Own Action
-
-To create your own action, you can use this repository as a template! Just
-follow the below instructions:
-
-1. Click the **Use this template** button at the top of the repository
-1. Select **Create a new repository**
-1. Select an owner and name for your new repository
-1. Click **Create repository**
-1. Clone your new repository
-
-> [!IMPORTANT]
->
-> Make sure to remove or update the [`CODEOWNERS`](./CODEOWNERS) file! For
-> details on how to use this file, see
-> [About code owners](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners).
+GitHub Action for Splunk App Related Utilities and Actions :rocket:
 
 ## Initial Setup
 
@@ -47,19 +24,36 @@ need to perform some initial setup steps before you can develop your action.
 > `.node-version` file is used by GitHub Actions in any `actions/setup-node`
 > actions.
 
-1. :hammer_and_wrench: Install the dependencies
+1. :hammer_and_wrench: Install nodenv
+
+   ```
+   brew install nodenv
+   nodenv init
+   ```
+
+   (Restart terminal)
+
+2. :hammer_and_wrench: Install right node version
+
+   ```
+   nodenv install
+   ```
+
+   (Restart terminal)
+
+3. :hammer_and_wrench: Install the dependencies
 
    ```bash
    npm install
    ```
 
-1. :building_construction: Package the JavaScript for distribution
+4. :building_construction: Package the JavaScript for distribution
 
    ```bash
    npm run bundle
    ```
 
-1. :white_check_mark: Run the tests
+5. :white_check_mark: Run the tests
 
    ```bash
    $ npm test
@@ -71,6 +65,7 @@ need to perform some initial setup steps before you can develop your action.
 
    ...
    ```
+
 
 ## Update the Action Metadata
 
