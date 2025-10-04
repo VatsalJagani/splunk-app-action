@@ -5,8 +5,7 @@ from requests.auth import HTTPBasicAuth
 from threading import Thread
 from time import sleep
 import traceback
-
-import helpers.github_action_utils as utils
+import github_action_toolkit as gat
 from helpers.global_variables import GlobalVariables
 
 
@@ -28,12 +27,12 @@ class SplunkAppInspect:
 
         if not self.splunkbase_username:
             msg = "splunkbase_username input is not provided."
-            utils.error(msg)
+            gat.error(msg)
             raise Exception(msg)
 
         if not self.splunkbase_password:
             msg = "splunkbase_password input is not provided."
-            utils.error(msg)
+            gat.error(msg)
             raise Exception(msg)
 
         self.app_build_path = app_build_path
@@ -47,7 +46,7 @@ class SplunkAppInspect:
             shutil.rmtree(self.app_inspect_report_dir)
         except Exception as e:
             # nothing to delete if folder not exist
-            utils.debug(f"No folder present nothing to be done. {e}")
+            gat.debug(f"No folder present nothing to be done. {e}")
         os.mkdir(self.app_inspect_report_dir)
 
         self.headers = None
@@ -61,19 +60,19 @@ class SplunkAppInspect:
 
 
     def _api_login(self):
-        utils.info("Creating access token.")
+        gat.info("Creating access token.")
         response = requests.request("GET", self.LOGIN_URL, auth=HTTPBasicAuth(
             self.splunkbase_username, self.splunkbase_password), data={}, timeout=TIMEOUT_MAX)
 
         if response.status_code != 200:
-            utils.error("Error while logging. status_code={}, response={}".format(
+            gat.error("Error while logging. status_code={}, response={}".format(
                 response.status_code, response.text))
             raise Exception("Unable to login to Splunkbase.")
 
         res = response.json()
         token = res['data']['token']
         user = res['data']['user']['name']
-        utils.info("Got access token for {}".format(user))
+        gat.info("Got access token for {}".format(user))
 
         self.headers = {
             'Authorization': 'bearer {}'.format(token),
@@ -108,40 +107,40 @@ class SplunkAppInspect:
              app_build_f, 'application/octet-stream'))
         ]
 
-        utils.info("App build submitting (check_type={})".format(check_type))
+        gat.info("App build submitting (check_type={})".format(check_type))
         response = requests.request(
             "POST", self.SUBMIT_URL, headers=self.headers, files=files, data=payload, timeout=TIMEOUT_MAX)
-        utils.info("App package submit (check_type={}) response: status_code={}, text={}".format(
+        gat.info("App package submit (check_type={}) response: status_code={}, text={}".format(
             check_type, response.status_code, response.text))
 
         if response.status_code != 200:
-            utils.error("Error while requesting for app-inspect check. check_type={}, status_code={}".format(
+            gat.error("Error while requesting for app-inspect check. check_type={}, status_code={}".format(
                 check_type, response.status_code))
             return "Exception"
 
         res = response.json()
         request_id = res['request_id']
-        utils.info("App package submit (check_type={}) request_id={}".format(
+        gat.info("App package submit (check_type={}) request_id={}".format(
             check_type, request_id))
 
         status = None
         # Status check
         for i in range(10):
             sleep(60)    # check every minute for updated status
-            utils.info("...")
+            gat.info("...")
             try:
                 response = requests.request("GET", "{}/{}".format(
                     self.STATUS_CHECK_URL, request_id), headers=self.headers, data={}, timeout=TIMEOUT_MAX)
             except Exception as e:
                 # continue if there is any error (specifically 10 times for timeout error)
-                utils.debug(f"No action needed. {e}")
+                gat.debug(f"No action needed. {e}")
                 continue
 
-            utils.info("App package status check (check_type={}) response: status_code={}, text={}".format(
+            gat.info("App package status check (check_type={}) response: status_code={}, text={}".format(
                 check_type, response.status_code, response.text))
 
             if response.status_code != 200:
-                utils.error("Error while requesting for app-inspect check status update. check_type={}, status_code={}".format(
+                gat.error("Error while requesting for app-inspect check status update. check_type={}, status_code={}".format(
                     check_type, response.status_code))
                 return "Exception"
 
@@ -149,12 +148,12 @@ class SplunkAppInspect:
             res_status = res['status']
 
             if res_status == 'PROCESSING':
-                utils.info(
+                gat.info(
                     "Report is processing for check_type={}".format(check_type))
                 continue
 
             # Processing completed
-            utils.info("App package status success (check_type={}) response: status_code={}, text={}".format(
+            gat.info("App package status success (check_type={}) response: status_code={}, text={}".format(
                 check_type, response.status_code, response.text))
 
             if int(res['info']['failure']) != 0:
@@ -169,11 +168,11 @@ class SplunkAppInspect:
             return "Timed-out"
 
         # HTML Report retrive
-        utils.info("Html report generating for check_type={}".format(check_type))
+        gat.info("Html report generating for check_type={}".format(check_type))
         response = requests.request("GET", "{}/{}".format(self.HTML_RESPONSE_URL,
                                                           request_id), headers=self.headers_report, data={}, timeout=TIMEOUT_MAX)
         if response.status_code != 200:
-            utils.error("Error while requesting for app-inspect check report. check_type={}, status_code={}".format(
+            gat.error("Error while requesting for app-inspect check report. check_type={}, status_code={}".format(
                 check_type, response.status_code))
             return "Exception"
 
@@ -181,50 +180,50 @@ class SplunkAppInspect:
         report_file = os.path.join(
             self.app_inspect_report_dir, report_file_name)
         with open(report_file, 'w+') as f:
-            utils.info(f"Writing the App-inspect report in file={report_file}")
+            gat.info(f"Writing the App-inspect report in file={report_file}")
             f.write(response.text)
 
         return status
 
 
     def _perform_app_inspect_check(self):
-        utils.info("Performing app-inspect checks...")
+        gat.info("Performing app-inspect checks...")
         status = "Error"
         try:
             status = self._perform_checks()
         except Exception as e:
-            utils.error("Error while checking app-inspect:{}".format(e))
-            utils.error(traceback.format_exc())
+            gat.error("Error while checking app-inspect:{}".format(e))
+            gat.error(traceback.format_exc())
             raise e
         self.app_inspect_result[0] = status
 
 
     def _perform_cloud_inspect_check(self):
-        utils.info("Performing cloud-inspect checks...")
+        gat.info("Performing cloud-inspect checks...")
         status = "Error"
         try:
             status = self._perform_checks(check_type="CLOUD_INSPECT")
         except Exception as e:
-            utils.error("Error while checking cloud-inspect:{}".format(e))
-            utils.error(traceback.format_exc())
+            gat.error("Error while checking cloud-inspect:{}".format(e))
+            gat.error(traceback.format_exc())
             raise e
         self.app_inspect_result[1] = status
 
 
     def _perform_ssai_inspect_check(self):
-        utils.info("Performing ssai-inspect checks...")
+        gat.info("Performing ssai-inspect checks...")
         status = "Error"
         try:
             status = self._perform_checks(check_type="SSAI_INSPECT")
         except Exception as e:
-            utils.error("Error while checking ssai-inspect:{}".format(e))
-            utils.error(traceback.format_exc())
+            gat.error("Error while checking ssai-inspect:{}".format(e))
+            gat.error(traceback.format_exc())
             raise e
         self.app_inspect_result[2] = status
 
 
     def run_all_checks(self):
-        utils.info("Running the Splunk App inspect check.")
+        gat.info("Running the Splunk App inspect check.")
 
         thread_app_inspect = Thread(target=self._perform_app_inspect_check)
         thread_app_inspect.start()
@@ -239,14 +238,14 @@ class SplunkAppInspect:
         thread_app_inspect.join()
         thread_cloud_inspect.join()
         thread_ssai_inspect.join()
-        utils.info(
+        gat.info(
             "All threads for Splunk App Inspect Checkes has been completed.")
 
         if all(i == "Passed" for i in self.app_inspect_result):
-            utils.info(
+            gat.info(
                 "All status [app-inspect, cloud-checks, self-service-checks]:{}".format(self.app_inspect_result))
         else:
             msg = "All status [app-inspect, cloud-checks, self-service-checks]:{}".format(
                 self.app_inspect_result)
-            utils.error(msg)
+            gat.error(msg)
             raise Exception(msg)

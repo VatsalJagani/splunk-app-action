@@ -1,8 +1,7 @@
 
 import os
 import xml.etree.ElementTree as ET
-
-import helpers.github_action_utils as utils
+import github_action_toolkit as gat
 from helpers.file_manager import PartRawFileHandler
 from helpers.splunk_config_parser import SplunkConfigParser
 from utilities.base_utility import BaseUtility
@@ -32,7 +31,7 @@ class WhatsInsideTheAppUtility(BaseUtility):
         '''
         It returns the file_path of README file when the file has been changed, otherwise None
         '''
-        utils.info("Adding WhatsInsideTheAppUtility.")
+        gat.info("Adding WhatsInsideTheAppUtility.")
 
         start_markers = ["# What's in the App", "What's in the Add-on",
                          "# What's inside the App", "# What's inside the Add-on"]
@@ -48,7 +47,7 @@ class WhatsInsideTheAppUtility(BaseUtility):
 
         file_path = self._get_readme_file_location()
         if not file_path:
-            utils.info("No Readme.md file found in the App.")
+            gat.info("No Readme.md file found in the App.")
             return
 
         is_changed = PartRawFileHandler(None, file_path).validate_file_content(
@@ -57,9 +56,9 @@ class WhatsInsideTheAppUtility(BaseUtility):
             start_marker_to_add, end_marker_to_add)
 
         if is_changed:
-            utils.info("Readme file updated for WhatsInsideTheAppUtility.")
+            gat.info("Readme file updated for WhatsInsideTheAppUtility.")
             return file_path
-        utils.info("No change in Readme file for WhatsInsideTheAppUtility.")
+        gat.info("No change in Readme file for WhatsInsideTheAppUtility.")
 
 
     def _get_conf_stanzas(self, file_path):
@@ -180,7 +179,7 @@ class WhatsInsideTheAppUtility(BaseUtility):
                         os.path.join(default_dashboards_path, df))
                     dashboards[df] = dashboard_details
 
-        # utils.info("dashboards: {}".format(dashboards))
+        # gat.info("dashboards: {}".format(dashboards))
 
         approx_total_viz = 0
         for key, val in dashboards.items():

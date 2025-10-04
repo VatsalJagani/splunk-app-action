@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 
 # Mock the set_env function during the test
-patcher_set_env = patch("helpers.github_action_utils.set_env")
+patcher_set_env = patch("github_action_toolkit.set_env")
 mock_set_env = patcher_set_env.start()
 
 def mock_set_env(name, value):

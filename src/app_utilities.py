@@ -1,6 +1,6 @@
 
 import os
-import helpers.github_action_utils as utils
+import github_action_toolkit as gat
 from helpers.global_variables import GlobalVariables
 from utilities.whats_inside_app import WhatsInsideTheAppUtility
 from utilities.logger import LoggerUtility
@@ -15,7 +15,7 @@ class SplunkAppUtilities:
         self.app_write_dir = app_write_dir
         self.is_test = is_test
         # Get Inputs
-        app_utilities = utils.get_input('app_utilities')
+        app_utilities = gat.get_user_input('app_utilities')
         if not app_utilities or app_utilities == "NONE" or app_utilities == "":
             self.app_utilities = []
         else:
@@ -28,7 +28,7 @@ class SplunkAppUtilities:
 
 
     def add_utilities(self, app_utilities):
-        utils.info(f"Adding utilities: {app_utilities}")
+        gat.info(f"Adding utilities: {app_utilities}")
         for utility in app_utilities:
             if utility == "whats_in_the_app":
                 WhatsInsideTheAppUtility(self.app_read_dir, self.app_write_dir)
@@ -46,4 +46,4 @@ class SplunkAppUtilities:
                 UCCAdditionalPackagingUtility(self.app_read_dir, self.app_write_dir).add()
 
             else:
-                utils.error("utility={} is not supported.".format(utility))
+                gat.error("utility={} is not supported.".format(utility))

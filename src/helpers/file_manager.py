@@ -1,8 +1,8 @@
 
 import os
 import pathlib
+import github_action_toolkit as gat
 from helpers.splunk_config_parser import SplunkConfigParser
-import helpers.github_action_utils as utils
 
 
 class BaseFileHandler:
@@ -76,7 +76,7 @@ class FullRawFileHandler(BaseFileHandler):
                 already_present_file_content = fr.read()
 
         if already_present_file_content != input_content:
-            utils.debug("File changed - file={}".format(self.output_file_path))
+            gat.debug("File changed - file={}".format(self.output_file_path))
             self.create_output_directory_path_if_not_exist()
             with open(self.output_file_path, 'w') as fw:
                 fw.write(input_content)
@@ -116,7 +116,7 @@ class PartRawFileHandler(BaseFileHandler):
             if end_index < 0:
                 end_index = len(lower_content) - 1
 
-            utils.debug(
+            gat.debug(
                 f"Found start_index={start_index}, end_index={end_index}")
 
             updated_content = content[:start_index] + \
