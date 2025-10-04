@@ -1,23 +1,71 @@
-name: The name of your action here
-description: Provide a description here
-author: Your name or organization here
+name: Generate App Build, App Inspect Check and Splunk App Utilities
+description: Automatically generate Splunk App/Add-on builds, and run app-inspect checks. Optionally add common Splunk App utilities.
+author: Vatsal Jagani
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: heart
-  color: red
+  icon: play
+  color: purple
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: Your input description here
-    required: true
-    default: '1000'
+  app_dir:
+    description: "Provide app directory inside your repository. Do not provide the value if the repo's root directory itself if app directory."
+    required: false
+    default: "."
+
+  to_make_permission_changes:
+    description: "Whether to apply file and folder permission changes according to Splunk App Inspect expectation before generating the build."
+    required: false
+    default: false
+
+  use_ucc_gen:
+    description: "Use ucc-gen command to generate the build for Add-on. The 'app_dir' folder must have a sub-folder named 'package', and a file named 'globalConfig.json' for this to work."
+    required: false
+    default: false
+
+  is_app_inspect_check:
+    description: "Whether to perform the Splunk app-inspect checks or not. This would include cloud-inspect checks as well."
+    required: false
+    default: true
+
+  splunkbase_username:
+    description: "Username required to call the Splunkbase API for App-Inspect. Required when is_app_inspect_check is set to true."
+    required: false
+
+  splunkbase_password:
+    description: "Password required to call the Splunkbase API for App-Inspect. Required when is_app_inspect_check is set to true. Strongly recommend to use via GitHub secrets only and specify like `{{secrets.MY_SPLUNK_PASSWORD}}`."
+    required: false
+
+  app_utilities:
+    description: "Add comma separated list of utilities to use. You need to enable read and write permission for workflow to create Pull Requests. Valid options: whats_in_the_app, logger, splunk_python_sdk, common_js_utilities, ucc_additional_packaging"
+    required: false
+    default: ""
+
+  logger_log_files_prefix:
+    description: "Log files prefix. Only required for logger utility."
+    required: false
+    default: "NONE"
+
+  logger_sourcetype:
+    description: "Sourcetype for the internal app logs. Required only for logger utility."
+    required: false
+    default: "NONE"
+
+  splunk_python_sdk_install_path:
+    description: "Path where you would like to install splunk-python-sdk (splunklib). Path is relative to App's root folder."
+    required: false
+    default: "bin"
+
+  is_remove_pyc_from_splunklib_dir:
+    description: "Remove `.pyc` files and `__pycache__` directory from splunk-python-sdk (splunklib) installation path before generating Pull Request. Do not turn this off unless you are facing any issues explicitly."
+    required: false
+    default: true
 
 # Define your outputs here.
-outputs:
-  time:
-    description: Your output description here
+# outputs:
+#   time:
+#     description: Your output description here
 
 runs:
   using: node24
