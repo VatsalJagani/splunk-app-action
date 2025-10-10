@@ -1,4 +1,4 @@
-# **github-action-toolkit**
+# **splunk-app-action**
 
 ```{toctree}
 :maxdepth: 2
@@ -15,11 +15,6 @@ usage
 :caption: Usage
 
 /usage/print_messages
-/usage/job_summary
-/usage/input_output
-/usage/event_payload
-/usage/git_manager
-/usage/github_artifacts
 ```
 
 ```{toctree}
@@ -28,8 +23,8 @@ usage
 
 CHANGELOG
 CONTRIBUTING
-License <https://raw.githubusercontent.com/VatsalJagani/github-action-toolkit-python/main/LICENSE>
-GitHub Repository <https://github.com/VatsalJagani/github-action-toolkit-python>
+License <https://raw.githubusercontent.com/VatsalJagani/splunk-app-action/main/LICENSE>
+GitHub Repository <https://github.com/VatsalJagani/splunk-app-action>
 ```
 
 

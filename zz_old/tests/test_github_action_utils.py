@@ -1,3 +1,10 @@
+# pyright: reportPrivateUsage=false
+# pyright: reportUnusedVariable=false
+# pyright: reportUnusedParameter=false
+# pyright: reportMissingParameterType=false
+# pyright: reportUnknownVariableType=false
+# pyright: reportUnknownParameterType=false
+# pyright: reportUnknownMemberType=false
 
 from helpers.github_action_utils import str_to_boolean_default_false, str_to_boolean_default_true
 

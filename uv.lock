@@ -347,7 +347,7 @@ wheels = [
 ]
 
 [[package]]
-name = "github-action-toolkit"
+name = "splunk-app-action"
 source = { editable = "." }
 dependencies = [
     { name = "gitpython" },

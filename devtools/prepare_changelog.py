@@ -27,8 +27,7 @@ def main():
     lines.insert(insert_index, "\n")
     lines.insert(
         insert_index + 1,
-        f"## [v{VERSION}](https://github.com/VatsalJagani/github-action-toolkit-python/releases/tag/v{VERSION}) - "
-        f"{datetime.now().strftime('%Y-%m-%d')}\n",
+    f"## [v{VERSION}](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v{VERSION}) - {datetime.now().strftime('%Y-%m-%d')}\n",
     )
 
     with changelog.open("w") as f:

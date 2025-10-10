@@ -1,14 +1,14 @@
 # ---- Project Info and Dependencies ----
 
 [project.urls]
-Repository = "https://github.com/VatsalJagani/github-action-toolkit"
-Homepage = "https://github.com/VatsalJagani/github-action-toolkit-python"
-Documentation = "https://github-action-toolkit.readthedocs.io/"
-Changelog = "https://github.com/VatsalJagani/github-action-toolkit-python/blob/main/CHANGELOG.md"
+Repository = "https://github.com/VatsalJagani/splunk-app-action"
+Homepage = "https://github.com/VatsalJagani/splunk-app-action"
+Documentation = "https://splunk-app-action.readthedocs.io/"
+Changelog = "https://github.com/VatsalJagani/splunk-app-action/blob/main/CHANGELOG.md"
 
 [project]
-name = "github-action-toolkit"
-description = "A Python library for utility functions and class helpful for custom GitHub actions."
+name = "splunk-app-action"
+description = "A Python library for utility functions and classes helpful for Splunk App and Add-on GitHub actions."
 authors = [
     { name="Vatsal Jagani", email="vatsaljagani85@gmail.com" },
 ]
@@ -65,7 +65,7 @@ dev = [
 
 [project.scripts]
 # Add script entry points here:
-github-action-toolkit = "github_action_toolkit:main"
+splunk-app-action = "github_action_toolkit:main"
 
 
 # ---- Build system ----
@@ -90,7 +90,7 @@ bump = true
 
 [tool.hatch.build.targets.wheel]
 # The source location for the package.
-packages = ["github_action_toolkit"]
+packages = ["github_action_toolkit"] # If you rename the package folder, update this to splunk_app_action
 
 
 # ---- Settings ----
@@ -142,7 +142,7 @@ ignore = [
 # than mypy and with a good extension for VSCode/Cursor.
 # https://marketplace.visualstudio.com/items?itemName=detachhead.basedpyright
 # https://docs.basedpyright.com/latest/configuration/config-files/#sample-pyprojecttoml-file
-include = ["github_action_toolkit", "tests", "devtools"]
+include = ["github_action_toolkit", "tests", "devtools"] # If you rename the package folder, update this to splunk_app_action
 # By default BasedPyright is very strict, so you almost certainly want to disable
 # some of the rules.
 # First, these turn off warnings about (yes) how you ignore warnings:

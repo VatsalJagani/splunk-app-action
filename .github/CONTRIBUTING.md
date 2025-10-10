@@ -6,10 +6,10 @@ Thanks for considering contributing! Please read this document to learn the vari
 
 ### Did you find a bug?
 
-First, do [a quick search](https://github.com/VatsalJagani/github-action-toolkit-python/issues) to see whether your issue has already been reported.
+First, do [a quick search](https://github.com/VatsalJagani/splunk-app-action/issues) to see whether your issue has already been reported.
 If your issue has already been reported, please comment on the existing issue.
 
-Otherwise, open [a new GitHub issue](https://github.com/VatsalJagani/github-action-toolkit-python/issues).  Be sure to include a clear title
+Otherwise, open [a new GitHub issue](https://github.com/VatsalJagani/splunk-app-action/issues).  Be sure to include a clear title
 and description.  The description should include as much relevant information as possible.  The description should
 explain how to reproduce the erroneous behavior as well as the behavior you expect to see.  Ideally you would include a
 code sample or an executable test case demonstrating the expected behavior.
@@ -21,7 +21,7 @@ We use GitHub issues to track feature requests. Before you create a feature requ
 * Make sure you have a clear idea of the enhancement you would like. If you have a vague idea, consider discussing
 it first on a GitHub issue.
 * Check the documentation to make sure your feature does not already exist.
-* Do [a quick search](https://github.com/VatsalJagani/github-action-toolkit-python/issues) to see whether your feature has already been suggested.
+* Do [a quick search](https://github.com/VatsalJagani/splunk-app-action/issues) to see whether your feature has already been suggested.
 
 When creating your request, please:
 
@@ -41,31 +41,31 @@ When you're ready to contribute code to address an open issue, please follow the
 
     Then clone your fork locally with
 
-        git clone https://github.com/USERNAME/github-action-toolkit-python.git
+    git clone https://github.com/USERNAME/splunk-app-action.git
 
     or 
 
-        git clone git@github.com:USERNAME/github-action-toolkit-python.git
+    git clone git@github.com:USERNAME/splunk-app-action.git
 
-    At this point the local clone of your fork only knows that it came from *your* repo, github.com/USERNAME/github-action-toolkit-python.git, but doesn't know anything the *main* repo, [https://github.com/VatsalJagani/github-action-toolkit-python.git](https://github.com/VatsalJagani/github-action-toolkit-python). You can see this by running
+    At this point the local clone of your fork only knows that it came from *your* repo, github.com/USERNAME/splunk-app-action.git, but doesn't know anything the *main* repo, [https://github.com/VatsalJagani/splunk-app-action.git](https://github.com/VatsalJagani/splunk-app-action). You can see this by running
 
         git remote -v
 
     which will output something like this:
 
-        origin https://github.com/USERNAME/github-action-toolkit-python.git (fetch)
-        origin https://github.com/USERNAME/github-action-toolkit-python.git (push)
+    origin https://github.com/USERNAME/splunk-app-action.git (fetch)
+    origin https://github.com/USERNAME/splunk-app-action.git (push)
 
-    This means that your local clone can only track changes from your fork, but not from the main repo, and so you won't be able to keep your fork up-to-date with the main repo over time. Therefore you'll need to add another "remote" to your clone that points to [https://github.com/VatsalJagani/github-action-toolkit-python.git](https://github.com/VatsalJagani/github-action-toolkit-python). To do this, run the following:
+    This means that your local clone can only track changes from your fork, but not from the main repo, and so you won't be able to keep your fork up-to-date with the main repo over time. Therefore you'll need to add another "remote" to your clone that points to [https://github.com/VatsalJagani/splunk-app-action.git](https://github.com/VatsalJagani/splunk-app-action). To do this, run the following:
 
-        git remote add upstream https://github.com/VatsalJagani/github-action-toolkit-python.git
+    git remote add upstream https://github.com/VatsalJagani/splunk-app-action.git
 
     Now if you do `git remote -v` again, you'll see
 
-        origin https://github.com/USERNAME/github-action-toolkit-python.git (fetch)
-        origin https://github.com/USERNAME/github-action-toolkit-python.git (push)
-        upstream https://github.com/VatsalJagani/github-action-toolkit-python.git (fetch)
-        upstream https://github.com/VatsalJagani/github-action-toolkit-python.git (push)
+    origin https://github.com/USERNAME/splunk-app-action.git (fetch)
+    origin https://github.com/USERNAME/splunk-app-action.git (push)
+    upstream https://github.com/VatsalJagani/splunk-app-action.git (fetch)
+    upstream https://github.com/VatsalJagani/splunk-app-action.git (push)
 
 
 **Then Read the `development.md` file on GitHub for this project for development guidelines.**
@@ -74,7 +74,7 @@ When you're ready to contribute code to address an open issue, please follow the
 
     <details><summary>Expand details 👇</summary><br/>
 
-    Once you've added an "upstream" remote pointing to [https://github.com/VatsalJagani/github-action-toolkit-python.git](https://github.com/VatsalJagani/github-action-toolkit-python), keeping your fork up-to-date is easy:
+    Once you've added an "upstream" remote pointing to [https://github.com/VatsalJagani/splunk-app-action.git](https://github.com/VatsalJagani/splunk-app-action), keeping your fork up-to-date is easy:
 
         git checkout main  # if not already on main
         git pull --rebase upstream main

@@ -1,11 +1,11 @@
-# github-action-toolkit - Python Package
+# splunk-app-action - Python Package
 
 This is python library for utility functions and class helpful for custom GitHub actions.
 
 
 ## Documentation
 
-Installation & Usage Documentation is hosted at - [https://github-action-toolkit.readthedocs.io/](https://github-action-toolkit.readthedocs.io/)
+Installation & Usage Documentation is hosted at - [https://splunk-app-action.readthedocs.io/](https://splunk-app-action.readthedocs.io/)
 
 
 ## Project Docs
