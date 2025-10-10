@@ -1,0 +1,3 @@
+# Moved from zz_old/src/helpers/global_variables.py
+
+# ...existing code...

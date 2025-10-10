@@ -1,0 +1,3 @@
+# Moved from zz_old/tests/test_git_manager.py
+
+# ...existing code...

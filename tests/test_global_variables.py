@@ -1,0 +1,3 @@
+# Moved from zz_old/tests/test_global_variables.py
+
+# ...existing code...

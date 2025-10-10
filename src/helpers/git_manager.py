@@ -1,0 +1,3 @@
+# Moved from zz_old/src/helpers/git_manager.py
+
+# ...existing code...

@@ -1,0 +1,3 @@
+# Moved from zz_old/tests/test_app_inspect.py
+
+# ...existing code...
