@@ -1,35 +1,29 @@
-name: 🐛 Bug Report
-description: Create a report to help us reproduce and fix the bug
+name: 🐛 [bug] Bug Report
 labels: 'bug'
+description: Create a report to help us reproduce and fix the bug
 
 body:
 - type: markdown
   attributes:
-    value: >
-  #### Before submitting a bug, please make sure the issue hasn't been already addressed by searching through [the existing and past issues](https://github.com/VatsalJagani/splunk-app-action/issues?q=is%3Aissue+sort%3Acreated-desc+).
+    value: |
+      #### Before submitting a bug, please make sure the issue hasn't been already addressed by searching through [the existing and past issues](https://github.com/VatsalJagani/splunk-app-action/issues?q=is%3Aissue+sort%3Acreated-desc+).
+      For GitHub Actions, please include:
+      - The workflow YAML that uses this action
+      - The full log output from the Actions run (copy from the Actions tab)
+      - Any relevant configuration, inputs, or secrets
+
 - type: textarea
   attributes:
-    label: 🐛 Describe the bug
+    label: 🐛 [bug] Describe the bug
     description: |
       Please provide a clear and concise description of what the bug is.
-
-      If relevant, add a minimal example so that we can reproduce the error by running the code. It is very important for the snippet to be as succinct (minimal) as possible, so please take time to trim down any irrelevant code to help us debug efficiently. We are going to copy-paste your code and we expect to get the same result as you did: avoid any external data, and include the relevant imports, etc. For example:
-
-      ```python
-      # All necessary imports at the beginning
-      import github_action_toolkit
-
-      # A succinct reproducing example trimmed down to the essential parts:
-      assert False is True, "Oh no!"
-      ```
-
-      If the code is too long (hopefully, it isn't), feel free to put it in a public gist and link it in the issue: https://gist.github.com.
-
-      Please also paste or describe the results you observe instead of the expected results. If you observe an error, please paste the error message including the **full** traceback of the exception. It may be relevant to wrap error messages in ```` ```triple quotes blocks``` ````.
+      If relevant, add a minimal workflow example so that we can reproduce the error by running the action. Please include the relevant YAML and Python code snippets.
+      Paste or describe the results you observe instead of the expected results. If you observe an error, please paste the error message including the **full** traceback.
     placeholder: |
       A clear and concise description of what the bug is.
   validations:
     required: true
+
 - type: textarea
   attributes:
     label: Versions
@@ -38,9 +32,3 @@ body:
       ```sh
       python --version && pip freeze
       ```
-  validations:
-    required: true
-- type: markdown
-  attributes:
-    value: >
-      Thanks for contributing 🎉!

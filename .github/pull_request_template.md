@@ -1,18 +1,13 @@
-<!-- To ensure we can review your pull request promptly please complete this template entirely. -->
+<!-- To ensure we can review your pull request promptly, please complete this template for GitHub Actions. -->
 
-<!-- Please reference the issue number here. You can replace "Fixes" with "Closes" if it makes more sense. -->
 Fixes #
 
-Changes proposed in this pull request:
-<!-- Please list all changes/additions here. -->
+## Changes proposed in this pull request:
 -
 
 ## Before submitting
-
-<!-- Please complete this checklist BEFORE submitting your PR to speed along the review process. -->
 - [ ] I've read and followed all steps in the [Making a pull request](https://github.com/VatsalJagani/splunk-app-action/blob/main/.github/CONTRIBUTING.md#making-a-pull-request)
-    section of the `CONTRIBUTING` docs.
-- [ ] I've updated or added any relevant docstrings following the syntax described in the
-    [Writing docstrings](https://github.com/VatsalJagani/splunk-app-action/blob/main/.github/CONTRIBUTING.md#writing-docstrings) section of the `CONTRIBUTING` docs.
-- [ ] If this PR fixes a bug, I've added a test that will fail without my fix.
-- [ ] If this PR adds a new feature, I've added tests that sufficiently cover my new functionality.
+- [ ] I've updated or added relevant docstrings and documentation for new action inputs/outputs
+- [ ] If this PR fixes a bug, I've added a workflow test that fails without my fix
+- [ ] If this PR adds a new feature, I've added workflow and unit tests for new functionality
+- [ ] I've tested the action in a workflow run and attached results or example usage

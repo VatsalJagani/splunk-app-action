@@ -1,21 +1,24 @@
-name: 📚 Documentation
-description: Report an issue related to https://splunk-app-action.readthedocs.io/latest
+name: 📚 [doc] Documentation
 labels: 'documentation'
+description: Report an issue related to the documentation or usage of this GitHub Action
 
 body:
 - type: textarea
   attributes:
-    label: 📚 The doc issue
-    description: >
-  # A clear and concise description of what content in https://splunk-app-action.readthedocs.io/latest is an issue.
+    label: 📚 [doc] The doc issue
+    description: |
+      A clear and concise description of what content in the documentation or README is unclear, incorrect, or missing for this GitHub Action.
+      Please include links to the relevant section or workflow example if possible.
   validations:
     required: true
+
 - type: textarea
   attributes:
     label: Suggest a potential alternative/fix
-    description: >
-      Tell us how we could improve the documentation in this regard.
+    description: |
+      Tell us how we could improve the documentation, usage examples, or workflow integration.
+
 - type: markdown
   attributes:
-    value: >
-      Thanks for contributing 🎉!
+    value: |
+      Thanks for contributing [doc]!
