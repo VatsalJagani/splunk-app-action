@@ -1,110 +1,132 @@
-import os
+# pyright: reportPrivateUsage=false
+# pyright: reportUnusedVariable=false
+# pyright: reportUnusedParameter=false
+# pyright: reportMissingParameterType=false
+# pyright: reportUnknownVariableType=false
+# pyright: reportUnknownParameterType=false
+# pyright: reportUnknownMemberType=false
+
+import tempfile
+from unittest import mock
+
 import pytest
-import subprocess
 
-from .helper import get_temp_git_repo, stdout_capture
-
-from helpers.git_manager import get_file_hash, get_folder_hash, get_multi_files_hash, GitHubPR
+from github_action_toolkit.git_manager import Repo
 
 
-# Use a fixture to create temporary files with known content for testing
 @pytest.fixture
-def sample_file(tmp_path):
-    file_path = tmp_path / "test_file.txt"
-    file_path.write_text("This is a test file")
-    return file_path
+def mock_git_repo():
+    """Mocks GitPython's Repo object."""
+    with mock.patch("github_action_toolkit.git_manager.GitRepo") as git_repo_mock:
+        yield git_repo_mock
 
 
-def test_get_file_hash_nonexistent_file():
-    file_path = "path/to/nonexistent_file"
-    with pytest.raises(FileNotFoundError):
-        get_file_hash(file_path)
-
-def test_get_file_hash_with_tmp_file(sample_file):
-    expected_hash = "0b26e313ed4a7ca6904b0e9369e5b957"  # MD5 hash of "This is a test file"
-    assert get_file_hash(sample_file) == expected_hash
-
-def test_get_folder_hash_empty_folder():
-    folder_path = "empty_folder"
-    os.makedirs(folder_path)
-    expected_hash = "d41d8cd98f00b204e9800998ecf8427e"  # MD5 hash of an empty string
-    assert get_folder_hash(folder_path) == expected_hash
-    os.rmdir(folder_path)
-
-def test_get_folder_hash_with_files(sample_file):
-    folder_path = sample_file.parent
-    expected_hash = "894c0cee919eb49f7a36060c7a607fb7"  # Hash of the single file in the folder
-    assert get_folder_hash(folder_path) == expected_hash
-
-def test_get_folder_hash_nonexistent_folder():
-    folder_path = "path/to/nonexistent_folder"
-    with pytest.raises(Exception, match="Incorrect folder_path provided."):
-        abc = get_folder_hash(folder_path)
-        print(f"abc={abc}")
-
-def test_get_multi_files_hash_empty_list():
-    file_paths = []
-    expected_hash = "d41d8cd98f00b204e9800998ecf8427e"  # MD5 hash of an empty string
-    assert get_multi_files_hash(file_paths) == expected_hash
-
-def test_get_multi_files_hash_multiple_files(sample_file):
-    file_paths = [sample_file, sample_file]  # Use the same file twice for simplicity
-    expected_hash = "91405dbee0a9c47e7bc657bda7cb29a9"  # Hypothetical hash of the combined hashes
-    assert get_multi_files_hash(file_paths) == expected_hash
+def test_init_with_url(mock_git_repo):
+    repo_url = "https://github.com/test/test.git"
+    with Repo(url=repo_url) as repo:
+        mock_git_repo.clone_from.assert_called_once_with(repo_url, repo.repo_path)
+        assert repo.repo is mock_git_repo.clone_from.return_value
 
 
-def test_commit_and_pr_new_branch():
-    with get_temp_git_repo() as repo_path:
-        with GitHubPR(repo_dir=repo_path) as github_pr:
-
-            # write test-file
-            with open('test_file.txt', 'w') as f:
-                f.write('This is test file')
-
-            # Call the commit_and_pr method
-            github_pr.commit_and_pr('my_hash')
-
-            # Check that a new branch was created but no pull request was created
-            output = subprocess.run(['git', 'branch', '-a'], capture_output=True, text=True)
-            assert 'splunk_app_action_my_hash' in output.stdout.strip()
-
-            output = subprocess.run(['git', 'log', '--oneline', '--grep', 'splunk_app_action_my_hash'], 
-                                    capture_output=True, text=True)
-            assert 'splunk_app_action_my_hash' in output.stdout.strip()
+def test_init_with_path(mock_git_repo):
+    with tempfile.TemporaryDirectory() as path:
+        with Repo(path=path) as repo:
+            mock_git_repo.assert_called_once_with(path)
+            assert repo.repo is mock_git_repo.return_value
 
 
-def test_commit_and_pr_new_branch_no_change():
-    with get_temp_git_repo() as repo_path:
-        with GitHubPR(repo_dir=repo_path) as github_pr:
+def test_configure_git(mock_git_repo):
+    # Create the mock repo instance
+    repo_instance = mock_git_repo.return_value
 
-            with stdout_capture() as captured_stdout:
-                # calling without any file change
-                github_pr.commit_and_pr('my_hash')
+    # Create a specific mock for config_writer
+    mock_config_writer = mock.Mock()
+    repo_instance.config_writer.return_value = mock_config_writer
 
-                # Get the captured output
-                output = captured_stdout.getvalue()
-                assert 'CMD=git commit -m "splunk_app_action_my_hash", ReturnCode=1' in output.strip()
+    # Just entering the context will call configure_git()
+    with Repo(path="."):
+        pass
 
-            # Check that a new branch was created but no pull request was created
-            output = subprocess.run(['git', 'branch', '-a'], capture_output=True, text=True)
-            assert 'splunk_app_action_my_hash' in output.stdout.strip()
-
-            output = subprocess.run(['git', 'log', '--oneline', '--grep', 'splunk_app_action_my_hash'], 
-                                    capture_output=True, text=True)
-            assert output.stdout.strip() == ""
+    # Now assert the expected behavior
+    mock_config_writer.set_value.assert_any_call("user", "name", mock.ANY)
+    mock_config_writer.set_value.assert_any_call("user", "email", mock.ANY)
+    mock_config_writer.release.assert_called_once()
 
 
-def test_commit_and_pr_existing_branch():
-    with get_temp_git_repo() as repo_path:
-        with GitHubPR(repo_dir=repo_path) as github_pr:
-            # Create a branch with the same name as the one we will try to create
-            subprocess.run(['git', 'checkout', '-b', 'splunk_app_action_my_hash'], check=True)
+def test_get_current_branch(mock_git_repo):
+    mock_branch = mock.Mock()
+    mock_branch.name = "main"
+    mock_git_repo.return_value.active_branch = mock_branch
 
-            with stdout_capture() as captured_stdout:
-                # calling without any file change
-                github_pr.commit_and_pr('my_hash')
+    with Repo(path=".") as repo:
+        assert repo.get_current_branch() == "main"
 
-                # Get the captured output
-                output = captured_stdout.getvalue()
-                assert "Branch already present." in output.strip() or \
-                    "a branch named 'splunk_app_action_my_hash' already exists" in output.strip()
+
+def test_create_new_branch(mock_git_repo):
+    with Repo(path=".") as repo:
+        repo.create_new_branch("feature/test")
+        repo.repo.git.checkout.assert_called_once_with("-b", "feature/test")
+
+
+def test_add(mock_git_repo):
+    with Repo(path=".") as repo:
+        repo.add("file.txt")
+        repo.repo.git.add.assert_called_once_with("file.txt")
+
+
+def test_commit(mock_git_repo):
+    with Repo(path=".") as repo:
+        repo.commit("Test commit")
+        repo.repo.git.commit.assert_called_once_with("-m", "Test commit")
+
+
+def test_add_all_and_commit(mock_git_repo):
+    with Repo(path=".") as repo:
+        repo.add_all_and_commit("Test all commit")
+        repo.repo.git.add.assert_called_once_with(all=True)
+        repo.repo.git.commit.assert_called_once_with("-m", "Test all commit")
+
+
+def test_push(mock_git_repo):
+    mock_git_repo.return_value.active_branch.name = "test-branch"
+
+    with Repo(path=".") as repo:
+        repo.push()
+        repo.repo.git.push.assert_called_once_with("origin", "test-branch")
+
+
+def test_pull(mock_git_repo):
+    mock_git_repo.return_value.active_branch.name = "test-branch"
+
+    with Repo(path=".") as repo:
+        repo.pull()
+        repo.repo.git.pull.assert_called_once_with("origin", "test-branch")
+
+
+@mock.patch("github_action_toolkit.git_manager.Github")
+def test_create_pr(mock_github, mock_git_repo):
+    mock_repo_instance = mock_git_repo.return_value
+    mock_repo_instance.remotes.origin.url = "https://github.com/test/repo.git"
+
+    mock_repo_obj = mock.Mock()
+    mock_pr = mock.Mock()
+    mock_pr.html_url = "https://github.com/test/repo/pull/1"
+    mock_repo_obj.create_pull.return_value = mock_pr
+
+    mock_github.return_value.get_repo.return_value = mock_repo_obj
+
+    with Repo(path=".") as repo:
+        pr_url = repo.create_pr(
+            github_token="fake-token",
+            title="Test PR",
+            body="PR Body",
+            head="feature/test",
+            base="main",
+        )
+
+    mock_github.assert_called_once_with("fake-token")
+    mock_github.return_value.get_repo.assert_called_once_with("test/repo")
+    mock_repo_obj.create_pull.assert_called_once_with(
+        title="Test PR", body="PR Body", head="feature/test", base="main"
+    )
+    assert pr_url == "https://github.com/test/repo/pull/1"

@@ -1,0 +1,10 @@
+.DS_Store
+*.pyc
+__pycache__
+/src/utilities/logger/props.conf_temp
+
+/.coverage
+/coverage.xml
+/.pytest_cache
+/htmlcov
+/junit

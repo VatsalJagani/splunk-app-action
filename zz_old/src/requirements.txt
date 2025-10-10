@@ -1,0 +1,2 @@
+requests
+splunk-add-on-ucc-framework
