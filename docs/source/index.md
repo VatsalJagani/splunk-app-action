@@ -11,16 +11,6 @@ inputs
 troubleshooting
 ```
 
-```{toctree}
-:maxdepth: 2
-:caption: Usage
-
-usage/build_generation
-usage/permissions_and_commands
-usage/app_inspect
-usage/utilities
-usage/ucc_additional_packaging
-```
 
 ```{toctree}
 :caption: Development
