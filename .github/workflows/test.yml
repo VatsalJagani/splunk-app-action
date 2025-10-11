@@ -41,6 +41,9 @@ jobs:
         run: uv run python devtools/lint.py
 
       - name: Run tests
+        env:
+            SPLUNKBASE_USERNAME_FOR_TEST: ${{ secrets.SPLUNKBASE_USERNAME }}
+            SPLUNKBASE_PASSWORD_FOR_TEST: ${{ secrets.SPLUNKBASE_PASSWORD }}
         run: uv run pytest --junitxml=junit/test-results.xml --cov=github_action_toolkit --cov-config=tests/.coveragerc --cov-report=xml
 
       - name: Adding GitHub action step summary
