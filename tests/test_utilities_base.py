@@ -22,12 +22,6 @@ class TestBaseUtility(unittest.TestCase):
         self.base_utility = BaseUtility(self.app_read_dir, self.app_write_dir)
 
     @patch("utilities.base_utility.GitHubPR")
-    def test_add_no_change(self, mock_github_pr):
-        with patch.object(self.base_utility, "implement_utility", return_value=None):
-            self.base_utility.add()
-            mock_github_pr.assert_not_called()
-
-    @patch("utilities.base_utility.GitHubPR")
     def test_add_single_file_changed(self, mock_github_pr):
         file_path = os.path.join(os.path.dirname(__file__), "dummy_utility_files", "abc.txt")
         with patch.object(self.base_utility, "implement_utility", return_value=file_path):

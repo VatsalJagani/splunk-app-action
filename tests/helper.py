@@ -71,6 +71,11 @@ def setup_action_yml(
         except:
             pass
 
+        try:
+            shutil.rmtree("ucc_generated_build")
+        except:
+            pass
+
         for filename in os.listdir():
             if filename.startswith("my_app_"):
                 if os.path.isdir(filename):
