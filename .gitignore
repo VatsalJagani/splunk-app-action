@@ -189,3 +189,4 @@ site/
 # miscellaneous
 .cache/
 .DS_Store
+src/utilities/logger/props.conf_temp
