@@ -12,7 +12,7 @@ import subprocess
 import pytest
 from helper import get_temp_git_repo, stdout_capture
 
-from helpers.git_manager import GitHubPR, get_file_hash, get_folder_hash, get_multi_files_hash
+from helpers.file_hash import GitHubPR, get_file_hash, get_folder_hash, get_multi_files_hash
 
 
 # Use a fixture to create temporary files with known content for testing

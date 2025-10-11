@@ -1,7 +1,7 @@
 import os
 
 import github_action_toolkit as gat
-from helpers.git_manager import GitHubPR, get_file_hash, get_folder_hash, get_multi_files_hash
+from helpers.file_hash import get_file_hash, get_folder_hash, get_multi_files_hash
 
 
 class BaseUtility:
@@ -10,7 +10,7 @@ class BaseUtility:
         self.app_write_dir = app_write_dir
 
     def add(self):
-        with GitHubPR(self.app_write_dir) as github:
+        with gat.Repo(path=self.app_write_dir) as github:
             files_or_folders_updated = self.implement_utility()
             hash = None
 
@@ -31,7 +31,11 @@ class BaseUtility:
 
             if hash:
                 gat.debug("Committing and creating PR for the code change.")
-                github.commit_and_pr(hash=hash)
+                _msg = f"splunk_app_action_{hash}"
+                github.create_new_branch(_msg)
+                github.add_all_and_commit(_msg)
+                github.push()
+                github.create_pr()
             else:
                 gat.error("Unable to get hash to generate PR for app utility.")
 

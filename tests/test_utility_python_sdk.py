@@ -228,8 +228,7 @@ def test_splunk_sdk_utility_error_upgrading_existing_2():
             with patch.object(
                 SplunkPythonSDKUtility, "_get_splunklib_version", return_value="2.2.2"
             ):
-                with patch.object(utils, "execute_system_command", return_value=(1, "")):
-                    result = sdk_utility.implement_utility()
+                result = sdk_utility.implement_utility()
 
             # Validate the result
             assert result is None
