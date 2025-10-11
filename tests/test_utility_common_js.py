@@ -8,9 +8,9 @@
 
 import os
 
-from utilities.common_splunk_js_utilities import CommonJSUtilitiesFile
-
 from helper import get_temp_directory
+
+from utilities.common_splunk_js_utilities import CommonJSUtilitiesFile
 
 UTILITIES_FOLDER_PATH = os.path.join(
     os.path.dirname(__file__), os.path.pardir, "src", "utilities", "common_splunk_js_utilities"

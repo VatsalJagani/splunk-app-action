@@ -10,9 +10,9 @@ import os
 import unittest
 from unittest.mock import patch
 
-from utilities.base_utility import BaseUtility
-
 from helper import stdout_capture
+
+from utilities.base_utility import BaseUtility
 
 
 class TestBaseUtility(unittest.TestCase):

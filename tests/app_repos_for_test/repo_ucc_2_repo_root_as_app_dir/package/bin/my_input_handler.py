@@ -1,7 +1,9 @@
 from addon_helper import AddonInput
 from splunklib import modularinput as smi
 from tests.app_repos_for_test.repo_ucc_1_regular_build.package.bin.api import API
-from tests.app_repos_for_test.repo_ucc_1_regular_build.package.bin.checkpoint import MyInputCheckpoint
+from tests.app_repos_for_test.repo_ucc_1_regular_build.package.bin.checkpoint import (
+    MyInputCheckpoint,
+)
 
 
 class MyInputInput(AddonInput):

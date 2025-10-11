@@ -10,10 +10,9 @@ import unittest
 from unittest.mock import patch
 
 import pytest
+from helper import setup_action_yml
 
 from main import main
-
-from helper import setup_action_yml
 
 # import os
 # SPLUNKBASE_USERNAME_FOR_TEST = os.environ["SPLUNKBASE_USERNAME_FOR_TEST"]

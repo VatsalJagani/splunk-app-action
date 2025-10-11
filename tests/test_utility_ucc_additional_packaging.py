@@ -8,9 +8,9 @@
 
 import os
 
-from utilities.ucc_additional_packaging import UCCAdditionalPackagingUtility
-
 from helper import get_temp_directory
+
+from utilities.ucc_additional_packaging import UCCAdditionalPackagingUtility
 
 UTILITIES_FOLDER_PATH = os.path.join(
     os.path.dirname(__file__), os.path.pardir, "src", "utilities", "ucc_additional_packaging"

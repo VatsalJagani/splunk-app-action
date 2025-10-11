@@ -8,9 +8,9 @@
 
 import os
 
-from utilities.logger import LoggerUtility
-
 from helper import get_temp_directory, setup_temporary_env_vars
+
+from utilities.logger import LoggerUtility
 
 
 def test_logger_utility_skipped_due_to_missing_prefix_1():

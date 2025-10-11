@@ -11,9 +11,9 @@ import os
 import tarfile
 import unittest
 
-from main import main
-
 from helper import setup_action_yml
+
+from main import main
 
 
 def get_file_permissions(filepath):
