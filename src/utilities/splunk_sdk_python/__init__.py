@@ -2,7 +2,7 @@ import os
 import re
 import shutil
 
-import helpers.github_action_utils as utils
+import github_action_toolkit as gat
 from utilities.base_utility import BaseUtility
 
 
@@ -14,7 +14,7 @@ class SplunkPythonSDKUtility(BaseUtility):
                 version = match.group(1)
                 return version
         except:
-            utils.info("Error with getting the splunklib version.")
+            gat.info("Error with getting the splunklib version.")
 
     def remove_pycache(self, directory):
         for root, dirs, files in os.walk(directory):
@@ -26,17 +26,15 @@ class SplunkPythonSDKUtility(BaseUtility):
                     shutil.rmtree(os.path.join(root, dir))
 
     def implement_utility(self):
-        utils.info("Adding SplunkPythonSDKUtility")
+        gat.info("Adding SplunkPythonSDKUtility")
 
-        splunk_python_sdk_install_path = utils.get_input("splunk_python_sdk_install_path")
-        utils.info(f"splunk_python_sdk_install_path: {splunk_python_sdk_install_path}")
+        splunk_python_sdk_install_path = gat.get_user_input("splunk_python_sdk_install_path")
+        gat.info(f"splunk_python_sdk_install_path: {splunk_python_sdk_install_path}")
         if not splunk_python_sdk_install_path or splunk_python_sdk_install_path == "NONE":
             splunk_python_sdk_install_path = "bin"
 
-        is_remove_pyc_from_splunklib_dir = utils.str_to_boolean_default_true(
-            utils.get_input("is_remove_pyc_from_splunklib_dir")
-        )
-        utils.info(f"is_remove_pyc_from_splunklib_dir: {is_remove_pyc_from_splunklib_dir}")
+        is_remove_pyc_from_splunklib_dir = gat.get_user_input_as("is_remove_pyc_from_splunklib_dir", bool, True)
+        gat.info(f"is_remove_pyc_from_splunklib_dir: {is_remove_pyc_from_splunklib_dir}")
 
         folder_to_install_splunklib = os.path.join(
             self.app_write_dir, splunk_python_sdk_install_path
@@ -63,20 +61,20 @@ class SplunkPythonSDKUtility(BaseUtility):
         ):
             already_exist = True
             previous_version = self._get_splunklib_version(init_file)
-            utils.info(f"Previous splunklib version = {previous_version}")
+            gat.info(f"Previous splunklib version = {previous_version}")
 
         if already_exist:
-            utils.info(
+            gat.info(
                 f"splunklib already present under {folder_to_install_splunklib} directory of the App, upgrading..."
             )
-            utils.execute_system_command(
+            os.system(
                 f'pip install splunk-sdk --upgrade --target "{folder_to_install_splunklib}"'
             )
         else:
-            utils.info(
+            gat.info(
                 f"splunklib not present under {folder_to_install_splunklib} directory of the App, installing..."
             )
-            utils.execute_system_command(
+            os.system(
                 f'pip install splunk-sdk --target "{folder_to_install_splunklib}"'
             )
 
@@ -85,7 +83,7 @@ class SplunkPythonSDKUtility(BaseUtility):
             self.remove_pycache(folder_to_install_splunklib)
 
         new_version = self._get_splunklib_version(init_file)
-        utils.info(f"New splunklib version = {new_version}")
+        gat.info(f"New splunklib version = {new_version}")
 
         if not already_exist or previous_version != new_version:
             return init_file

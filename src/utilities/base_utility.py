@@ -1,6 +1,6 @@
 import os
 
-import helpers.github_action_utils as utils
+import github_action_toolkit as gat
 from helpers.git_manager import GitHubPR, get_file_hash, get_folder_hash, get_multi_files_hash
 
 
@@ -15,7 +15,7 @@ class BaseUtility:
             hash = None
 
             if not files_or_folders_updated:
-                utils.info(f"Utility={type(self).__name__} has no change.")
+                gat.info(f"Utility={type(self).__name__} has no change.")
                 return
 
             if type(files_or_folders_updated) == list:
@@ -27,13 +27,13 @@ class BaseUtility:
                 elif os.path.isdir(files_or_folders_updated):
                     hash = get_folder_hash(files_or_folders_updated)
                 else:
-                    utils.error("File to generate hash is invalid.")
+                    gat.error("File to generate hash is invalid.")
 
             if hash:
-                utils.debug("Committing and creating PR for the code change.")
+                gat.debug("Committing and creating PR for the code change.")
                 github.commit_and_pr(hash=hash)
             else:
-                utils.error("Unable to get hash to generate PR for app utility.")
+                gat.error("Unable to get hash to generate PR for app utility.")
 
     def implement_utility(self):
         raise NotImplementedError(

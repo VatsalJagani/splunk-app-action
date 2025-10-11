@@ -1,27 +1,27 @@
 import os
 
-import helpers.github_action_utils as utils
+import github_action_toolkit as gat
 from helpers.file_manager import FullRawFileHandler, PartConfFileHandler
 from utilities.base_utility import BaseUtility
 
 
 class LoggerUtility(BaseUtility):
     def implement_utility(self):
-        utils.info("Adding LoggerUtility.")
+        gat.info("Adding LoggerUtility.")
         should_execute = True
 
-        log_files_prefix = utils.get_input("logger_log_files_prefix")
-        utils.info(f"log_files_prefix: {log_files_prefix}")
+        log_files_prefix = gat.get_user_input("logger_log_files_prefix")
+        gat.info(f"log_files_prefix: {log_files_prefix}")
         if not log_files_prefix or log_files_prefix == "NONE":
-            utils.error(
+            gat.error(
                 "skipping the logger adding as logger_log_files_prefix input is not defined."
             )
             should_execute = False
 
-        logger_sourcetype = utils.get_input("logger_sourcetype")
-        utils.info(f"logger_sourcetype: {logger_sourcetype}")
+        logger_sourcetype = gat.get_user_input("logger_sourcetype")
+        gat.info(f"logger_sourcetype: {logger_sourcetype}")
         if not logger_sourcetype or logger_sourcetype == "NONE":
-            utils.error("skipping the logger adding as logger_sourcetype input is not defined.")
+            gat.error("skipping the logger adding as logger_sourcetype input is not defined.")
             should_execute = False
 
         self.words_for_replacement = {
@@ -36,12 +36,12 @@ class LoggerUtility(BaseUtility):
         update2 = self.add_props_content()
 
         if update1 or update2:
-            utils.info("Updated logger related files.")
+            gat.info("Updated logger related files.")
             return [
                 os.path.join(self.app_write_dir, "bin", "logger_manager.py"),
                 os.path.join(self.app_write_dir, "default", "props.conf"),
             ]
-        utils.info("No change in logger related files.")
+        gat.info("No change in logger related files.")
 
     def add_logger_manager_py(self):
         return FullRawFileHandler(

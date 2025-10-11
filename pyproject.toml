@@ -26,6 +26,7 @@ dynamic = ["version"]
 # ---- Main dependencies ----
 
 dependencies = [
+    "github-action-toolkit>=0.5.0",
     "requests>=2.32.5",
     "sphinxcontrib-mermaid>=1.0.0",
     "splunk-add-on-ucc-framework>=6.0.1",

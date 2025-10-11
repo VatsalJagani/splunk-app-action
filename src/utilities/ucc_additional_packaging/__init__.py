@@ -1,13 +1,13 @@
 import os
 
-import helpers.github_action_utils as utils
+import github_action_toolkit as gat
 from helpers.file_manager import FullRawFileHandler
 from utilities.base_utility import BaseUtility
 
 
 class UCCAdditionalPackagingUtility(BaseUtility):
     def implement_utility(self):
-        utils.info("Adding UCCAdditionalPackagingUtility")
+        gat.info("Adding UCCAdditionalPackagingUtility")
 
         folder_path = os.path.dirname(
             self.app_write_dir
@@ -23,6 +23,6 @@ class UCCAdditionalPackagingUtility(BaseUtility):
         ).validate_file_content()
 
         if is_updated:
-            utils.info("Change in the file additional_packaging.py")
+            gat.info("Change in the file additional_packaging.py")
             return file_path
-        utils.info("No change in the file additional_packaging.py")
+        gat.info("No change in the file additional_packaging.py")

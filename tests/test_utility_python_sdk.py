@@ -11,7 +11,6 @@ from unittest.mock import patch
 
 from helper import get_temp_directory, setup_temporary_env_vars, stdout_capture
 
-from helpers import github_action_utils as utils
 from utilities.splunk_sdk_python import SplunkPythonSDKUtility
 
 
@@ -199,8 +198,7 @@ def test_splunk_sdk_utility_error_upgrading_existing():
             with patch.object(
                 SplunkPythonSDKUtility, "_get_splunklib_version", return_value="2.2.2"
             ):
-                with patch.object(utils, "execute_system_command", return_value=(1, "")):
-                    result = sdk_utility.implement_utility()
+                result = sdk_utility.implement_utility()
 
             # Validate the result
             assert result is None

@@ -3,10 +3,10 @@ import shutil
 import sys
 import traceback
 
-sys.path.append(os.path.dirname(__file__))
+# sys.path.append(os.path.dirname(__file__))
 
 import app_build_generate
-import helpers.github_action_utils as utils
+import github_action_toolkit as gat
 import ucc_gen
 from app_inspect import SplunkAppInspect
 from app_utilities import SplunkAppUtilities
@@ -15,17 +15,17 @@ from helpers.global_variables import GlobalVariables
 
 
 def main():
-    utils.info("Running Python script main.py")
+    gat.info("Running Python script main.py")
 
-    app_dir_input = utils.get_input("app_dir")
-    utils.info(f"app_dir_input: {app_dir_input}")
+    app_dir_input = gat.get_user_input("app_dir")
+    gat.info(f"app_dir_input: {app_dir_input}")
 
     GlobalVariables.initiate(app_dir_name=app_dir_input)
 
     # Build Add-on with UCC
-    utils.debug(f"Input use_ucc_gen value = {utils.get_input('use_ucc_gen')}")
-    use_ucc_gen = utils.str_to_boolean_default_false(utils.get_input("use_ucc_gen"))
-    utils.info(f"use_ucc_gen: {use_ucc_gen}")
+    gat.debug(f"Input use_ucc_gen value = {gat.get_user_input('use_ucc_gen')}")
+    use_ucc_gen = gat.str_to_boolean_default_false(gat.get_user_input("use_ucc_gen"))
+    gat.info(f"use_ucc_gen: {use_ucc_gen}")
 
     if use_ucc_gen:
         global_config_json_file_path = os.path.join(
@@ -49,24 +49,24 @@ def main():
     GlobalVariables.set_app_package_id(app_package_id)
     GlobalVariables.set_app_version(app_version)
     # For yml file to artifact build and app-inspect report
-    utils.set_env("app_package_id", GlobalVariables.APP_PACKAGE_ID)
-    utils.set_env("app_version_encoded", GlobalVariables.APP_VERSION_ENCODED)
+    gat.set_env("app_package_id", GlobalVariables.APP_PACKAGE_ID)
+    gat.set_env("app_version_encoded", GlobalVariables.APP_VERSION_ENCODED)
 
     app_build_dir_name = None
     app_build_dir_path = None
 
     if use_ucc_gen:
         app_build_dir_name = ucc_gen.build()
-        utils.info("ucc-gen command Completed.")
+        gat.info("ucc-gen command Completed.")
 
     else:
         app_build_dir_name = "without_ucc_build"
 
         os.chdir(GlobalVariables.ROOT_DIR_PATH)
-        utils.execute_system_command(f"rm -rf {app_build_dir_name}")
+        os.system(f"rm -rf {app_build_dir_name}")
 
         shutil.copytree(GlobalVariables.ORIGINAL_APP_DIR_PATH, app_build_dir_name)
-        utils.info("Copied the code for build process.")
+        gat.info("Copied the code for build process.")
 
     app_build_dir_path = os.path.join(GlobalVariables.ROOT_DIR_PATH, app_build_dir_name)
 
@@ -75,7 +75,7 @@ def main():
         app_conf_file_path=os.path.join(app_build_dir_path, "default", "app.conf")
     )
     GlobalVariables.set_app_build_number(app_build_number)
-    utils.set_env("app_build_number_encoded", GlobalVariables.APP_BUILD_NUMBER_ENCODED)
+    gat.set_env("app_build_number_encoded", GlobalVariables.APP_BUILD_NUMBER_ENCODED)
 
     try:
         app_write_dir = (
@@ -84,36 +84,34 @@ def main():
             else GlobalVariables.ORIGINAL_APP_DIR_PATH
         )
         SplunkAppUtilities(app_read_dir=app_build_dir_path, app_write_dir=app_write_dir)
-        utils.info("SplunkAppUtilities completed.")
+        gat.info("SplunkAppUtilities completed.")
     except Exception as e:
-        utils.error(f"Error Adding Splunk App Utilities: {e}")
-        utils.error(traceback.format_exc())
+        gat.error(f"Error Adding Splunk App Utilities: {e}")
+        gat.error(traceback.format_exc())
 
     try:
         # Generate Build
         build_path = app_build_generate.generate_build(app_build_dir_name, app_build_dir_path)
 
-        utils.info("generate_build Completed.")
+        gat.info("generate_build Completed.")
 
         # Run App Inspect
-        is_app_inspect_check = utils.str_to_boolean_default_true(
-            utils.get_input("is_app_inspect_check")
-        )
-        utils.info(f"is_app_inspect_check: {is_app_inspect_check}")
+        is_app_inspect_check = gat.get_user_input_as("is_app_inspect_check", bool, True)
+        gat.info(f"is_app_inspect_check: {is_app_inspect_check}")
 
         if is_app_inspect_check:
-            splunkbase_username = utils.get_input("splunkbase_username")
-            splunkbase_password = utils.get_input("splunkbase_password")
+            splunkbase_username = gat.get_user_input("splunkbase_username")
+            splunkbase_password = gat.get_user_input("splunkbase_password")
 
             SplunkAppInspect(build_path, splunkbase_username, splunkbase_password).run_all_checks()
-            utils.info("SplunkAppInspect Completed.")
+            gat.info("SplunkAppInspect Completed.")
         else:
-            utils.info("Ignoring App-inspect checks.")
+            gat.info("Ignoring App-inspect checks.")
             return
 
     except Exception as e:
-        utils.error(f"Error in SplunkBase Build Generator or App Inspect Checks: {e}")
-        utils.error(traceback.format_exc())
+        gat.error(f"Error in SplunkBase Build Generator or App Inspect Checks: {e}")
+        gat.error(traceback.format_exc())
 
         sys.exit(5)
         # Failure in build generation or App Inspect means failure for Workflow
