@@ -41,7 +41,13 @@ jobs:
         run: uv run python devtools/lint.py
 
       - name: Run tests
-        run: uv run pytest
+        run: uv run pytest --junitxml=junit/test-results.xml --cov=github_action_toolkit --cov-config=tests/.coveragerc --cov-report=xml
+
+      - name: Adding GitHub action step summary
+        uses: VatsalJagani/pytest-cov-action@v1.2
+        with:
+          pytest_results_file: "junit/test-results.xml"
+          pytest_cov_file: "coverage.xml"
 
       - name: Docs Check
         run: make docs-check
