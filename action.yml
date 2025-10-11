@@ -106,16 +106,19 @@ runs:
         echo "splunk_python_sdk_install_path -> ${{inputs.splunk_python_sdk_install_path}}"
         echo "is_remove_pyc_from_splunklib_dir -> ${{inputs.is_remove_pyc_from_splunklib_dir}}"
 
-    - name: "Install Python"
-      uses: actions/setup-python@v5
+    - name: Install uv (official Astral action)
+      uses: astral-sh/setup-uv@v5
       with:
-        python-version: '3.11'
+        enable-cache: true
+        python-version: 3.11
 
-    - name: "Install required packages"
+    - name: Set up Python (using uv)
       shell: bash
-      run: |
-        pip install requests
-        pip install splunk-add-on-ucc-framework
+      run: uv python install
+
+    - name: Install all dependencies
+      shell: bash
+      run: uv sync
 
     - name: "Running the Splunk App actions"
       shell: bash
@@ -134,7 +137,7 @@ runs:
         SPLUNK_splunk_python_sdk_install_path: ${{inputs.splunk_python_sdk_install_path}}
         SPLUNK_is_remove_pyc_from_splunklib_dir: ${{inputs.is_remove_pyc_from_splunklib_dir}}
       run: |
-        python -u ${{ github.action_path }}/src/main.py
+        uv run python -u ${{ github.action_path }}/src/main.py
 
     - name: "Upload the app build as artifact"
       uses: actions/upload-artifact@v4
