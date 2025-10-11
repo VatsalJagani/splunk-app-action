@@ -6,17 +6,17 @@ from datetime import datetime
 # Debug function
 def list_files(startpath):
     for root, dirs, files in os.walk(startpath):
-        level = root.replace(startpath, '').count(os.sep)
+        level = root.replace(startpath, "").count(os.sep)
 
         # only until level 2
         if level > 3:
             continue
 
-        indent = ' ' * 4 * (level)
-        print('{}{}/'.format(indent, os.path.basename(root)))
-        subindent = ' ' * 4 * (level + 1)
+        indent = " " * 4 * (level)
+        print(f"{indent}{os.path.basename(root)}/")
+        subindent = " " * 4 * (level + 1)
         for f in files:
-            print('{}{}'.format(subindent, f))
+            print(f"{subindent}{f}")
 
 
 def str_to_boolean_default_true(value_in_str: str):
@@ -25,6 +25,7 @@ def str_to_boolean_default_true(value_in_str: str):
         return False
     return True
 
+
 def str_to_boolean_default_false(value_in_str: str):
     value_in_str = str(value_in_str).lower()
     if value_in_str in ("true", "t", "1", "y", "yes"):
@@ -32,31 +33,28 @@ def str_to_boolean_default_false(value_in_str: str):
     return False
 
 
-
-
 def get_input(name):
     return os.getenv(f"SPLUNK_{name}")
 
 
 def set_input(name, value):
-    os.environ["SPLUNK_{}".format(name)] = value
+    os.environ[f"SPLUNK_{name}"] = value
 
 
 def set_env(name, value):
     # os.environ[name] = value   # this does not work with github action
     # ret_code = os.system('export {}={}'.format(name, value))   # this does not work with github action
-    ret_code = os.system('echo "{}={}" >> $GITHUB_ENV'.format(name, value))
-    print("ret_code for setting env variable. {}".format(ret_code))
+    ret_code = os.system(f'echo "{name}={value}" >> $GITHUB_ENV')
+    print(f"ret_code for setting env variable. {ret_code}")
 
 
 def set_output(name, value):
-    os.system('echo "{' + name + '}={' +
-              _escape_data(value) + '}" >> $GITHUB_OUTPUT')
+    os.system('echo "{' + name + "}={" + _escape_data(value) + '}" >> $GITHUB_OUTPUT')
 
 
 def format_message(message):
     timestamp = datetime.now().strftime("%H:%M:%S.%f")
-    return "{} | {}".format(timestamp, message)
+    return f"{timestamp} | {message}"
 
 
 def debug(message):
@@ -108,7 +106,6 @@ def _escape_data(value: str):
     # .replace("\n", "%0A")
 
 
-
 def execute_system_command(command):
     try:
         result = subprocess.run(
@@ -117,12 +114,14 @@ def execute_system_command(command):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            check=True
+            check=True,
         )
         info(
-            f"Command Execution Successful: CMD={command}, ReturnCode={result.returncode}, Output={result.stdout}")
+            f"Command Execution Successful: CMD={command}, ReturnCode={result.returncode}, Output={result.stdout}"
+        )
         return result.returncode, result.stdout
     except subprocess.CalledProcessError as e:
         info(
-            f"Command Execution Failed: CMD={command}, ReturnCode={e.returncode}, Output={e.stderr}")
+            f"Command Execution Failed: CMD={command}, ReturnCode={e.returncode}, Output={e.stderr}"
+        )
         return e.returncode, e.stderr

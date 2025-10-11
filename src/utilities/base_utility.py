@@ -1,14 +1,13 @@
-
 import os
-from helpers.git_manager import GitHubPR, get_file_hash, get_multi_files_hash, get_folder_hash
+
 import helpers.github_action_utils as utils
+from helpers.git_manager import GitHubPR, get_file_hash, get_folder_hash, get_multi_files_hash
 
 
 class BaseUtility:
     def __init__(self, app_read_dir, app_write_dir) -> None:
         self.app_read_dir = app_read_dir
         self.app_write_dir = app_write_dir
-
 
     def add(self):
         with GitHubPR(self.app_write_dir) as github:
@@ -34,10 +33,9 @@ class BaseUtility:
                 utils.debug("Committing and creating PR for the code change.")
                 github.commit_and_pr(hash=hash)
             else:
-                utils.error(
-                    "Unable to get hash to generate PR for app utility.")
-
+                utils.error("Unable to get hash to generate PR for app utility.")
 
     def implement_utility(self):
         raise NotImplementedError(
-            "The implement_utility function must be implemented in the child class.")
+            "The implement_utility function must be implemented in the child class."
+        )

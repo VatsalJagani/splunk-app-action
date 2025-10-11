@@ -1,8 +1,8 @@
-
 import os
 import pathlib
-from helpers.splunk_config_parser import SplunkConfigParser
+
 import helpers.github_action_utils as utils
+from helpers.splunk_config_parser import SplunkConfigParser
 
 
 class BaseFileHandler:
@@ -11,7 +11,6 @@ class BaseFileHandler:
         self.output_file_path = output_file_path
         self.words_for_replacement: dict = words_for_replacement
 
-
     def text_words_replacement(self, content):
         # do words replacement for file content
         for word, replacement in self.words_for_replacement.items():
@@ -19,20 +18,16 @@ class BaseFileHandler:
 
         return content
 
-
-
     def get_input_file_content(self):
         input_content = None
-        with open(self.input_file_path, 'r') as fr:
+        with open(self.input_file_path) as fr:
             input_content = fr.read()
 
         return self.text_words_replacement(input_content)
 
-
     def create_output_directory_path_if_not_exist(self):
         output_dir_path = os.path.dirname(self.output_file_path)
         pathlib.Path(output_dir_path).mkdir(parents=True, exist_ok=True)
-
 
 
 class PartConfFileHandler(BaseFileHandler):
@@ -41,19 +36,18 @@ class PartConfFileHandler(BaseFileHandler):
             writer_parser.add_section(sect)
         writer_parser.set(sect, key, value)
 
-
     def validate_config(self):
         input_content = self.get_input_file_content()
-        temp_file = '{}_temp'.format(self.input_file_path)
-        with open(temp_file, 'w') as f:
+        temp_file = f"{self.input_file_path}_temp"
+        with open(temp_file, "w") as f:
             f.write(input_content)
 
         input_parser = SplunkConfigParser(temp_file)
 
         self.create_output_directory_path_if_not_exist()
         if not os.path.exists(self.output_file_path):
-            with open(self.output_file_path, 'w') as f:
-                pass   # writing empty file
+            with open(self.output_file_path, "w") as f:
+                pass  # writing empty file
 
         output_parser = SplunkConfigParser(self.output_file_path)
         is_file_changed = output_parser.merge(input_parser)
@@ -64,38 +58,36 @@ class PartConfFileHandler(BaseFileHandler):
         return is_file_changed
 
 
-
 class FullRawFileHandler(BaseFileHandler):
-
     def validate_file_content(self):
         input_content = self.get_input_file_content()
 
         already_present_file_content = None
         if os.path.isfile(self.output_file_path):
-            with open(self.output_file_path, 'r') as fr:
+            with open(self.output_file_path) as fr:
                 already_present_file_content = fr.read()
 
         if already_present_file_content != input_content:
-            utils.debug("File changed - file={}".format(self.output_file_path))
+            utils.debug(f"File changed - file={self.output_file_path}")
             self.create_output_directory_path_if_not_exist()
-            with open(self.output_file_path, 'w') as fw:
+            with open(self.output_file_path, "w") as fw:
                 fw.write(input_content)
             return True
         return False
 
 
-
 class PartRawFileHandler(BaseFileHandler):
-
-    def validate_file_content(self, new_content, start_markers, end_markers, start_marker_to_add='', end_marker_to_add=''):
+    def validate_file_content(
+        self, new_content, start_markers, end_markers, start_marker_to_add="", end_marker_to_add=""
+    ):
         new_content = self.text_words_replacement(new_content)
 
-        content = ''
-        lower_content = ''
+        content = ""
+        lower_content = ""
         start_index = -1
         end_index = -1
 
-        with open(self.output_file_path, 'r') as file:
+        with open(self.output_file_path) as file:
             content = file.read()
             lower_content = content.lower()
 
@@ -116,18 +108,16 @@ class PartRawFileHandler(BaseFileHandler):
             if end_index < 0:
                 end_index = len(lower_content) - 1
 
-            utils.debug(
-                f"Found start_index={start_index}, end_index={end_index}")
+            utils.debug(f"Found start_index={start_index}, end_index={end_index}")
 
-            updated_content = content[:start_index] + \
-                new_content + content[end_index:]
+            updated_content = content[:start_index] + new_content + content[end_index:]
 
         else:
             # Content not found in the file
             updated_content = content + start_marker_to_add + new_content + end_marker_to_add
 
         if updated_content != content:
-            with open(self.output_file_path, 'w') as fw:
+            with open(self.output_file_path, "w") as fw:
                 fw.write(updated_content)
             return True
 

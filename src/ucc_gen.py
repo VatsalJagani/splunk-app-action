@@ -1,6 +1,6 @@
-
 import os
 import shutil
+
 import helpers.github_action_utils as utils
 from helpers.global_variables import GlobalVariables
 
@@ -20,6 +20,8 @@ def build():
 
     os.chdir(GlobalVariables.ROOT_DIR_PATH)
 
-    shutil.copytree(os.path.join(org_ta_dir, 'output', GlobalVariables.APP_PACKAGE_ID), "ucc_generated_build")
+    shutil.copytree(
+        os.path.join(org_ta_dir, "output", GlobalVariables.APP_PACKAGE_ID), "ucc_generated_build"
+    )
 
     return "ucc_generated_build"

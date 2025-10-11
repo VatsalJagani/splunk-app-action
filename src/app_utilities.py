@@ -1,12 +1,12 @@
-
 import os
+
 import helpers.github_action_utils as utils
 from helpers.global_variables import GlobalVariables
-from utilities.whats_inside_app import WhatsInsideTheAppUtility
+from utilities.common_splunk_js_utilities import CommonJSUtilitiesFile
 from utilities.logger import LoggerUtility
 from utilities.splunk_sdk_python import SplunkPythonSDKUtility
-from utilities.common_splunk_js_utilities import CommonJSUtilitiesFile
 from utilities.ucc_additional_packaging import UCCAdditionalPackagingUtility
+from utilities.whats_inside_app import WhatsInsideTheAppUtility
 
 
 class SplunkAppUtilities:
@@ -15,17 +15,16 @@ class SplunkAppUtilities:
         self.app_write_dir = app_write_dir
         self.is_test = is_test
         # Get Inputs
-        app_utilities = utils.get_input('app_utilities')
+        app_utilities = utils.get_input("app_utilities")
         if not app_utilities or app_utilities == "NONE" or app_utilities == "":
             self.app_utilities = []
         else:
-            app_utilities = app_utilities.split(',')
+            app_utilities = app_utilities.split(",")
             app_utilities = [u.strip() for u in app_utilities]
 
         os.chdir(GlobalVariables.ROOT_DIR_PATH)
 
         self.add_utilities(app_utilities)
-
 
     def add_utilities(self, app_utilities):
         utils.info(f"Adding utilities: {app_utilities}")
@@ -46,4 +45,4 @@ class SplunkAppUtilities:
                 UCCAdditionalPackagingUtility(self.app_read_dir, self.app_write_dir).add()
 
             else:
-                utils.error("utility={} is not supported.".format(utility))
+                utils.error(f"utility={utility} is not supported.")
