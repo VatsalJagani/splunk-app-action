@@ -31,7 +31,7 @@ def setup_action_yml(
     splunk_python_sdk_install_path="bin",
     is_remove_pyc_from_splunklib_dir="true",
 ):
-    app_dir_path = os.path.join(os.path.dirname(__file__), "test_app_repos", test_app_repo)
+    app_dir_path = os.path.join(os.path.dirname(__file__), "app_repos_for_test", test_app_repo)
     print(f"TestIntegration.setup_action_yml_work -> app_dir_path={app_dir_path}")
 
     # copy the app module there

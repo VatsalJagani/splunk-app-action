@@ -12,7 +12,7 @@ from unittest.mock import patch
 from helpers import github_action_utils as utils
 from utilities.splunk_sdk_python import SplunkPythonSDKUtility
 
-from .helper import get_temp_directory, setup_temporary_env_vars, stdout_capture
+from helper import get_temp_directory, setup_temporary_env_vars, stdout_capture
 
 
 def check_no_pycache(folder_path):

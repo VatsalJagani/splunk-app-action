@@ -12,7 +12,7 @@ import pytest
 
 from helpers.file_manager import FullRawFileHandler, PartConfFileHandler, PartRawFileHandler
 
-from .helper import get_temp_directory
+from helper import get_temp_directory
 
 
 def test_config_file_changed():

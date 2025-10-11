@@ -12,13 +12,13 @@ from unittest.mock import patch
 
 from utilities.base_utility import BaseUtility
 
-from .helper import stdout_capture
+from helper import stdout_capture
 
 
 class TestBaseUtility(unittest.TestCase):
     def setUp(self):
-        self.app_read_dir = os.path.join(os.path.dirname(__file__), "test_app_repos")
-        self.app_write_dir = os.path.join(os.path.dirname(__file__), "test_app_repos")
+        self.app_read_dir = os.path.join(os.path.dirname(__file__), "app_repos_for_test")
+        self.app_write_dir = os.path.join(os.path.dirname(__file__), "app_repos_for_test")
         self.base_utility = BaseUtility(self.app_read_dir, self.app_write_dir)
 
     @patch("helpers.git_manager.GitHubPR")

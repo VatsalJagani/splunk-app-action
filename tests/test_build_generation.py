@@ -13,7 +13,7 @@ import unittest
 
 from main import main
 
-from .helper import setup_action_yml
+from helper import setup_action_yml
 
 
 def get_file_permissions(filepath):
