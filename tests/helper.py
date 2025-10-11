@@ -1,26 +1,36 @@
-import os
-import sys
+# pyright: reportPrivateUsage=false
+# pyright: reportUnusedVariable=false
+# pyright: reportUnusedParameter=false
+# pyright: reportMissingParameterType=false
+# pyright: reportUnknownVariableType=false
+# pyright: reportUnknownParameterType=false
+# pyright: reportUnknownMemberType=false
+
 import io
+import os
 import shutil
 import subprocess
+import sys
 from contextlib import contextmanager
 
-@contextmanager
-def setup_action_yml(test_app_repo,
-                            app_dir=".",
-                            use_ucc_gen="false",
-                            to_make_permission_changes="false",
-                            is_app_inspect_check="true",
-                            splunkbase_username="NONE",
-                            splunkbase_password="NONE",
-                            app_utilities="",
-                            my_github_token="NONE",
-                            current_branch="NONE",
-                            logger_log_files_prefix="NONE",
-                            logger_sourcetype="NONE",
-                            splunk_python_sdk_install_path="bin",
-                            is_remove_pyc_from_splunklib_dir="true"):
 
+@contextmanager
+def setup_action_yml(
+    test_app_repo,
+    app_dir=".",
+    use_ucc_gen="false",
+    to_make_permission_changes="false",
+    is_app_inspect_check="true",
+    splunkbase_username="NONE",
+    splunkbase_password="NONE",
+    app_utilities="",
+    my_github_token="NONE",
+    current_branch="NONE",
+    logger_log_files_prefix="NONE",
+    logger_sourcetype="NONE",
+    splunk_python_sdk_install_path="bin",
+    is_remove_pyc_from_splunklib_dir="true",
+):
     app_dir_path = os.path.join(os.path.dirname(__file__), "test_app_repos", test_app_repo)
     print(f"TestIntegration.setup_action_yml_work -> app_dir_path={app_dir_path}")
 
@@ -71,7 +81,7 @@ def setup_action_yml(test_app_repo,
 
 @contextmanager
 def get_temp_directory():
-    temp_dir = os.path.join(os.path.dirname(__file__), 'tempdir')
+    temp_dir = os.path.join(os.path.dirname(__file__), "tempdir")
     if not os.path.exists(temp_dir):
         os.mkdir(temp_dir)
 
@@ -84,7 +94,7 @@ def get_temp_directory():
 
 @contextmanager
 def get_temp_git_repo(current_branch="my_current_branch"):
-    temp_dir = os.path.join(os.path.dirname(__file__), 'temprepo')
+    temp_dir = os.path.join(os.path.dirname(__file__), "temprepo")
     if not os.path.exists(temp_dir):
         os.mkdir(temp_dir)
 
@@ -96,18 +106,18 @@ def get_temp_git_repo(current_branch="my_current_branch"):
     os.environ["SPLUNK_current_branch_name"] = current_branch
 
     # Initialize a git repository
-    subprocess.run(['git', 'init'], check=True)
-    subprocess.run(['git', 'config', 'user.name', 'Test User'], check=True)
-    subprocess.run(['git', 'config', 'user.email', 'test@example.com'], check=True)
+    subprocess.run(["git", "init"], check=True)
+    subprocess.run(["git", "config", "user.name", "Test User"], check=True)
+    subprocess.run(["git", "config", "user.email", "test@example.com"], check=True)
 
     # Create some initial files and commit them
-    with open('file1.txt', 'w') as f:
-        f.write('Initial content')
-    subprocess.run(['git', 'add', 'file1.txt'], check=True)
-    subprocess.run(['git', 'commit', '-m', 'Initial commit'], check=True)
+    with open("file1.txt", "w") as f:
+        f.write("Initial content")
+    subprocess.run(["git", "add", "file1.txt"], check=True)
+    subprocess.run(["git", "commit", "-m", "Initial commit"], check=True)
 
     # Create a branch
-    subprocess.run(['git', 'checkout', '-b', current_branch], check=True)
+    subprocess.run(["git", "checkout", "-b", current_branch], check=True)
 
     try:
         yield temp_dir
@@ -119,7 +129,6 @@ def get_temp_git_repo(current_branch="my_current_branch"):
 
         if os.path.exists(temp_dir):
             shutil.rmtree(temp_dir)
-
 
 
 @contextmanager

@@ -1,11 +1,11 @@
 import json
-import datetime
 
 
-class BaseCheckpoint(object):
+class BaseCheckpoint:
     """
     The base class of checkpoint
     """
+
     def __init__(self, logger, url, start_date=None):
         self.logger = logger
         self.url = url
@@ -13,20 +13,17 @@ class BaseCheckpoint(object):
         self.contents = {}
         self._reset_check_point()
 
-
     def _reset_check_point(self):
         """
         The method to reset the checkpoint
         """
         raise NotImplementedError("Derived class shall implement the function")
 
-
     def _get_content(self):
         """
         The method to get the content of the checkpoint.
         """
         return self.contents
-
 
     def read(self, content=None):
         """
@@ -38,17 +35,14 @@ class BaseCheckpoint(object):
         else:
             self._reset_check_point()
 
-
     def write(self):
         """
         The method to write checkpoint file.
         """
         return json.dump(self.contents)
 
-
     def delete(self):
         return self._reset_check_point()
-
 
 
 class MyInputCheckpoint(BaseCheckpoint):

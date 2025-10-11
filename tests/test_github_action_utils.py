@@ -1,3 +1,10 @@
+# pyright: reportPrivateUsage=false
+# pyright: reportUnusedVariable=false
+# pyright: reportUnusedParameter=false
+# pyright: reportMissingParameterType=false
+# pyright: reportUnknownVariableType=false
+# pyright: reportUnknownParameterType=false
+# pyright: reportUnknownMemberType=false
 
 from helpers.github_action_utils import str_to_boolean_default_false, str_to_boolean_default_true
 
@@ -8,6 +15,7 @@ def test_str_to_boolean_default_true_positive_cases():
     assert str_to_boolean_default_true("1") is True
     assert str_to_boolean_default_true("YES") is True
 
+
 def test_str_to_boolean_default_true_negative_cases():
     assert str_to_boolean_default_true("false") is False
     assert str_to_boolean_default_true("f") is False
@@ -15,11 +23,13 @@ def test_str_to_boolean_default_true_negative_cases():
     assert str_to_boolean_default_true("no") is False
     assert str_to_boolean_default_true("") is True  # Empty string defaults to True
 
+
 def test_str_to_boolean_default_false_positive_cases():
     assert str_to_boolean_default_false("true") is True
     assert str_to_boolean_default_false("t") is True
     assert str_to_boolean_default_false("1") is True
     assert str_to_boolean_default_false("yes") is True
+
 
 def test_str_to_boolean_default_false_negative_cases():
     assert str_to_boolean_default_false("false") is False

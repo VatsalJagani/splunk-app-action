@@ -1,13 +1,7 @@
-import time
-from datetime import datetime
-import re
 import requests
-import traceback
-
 
 SOURCETYPE_1 = "mydata:my_input"
 SOURCETYPE_2 = "mydata:my_input2"
-
 
 
 class API:
@@ -25,35 +19,48 @@ class API:
         # self._login()
         self.logger.debug("API class initialized.")
 
-
     def make_api_call(self, url, method="GET", params=None, data=None):
-        headers = {'X-ApiKeys': 'accessKey={0} ; secretKey={1}'.format(self.account_details.client_id, self.account_details.client_secret), 'content-type': 'application/json'}
-        full_url = f'{self.base_url.rstrip("/")}/{url.lstrip("/")}'
+        headers = {
+            "X-ApiKeys": f"accessKey={self.account_details.client_id} ; secretKey={self.account_details.client_secret}",
+            "content-type": "application/json",
+        }
+        full_url = f"{self.base_url.rstrip('/')}/{url.lstrip('/')}"
 
         self.logger.info(f"HTTP request. URL={full_url}, params={params}")
         self.logger.debug(f"HTTP request. data={data}")
 
         try:
-            response = requests.request(method, full_url, params=params, json=data, headers=headers, proxies=self.proxy_settings, verify=self.verify, timeout=280)
+            response = requests.request(
+                method,
+                full_url,
+                params=params,
+                json=data,
+                headers=headers,
+                proxies=self.proxy_settings,
+                verify=self.verify,
+                timeout=280,
+            )
             status_code = response.status_code
 
-            self.logger.info("HTTP response. URL={}: status_code={}".format(full_url, status_code))
-            self.logger.debug("HTTP response. response_text={}".format(response.text))
+            self.logger.info(f"HTTP response. URL={full_url}: status_code={status_code}")
+            self.logger.debug(f"HTTP response. response_text={response.text}")
 
             if response.ok:
-                if 'download' in response.text:
+                if "download" in response.text:
                     return response.text
                 else:
                     return response.json()
             else:
-                self.logger.error('Error while making the API call to URL={}, status_code={}'.format(full_url, status_code))
+                self.logger.error(
+                    f"Error while making the API call to URL={full_url}, status_code={status_code}"
+                )
                 return None
 
         except Exception as exception:
             self.logger.exception(
-                'Error while making the API call to URL={}, error={}'.format(full_url, exception))
+                f"Error while making the API call to URL={full_url}, error={exception}"
+            )
             return False
-
 
     def collect_data(self, ckpt):
         return ckpt

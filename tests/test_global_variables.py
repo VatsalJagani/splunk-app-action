@@ -1,5 +1,15 @@
+# pyright: reportPrivateUsage=false
+# pyright: reportUnusedVariable=false
+# pyright: reportUnusedParameter=false
+# pyright: reportMissingParameterType=false
+# pyright: reportUnknownVariableType=false
+# pyright: reportUnknownParameterType=false
+# pyright: reportUnknownMemberType=false
+
 import os
+
 from helpers.global_variables import GlobalVariables
+
 
 def test_initiate_valid_args():
     # Set up
@@ -15,7 +25,9 @@ def test_initiate_valid_args():
     assert GlobalVariables.ORIGINAL_REPO_DIR_NAME == repodir_name
     assert GlobalVariables.ORIGINAL_REPO_DIR_PATH == os.path.join(root_dir_path, repodir_name)
     assert GlobalVariables.APP_DIR_NAME == app_dir_name
-    assert GlobalVariables.ORIGINAL_APP_DIR_PATH == os.path.join(GlobalVariables.ORIGINAL_REPO_DIR_PATH, app_dir_name)
+    assert GlobalVariables.ORIGINAL_APP_DIR_PATH == os.path.join(
+        GlobalVariables.ORIGINAL_REPO_DIR_PATH, app_dir_name
+    )
 
     # Cleanup (optional, reset variables)
     GlobalVariables.ROOT_DIR_PATH = None
@@ -23,6 +35,7 @@ def test_initiate_valid_args():
     GlobalVariables.ORIGINAL_REPO_DIR_PATH = None
     GlobalVariables.APP_DIR_NAME = None
     GlobalVariables.ORIGINAL_APP_DIR_PATH = None
+
 
 def test_initiate_missing_args():
     # Set up
@@ -34,9 +47,13 @@ def test_initiate_missing_args():
     # Assertions (using os.getcwd() for current working directory)
     assert GlobalVariables.ROOT_DIR_PATH == os.getcwd()
     assert GlobalVariables.ORIGINAL_REPO_DIR_NAME == "repodir"
-    assert GlobalVariables.ORIGINAL_REPO_DIR_PATH == os.path.join(GlobalVariables.ROOT_DIR_PATH, "repodir")
+    assert GlobalVariables.ORIGINAL_REPO_DIR_PATH == os.path.join(
+        GlobalVariables.ROOT_DIR_PATH, "repodir"
+    )
     assert GlobalVariables.APP_DIR_NAME == app_dir_name
-    assert GlobalVariables.ORIGINAL_APP_DIR_PATH == os.path.join(GlobalVariables.ORIGINAL_REPO_DIR_PATH, app_dir_name)
+    assert GlobalVariables.ORIGINAL_APP_DIR_PATH == os.path.join(
+        GlobalVariables.ORIGINAL_REPO_DIR_PATH, app_dir_name
+    )
 
     # Cleanup (optional, reset variables)
     GlobalVariables.ROOT_DIR_PATH = None
@@ -45,10 +62,12 @@ def test_initiate_missing_args():
     GlobalVariables.APP_DIR_NAME = None
     GlobalVariables.ORIGINAL_APP_DIR_PATH = None
 
+
 def test_set_app_package_id():
     package_id = "my_app_id"
     GlobalVariables.set_app_package_id(package_id)
     assert GlobalVariables.APP_PACKAGE_ID == package_id
+
 
 def test_set_app_version():
     version = "1.2.3"
@@ -59,6 +78,7 @@ def test_set_app_version():
     # Cleanup (optional, reset variables)
     GlobalVariables.APP_VERSION = None
     GlobalVariables.APP_VERSION_ENCODED = None
+
 
 def test_set_app_build_number():
     build_number = "456"

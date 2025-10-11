@@ -1,16 +1,11 @@
-
-import sys
 import logging
 import traceback
 
-import import_declare_test
-
-from solnlib.modular_input import checkpointer
-from solnlib import conf_manager
-from splunktaucclib.rest_handler.admin_external import AdminExternalHandler
-
-from addon_name import ADDON_NAME, NORMALIZED_ADDON_NAME
 import logger_manager
+from addon_name import ADDON_NAME, NORMALIZED_ADDON_NAME
+from solnlib import conf_manager
+from solnlib.modular_input import checkpointer
+from splunktaucclib.rest_handler.admin_external import AdminExternalHandler
 
 
 class AddonInputCheckpointer:
@@ -21,28 +16,28 @@ class AddonInputCheckpointer:
 
     def get(self):
         try:
-            ck = checkpointer.KVStoreCheckpointer(
-                self.input_name, self.session_key, ADDON_NAME)
+            ck = checkpointer.KVStoreCheckpointer(self.input_name, self.session_key, ADDON_NAME)
             return ck.get(self.input_name)
         except Exception as exception:
-            self.logger.error("Error occurred while fetching checkpoint, error={}".format(exception))
+            self.logger.error(f"Error occurred while fetching checkpoint, error={exception}")
 
     def update(self, new_val):
         try:
-            ck = checkpointer.KVStoreCheckpointer(
-                self.input_name, self.session_key, ADDON_NAME)
+            ck = checkpointer.KVStoreCheckpointer(self.input_name, self.session_key, ADDON_NAME)
             return ck.update(self.input_name, new_val)
         except Exception as exception:
-            self.logger.exception("Error occurred while updating the checkpoint, error={}".format(exception))
+            self.logger.exception(
+                f"Error occurred while updating the checkpoint, error={exception}"
+            )
 
     def delete(self):
         try:
-            ck = checkpointer.KVStoreCheckpointer(
-                self.input_name, self.session_key, ADDON_NAME)
+            ck = checkpointer.KVStoreCheckpointer(self.input_name, self.session_key, ADDON_NAME)
             return ck.delete(self.input_name)
         except Exception as exception:
-            self.logger.exception("Error occurred while deleting the checkpoint, error={}".format(exception))
-
+            self.logger.exception(
+                f"Error occurred while deleting the checkpoint, error={exception}"
+            )
 
 
 def get_account_details(session_key: str, logger, account_name: str):
@@ -60,22 +55,20 @@ def get_log_level(session_key: str):
         settings_cfm = conf_manager.ConfManager(
             session_key,
             ADDON_NAME,
-            realm=f"__REST_CREDENTIAL__#{ADDON_NAME}#configs/conf-{NORMALIZED_ADDON_NAME}_settings")
+            realm=f"__REST_CREDENTIAL__#{ADDON_NAME}#configs/conf-{NORMALIZED_ADDON_NAME}_settings",
+        )
 
-        logging_details = settings_cfm.get_conf(
-            f"{NORMALIZED_ADDON_NAME}_settings").get("logging")
+        logging_details = settings_cfm.get_conf(f"{NORMALIZED_ADDON_NAME}_settings").get("logging")
 
-        log_level = logging_details.get('loglevel') if (
-            logging_details.get('loglevel')) else 'INFO'
+        log_level = logging_details.get("loglevel") if (logging_details.get("loglevel")) else "INFO"
 
         return log_level
     except:
         return logging.INFO
 
 
-
 class AddonInput:
-    '''
+    """
     Attributes accessible as class attributes
         - logger
         - session_key
@@ -87,7 +80,8 @@ class AddonInput:
         - input_name
         - input_item
         - last_checkpoint
-    '''
+    """
+
     def __init__(self, session_key, input_name, input_item, event_writer) -> None:
         self.input_name = input_name
         self.input_item = input_item
@@ -105,20 +99,26 @@ class AddonInput:
 
             self.logger.debug(f"input_name={input_name}, input_item={input_item}")
 
-            account_name = input_item.get('account')
+            account_name = input_item.get("account")
             account_details = get_account_details(session_key, self.logger, account_name)
 
             # self.proxy_settings = get_proxy_settings(session_key, self.logger)
             self.proxy_settings = None
 
-            input_checkpointer = AddonInputCheckpointer(session_key, self.logger, self.normalized_input_name)
+            input_checkpointer = AddonInputCheckpointer(
+                session_key, self.logger, self.normalized_input_name
+            )
             last_checkpoint = input_checkpointer.get()
-            self.logger.info(f"input={self.normalized_input_name} -> last_checkpoint={last_checkpoint}")
+            self.logger.info(
+                f"input={self.normalized_input_name} -> last_checkpoint={last_checkpoint}"
+            )
 
             self.logger.debug("before self.collect()")
             updated_checkpoint = self.collect(account_details, last_checkpoint=last_checkpoint)
             self.logger.debug("after self.collect()")
-            self.logger.info(f"input={self.normalized_input_name} -> updating the checkpoint to {updated_checkpoint}")
+            self.logger.info(
+                f"input={self.normalized_input_name} -> updating the checkpoint to {updated_checkpoint}"
+            )
             if updated_checkpoint:
                 input_checkpointer.update(updated_checkpoint)
 
@@ -129,11 +129,9 @@ class AddonInput:
                 f'Exception raised while ingesting data for input="{self.normalized_input_name}" {e}. Traceback: {traceback.format_exc()}'
             )
 
-
     def collect(self, account_details, last_checkpoint):
         self.logger.error("This collect() function should not be called.")
         raise Exception("collect method has not been implemented.")
-
 
 
 class InputHelperRestHandler(AdminExternalHandler):
@@ -162,7 +160,9 @@ class InputHelperRestHandler(AdminExternalHandler):
             last_checkpoint = input_checkpointer.get()
 
             if last_checkpoint:
-                logger.info(f"Deleting the checkpoint for input={input_name} with last found checkpoint was {last_checkpoint}")
+                logger.info(
+                    f"Deleting the checkpoint for input={input_name} with last found checkpoint was {last_checkpoint}"
+                )
                 input_checkpointer.delete()
                 logger.info(f"Deleted the input checkpoint for input={input_name}")
             else:
