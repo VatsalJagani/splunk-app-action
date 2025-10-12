@@ -21,11 +21,10 @@ def main():
 
     app_dir_input = gat.get_user_input("app_dir")
 
-    print(f"TEST - app_dir_name = {app_dir_input}")
     GlobalVariables.initiate(app_dir_name=app_dir_input)
 
     # Build Add-on with UCC
-    use_ucc_gen = gat.str_to_boolean_default_false(gat.get_user_input("use_ucc_gen"))
+    use_ucc_gen = gat.get_user_input_as("use_ucc_gen", bool, False)
     gat.info(f"use_ucc_gen: {use_ucc_gen}")
 
     if use_ucc_gen:

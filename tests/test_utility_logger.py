@@ -17,8 +17,8 @@ def test_logger_utility_skipped_due_to_missing_prefix_1():
     with get_temp_directory() as temp_dir:
         with setup_temporary_env_vars(
             {
-                "INPUT_logger_log_files_prefix": "NONE",
-                "INPUT_logger_sourcetype": "sample_logger_sourcetype",
+                "INPUT_LOGGER_LOG_FILES_PREFIX": "NONE",
+                "INPUT_LOGGER_SOURCETYPE": "sample_logger_sourcetype",
             }
         ):
             logger = LoggerUtility("dummy", temp_dir)
@@ -34,7 +34,7 @@ def test_logger_utility_skipped_due_to_missing_prefix_1():
 
 def test_logger_utility_skipped_due_to_missing_prefix_2():
     with get_temp_directory() as temp_dir:
-        with setup_temporary_env_vars({"INPUT_logger_sourcetype": "sample_logger_sourcetype"}):
+        with setup_temporary_env_vars({"INPUT_LOGGER_SOURCETYPE": "sample_logger_sourcetype"}):
             logger = LoggerUtility("dummy", temp_dir)
 
             # Exercise: Call the function
@@ -49,7 +49,7 @@ def test_logger_utility_skipped_due_to_missing_prefix_2():
 def test_logger_utility_skipped_due_to_missing_sourcetype_1():
     with get_temp_directory() as temp_dir:
         with setup_temporary_env_vars(
-            {"INPUT_logger_log_files_prefix": "sample_prefix", "INPUT_logger_sourcetype": "NONE"}
+            {"INPUT_LOGGER_LOG_FILES_PREFIX": "sample_prefix", "INPUT_LOGGER_SOURCETYPE": "NONE"}
         ):
             logger = LoggerUtility("dummy", temp_dir)
 
@@ -66,7 +66,7 @@ def test_logger_utility_skipped_due_to_missing_sourcetype_2():
     with get_temp_directory() as temp_dir:
         with setup_temporary_env_vars(
             {
-                "INPUT_logger_log_files_prefix": "sample_prefix",
+                "INPUT_LOGGER_LOG_FILES_PREFIX": "sample_prefix",
             }
         ):
             logger = LoggerUtility("dummy", temp_dir)
@@ -84,8 +84,8 @@ def test_logger_utility_added():
     with get_temp_directory() as temp_dir:
         with setup_temporary_env_vars(
             {
-                "INPUT_logger_log_files_prefix": "sample_log_file_prefix",
-                "INPUT_logger_sourcetype": "sample_logger_sourcetype",
+                "INPUT_LOGGER_LOG_FILES_PREFIX": "sample_log_file_prefix",
+                "INPUT_LOGGER_SOURCETYPE": "sample_logger_sourcetype",
             }
         ):
             logger = LoggerUtility("dumpy", temp_dir)
@@ -105,8 +105,8 @@ def test_logger_utility_updated():
     with get_temp_directory() as temp_dir:
         with setup_temporary_env_vars(
             {
-                "INPUT_logger_log_files_prefix": "sample_log_file_prefix",
-                "INPUT_logger_sourcetype": "sample_logger_sourcetype",
+                "INPUT_LOGGER_LOG_FILES_PREFIX": "sample_log_file_prefix",
+                "INPUT_LOGGER_SOURCETYPE": "sample_logger_sourcetype",
             }
         ):
             logger = LoggerUtility("dumpy", temp_dir)
@@ -120,8 +120,8 @@ def test_logger_utility_updated():
         # Updating the logger
         with setup_temporary_env_vars(
             {
-                "INPUT_logger_log_files_prefix": "log_file_prefix_new",
-                "INPUT_logger_sourcetype": "logger_sourcetype_new",
+                "INPUT_LOGGER_LOG_FILES_PREFIX": "log_file_prefix_new",
+                "INPUT_LOGGER_SOURCETYPE": "logger_sourcetype_new",
             }
         ):
             logger = LoggerUtility("dumpy", temp_dir)
@@ -143,8 +143,8 @@ def test_logger_utility_not_updated():
     with get_temp_directory() as temp_dir:
         with setup_temporary_env_vars(
             {
-                "INPUT_logger_log_files_prefix": "sample_log_file_prefix",
-                "INPUT_logger_sourcetype": "sample_logger_sourcetype",
+                "INPUT_LOGGER_LOG_FILES_PREFIX": "sample_log_file_prefix",
+                "INPUT_LOGGER_SOURCETYPE": "sample_logger_sourcetype",
             }
         ):
             logger = LoggerUtility("dumpy", temp_dir)

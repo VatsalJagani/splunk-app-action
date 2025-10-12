@@ -38,19 +38,19 @@ def setup_action_yml(
     shutil.copytree(app_dir_path, os.path.join("repodir"))
 
     # setup inputs
-    os.environ["INPUT_app_dir"] = app_dir
-    os.environ["INPUT_use_ucc_gen"] = use_ucc_gen
-    os.environ["INPUT_to_make_permission_changes"] = to_make_permission_changes
-    os.environ["INPUT_is_app_inspect_check"] = is_app_inspect_check
-    os.environ["INPUT_splunkbase_username"] = splunkbase_username
-    os.environ["INPUT_splunkbase_password"] = splunkbase_password
-    os.environ["INPUT_app_utilities"] = app_utilities
+    os.environ["INPUT_APP_DIR"] = app_dir
+    os.environ["INPUT_USE_UCC_GEN"] = use_ucc_gen
+    os.environ["INPUT_TO_MAKE_PERMISSION_CHANGES"] = to_make_permission_changes
+    os.environ["INPUT_IS_APP_INSPECT_CHECK"] = is_app_inspect_check
+    os.environ["INPUT_SPLUNKBASE_USERNAME"] = splunkbase_username
+    os.environ["INPUT_SPLUNKBASE_PASSWORD"] = splunkbase_password
+    os.environ["INPUT_APP_UTILITIES"] = app_utilities
     os.environ["GITHUB_TOKEN"] = my_github_token
-    os.environ["INPUT_current_branch_name"] = current_branch
-    os.environ["INPUT_logger_log_files_prefix"] = logger_log_files_prefix
-    os.environ["INPUT_logger_sourcetype"] = logger_sourcetype
-    os.environ["INPUT_splunk_python_sdk_install_path"] = splunk_python_sdk_install_path
-    os.environ["INPUT_is_remove_pyc_from_splunklib_dir"] = is_remove_pyc_from_splunklib_dir
+    os.environ["INPUT_CURRENT_BRANCH_NAME"] = current_branch
+    os.environ["INPUT_LOGGER_LOG_FILES_PREFIX"] = logger_log_files_prefix
+    os.environ["INPUT_LOGGER_SOURCETYPE"] = logger_sourcetype
+    os.environ["INPUT_SPLUNK_PYTHON_SDK_INSTALL_PATH"] = splunk_python_sdk_install_path
+    os.environ["INPUT_IS_REMOVE_PYC_FROM_SPLUNKLIB_DIR"] = is_remove_pyc_from_splunklib_dir
 
     try:
         yield
@@ -108,7 +108,7 @@ def get_temp_git_repo(current_branch="my_current_branch"):
     os.chdir(temp_dir)
 
     os.environ["GITHUB_TOKEN"] = "this_is_my_github_token"
-    os.environ["INPUT_current_branch_name"] = current_branch
+    os.environ["INPUT_CURRENT_BRANCH_NAME"] = current_branch
 
     # Initialize a git repository
     subprocess.run(["git", "init"], check=True)
@@ -128,7 +128,7 @@ def get_temp_git_repo(current_branch="my_current_branch"):
         yield temp_dir
     finally:
         del os.environ["GITHUB_TOKEN"]
-        del os.environ["INPUT_current_branch_name"]
+        del os.environ["CURRENT_BRANCH_NAME"]
 
         os.chdir(original_pwd)  # go back to original directory
 

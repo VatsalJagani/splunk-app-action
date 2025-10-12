@@ -104,19 +104,19 @@ runs:
     - name: "Running the Splunk App actions"
       shell: bash
       env:
-        INPUT_app_dir: ${{inputs.app_dir}}
-        INPUT_use_ucc_gen: ${{inputs.use_ucc_gen}}
-        INPUT_to_make_permission_changes: ${{inputs.to_make_permission_changes}}
-        INPUT_is_app_inspect_check: ${{inputs.is_app_inspect_check}}
-        INPUT_splunkbase_username: ${{inputs.splunkbase_username}}
-        INPUT_splunkbase_password: ${{inputs.splunkbase_password}}
-        INPUT_app_utilities: ${{inputs.app_utilities}}
+        INPUT_APP_DIR: ${{inputs.app_dir}}
+        INPUT_USE_UCC_GEN: ${{inputs.use_ucc_gen}}
+        INPUT_TO_MAKE_PERMISSION_CHANGES: ${{inputs.to_make_permission_changes}}
+        INPUT_IS_APP_INSPECT_CHECK: ${{inputs.is_app_inspect_check}}
+        INPUT_SPLUNKBASE_USERNAME: ${{inputs.splunkbase_username}}
+        INPUT_SPLUNKBASE_PASSWORD: ${{inputs.splunkbase_password}}
+        INPUT_APP_UTILITIES: ${{inputs.app_utilities}}
         GITHUB_TOKEN: ${{inputs.my_github_token}}
-        INPUT_current_branch_name: ${{steps.extract_branch.outputs.branch}}
-        INPUT_logger_log_files_prefix: ${{inputs.logger_log_files_prefix}}
-        INPUT_logger_sourcetype: ${{inputs.logger_sourcetype}}
-        INPUT_splunk_python_sdk_install_path: ${{inputs.splunk_python_sdk_install_path}}
-        INPUT_is_remove_pyc_from_splunklib_dir: ${{inputs.is_remove_pyc_from_splunklib_dir}}
+        INPUT_CURRENT_BRANCH_NAME: ${{steps.extract_branch.outputs.branch}}
+        INPUT_LOGGER_LOG_FILES_PREFIX: ${{inputs.logger_log_files_prefix}}
+        INPUT_LOGGER_SOURCETYPE: ${{inputs.logger_sourcetype}}
+        INPUT_SPLUNK_PYTHON_SDK_INSTALL_PATH: ${{inputs.splunk_python_sdk_install_path}}
+        INPUT_IS_REMOVE_PYC_FROM_SPLUNKLIB_DIR: ${{inputs.is_remove_pyc_from_splunklib_dir}}
       run: |
         uv run python -u ${{ github.action_path }}/src/main.py
 
