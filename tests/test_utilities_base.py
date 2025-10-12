@@ -21,45 +21,6 @@ class TestBaseUtility(unittest.TestCase):
         self.app_write_dir = os.path.join(os.path.dirname(__file__), "app_repos_for_test")
         self.base_utility = BaseUtility(self.app_read_dir, self.app_write_dir)
 
-    @patch("utilities.base_utility.GitHubPR")
-    def test_add_single_file_changed(self, mock_github_pr):
-        file_path = os.path.join(os.path.dirname(__file__), "dummy_utility_files", "abc.txt")
-        with patch.object(self.base_utility, "implement_utility", return_value=file_path):
-            with stdout_capture() as stdout:
-                self.base_utility.add()
-                output = stdout.getvalue()
-                assert "Committing and creating PR for the code change." in output
-
-    @patch("utilities.base_utility.GitHubPR")
-    def test_add_folder_changed(self, mock_github_pr):
-        folder_path = os.path.join(os.path.dirname(__file__), "dummy_utility_files")
-        with patch.object(self.base_utility, "implement_utility", return_value=folder_path):
-            with stdout_capture() as stdout:
-                self.base_utility.add()
-                output = stdout.getvalue()
-                assert "Committing and creating PR for the code change." in output
-
-    @patch("utilities.base_utility.GitHubPR")
-    def test_add_multi_files_changed(self, mock_github_pr):
-        file1 = os.path.join(os.path.dirname(__file__), "dummy_utility_files", "abc.txt")
-        file2 = os.path.join(os.path.dirname(__file__), "dummy_utility_files", "xyz.txt")
-        with patch.object(self.base_utility, "implement_utility", return_value=[file1, file2]):
-            with stdout_capture() as stdout:
-                self.base_utility.add()
-                output = stdout.getvalue()
-                assert "Committing and creating PR for the code change." in output
-
-    @patch("utilities.base_utility.GitHubPR")
-    def test_add_invalid_file(self, mock_github_pr):
-        with patch.object(
-            self.base_utility, "implement_utility", return_value="/path/to/invalid_file"
-        ):
-            with stdout_capture() as stdout:
-                self.base_utility.add()
-                output = stdout.getvalue()
-                assert "File to generate hash is invalid." in output
-                assert "Unable to get hash to generate PR for app utility." in output
-
     def test_implement_utility_not_implemented(self):
         with self.assertRaises(NotImplementedError):
             self.base_utility.implement_utility()
