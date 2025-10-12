@@ -66,6 +66,11 @@ splunk-app-action = "src:main"
 [tool.ruff]
 # Set as desired, typically 88 (black standard) or 100 (wide).
 line-length = 100
+exclude = [
+    "tests/app_repos_for_test",
+    "tests/dummy_utility_files",
+    "tests/splunk_config_files"
+]
 
 [tool.ruff.lint]
 select = [
@@ -111,6 +116,11 @@ ignore = [
 # https://marketplace.visualstudio.com/items?itemName=detachhead.basedpyright
 # https://docs.basedpyright.com/latest/configuration/config-files/#sample-pyprojecttoml-file
 include = ["src", "tests", "devtools"]
+exclude = [
+    "tests/app_repos_for_test",
+    "tests/dummy_utility_files",
+    "tests/splunk_config_files"
+]
 # By default BasedPyright is very strict, so you almost certainly want to disable
 # some of the rules.
 # First, these turn off warnings about (yes) how you ignore warnings:

@@ -1,6 +1,7 @@
 import os
 
 import github_action_toolkit as gat
+
 from helpers.file_manager import FullRawFileHandler, PartConfFileHandler
 from utilities.base_utility import BaseUtility
 
@@ -13,9 +14,7 @@ class LoggerUtility(BaseUtility):
         log_files_prefix = gat.get_user_input("logger_log_files_prefix")
         gat.info(f"log_files_prefix: {log_files_prefix}")
         if not log_files_prefix or log_files_prefix == "NONE":
-            gat.error(
-                "skipping the logger adding as logger_log_files_prefix input is not defined."
-            )
+            gat.error("skipping the logger adding as logger_log_files_prefix input is not defined.")
             should_execute = False
 
         logger_sourcetype = gat.get_user_input("logger_sourcetype")

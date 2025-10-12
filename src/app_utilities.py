@@ -1,6 +1,7 @@
 import os
 
 import github_action_toolkit as gat
+
 from helpers.global_variables import GlobalVariables
 from utilities.common_splunk_js_utilities import CommonJSUtilitiesFile
 from utilities.logger import LoggerUtility

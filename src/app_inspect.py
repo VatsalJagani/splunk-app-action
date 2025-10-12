@@ -4,10 +4,10 @@ import traceback
 from threading import Thread
 from time import sleep
 
+import github_action_toolkit as gat
 import requests
 from requests.auth import HTTPBasicAuth
 
-import github_action_toolkit as gat
 from helpers.global_variables import GlobalVariables
 
 TIMEOUT_MAX = 240

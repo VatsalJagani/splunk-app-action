@@ -2,6 +2,7 @@ import os
 import xml.etree.ElementTree as ET
 
 import github_action_toolkit as gat
+
 from helpers.file_manager import PartRawFileHandler
 from helpers.splunk_config_parser import SplunkConfigParser
 from utilities.base_utility import BaseUtility

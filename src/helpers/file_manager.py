@@ -2,6 +2,7 @@ import os
 import pathlib
 
 import github_action_toolkit as gat
+
 from helpers.splunk_config_parser import SplunkConfigParser
 
 

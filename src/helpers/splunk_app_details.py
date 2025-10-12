@@ -1,6 +1,7 @@
 import json
 
 import github_action_toolkit as gat
+
 from helpers.splunk_config_parser import SplunkConfigParser
 
 
@@ -42,9 +43,7 @@ def fetch_app_package_id_from_app_conf(app_conf_file_path, app_dir_input):
     app_config = SplunkConfigParser(app_conf_file_path)
 
     if "package" in app_config and "id" in app_config["package"]:
-        gat.info(
-            "Using app package id found in app.conf - {}".format(app_config["package"]["id"])
-        )
+        gat.info("Using app package id found in app.conf - {}".format(app_config["package"]["id"]))
         return app_config["package"]["id"]
     elif app_dir_input == ".":
         gat.error("It is recommended to have `id` attribute in the app.conf's [package] stanza.")

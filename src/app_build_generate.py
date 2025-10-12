@@ -1,6 +1,7 @@
 import os
 
 import github_action_toolkit as gat
+
 from helpers.global_variables import GlobalVariables
 
 
@@ -21,9 +22,7 @@ def file_folder_permission_changes():
         os.system("find . -type f -exec chmod 644 '{}' \\;")
 
         for file_ext in [".sh", ".exe", ".cmd", ".msi", ".bat"]:
-            os.system(
-                f"find . -type f -name '*{file_ext}' -exec chmod 755 '{{}}' \\;"
-            )
+            os.system(f"find . -type f -name '*{file_ext}' -exec chmod 755 '{{}}' \\;")
 
         os.system("find . -type d -exec chmod 755 '{}' \\;")
 

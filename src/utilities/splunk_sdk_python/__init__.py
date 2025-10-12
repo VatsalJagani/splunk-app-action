@@ -3,6 +3,7 @@ import re
 import shutil
 
 import github_action_toolkit as gat
+
 from utilities.base_utility import BaseUtility
 
 
@@ -33,7 +34,9 @@ class SplunkPythonSDKUtility(BaseUtility):
         if not splunk_python_sdk_install_path or splunk_python_sdk_install_path == "NONE":
             splunk_python_sdk_install_path = "bin"
 
-        is_remove_pyc_from_splunklib_dir = gat.get_user_input_as("is_remove_pyc_from_splunklib_dir", bool, True)
+        is_remove_pyc_from_splunklib_dir = gat.get_user_input_as(
+            "is_remove_pyc_from_splunklib_dir", bool, True
+        )
         gat.info(f"is_remove_pyc_from_splunklib_dir: {is_remove_pyc_from_splunklib_dir}")
 
         folder_to_install_splunklib = os.path.join(
@@ -67,16 +70,12 @@ class SplunkPythonSDKUtility(BaseUtility):
             gat.info(
                 f"splunklib already present under {folder_to_install_splunklib} directory of the App, upgrading..."
             )
-            os.system(
-                f'pip install splunk-sdk --upgrade --target "{folder_to_install_splunklib}"'
-            )
+            os.system(f'pip install splunk-sdk --upgrade --target "{folder_to_install_splunklib}"')
         else:
             gat.info(
                 f"splunklib not present under {folder_to_install_splunklib} directory of the App, installing..."
             )
-            os.system(
-                f'pip install splunk-sdk --target "{folder_to_install_splunklib}"'
-            )
+            os.system(f'pip install splunk-sdk --target "{folder_to_install_splunklib}"')
 
         # Removing .pyc and __pycache__
         if is_remove_pyc_from_splunklib_dir:

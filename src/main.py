@@ -3,10 +3,11 @@ import shutil
 import sys
 import traceback
 
-# sys.path.append(os.path.dirname(__file__))
+sys.path.append(os.path.dirname(__file__))
+
+import github_action_toolkit as gat
 
 import app_build_generate
-import github_action_toolkit as gat
 import ucc_gen
 from app_inspect import SplunkAppInspect
 from app_utilities import SplunkAppUtilities
@@ -16,6 +17,7 @@ from helpers.global_variables import GlobalVariables
 
 def main():
     gat.info("Running Python script main.py")
+    gat.print_all_user_inputs()
 
     app_dir_input = gat.get_user_input("app_dir")
     gat.info(f"app_dir_input: {app_dir_input}")
@@ -23,7 +25,6 @@ def main():
     GlobalVariables.initiate(app_dir_name=app_dir_input)
 
     # Build Add-on with UCC
-    gat.debug(f"Input use_ucc_gen value = {gat.get_user_input('use_ucc_gen')}")
     use_ucc_gen = gat.str_to_boolean_default_false(gat.get_user_input("use_ucc_gen"))
     gat.info(f"use_ucc_gen: {use_ucc_gen}")
 
