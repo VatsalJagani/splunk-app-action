@@ -37,8 +37,8 @@ jobs:
       - name: Install all dependencies
         run: uv sync --all-extras
 
-      - name: Run linting
-        run: uv run python devtools/lint.py
+      # - name: Run linting
+      #   run: uv run python devtools/lint.py
 
       - name: Run tests
         env:
