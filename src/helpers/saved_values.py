@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 import os
 import re
 import github_action_toolkit as gat
@@ -11,6 +12,13 @@ class SavedPaths:
         
         self.app_dir_name = app_dir_name
         self.app_dir_path = os.path.join(self.repo_dir_path, self.app_dir_name)
+
+
+@contextmanager
+def keep_working_dir_unchanged():
+    _path = os.getcwd()
+    yield
+    os.chdir(_path)
 
 
 class AppInfo:

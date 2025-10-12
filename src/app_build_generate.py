@@ -42,10 +42,7 @@ def generate_build(saved_paths: SavedPaths, app_info: AppInfo, app_build_dir_nam
     gat.info(
         f"Generating the app build., app_dir_path={app_build_dir_path}, app_package_id={app_info.package_id}, app_version_encoded={app_info.version_number_encoded}, app_build_number_encoded={app_info.build_number_encoded}"
     )
-
-    os.chdir(saved_paths.root_dir_path)
     os.system(f"mv {app_build_dir_name} {app_info.package_id}")
-
     os.chdir(app_info.package_id)
     remove_unwanted_files()
     run_custom_user_defined_commands()

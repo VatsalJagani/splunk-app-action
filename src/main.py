@@ -12,7 +12,7 @@ import ucc_gen
 from app_inspect import SplunkAppInspect
 from app_utilities import SplunkAppUtilities
 from helpers import splunk_app_details
-from helpers.saved_values import SavedPaths, AppInfo
+from helpers.saved_values import SavedPaths, AppInfo, keep_working_dir_unchanged
 
 
 def main():
@@ -49,13 +49,12 @@ def main():
     app_build_dir_path = None
 
     if use_ucc_gen:
-        app_build_dir_name = ucc_gen.build(saved_paths, app_info)
+        with keep_working_dir_unchanged():
+            app_build_dir_name = ucc_gen.build(saved_paths, app_info)
         gat.info("ucc-gen command Completed.")
 
     else:
         app_build_dir_name = "without_ucc_build"
-
-        os.chdir(saved_paths.root_dir_path)
         os.system(f"rm -rf {app_build_dir_name}")
 
         shutil.copytree(saved_paths.app_dir_path, app_build_dir_name)
@@ -74,16 +73,17 @@ def main():
             if use_ucc_gen
             else saved_paths.app_dir_path
         )
-        SplunkAppUtilities(saved_paths, app_info, app_read_dir=app_build_dir_path, app_write_dir=app_write_dir)
+        with keep_working_dir_unchanged():
+            SplunkAppUtilities(saved_paths, app_info, app_read_dir=app_build_dir_path, app_write_dir=app_write_dir)
         gat.info("SplunkAppUtilities completed.")
     except Exception as e:
         gat.error(f"Error Adding Splunk App Utilities: {e}")
         gat.error(traceback.format_exc())
 
     try:
-        # Generate Build
-        build_path = app_build_generate.generate_build(saved_paths, app_info, app_build_dir_name, app_build_dir_path)
-
+        with keep_working_dir_unchanged():
+            # Generate Build
+            build_path = app_build_generate.generate_build(saved_paths, app_info, app_build_dir_name, app_build_dir_path)
         gat.info("generate_build Completed.")
 
         # Run App Inspect

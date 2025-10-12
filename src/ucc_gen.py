@@ -16,9 +16,7 @@ def build(saved_paths: SavedPaths, app_info: AppInfo):
     org_ta_dir = os.path.join(saved_paths.repo_dir_name, saved_paths.app_dir_name)
 
     os.chdir(org_ta_dir)
-
     os.system(f"ucc-gen build --ta-version {app_info.version_number}")
-
     os.chdir(saved_paths.root_dir_path)
 
     shutil.copytree(

@@ -23,8 +23,6 @@ class SplunkAppUtilities:
             app_utilities = app_utilities.split(",")
             app_utilities = [u.strip() for u in app_utilities]
 
-        os.chdir(saved_paths.root_dir_path)
-
         self.add_utilities(app_utilities)
 
     def add_utilities(self, app_utilities):
