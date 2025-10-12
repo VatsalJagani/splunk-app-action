@@ -8,7 +8,7 @@ import github_action_toolkit as gat
 import requests
 from requests.auth import HTTPBasicAuth
 
-from helpers.global_variables import GlobalVariables
+from helpers.saved_values import AppInfo, SavedPaths
 
 TIMEOUT_MAX = 240
 
@@ -20,7 +20,7 @@ class SplunkAppInspect:
     STATUS_CHECK_URL = f"{BASE_URL}/validate/status"
     HTML_RESPONSE_URL = f"{BASE_URL}/report"
 
-    def __init__(self, app_build_path, splunkbase_username, splunkbase_password) -> None:
+    def __init__(self, saved_paths: SavedPaths, app_info: AppInfo, app_build_path, splunkbase_username, splunkbase_password) -> None:
         self.splunkbase_username = splunkbase_username
         self.splunkbase_password = splunkbase_password
 
@@ -36,7 +36,7 @@ class SplunkAppInspect:
 
         self.app_build_path = app_build_path
 
-        self.report_name_prefix = f"{GlobalVariables.APP_PACKAGE_ID}_{GlobalVariables.APP_VERSION_ENCODED}_{GlobalVariables.APP_BUILD_NUMBER_ENCODED}"
+        self.report_name_prefix = f"{app_info.package_id}_{app_info.version_number_encoded}_{app_info.build_number_encoded}"
 
         self.app_build_filename = os.path.basename(app_build_path)
         self.app_inspect_report_dir = f"{self.report_name_prefix}_reports"
@@ -55,7 +55,7 @@ class SplunkAppInspect:
 
         self._api_login()
 
-        os.chdir(GlobalVariables.ROOT_DIR_PATH)
+        os.chdir(saved_paths.root_dir_path)
 
     def _api_login(self):
         gat.info("Creating access token.")

@@ -2,7 +2,7 @@ import os
 
 import github_action_toolkit as gat
 
-from helpers.global_variables import GlobalVariables
+from helpers.saved_values import AppInfo, SavedPaths
 
 
 def remove_unwanted_files():
@@ -38,21 +38,21 @@ def run_custom_user_defined_commands():
             gat.warning(f"Error - {e}")
 
 
-def generate_build(app_build_dir_name, app_build_dir_path):
+def generate_build(saved_paths: SavedPaths, app_info: AppInfo, app_build_dir_name, app_build_dir_path):
     gat.info(
-        f"Generating the app build., app_dir_path={app_build_dir_path}, app_package_id={GlobalVariables.APP_PACKAGE_ID}, app_version_encoded={GlobalVariables.APP_VERSION_ENCODED}, app_build_number_encoded={GlobalVariables.APP_BUILD_NUMBER_ENCODED}"
+        f"Generating the app build., app_dir_path={app_build_dir_path}, app_package_id={app_info.package_id}, app_version_encoded={app_info.version_number_encoded}, app_build_number_encoded={app_info.build_number_encoded}"
     )
 
-    os.chdir(GlobalVariables.ROOT_DIR_PATH)
-    os.system(f"mv {app_build_dir_name} {GlobalVariables.APP_PACKAGE_ID}")
+    os.chdir(saved_paths.root_dir_path)
+    os.system(f"mv {app_build_dir_name} {app_info.package_id}")
 
-    os.chdir(GlobalVariables.APP_PACKAGE_ID)
+    os.chdir(app_info.package_id)
     remove_unwanted_files()
     run_custom_user_defined_commands()
     file_folder_permission_changes()
-    os.chdir(GlobalVariables.ROOT_DIR_PATH)
+    os.chdir(saved_paths.root_dir_path)
 
     # Generate Build
-    build_name = f"{GlobalVariables.APP_PACKAGE_ID}_{GlobalVariables.APP_VERSION_ENCODED}_{GlobalVariables.APP_BUILD_NUMBER_ENCODED}.tgz"
-    os.system(f"tar -czf {build_name} {GlobalVariables.APP_PACKAGE_ID}")
-    return os.path.join(GlobalVariables.ROOT_DIR_PATH, build_name)
+    build_name = f"{app_info.package_id}_{app_info.version_number_encoded}_{app_info.build_number_encoded}.tgz"
+    os.system(f"tar -czf {build_name} {app_info.package_id}")
+    return os.path.join(saved_paths.root_dir_path, build_name)

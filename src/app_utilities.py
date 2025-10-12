@@ -2,7 +2,7 @@ import os
 
 import github_action_toolkit as gat
 
-from helpers.global_variables import GlobalVariables
+from helpers.saved_values import AppInfo, SavedPaths
 from utilities.common_splunk_js_utilities import CommonJSUtilitiesFile
 from utilities.logger import LoggerUtility
 from utilities.splunk_sdk_python import SplunkPythonSDKUtility
@@ -11,7 +11,7 @@ from utilities.whats_inside_app import WhatsInsideTheAppUtility
 
 
 class SplunkAppUtilities:
-    def __init__(self, app_read_dir, app_write_dir, is_test=False) -> None:
+    def __init__(self, saved_paths: SavedPaths, app_info: AppInfo, app_read_dir, app_write_dir, is_test=False) -> None:
         self.app_read_dir = app_read_dir
         self.app_write_dir = app_write_dir
         self.is_test = is_test
@@ -23,7 +23,7 @@ class SplunkAppUtilities:
             app_utilities = app_utilities.split(",")
             app_utilities = [u.strip() for u in app_utilities]
 
-        os.chdir(GlobalVariables.ROOT_DIR_PATH)
+        os.chdir(saved_paths.root_dir_path)
 
         self.add_utilities(app_utilities)
 
