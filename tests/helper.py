@@ -31,11 +31,25 @@ def setup_action_yml(
     splunk_python_sdk_install_path="bin",
     is_remove_pyc_from_splunklib_dir="true",
 ):
-    app_dir_path = os.path.join(os.path.dirname(__file__), "app_repos_for_test", test_app_repo)
-    print(f"TestIntegration.setup_action_yml_work -> app_dir_path={app_dir_path}")
+    print("Test Setup Steps")
+    repo_root_dir_path = os.getcwd()
+    temp_dir_for_test = "temp_for_test"
+    temp_dir_for_test_path = os.path.join(repo_root_dir_path, temp_dir_for_test)
+    repo_dir_path = os.path.join(temp_dir_for_test_path, "repodir")
 
-    # copy the app module there
-    shutil.copytree(app_dir_path, os.path.join("repodir"))
+    try:
+        shutil.rmtree(temp_dir_for_test_path)
+    except:
+        pass
+    try:
+        os.mkdir(temp_dir_for_test_path)
+    except:
+        pass
+
+    app_repo_path = os.path.join(os.path.dirname(__file__), "app_repos_for_test", test_app_repo)
+    shutil.copytree(app_repo_path, repo_dir_path)
+
+    os.chdir(temp_dir_for_test_path)
 
     # setup inputs
     os.environ["INPUT_APP_DIR"] = app_dir
@@ -55,33 +69,12 @@ def setup_action_yml(
     try:
         yield
     finally:
-        print("TestIntegration Cleanup after each test-case.")
+        print("Test Cleanup after each test-case.")
         try:
-            shutil.rmtree("repodir")
+            shutil.rmtree(temp_dir_for_test_path)
         except:
             pass
-
-        try:
-            shutil.rmtree("without_ucc_build")
-        except:
-            pass
-
-        try:
-            shutil.rmtree("ucc_build_dir")
-        except:
-            pass
-
-        try:
-            shutil.rmtree("ucc_generated_build")
-        except:
-            pass
-
-        for filename in os.listdir():
-            if filename.startswith("my_app_"):
-                if os.path.isdir(filename):
-                    shutil.rmtree(filename)
-                else:
-                    os.remove(filename)
+        os.chdir(repo_root_dir_path)
 
 
 @contextmanager

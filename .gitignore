@@ -190,4 +190,4 @@ site/
 .cache/
 .DS_Store
 src/utilities/logger/props.conf_temp
-ucc_generated_build/*
+temp_for_test/*
