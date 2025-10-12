@@ -20,8 +20,8 @@ def main():
     gat.print_all_user_inputs()
 
     app_dir_input = gat.get_user_input("app_dir")
-    gat.info(f"app_dir_input: {app_dir_input}")
 
+    print(f"TEST - app_dir_name = {app_dir_input}")
     GlobalVariables.initiate(app_dir_name=app_dir_input)
 
     # Build Add-on with UCC

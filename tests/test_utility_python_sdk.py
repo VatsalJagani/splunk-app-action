@@ -44,8 +44,8 @@ def test_splunk_sdk_utility_installed_new_2():
     with get_temp_directory() as temp_dir:
         with setup_temporary_env_vars(
             {
-                "SPLUNK_splunk_python_sdk_install_path": "lib",
-                "SPLUNK_is_remove_pyc_from_splunklib_dir": "true",
+                "INPUT_splunk_python_sdk_install_path": "lib",
+                "INPUT_is_remove_pyc_from_splunklib_dir": "true",
             }
         ):
             sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
@@ -93,7 +93,7 @@ def test_splunk_sdk_utility_upgraded_existing_2():
     with get_temp_directory() as temp_dir:
         with setup_temporary_env_vars(
             {
-                "SPLUNK_splunk_python_sdk_install_path": "bin/lib",
+                "INPUT_splunk_python_sdk_install_path": "bin/lib",
             }
         ):
             # Prepare the temporary directory
@@ -149,7 +149,7 @@ def test_splunk_sdk_utility_skipped_due_to_existing_and_same_version_2():
     with get_temp_directory() as temp_dir:
         with setup_temporary_env_vars(
             {
-                "SPLUNK_splunk_python_sdk_install_path": "lib",
+                "INPUT_splunk_python_sdk_install_path": "lib",
             }
         ):
             # Prepare the temporary directory
@@ -179,7 +179,7 @@ def test_splunk_sdk_utility_error_upgrading_existing():
     with get_temp_directory() as temp_dir:
         with setup_temporary_env_vars(
             {
-                "SPLUNK_is_remove_pyc_from_splunklib_dir": "true",
+                "INPUT_is_remove_pyc_from_splunklib_dir": "true",
             }
         ):
             # Prepare the temporary directory
@@ -209,7 +209,7 @@ def test_splunk_sdk_utility_error_upgrading_existing_2():
     with get_temp_directory() as temp_dir:
         with setup_temporary_env_vars(
             {
-                "SPLUNK_splunk_python_sdk_install_path": "bin/lib",
+                "INPUT_splunk_python_sdk_install_path": "bin/lib",
             }
         ):
             # Prepare the temporary directory
