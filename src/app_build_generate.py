@@ -31,7 +31,7 @@ def run_custom_user_defined_commands():
     gat.info("Executing custom user defined commands.")
     for no in range(1, 100):
         try:
-            cmd = gat.get_user_input(f"APP_ACTION_{no}")
+            cmd = os.environ.get(f"SPLUNK_APP_ACTION_{no}")
             if cmd:
                 os.system(cmd)
         except Exception as e:
