@@ -2,7 +2,7 @@ import os
 
 import github_action_toolkit as gat
 
-from helpers.file_hash import get_file_hash, get_folder_hash, get_multi_files_hash
+from helpers.file_manager import get_file_hash, get_folder_hash, get_multi_files_hash
 
 
 class BaseUtility:
