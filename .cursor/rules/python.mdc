@@ -9,8 +9,8 @@ These are rules for a modern Python project using uv.
 
 ## Python Version
 
-Write for Python 3.11-3.13. Do NOT write code to support earlier versions of Python.
-Always use modern Python practices appropriate for Python 3.11-3.13.
+Write for Python 3.12-3.13. Do NOT write code to support earlier versions of Python.
+Always use modern Python practices appropriate for Python 3.12-3.13.
 
 Always use full type annotations, generics, and other modern practices.
 
@@ -80,7 +80,7 @@ Always use full type annotations, generics, and other modern practices.
   example: `from collections.abc import Callable, Coroutine`
 
 - Use `typing_extensions` for things like `@override` (you need to use this, and not
-  `typing` since we want to support Python 3.11).
+  `typing` since we want to support Python 3.12).
 
 - Add `from __future__ import annotations` on files with types whenever applicable.
 
