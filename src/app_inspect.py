@@ -14,22 +14,22 @@ TIMEOUT_MAX = 240
 
 
 class SplunkAppInspect:
-    LOGIN_URL = "https://api.splunk.com/2.0/rest/login/splunk"
-    BASE_URL = "https://appinspect.splunk.com/v1/app"
-    SUBMIT_URL = f"{BASE_URL}/validate"
-    STATUS_CHECK_URL = f"{BASE_URL}/validate/status"
-    HTML_RESPONSE_URL = f"{BASE_URL}/report"
+    LOGIN_URL: str = "https://api.splunk.com/2.0/rest/login/splunk"
+    BASE_URL: str = "https://appinspect.splunk.com/v1/app"
+    SUBMIT_URL: str = f"{BASE_URL}/validate"
+    STATUS_CHECK_URL: str = f"{BASE_URL}/validate/status"
+    HTML_RESPONSE_URL: str = f"{BASE_URL}/report"
 
     def __init__(
         self,
         saved_paths: SavedPaths,
         app_info: AppInfo,
-        app_build_path,
-        splunkbase_username,
-        splunkbase_password,
+        app_build_path: str,
+        splunkbase_username: str,
+        splunkbase_password: str,
     ) -> None:
-        self.splunkbase_username = splunkbase_username
-        self.splunkbase_password = splunkbase_password
+        self.splunkbase_username: str = splunkbase_username
+        self.splunkbase_password: str = splunkbase_password
 
         if not self.splunkbase_username:
             msg = "splunkbase_username input is not provided."
@@ -41,12 +41,12 @@ class SplunkAppInspect:
             gat.error(msg)
             raise Exception(msg)
 
-        self.app_build_path = app_build_path
+        self.app_build_path: str = app_build_path
 
-        self.report_name_prefix = f"{app_info.package_id}_{app_info.version_number_encoded}_{app_info.build_number_encoded}"
+        self.report_name_prefix: str = f"{app_info.package_id}_{app_info.version_number_encoded}_{app_info.build_number_encoded}"
 
-        self.app_build_filename = os.path.basename(app_build_path)
-        self.app_inspect_report_dir = f"{self.report_name_prefix}_reports"
+        self.app_build_filename: str = os.path.basename(app_build_path)
+        self.app_inspect_report_dir: str = f"{self.report_name_prefix}_reports"
 
         try:
             shutil.rmtree(self.app_inspect_report_dir)
@@ -55,9 +55,9 @@ class SplunkAppInspect:
             gat.debug(f"No folder present nothing to be done. {e}")
         os.mkdir(self.app_inspect_report_dir)
 
-        self.headers = None
-        self.headers_report = None
-        self.app_inspect_result = ["Running", "Running", "Running"]
+        self.headers: dict[str, str] | None = None
+        self.headers_report: dict[str, str] | None = None
+        self.app_inspect_result: list[str] = ["Running", "Running", "Running"]
         # For Above  ->  app_inspect_result, cloud_inspect_result, ssai_inspect_result
 
         self._api_login()
@@ -93,7 +93,10 @@ class SplunkAppInspect:
             "Content-Type": "text/html",
         }
 
-    def _perform_checks(self, check_type="APP_INSPECT"):
+    def _perform_checks(self, check_type: str = "APP_INSPECT") -> str:
+        payload: dict[str, str] = {}
+        report_file_name: str
+
         if check_type == "APP_INSPECT":
             payload = {}
             report_file_name = f"{self.report_name_prefix}_app_inspect_check.html"
@@ -105,6 +108,9 @@ class SplunkAppInspect:
         elif check_type == "SSAI_INSPECT":
             payload = {"included_tags": "self-service"}
             report_file_name = f"{self.report_name_prefix}_ssai_inspect_check.html"
+
+        else:
+            report_file_name = f"{self.report_name_prefix}_default_check.html"
 
         app_build_f = open(self.app_build_path, "rb")
         app_build_f.seek(0)
@@ -138,7 +144,7 @@ class SplunkAppInspect:
 
         status = None
         # Status check
-        for i in range(10):
+        for _ in range(10):
             sleep(60)  # check every minute for updated status
             gat.info("...")
             try:
@@ -210,7 +216,7 @@ class SplunkAppInspect:
 
         return status
 
-    def _perform_app_inspect_check(self):
+    def _perform_app_inspect_check(self) -> None:
         gat.info("Performing app-inspect checks...")
         status = "Error"
         try:
@@ -221,7 +227,7 @@ class SplunkAppInspect:
             raise e
         self.app_inspect_result[0] = status
 
-    def _perform_cloud_inspect_check(self):
+    def _perform_cloud_inspect_check(self) -> None:
         gat.info("Performing cloud-inspect checks...")
         status = "Error"
         try:
@@ -232,7 +238,7 @@ class SplunkAppInspect:
             raise e
         self.app_inspect_result[1] = status
 
-    def _perform_ssai_inspect_check(self):
+    def _perform_ssai_inspect_check(self) -> None:
         gat.info("Performing ssai-inspect checks...")
         status = "Error"
         try:
@@ -243,7 +249,7 @@ class SplunkAppInspect:
             raise e
         self.app_inspect_result[2] = status
 
-    def run_all_checks(self):
+    def run_all_checks(self) -> None:
         gat.info("Running the Splunk App inspect check.")
 
         thread_app_inspect = Thread(target=self._perform_app_inspect_check)

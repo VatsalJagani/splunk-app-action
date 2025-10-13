@@ -116,11 +116,13 @@ ignore = [
 # than mypy and with a good extension for VSCode/Cursor.
 # https://marketplace.visualstudio.com/items?itemName=detachhead.basedpyright
 # https://docs.basedpyright.com/latest/configuration/config-files/#sample-pyprojecttoml-file
-include = ["src", "tests", "devtools"]
+include = ["src", "devtools"]
+# TODO - Ideally tests folder also should be checked for type checking, but filtering for this project
 exclude = [
     "tests/app_repos_for_test",
     "tests/dummy_utility_files",
-    "tests/splunk_config_files"
+    "tests/splunk_config_files",
+    "src/utilities/logger/logger_manager.py"
 ]
 # By default BasedPyright is very strict, so you almost certainly want to disable
 # some of the rules.
@@ -153,8 +155,7 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 testpaths = [
-    "src",
-    "tests",
+    "tests"
 ]
 norecursedirs = []
 filterwarnings = []

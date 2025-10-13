@@ -1,4 +1,6 @@
 import os
+from collections.abc import Iterator
+from typing import override
 
 MULTI_LINE_CHAR = "\\"
 COMMENT_CHAR = "#"
@@ -9,59 +11,64 @@ NEW_LINE_CHAR = "\n"
 
 
 class _SplunkStanzaOptions:
+    _stanza_content: list[tuple[str, str] | str]
+    _stanza_pre_comments: list[str]
+
     def __init__(self) -> None:
         self._stanza_content = []
         self._stanza_pre_comments = []
 
-    def add(self, key, value=None):
+    def add(self, key: str, value: str | None = None) -> None:
         if value is not None:
             self._stanza_content.append((key, value))
         else:
             self._stanza_content.append(key)
 
-    def extend(self, list_of_attributes):
+    def extend(self, list_of_attributes: list[tuple[str, str] | str]) -> None:
         self._stanza_content.extend(list_of_attributes)
 
-    def add_stanza_pre_comments(self, comments):
+    def add_stanza_pre_comments(self, comments: list[str]) -> None:
         self._stanza_pre_comments = comments.copy()
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> str:
         for key_value in self._stanza_content:
-            if type(key_value) == tuple:
+            if isinstance(key_value, tuple):
                 if key_value[0] == key:
                     return key_value[1]
         raise KeyError(key)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value: str) -> None:
         self.add(key, value)
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: str) -> None:
         for i in range(len(self._stanza_content)):
             key_value = self._stanza_content[i]
-            if type(key_value) == tuple:
+            if isinstance(key_value, tuple):
                 if key_value[0] == key:
                     self._stanza_content.pop(i)
                     return
         raise KeyError(key)
 
-    def __contains__(self, key):
+    def __contains__(self, key: str) -> bool:
         for key_value in self._stanza_content:
-            if type(key_value) == tuple:
+            if isinstance(key_value, tuple):
                 if key_value[0] == key:
                     return True
         return False
 
-    def __len__(self):
+    def __len__(self) -> int:
         length = 0
         for key_value in self._stanza_content:
-            if type(key_value) == tuple:
+            if isinstance(key_value, tuple):
                 length += 1
         return length
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[tuple[str, str] | str]:
         return iter(self._stanza_content)
 
-    def merge(self, second_options_obj, to_merge_pre_stanza_comments=True):
+    def merge(
+        self, second_options_obj: "_SplunkStanzaOptions", to_merge_pre_stanza_comments: bool = True
+    ) -> bool:
         is_changed = False
 
         if to_merge_pre_stanza_comments:
@@ -72,18 +79,17 @@ class _SplunkStanzaOptions:
                     self._stanza_pre_comments.append(_pre_comment_line)
 
         for key_value in second_options_obj:
-            if type(key_value) == str:
+            if isinstance(key_value, str):
                 if key_value not in self._stanza_content:
                     self._stanza_content.append(key_value)
                     is_changed = True
 
-            elif type(key_value) == tuple:
-                option = key_value[0]
-                value = key_value[1]
+            elif isinstance(key_value, tuple):  # pyright: ignore[reportUnnecessaryIsInstance]
+                option, value = key_value
 
                 for i in range(len(self._stanza_content)):
                     ex_key_val = self._stanza_content[i]
-                    if type(ex_key_val) != tuple:
+                    if not isinstance(ex_key_val, tuple):
                         continue
 
                     ex_op = ex_key_val[0]
@@ -109,15 +115,15 @@ class _SplunkStanzaOptions:
 
         return is_changed
 
+    @override
     def __str__(self) -> str:
         content_str = ""
         for key_value in self._stanza_content:
-            if type(key_value) == str:
+            if isinstance(key_value, str):
                 content_str += f"{key_value}\n"
 
-            elif type(key_value) == tuple:
-                option = key_value[0]
-                value = key_value[1]
+            else:  # key_value is tuple
+                option, value = key_value
 
                 if NEW_LINE_CHAR in value:
                     new_line_ch = NEW_LINE_CHAR + "\n"
@@ -127,10 +133,11 @@ class _SplunkStanzaOptions:
 
         return content_str
 
+    @override
     def __repr__(self) -> str:
         return self.__str__()
 
-    def as_string(self, section) -> str:
+    def as_string(self, section: str) -> str:
         content_str = "\n".join(self._stanza_pre_comments)
         if content_str:
             content_str += "\n"
@@ -143,12 +150,17 @@ class _SplunkStanzaOptions:
 
 
 class SplunkConfigParser:
-    def __init__(self, file_path):
+    file_path: str
+    _content: dict[str, _SplunkStanzaOptions]
+    comments_before_stanza: list[str]
+
+    def __init__(self, file_path: str) -> None:
         self.file_path = file_path
         self._content = {}
+        self.comments_before_stanza = []
         self.read()
 
-    def read(self, encoding=None):
+    def read(self, encoding: str | None = None) -> None:
         if os.path.isfile(self.file_path):
             with open(self.file_path, encoding=encoding) as file:
                 content = file.read()
@@ -156,21 +168,22 @@ class SplunkConfigParser:
         else:
             raise Exception("Splunk Conf File Not Found.")
 
-    def _parse(self, content):
+    def _parse(self, content: str) -> None:
         lines = content.splitlines()
         current_section = FILE_SECTION
         self._content[current_section] = _SplunkStanzaOptions()
-        current_option = None
-        current_value = []
+        current_option: str | None = None
+        current_value: list[str] = []
 
         self.comments_before_stanza = []
 
-        def _handle_stanza_pre_comments(next_line_type, line):
+        def _handle_stanza_pre_comments(next_line_type: str, line: str) -> None:
             if next_line_type == "COMMENT":
                 self.comments_before_stanza.append(line)
             elif next_line_type == "EMPTY_LINE" or next_line_type == "OPTION":
                 if self.comments_before_stanza:
-                    self._content[current_section].extend(self.comments_before_stanza)
+                    comment_strings: list[tuple[str, str] | str] = list(self.comments_before_stanza)
+                    self._content[current_section].extend(comment_strings)
                     self.comments_before_stanza = []
             elif next_line_type == "STANZA" and self.comments_before_stanza:
                 self._content[current_section].add_stanza_pre_comments(self.comments_before_stanza)
@@ -231,33 +244,34 @@ class SplunkConfigParser:
                 )
 
         if self.comments_before_stanza:
-            self._content[current_section].extend(self.comments_before_stanza)
+            comment_strings: list[tuple[str, str] | str] = list(self.comments_before_stanza)
+            self._content[current_section].extend(comment_strings)
             self.comments_before_stanza = []
 
-    def write(self, file):
+    def write(self, file: str) -> None:
         with open(file, "w") as fp:
             fp.write(str(self))
 
-    def sections(self):
+    def sections(self) -> list[str]:
         return [element for element in self._content.keys() if not element == FILE_SECTION]
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> _SplunkStanzaOptions:
         if key not in self._content:
             raise KeyError(key)
         return self._content[key]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value: _SplunkStanzaOptions) -> None:
         self._content[key] = value
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: str) -> None:
         if key not in self._content:
             raise KeyError(key)
         del self._content[key]
 
-    def __contains__(self, key):
+    def __contains__(self, key: str) -> bool:
         return key in self._content
 
-    def __len__(self):
+    def __len__(self) -> int:
         if FILE_SECTION in self:
             return len(self._content) - 1
         return len(self._content)
@@ -270,10 +284,10 @@ class SplunkConfigParser:
 
     def merge(
         self,
-        second_conf_parser,
-        to_merge_pre_stanza_comments=True,
-        to_merge_file_level_parameters=False,
-    ):
+        second_conf_parser: "SplunkConfigParser",
+        to_merge_pre_stanza_comments: bool = True,
+        to_merge_file_level_parameters: bool = False,
+    ) -> bool:
         is_changed = False
 
         for stanza, options in second_conf_parser._content.items():
@@ -288,6 +302,7 @@ class SplunkConfigParser:
 
         return is_changed
 
+    @override
     def __str__(self) -> str:
         # NOTE - Do not change the code of this function as this might fail the working or even fail some test-cases
         content_str = ""
@@ -295,6 +310,22 @@ class SplunkConfigParser:
             content_str += options.as_string(section)
         return content_str
 
+    def has_section(self, section: str) -> bool:
+        """Check if a section exists in the config."""
+        return section in self._content
+
+    def add_section(self, section: str) -> None:
+        """Add a new section to the config."""
+        if section not in self._content:
+            self._content[section] = _SplunkStanzaOptions()
+
+    def set(self, section: str, key: str, value: str) -> None:
+        """Set a key-value pair in a specific section."""
+        if section not in self._content:
+            self.add_section(section)
+        self._content[section].add(key, value)
+
+    @override
     def __repr__(self) -> str:
         return self.__str__()
 

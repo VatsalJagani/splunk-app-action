@@ -19,7 +19,9 @@ def main():
     gat.info("Running Python script main.py")
     gat.print_all_user_inputs()
 
-    saved_paths = SavedPaths(gat.get_user_input("app_dir"))
+    app_dir = gat.get_user_input("app_dir")
+    assert app_dir is not None, "app_dir must be provided"
+    saved_paths = SavedPaths(app_dir)
 
     # Build Add-on with UCC
     use_ucc_gen = gat.get_user_input_as("use_ucc_gen", bool, False)
@@ -93,6 +95,12 @@ def main():
         if is_app_inspect_check:
             splunkbase_username = gat.get_user_input("splunkbase_username")
             splunkbase_password = gat.get_user_input("splunkbase_password")
+
+            if splunkbase_username is None or splunkbase_password is None:
+                gat.error(
+                    "splunkbase_username and splunkbase_password are required for app inspect."
+                )
+                return
 
             SplunkAppInspect(
                 saved_paths, app_info, build_path, splunkbase_username, splunkbase_password

@@ -6,7 +6,7 @@ import os
 import re
 
 
-def get_all_stanzas(config_file_path):
+def get_all_stanzas(config_file_path: str) -> list[str]:
     """
     Retrieves all stanzas (sections) from a configuration file.
 
@@ -26,17 +26,17 @@ def get_all_stanzas(config_file_path):
         return config.sections()
 
     except configparser.Error as e:
-        raise ValueError(f"Error parsing configuration file '{config_file_path}': {e}")
+        raise ValueError(f"Error parsing configuration file '{config_file_path}': {e}") from e
 
 
-def get_all_input_names(addon_name):
+def get_all_input_names(addon_name: str) -> list[str]:
     """
     Get all Input names from Add-on
     """
     return get_all_stanzas(os.path.join("output", addon_name, "default", "inputs.conf"))
 
 
-def generate_input_handler_file(addon_name, input_name):
+def generate_input_handler_file(addon_name: str, input_name: str) -> None:
     _file_path = os.path.join("output", addon_name, "bin", f"{input_name}_handler.py")
 
     if os.path.exists(_file_path):
@@ -62,7 +62,7 @@ def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_w
         f.write(_content)
 
 
-def modify_original_input_py_file(addon_name, input_name):
+def modify_original_input_py_file(addon_name: str, input_name: str) -> None:
     file_path = os.path.join("output", addon_name, "bin", f"{input_name}.py")
     with open(file_path) as f:
         file_content = f.read()
@@ -103,7 +103,7 @@ def modify_original_input_py_file(addon_name, input_name):
         f.write(file_content)
 
 
-def additional_packaging(addon_name):
+def additional_packaging(addon_name: str) -> None:
     print("Running additional_packaging.py for better inputs python handler file generation.")
 
     # Iterate over all inputs available

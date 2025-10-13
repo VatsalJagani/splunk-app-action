@@ -1,13 +1,14 @@
 import hashlib
 import os
 import pathlib
+from collections.abc import Sequence
 
 import github_action_toolkit as gat
 
 from helpers.splunk_config_parser import SplunkConfigParser
 
 
-def get_file_hash(file_path):
+def get_file_hash(file_path: str) -> str:
     hash_md5 = hashlib.md5()
     with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
@@ -15,11 +16,11 @@ def get_file_hash(file_path):
     return hash_md5.hexdigest()
 
 
-def get_folder_hash(folder_path):
+def get_folder_hash(folder_path: str) -> str:
     hash_md5 = hashlib.md5()
     if not os.path.isdir(folder_path):
         raise Exception("Incorrect folder_path provided.")
-    for root, dirs, files in os.walk(folder_path):
+    for root, _dirs, files in os.walk(folder_path):
         for file in files:
             file_path = os.path.join(root, file)
             file_hash = get_file_hash(file_path)
@@ -27,7 +28,7 @@ def get_folder_hash(folder_path):
     return hash_md5.hexdigest()
 
 
-def get_multi_files_hash(file_paths):
+def get_multi_files_hash(file_paths: Sequence[str]) -> str:
     hash_md5 = hashlib.md5()
     for file_path in file_paths:
         file_hash = get_file_hash(file_path)
@@ -36,37 +37,44 @@ def get_multi_files_hash(file_paths):
 
 
 class BaseFileHandler:
-    def __init__(self, input_file_path, output_file_path, words_for_replacement=dict()) -> None:
-        self.input_file_path = input_file_path
-        self.output_file_path = output_file_path
-        self.words_for_replacement: dict = words_for_replacement
+    def __init__(
+        self,
+        input_file_path: str,
+        output_file_path: str,
+        words_for_replacement: dict[str, str] | None = None,
+    ) -> None:
+        self.input_file_path: str = input_file_path
+        self.output_file_path: str = output_file_path
+        self.words_for_replacement: dict[str, str] = words_for_replacement or {}
 
-    def text_words_replacement(self, content):
+    def text_words_replacement(self, content: str) -> str:
         # do words replacement for file content
         for word, replacement in self.words_for_replacement.items():
             content = content.replace(word, replacement)
 
         return content
 
-    def get_input_file_content(self):
+    def get_input_file_content(self) -> str:
         input_content = None
         with open(self.input_file_path) as fr:
             input_content = fr.read()
 
         return self.text_words_replacement(input_content)
 
-    def create_output_directory_path_if_not_exist(self):
+    def create_output_directory_path_if_not_exist(self) -> None:
         output_dir_path = os.path.dirname(self.output_file_path)
         pathlib.Path(output_dir_path).mkdir(parents=True, exist_ok=True)
 
 
 class PartConfFileHandler(BaseFileHandler):
-    def _util_write_config_option(self, writer_parser: SplunkConfigParser, sect, key, value):
+    def _util_write_config_option(
+        self, writer_parser: SplunkConfigParser, sect: str, key: str, value: str
+    ) -> None:
         if not writer_parser.has_section(sect):
             writer_parser.add_section(sect)
         writer_parser.set(sect, key, value)
 
-    def validate_config(self):
+    def validate_config(self) -> bool:
         input_content = self.get_input_file_content()
         temp_file = f"{self.input_file_path}_temp"
         with open(temp_file, "w") as f:
@@ -89,7 +97,7 @@ class PartConfFileHandler(BaseFileHandler):
 
 
 class FullRawFileHandler(BaseFileHandler):
-    def validate_file_content(self):
+    def validate_file_content(self) -> bool:
         input_content = self.get_input_file_content()
 
         already_present_file_content = None
@@ -108,8 +116,13 @@ class FullRawFileHandler(BaseFileHandler):
 
 class PartRawFileHandler(BaseFileHandler):
     def validate_file_content(
-        self, new_content, start_markers, end_markers, start_marker_to_add="", end_marker_to_add=""
-    ):
+        self,
+        new_content: str,
+        start_markers: Sequence[str],
+        end_markers: Sequence[str],
+        start_marker_to_add: str = "",
+        end_marker_to_add: str = "",
+    ) -> bool:
         new_content = self.text_words_replacement(new_content)
 
         content = ""

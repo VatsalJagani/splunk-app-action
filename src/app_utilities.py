@@ -10,22 +10,28 @@ from utilities.whats_inside_app import WhatsInsideTheAppUtility
 
 class SplunkAppUtilities:
     def __init__(
-        self, saved_paths: SavedPaths, app_info: AppInfo, app_read_dir, app_write_dir, is_test=False
+        self,
+        saved_paths: SavedPaths,
+        app_info: AppInfo,
+        app_read_dir: str,
+        app_write_dir: str,
+        is_test: bool = False,
     ) -> None:
-        self.app_read_dir = app_read_dir
-        self.app_write_dir = app_write_dir
-        self.is_test = is_test
+        self.app_read_dir: str = app_read_dir
+        self.app_write_dir: str = app_write_dir
+        self.is_test: bool = is_test
         # Get Inputs
-        app_utilities = gat.get_user_input("app_utilities")
-        if not app_utilities or app_utilities == "NONE" or app_utilities == "":
-            self.app_utilities = []
+        app_utilities_input = gat.get_user_input("app_utilities")
+        if not app_utilities_input or app_utilities_input == "NONE" or app_utilities_input == "":
+            self.app_utilities: list[str] = []
+            app_utilities_list: list[str] = []
         else:
-            app_utilities = app_utilities.split(",")
-            app_utilities = [u.strip() for u in app_utilities]
+            app_utilities_split = app_utilities_input.split(",")
+            app_utilities_list = [u.strip() for u in app_utilities_split]
 
-        self.add_utilities(app_utilities)
+        self.add_utilities(app_utilities_list)
 
-    def add_utilities(self, app_utilities):
+    def add_utilities(self, app_utilities: list[str]) -> None:
         gat.info(f"Adding utilities: {app_utilities}")
         for utility in app_utilities:
             if utility == "whats_in_the_app":

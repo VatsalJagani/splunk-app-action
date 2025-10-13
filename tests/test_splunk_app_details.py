@@ -74,7 +74,7 @@ def test_fetch_app_package_id_from_global_config_json_missing_name():
         with pytest.raises(Exception) as excinfo:
             fetch_app_package_id_from_global_config_json(file_path)
         assert (
-            str(excinfo.value) == "Unable to fetch the app_package_id from globalConfig.json file."
+            "Exception while fetching app_package_id from globalConfig.json file." in str(excinfo.value)
         )
 
 

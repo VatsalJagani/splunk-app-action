@@ -1,4 +1,5 @@
 import os
+from typing import override
 
 import github_action_toolkit as gat
 
@@ -7,7 +8,14 @@ from utilities.base_utility import BaseUtility
 
 
 class LoggerUtility(BaseUtility):
-    def implement_utility(self):
+    words_for_replacement: dict[str, str]
+
+    def __init__(self, app_read_dir: str, app_write_dir: str) -> None:
+        super().__init__(app_read_dir, app_write_dir)
+        self.words_for_replacement = {}
+
+    @override
+    def implement_utility(self) -> str | list[str] | bool | None:
         gat.info("Adding LoggerUtility.")
         should_execute = True
 
@@ -24,8 +32,8 @@ class LoggerUtility(BaseUtility):
             should_execute = False
 
         self.words_for_replacement = {
-            "<<<log_files_prefix>>>": log_files_prefix,
-            "<<<logger_sourcetype>>>": logger_sourcetype,
+            "<<<log_files_prefix>>>": log_files_prefix or "",
+            "<<<logger_sourcetype>>>": logger_sourcetype or "",
         }
 
         if not should_execute:

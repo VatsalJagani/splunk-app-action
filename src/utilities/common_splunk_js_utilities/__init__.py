@@ -1,4 +1,5 @@
 import os
+from typing import override
 
 import github_action_toolkit as gat
 
@@ -7,7 +8,8 @@ from utilities.base_utility import BaseUtility
 
 
 class CommonJSUtilitiesFile(BaseUtility):
-    def implement_utility(self):
+    @override
+    def implement_utility(self) -> str | bool | None:
         gat.info("Adding CommonJSUtilitiesFile")
 
         folder_path = os.path.join(self.app_write_dir, "appserver", "static")

@@ -1,6 +1,7 @@
 import os
 import re
 import shutil
+from typing import override
 
 import github_action_toolkit as gat
 
@@ -8,16 +9,18 @@ from utilities.base_utility import BaseUtility
 
 
 class SplunkPythonSDKUtility(BaseUtility):
-    def _get_splunklib_version(self, file_path):
+    def _get_splunklib_version(self, file_path: str) -> str | None:
         try:
             with open(file_path) as f:
                 match = re.search(r"\n__version_info__\s*=\s*([^\n]+)", f.read())
-                version = match.group(1)
-                return version
-        except:
+                if match:
+                    version = match.group(1)
+                    return version
+        except Exception:
             gat.info("Error with getting the splunklib version.")
+        return None
 
-    def remove_pycache(self, directory):
+    def remove_pycache(self, directory: str) -> None:
         for root, dirs, files in os.walk(directory):
             for file in files:
                 if file.endswith(".pyc"):
@@ -26,7 +29,8 @@ class SplunkPythonSDKUtility(BaseUtility):
                 if dir == "__pycache__":
                     shutil.rmtree(os.path.join(root, dir))
 
-    def implement_utility(self):
+    @override
+    def implement_utility(self) -> str | bool | None:
         gat.info("Adding SplunkPythonSDKUtility")
 
         splunk_python_sdk_install_path = gat.get_user_input("splunk_python_sdk_install_path")

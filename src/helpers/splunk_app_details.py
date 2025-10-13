@@ -5,7 +5,7 @@ import github_action_toolkit as gat
 from helpers.splunk_config_parser import SplunkConfigParser
 
 
-def fetch_app_package_id_from_global_config_json(global_config_file_path):
+def fetch_app_package_id_from_global_config_json(global_config_file_path: str) -> str:
     gat.info("Fetching app_package_id from globalConfig.json file.")
 
     try:
@@ -14,15 +14,14 @@ def fetch_app_package_id_from_global_config_json(global_config_file_path):
             _app_package_id = global_config["meta"]["name"]
 
     except Exception as e:
-        gat.error(
-            f"Exception while fetching app_package_id from globalConfig.json file. exception={e}"
-        )
-        raise Exception("Unable to fetch the app_package_id from globalConfig.json file.")
+        msg = f"Exception while fetching app_package_id from globalConfig.json file. exception={e}"
+        gat.error(msg)
+        raise Exception(msg) from e
 
     return _app_package_id
 
 
-def fetch_app_version_from_global_config_json(global_config_file_path):
+def fetch_app_version_from_global_config_json(global_config_file_path: str) -> str:
     gat.info("Fetching app_version_number from globalConfig.json file.")
 
     try:
@@ -34,12 +33,14 @@ def fetch_app_version_from_global_config_json(global_config_file_path):
         gat.error(
             f"Exception while fetching app_version_number from globalConfig.json file. exception={e}"
         )
-        raise Exception("Unable to fetch the app_version_number from globalConfig.json file.")
+        raise Exception(
+            "Unable to fetch the app_version_number from globalConfig.json file."
+        ) from e
 
     return _app_version
 
 
-def fetch_app_package_id_from_app_conf(app_conf_file_path, app_dir_input):
+def fetch_app_package_id_from_app_conf(app_conf_file_path: str, app_dir_input: str) -> str:
     app_config = SplunkConfigParser(app_conf_file_path)
 
     if "package" in app_config and "id" in app_config["package"]:
@@ -52,7 +53,7 @@ def fetch_app_package_id_from_app_conf(app_conf_file_path, app_dir_input):
         return app_dir_input
 
 
-def fetch_app_version_number_from_app_conf(app_conf_file_path):
+def fetch_app_version_number_from_app_conf(app_conf_file_path: str) -> str:
     app_config = SplunkConfigParser(app_conf_file_path)
 
     if "launcher" in app_config and "version" in app_config["launcher"]:
@@ -76,7 +77,7 @@ def fetch_app_version_number_from_app_conf(app_conf_file_path):
         raise Exception("Add `id` attribute in the app.conf's [launcher] stanza.")
 
 
-def fetch_app_build_number_from_app_conf(app_conf_file_path):
+def fetch_app_build_number_from_app_conf(app_conf_file_path: str) -> str:
     app_config = SplunkConfigParser(app_conf_file_path)
 
     if "install" in app_config and "build" in app_config["install"]:
