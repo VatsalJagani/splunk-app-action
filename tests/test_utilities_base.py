@@ -8,9 +8,6 @@
 
 import os
 import unittest
-from unittest.mock import patch
-
-from helper import stdout_capture
 
 from utilities.base_utility import BaseUtility
 

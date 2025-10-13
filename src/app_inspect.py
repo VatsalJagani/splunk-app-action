@@ -20,7 +20,14 @@ class SplunkAppInspect:
     STATUS_CHECK_URL = f"{BASE_URL}/validate/status"
     HTML_RESPONSE_URL = f"{BASE_URL}/report"
 
-    def __init__(self, saved_paths: SavedPaths, app_info: AppInfo, app_build_path, splunkbase_username, splunkbase_password) -> None:
+    def __init__(
+        self,
+        saved_paths: SavedPaths,
+        app_info: AppInfo,
+        app_build_path,
+        splunkbase_username,
+        splunkbase_password,
+    ) -> None:
         self.splunkbase_username = splunkbase_username
         self.splunkbase_password = splunkbase_password
 

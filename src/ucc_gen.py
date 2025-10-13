@@ -18,8 +18,6 @@ def build(saved_paths: SavedPaths, app_info: AppInfo):
     os.system(f"ucc-gen build --ta-version {app_info.version_number}")
     os.chdir(saved_paths.root_dir_path)
 
-    shutil.copytree(
-        os.path.join(ta_dir, "output", app_info.package_id), "ucc_generated_build"
-    )
+    shutil.copytree(os.path.join(ta_dir, "output", app_info.package_id), "ucc_generated_build")
 
     return "ucc_generated_build"

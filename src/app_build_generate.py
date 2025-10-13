@@ -38,7 +38,9 @@ def run_custom_user_defined_commands():
             gat.warning(f"Error - {e}")
 
 
-def generate_build(saved_paths: SavedPaths, app_info: AppInfo, app_build_dir_name, app_build_dir_path):
+def generate_build(
+    saved_paths: SavedPaths, app_info: AppInfo, app_build_dir_name, app_build_dir_path
+):
     gat.info(
         f"Generating the app build., app_dir_path={app_build_dir_path}, app_package_id={app_info.package_id}, app_version_encoded={app_info.version_number_encoded}, app_build_number_encoded={app_info.build_number_encoded}"
     )

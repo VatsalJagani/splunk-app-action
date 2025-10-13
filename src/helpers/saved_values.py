@@ -1,15 +1,17 @@
-from contextlib import contextmanager
 import os
 import re
+from contextlib import contextmanager
+
 import github_action_toolkit as gat
+
 
 class SavedPaths:
     def __init__(self, app_dir_name):
         self.root_dir_path = os.getcwd()
-        
+
         self.repo_dir_name = "repodir"
         self.repo_dir_path = os.path.join(self.root_dir_path, self.repo_dir_name)
-        
+
         self.app_dir_name = app_dir_name
         self.app_dir_path = os.path.join(self.repo_dir_path, self.app_dir_name)
 

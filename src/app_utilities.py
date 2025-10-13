@@ -1,5 +1,3 @@
-import os
-
 import github_action_toolkit as gat
 
 from helpers.saved_values import AppInfo, SavedPaths
@@ -11,7 +9,9 @@ from utilities.whats_inside_app import WhatsInsideTheAppUtility
 
 
 class SplunkAppUtilities:
-    def __init__(self, saved_paths: SavedPaths, app_info: AppInfo, app_read_dir, app_write_dir, is_test=False) -> None:
+    def __init__(
+        self, saved_paths: SavedPaths, app_info: AppInfo, app_read_dir, app_write_dir, is_test=False
+    ) -> None:
         self.app_read_dir = app_read_dir
         self.app_write_dir = app_write_dir
         self.is_test = is_test

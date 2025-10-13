@@ -12,7 +12,7 @@ import ucc_gen
 from app_inspect import SplunkAppInspect
 from app_utilities import SplunkAppUtilities
 from helpers import splunk_app_details
-from helpers.saved_values import SavedPaths, AppInfo, keep_working_dir_unchanged
+from helpers.saved_values import AppInfo, SavedPaths, keep_working_dir_unchanged
 
 
 def main():
@@ -25,9 +25,7 @@ def main():
     use_ucc_gen = gat.get_user_input_as("use_ucc_gen", bool, False)
 
     if use_ucc_gen:
-        global_config_json_file_path = os.path.join(
-            saved_paths.app_dir_path, "globalConfig.json"
-        )
+        global_config_json_file_path = os.path.join(saved_paths.app_dir_path, "globalConfig.json")
         app_package_id = splunk_app_details.fetch_app_package_id_from_global_config_json(
             global_config_json_file_path
         )
@@ -35,9 +33,7 @@ def main():
             global_config_json_file_path
         )
     else:
-        app_conf_file_path = os.path.join(
-            saved_paths.app_dir_path, "default", "app.conf"
-        )
+        app_conf_file_path = os.path.join(saved_paths.app_dir_path, "default", "app.conf")
         app_package_id = splunk_app_details.fetch_app_package_id_from_app_conf(
             app_conf_file_path, saved_paths.app_dir_name
         )
@@ -74,7 +70,9 @@ def main():
             else saved_paths.app_dir_path
         )
         with keep_working_dir_unchanged():
-            SplunkAppUtilities(saved_paths, app_info, app_read_dir=app_build_dir_path, app_write_dir=app_write_dir)
+            SplunkAppUtilities(
+                saved_paths, app_info, app_read_dir=app_build_dir_path, app_write_dir=app_write_dir
+            )
         gat.info("SplunkAppUtilities completed.")
     except Exception as e:
         gat.error(f"Error Adding Splunk App Utilities: {e}")
@@ -83,7 +81,9 @@ def main():
     try:
         with keep_working_dir_unchanged():
             # Generate Build
-            build_path = app_build_generate.generate_build(saved_paths, app_info, app_build_dir_name, app_build_dir_path)
+            build_path = app_build_generate.generate_build(
+                saved_paths, app_info, app_build_dir_name, app_build_dir_path
+            )
         gat.info("generate_build Completed.")
 
         # Run App Inspect
@@ -94,7 +94,9 @@ def main():
             splunkbase_username = gat.get_user_input("splunkbase_username")
             splunkbase_password = gat.get_user_input("splunkbase_password")
 
-            SplunkAppInspect(saved_paths, app_info, build_path, splunkbase_username, splunkbase_password).run_all_checks()
+            SplunkAppInspect(
+                saved_paths, app_info, build_path, splunkbase_username, splunkbase_password
+            ).run_all_checks()
             gat.info("SplunkAppInspect Completed.")
         else:
             gat.info("Ignoring App-inspect checks.")
