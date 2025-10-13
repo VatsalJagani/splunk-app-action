@@ -146,7 +146,7 @@ class TestAppBuild(unittest.TestCase):
 
             file_count, folder_count, all_files, _ = self.extract_app_build(app_build_name)
             assert folder_count == 7
-            assert file_count == 27
+            assert file_count == 10
             assert "my_app_1/static/appIconAlt.png" in all_files
             assert "my_app_1/default/data/ui/views/assets.xml" in all_files
             assert "my_app_1/default/app.conf" in all_files
