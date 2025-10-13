@@ -12,8 +12,8 @@ The action automatically generates build artifacts from your GitHub repo.
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v4
-	with:
-		app_dir: "my_app"
+    with:
+        app_dir: "my_app"
 ```
 
 - `app_dir` is optional if you want to generate the build from the repo root.
@@ -21,12 +21,12 @@ The action automatically generates build artifacts from your GitHub repo.
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v4
-	with:
-		app_dir: "my_splunk_app"
+    with:
+        app_dir: "my_splunk_app"
 
 - uses: VatsalJagani/splunk-app-action@v4
-	with:
-		app_dir: "my_splunk_add-on"
+    with:
+        app_dir: "my_splunk_add-on"
 ```
 
 ### UCC Add-on Generator
@@ -38,9 +38,9 @@ The action automatically generates build artifacts from your GitHub repo.
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v4
-	with:
-		app_dir: "TA_my_addon"
-		use_ucc_gen: true
+    with:
+        app_dir: "TA_my_addon"
+        use_ucc_gen: true
 ```
 
 ---
@@ -55,11 +55,11 @@ You can use user-defined commands to set permissions as required.
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v4
-	with:
-		app_dir: "my_app"
-		to_make_permission_changes: true
-		splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
-		splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+    with:
+        app_dir: "my_app"
+        to_make_permission_changes: true
+        splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+        splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
 
 Example shell commands used:
@@ -73,14 +73,14 @@ find my_app -type d -exec chmod 755 '{}' \;
 
 Set environment variables `SPLUNK_APP_ACTION_<n>` to run commands before build generation.
 
-```yaml
+```text
 - uses: VatsalJagani/splunk-app-action@v4
-	env:
-		SPLUNK_APP_ACTION_1: "find . -type f -exec chmod 644 '{}' \;"
-		SPLUNK_APP_ACTION_2: "find . -type f -name '*.sh' -exec chmod +x '{}' \;"
-		SPLUNK_APP_ACTION_3: "find . -type d -exec chmod 755 '{}' \;"
-	with:
-		app_dir: "my_app"
+    env:
+        SPLUNK_APP_ACTION_1: "find . -type f -exec chmod 644 '{}' \;"
+        SPLUNK_APP_ACTION_2: "find . -type f -name '*.sh' -exec chmod +x '{}' \;"
+        SPLUNK_APP_ACTION_3: "find . -type d -exec chmod 755 '{}' \;"
+    with:
+        app_dir: "my_app"
 ```
 
 - Maximum 99 commands: `SPLUNK_APP_ACTION_1` to `SPLUNK_APP_ACTION_99`.
@@ -99,10 +99,10 @@ Requires:
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v4
-	with:
-		app_dir: "my_app"
-		splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
-		splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+    with:
+        app_dir: "my_app"
+        splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+        splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
 
 ---
@@ -121,22 +121,22 @@ All utilities require the `my_github_token` input for creating pull requests.
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v4
-	with:
-		app_dir: "my_app"
-		app_utilities: "whats_in_the_app"
-		my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+    with:
+        app_dir: "my_app"
+        app_utilities: "whats_in_the_app"
+        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
 
 ### Example: Add Logger Utility
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v4
-	with:
-		app_dir: "my_app"
-		app_utilities: "logger"
-		my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
-		logger_log_files_prefix: "my_app"
-		logger_sourcetype: "my_app:logs"
+    with:
+        app_dir: "my_app"
+        app_utilities: "logger"
+        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+        logger_log_files_prefix: "my_app"
+        logger_sourcetype: "my_app:logs"
 ```
 
 ---
@@ -149,11 +149,11 @@ This utility adds `additional_packaging.py` for UCC-built Add-ons, helping gener
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v4
-	with:
-		app_dir: "."
-		use_ucc_gen: true
-		app_utilities: "ucc_additional_packaging"
-		my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+    with:
+        app_dir: "."
+        use_ucc_gen: true
+        app_utilities: "ucc_additional_packaging"
+        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
 
 The input handler file `<Input_Name>_handler.py` will start with:
@@ -162,10 +162,10 @@ The input handler file `<Input_Name>_handler.py` will start with:
 from splunklib import modularinput as smi
 
 def validate_input(input_script: smi.Script, definition: smi.ValidationDefinition):
-		return
+        return
 
 def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_writer: smi.EventWriter):
-		return
+        return
 ```
 
 - Update `validate_input` and `stream_events` as needed.

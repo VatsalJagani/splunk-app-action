@@ -1163,7 +1163,6 @@ dependencies = [
     { name = "github-action-toolkit" },
     { name = "pip" },
     { name = "requests" },
-    { name = "sphinxcontrib-mermaid" },
     { name = "splunk-add-on-ucc-framework" },
 ]
 
@@ -1183,6 +1182,7 @@ dev = [
     { name = "sphinx-autobuild" },
     { name = "sphinx-autodoc-typehints" },
     { name = "sphinx-copybutton" },
+    { name = "sphinxcontrib-mermaid" },
 ]
 
 [package.metadata]
@@ -1190,7 +1190,6 @@ requires-dist = [
     { name = "github-action-toolkit", specifier = ">=0.5.1" },
     { name = "pip", specifier = ">=25.2" },
     { name = "requests", specifier = ">=2.32.5" },
-    { name = "sphinxcontrib-mermaid", specifier = ">=1.0.0" },
     { name = "splunk-add-on-ucc-framework", specifier = ">=6.0.1" },
 ]
 
@@ -1210,6 +1209,7 @@ dev = [
     { name = "sphinx-autobuild", specifier = ">=2025.8.25" },
     { name = "sphinx-autodoc-typehints", specifier = ">=3.4.0" },
     { name = "sphinx-copybutton", specifier = ">=0.5.2" },
+    { name = "sphinxcontrib-mermaid", specifier = ">=1.0.0" },
 ]
 
 [[package]]

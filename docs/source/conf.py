@@ -1,7 +1,3 @@
-# Enable MyST colon_fence for mermaid support
-myst_enable_extensions = [
-    "colon_fence",
-]
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -47,19 +43,12 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx_copybutton",
     "sphinx_autodoc_typehints",
+    'sphinxcontrib.mermaid'
 ]
 
-# Add mermaid support
-extensions.append('sphinxcontrib.mermaid')
-extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.napoleon",
-    "myst_parser",
-    "sphinx.ext.intersphinx",
-    "sphinx.ext.viewcode",
-    "sphinx.ext.doctest",
-    "sphinx_copybutton",
-    "sphinx_autodoc_typehints",
+# Enable MyST colon_fence for mermaid support
+myst_enable_extensions = [
+    "colon_fence",
 ]
 
 # Tell myst-parser to assign header anchors for h1-h3.

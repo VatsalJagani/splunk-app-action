@@ -97,6 +97,8 @@ class TestAppBuild(unittest.TestCase):
                     continue
 
                 for file in files:
+                    if file.startswith("._"):
+                        continue  # Skip macOS metadata files
                     relative_path = os.path.relpath(os.path.join(root, file), extract_dir)
                     # print("DEBUG: File:", relative_path)
                     all_files.append(relative_path)
