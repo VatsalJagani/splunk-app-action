@@ -45,7 +45,7 @@ jobs:
         env:
             SPLUNKBASE_USERNAME_FOR_TEST: ${{ secrets.SPLUNKBASE_USERNAME }}
             SPLUNKBASE_PASSWORD_FOR_TEST: ${{ secrets.SPLUNKBASE_PASSWORD }}
-        run: uv run pytest --junitxml=junit/test-results.xml --cov=github_action_toolkit --cov-config=tests/.coveragerc --cov-report=xml
+        run: uv run pytest --junitxml=junit/test-results.xml --cov=src --cov-config=tests/.coveragerc --cov-report=xml
 
       - name: Adding GitHub action step summary
         uses: VatsalJagani/pytest-cov-action@v1.2
