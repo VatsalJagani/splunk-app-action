@@ -159,3 +159,5 @@ testpaths = [
 ]
 norecursedirs = []
 filterwarnings = []
+# Disable pytest-sugar plugin to avoid FileNotFoundError issues
+addopts = ["-p", "no:sugar"]

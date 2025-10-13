@@ -36,7 +36,7 @@ def test_implement_utility_file_updated():
             updated_content = output_file.read()
 
         assert "This file is generated and maintained by splunk-app-action" in updated_content
-        assert "additional_packaging(addon_name)" in updated_content
+        assert "additional_packaging(addon_name: str)" in updated_content
         assert result == expected_file_path
 
 
@@ -52,7 +52,7 @@ def test_implement_utility_file_created_new():
             updated_content = output_file.read()
 
         assert "This file is generated and maintained by splunk-app-action" in updated_content
-        assert "additional_packaging(addon_name)" in updated_content
+        assert "additional_packaging(addon_name: str)" in updated_content
         assert result == expected_file_path
 
 

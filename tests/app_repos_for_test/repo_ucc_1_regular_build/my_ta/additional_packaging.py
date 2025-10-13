@@ -100,7 +100,7 @@ def modify_original_input_py_file(addon_name, input_name):
         f.write(file_content)
 
 
-def additional_packaging(addon_name):
+def additional_packaging(addon_name: str) -> None:
     print("Running additional_packaging.py for better inputs python handler file generation.")
 
     # Iterate over all inputs available
