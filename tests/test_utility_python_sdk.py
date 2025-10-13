@@ -12,15 +12,20 @@ from unittest.mock import patch
 from helper import get_temp_directory, setup_temporary_env_vars, stdout_capture
 
 from utilities.splunk_sdk_python import SplunkPythonSDKUtility
+import github_action_toolkit as gat
 
 
 def check_no_pycache(folder_path):
     for root, dirs, files in os.walk(folder_path):
         for file in files:
             if file.endswith(".pyc"):
+                full_path = os.path.join(root, file)
+                gat.info(f"TODO - pycache found - {full_path}")
                 return False
         for dir in dirs:
             if dir == "__pycache__":
+                full_path = os.path.join(root, dir)
+                gat.info(f"TODO - pycache found - {full_path}")
                 return False
     return True
 
