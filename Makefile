@@ -40,7 +40,7 @@ clean:
 	-rm -rf docs/build/
 	-rm -rf src/splunk_app_action.egg-info
 	-rm -rf src/utilities/logger/props.conf_temp
-	-rm -rf ucc_generated_build
+	-rm -rf temp_for_test
 	-rm -rf CLAUDE.md AGENTS.md
 	-find . -type d -name "__pycache__" -exec rm -rf {} +
 
