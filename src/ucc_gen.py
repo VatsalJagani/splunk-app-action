@@ -34,10 +34,10 @@ def build(saved_paths: SavedPaths, app_info: AppInfo):
     gat.info("TODO - after coping files")
     print_dir_and_files()
 
-    org_ta_dir = os.path.join(saved_paths.repo_dir_name, saved_paths.app_dir_name)
+    ta_dir = os.path.join("ucc_build_dir", saved_paths.app_dir_name)
 
-    os.chdir(org_ta_dir)
-    gat.info(f"TODO - after changing directory to org_ta_dir {org_ta_dir}")
+    os.chdir(ta_dir)
+    gat.info(f"TODO - after changing directory to org_ta_dir {ta_dir}")
     print_dir_and_files()
     os.system(f"ucc-gen build --ta-version {app_info.version_number}")
     os.chdir(saved_paths.root_dir_path)
@@ -45,7 +45,7 @@ def build(saved_paths: SavedPaths, app_info: AppInfo):
     print_dir_and_files()
 
     shutil.copytree(
-        os.path.join(org_ta_dir, "output", app_info.package_id), "ucc_generated_build"
+        os.path.join(ta_dir, "output", app_info.package_id), "ucc_generated_build"
     )
 
     return "ucc_generated_build"
