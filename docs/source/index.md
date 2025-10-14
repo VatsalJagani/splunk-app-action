@@ -3,10 +3,11 @@
 
 ```{toctree}
 :maxdepth: 2
-:caption: Overview
+:caption: User Guide
 
 overview
 capabilities
+examples
 inputs
 troubleshooting
 ```

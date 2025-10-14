@@ -1,11 +1,42 @@
-# splunk-app-action - Python Package
+# splunk-app-action
 
-This is python library for utility functions and class helpful for custom GitHub actions.
+GitHub Action to automatically generate Splunk App and Add-on builds, run app-inspect checks with the Splunkbase API, and add common utilities to your Splunk projects.
 
+## Quick Start
+
+```yaml
+# Basic build generation
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+
+# With app-inspect checks  
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+    splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+
+# UCC Add-on build
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "TA_my_addon" 
+    use_ucc_gen: true
+```
+
+## Key Features
+
+- ✅ **Automatic Build Generation** - Creates `.tgz` artifacts for Splunk apps/add-ons
+- ✅ **Splunkbase App-Inspect** - Runs official app-inspect, cloud-inspect, and SSAI checks  
+- ✅ **UCC Add-on Support** - Full integration with UCC Generator framework
+- ✅ **Multi-App Repositories** - Build multiple apps from single repository
+- ✅ **App Utilities** - Auto-add logger, SDK, documentation, and more via PRs
+- ✅ **Custom Commands** - Run user-defined shell commands before build
+- ✅ **File Permissions** - Automatic permission fixes for app-inspect compliance
 
 ## Documentation
 
-Installation & Usage Documentation is hosted at - [https://splunk-app-action.readthedocs.io/](https://splunk-app-action.readthedocs.io/)
+📚 **Complete Documentation:** [https://splunk-app-action.readthedocs.io/](https://splunk-app-action.readthedocs.io/)
 
 
 ### Note from actions/upload-artifact - Zipped Artifact Downloads

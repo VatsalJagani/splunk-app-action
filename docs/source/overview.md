@@ -4,8 +4,7 @@ Welcome to **splunk-app-action**!
 
 This documentation covers the usage, capabilities, and development of the custom GitHub Action for Splunk Apps and Add-ons. It is designed for ReadTheDocs and uses MyST/Markdown formatting.
 
-## What does this GitHub Action do?
-
+## Flow Diagram - What does this GitHub Action do?
 
 :::{mermaid}
 graph TD
