@@ -19,40 +19,40 @@ def file_folder_permission_changes():
     to_make_permission_changes = gat.get_user_input_as("to_make_permission_changes", bool, False)
 
     if to_make_permission_changes:
-        with gat.group("📝 Adjusting file permissions"):
-            gat.debug("Setting default file permissions (644)")
-            os.system("find . -type f -exec chmod 644 '{}' \\;")
+        gat.info("📝 Adjusting file permissions")
+        gat.debug("Setting default file permissions (644)")
+        os.system("find . -type f -exec chmod 644 '{}' \\;")
 
-            gat.debug("Setting executable permissions for script files")
-            for file_ext in [".sh", ".exe", ".cmd", ".msi", ".bat"]:
-                os.system(f"find . -type f -name '*{file_ext}' -exec chmod 755 '{{}}' \\;")
+        gat.debug("Setting executable permissions for script files")
+        for file_ext in [".sh", ".exe", ".cmd", ".msi", ".bat"]:
+            os.system(f"find . -type f -name '*{file_ext}' -exec chmod 755 '{{}}' \\;")
 
-            gat.debug("Setting directory permissions (755)")
-            os.system("find . -type d -exec chmod 755 '{}' \\;")
-            gat.info("File permission adjustments completed successfully")
+        gat.debug("Setting directory permissions (755)")
+        os.system("find . -type d -exec chmod 755 '{}' \\;")
+        gat.info("File permission adjustments completed successfully")
     else:
         gat.debug("File permission changes disabled - skipping")
 
 
 def run_custom_user_defined_commands():
-    with gat.group("⚙️ Executing custom user-defined commands"):
-        commands_executed = 0
-        for no in range(1, 100):
-            try:
-                cmd = os.environ.get(f"SPLUNK_APP_ACTION_{no}")
-                if cmd:
-                    gat.debug(f"Executing custom command {no}: {cmd}")
-                    os.system(cmd)
-                    commands_executed += 1
-            except Exception as e:
-                gat.warning(f"Failed to execute custom command {no}: {e}")
+    gat.info("⚙️ Executing custom user-defined commands")
+    commands_executed = 0
+    for no in range(1, 100):
+        try:
+            cmd = os.environ.get(f"SPLUNK_APP_ACTION_{no}")
+            if cmd:
+                gat.debug(f"Executing custom command {no}: {cmd}")
+                os.system(cmd)
+                commands_executed += 1
+        except Exception as e:
+            gat.warning(f"Failed to execute custom command {no}: {e}")
 
-        if commands_executed > 0:
-            gat.info(
-                f"Custom commands execution completed successfully ({commands_executed} commands)"
-            )
-        else:
-            gat.debug("No custom commands found - skipping")
+    if commands_executed > 0:
+        gat.info(
+            f"⚙️ Custom commands execution completed successfully ({commands_executed} commands)"
+        )
+    else:
+        gat.debug("⚙️ No custom commands found - skipping")
 
 
 def generate_build(saved_paths: SavedPaths, app_info: AppInfo, app_build_dir_name: str) -> str:

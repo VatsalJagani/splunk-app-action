@@ -1,6 +1,5 @@
 import github_action_toolkit as gat
 
-from helpers.saved_values import AppInfo, SavedPaths
 from utilities.common_splunk_js_utilities import CommonJSUtilitiesFile
 from utilities.logger import LoggerUtility
 from utilities.splunk_sdk_python import SplunkPythonSDKUtility
@@ -11,8 +10,6 @@ from utilities.whats_inside_app import WhatsInsideTheAppUtility
 class SplunkAppUtilities:
     def __init__(
         self,
-        saved_paths: SavedPaths,
-        app_info: AppInfo,
         app_read_dir: str,
         app_write_dir: str,
         is_test: bool = False,
@@ -33,7 +30,7 @@ class SplunkAppUtilities:
 
     def add_utilities(self, app_utilities: list[str]) -> None:
         if not app_utilities:
-            gat.debug("No utilities specified - skipping")
+            gat.info("🛠️ No utilities specified - skipping")
             return
 
         with gat.group("🛠️ Installing app utilities"):

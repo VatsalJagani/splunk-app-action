@@ -82,24 +82,11 @@ runs:
       id: extract_branch
 
     - name: "Clone the Repository"
-      shell: bash
-      run: |
-        echo "::group::📂 Cloning Repository"
-        echo "Cloning repository with ref: ${{ steps.extract_branch.outputs.branch }}"
-      
-    - uses: actions/checkout@v4
+      uses: actions/checkout@v4
       with:
         ref: ${{ steps.extract_branch.outputs.branch }}
         path: repodir
-        
-    - name: "Finish Repository Clone"
-      shell: bash  
-      run: echo "::endgroup::"
 
-    - name: "Setup Python Environment"
-      shell: bash
-      run: echo "::group::🐍 Setting up Python Environment"
-      
     - name: Install uv (official Astral action)
       uses: astral-sh/setup-uv@v5
       with:
@@ -112,7 +99,6 @@ runs:
         echo "Installing Python and dependencies..."
         uv python install
         uv sync
-        echo "::endgroup::"
 
     - name: "Running the Splunk App actions"
       shell: bash

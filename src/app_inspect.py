@@ -258,8 +258,10 @@ class SplunkAppInspect:
         self.app_inspect_result[2] = status
 
     def run_all_checks(self) -> None:
-        with gat.group("🔍 Running Splunk app inspect checks"):
-            gat.debug("Launching app-inspect, cloud-inspect, and SSAI-inspect checks in parallel")
+        with gat.group("✅ Running Splunk app inspect checks"):
+            gat.debug(
+                "Launching Splunk app-inspect, cloud-inspect, and SSAI-inspect checks in parallel."
+            )
 
             thread_app_inspect = Thread(target=self._perform_app_inspect_check)
             thread_app_inspect.start()

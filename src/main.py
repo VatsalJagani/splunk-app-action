@@ -33,20 +33,25 @@ def main():
     # Build Add-on with UCC
     use_ucc_gen = gat.get_user_input_as("use_ucc_gen", bool, False)
 
-    if use_ucc_gen:
-        global_config_json_file_path = os.path.join(saved_paths.app_dir_path, "globalConfig.json")
-        app_package_id = splunk_app_details.fetch_app_package_id_from_global_config_json(
-            global_config_json_file_path
-        )
-        app_version = splunk_app_details.fetch_app_version_from_global_config_json(
-            global_config_json_file_path
-        )
-    else:
-        app_conf_file_path = os.path.join(saved_paths.app_dir_path, "default", "app.conf")
-        app_package_id = splunk_app_details.fetch_app_package_id_from_app_conf(
-            app_conf_file_path, saved_paths.app_dir_name
-        )
-        app_version = splunk_app_details.fetch_app_version_number_from_app_conf(app_conf_file_path)
+    with gat.group("🔍 Getting the App Details"):
+        if use_ucc_gen:
+            global_config_json_file_path = os.path.join(
+                saved_paths.app_dir_path, "globalConfig.json"
+            )
+            app_package_id = splunk_app_details.fetch_app_package_id_from_global_config_json(
+                global_config_json_file_path
+            )
+            app_version = splunk_app_details.fetch_app_version_from_global_config_json(
+                global_config_json_file_path
+            )
+        else:
+            app_conf_file_path = os.path.join(saved_paths.app_dir_path, "default", "app.conf")
+            app_package_id = splunk_app_details.fetch_app_package_id_from_app_conf(
+                app_conf_file_path, saved_paths.app_dir_name
+            )
+            app_version = splunk_app_details.fetch_app_version_number_from_app_conf(
+                app_conf_file_path
+            )
 
     app_info = AppInfo(app_package_id, app_version)
 
@@ -54,22 +59,24 @@ def main():
     app_build_dir_path = None
 
     if use_ucc_gen:
-        with keep_working_dir_unchanged():
-            app_build_dir_name = ucc_gen.build(saved_paths, app_info)
+        with gat.group("🏗️ Preparing for App Build with UCC"):
+            with keep_working_dir_unchanged():
+                app_build_dir_name = ucc_gen.build(saved_paths, app_info)
 
     else:
-        gat.info("Starting app build preparation without ucc-gen...")
-        app_build_dir_name = "without_ucc_build"
-        os.system(f"rm -rf {app_build_dir_name}")
-        shutil.copytree(saved_paths.app_dir_path, app_build_dir_name)
-        gat.info("App build preparation completed successfully")
+        with gat.group("🏗️ Preparing for App Build without UCC"):
+            app_build_dir_name = "without_ucc_build"
+            os.system(f"rm -rf {app_build_dir_name}")
+            shutil.copytree(saved_paths.app_dir_path, app_build_dir_name)
+            gat.info("App build preparation completed successfully")
 
     app_build_dir_path = os.path.join(saved_paths.root_dir_path, app_build_dir_name)
 
-    app_build_number = splunk_app_details.fetch_app_build_number_from_app_conf(
-        app_conf_file_path=os.path.join(app_build_dir_path, "default", "app.conf")
-    )
-    app_info.set_build_number(app_build_number)
+    with gat.group("🔍 Getting the App Build Number"):
+        app_build_number = splunk_app_details.fetch_app_build_number_from_app_conf(
+            app_conf_file_path=os.path.join(app_build_dir_path, "default", "app.conf")
+        )
+        app_info.set_build_number(app_build_number)
 
     try:
         app_write_dir = (
@@ -78,9 +85,7 @@ def main():
             else saved_paths.app_dir_path
         )
         with keep_working_dir_unchanged():
-            SplunkAppUtilities(
-                saved_paths, app_info, app_read_dir=app_build_dir_path, app_write_dir=app_write_dir
-            )
+            SplunkAppUtilities(app_read_dir=app_build_dir_path, app_write_dir=app_write_dir)
     except Exception as e:
         gat.error(f"Error adding Splunk app utilities: {e}")
         gat.error(traceback.format_exc())
@@ -94,7 +99,6 @@ def main():
 
         # Run App Inspect
         is_app_inspect_check = gat.get_user_input_as("is_app_inspect_check", bool, True)
-        gat.debug(f"App inspect check enabled: {is_app_inspect_check}")
 
         if is_app_inspect_check:
             splunkbase_username = gat.get_user_input("splunkbase_username")
@@ -102,7 +106,7 @@ def main():
 
             if splunkbase_username is None or splunkbase_password is None:
                 gat.error(
-                    "splunkbase_username and splunkbase_password are required for app inspect."
+                    "✅ splunkbase_username and splunkbase_password are required for app inspect."
                 )
                 return
 
@@ -110,7 +114,7 @@ def main():
                 saved_paths, app_info, build_path, splunkbase_username, splunkbase_password
             ).run_all_checks()
         else:
-            gat.info("App inspect checks disabled - skipping")
+            gat.info("✅ App inspect checks disabled - skipping")
             return
 
     except Exception as e:
