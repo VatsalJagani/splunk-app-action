@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- Logging improved for better troubleshooting and user readability.
+
+
 ## [v4.2.3](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v4.2.3) - 2025-10-14
 
 ## [v4.2.2](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v4.2.2) - 2025-10-14

@@ -82,11 +82,24 @@ runs:
       id: extract_branch
 
     - name: "Clone the Repository"
-      uses: actions/checkout@v4
+      shell: bash
+      run: |
+        echo "::group::📂 Cloning Repository"
+        echo "Cloning repository with ref: ${{ steps.extract_branch.outputs.branch }}"
+      
+    - uses: actions/checkout@v4
       with:
         ref: ${{ steps.extract_branch.outputs.branch }}
         path: repodir
+        
+    - name: "Finish Repository Clone"
+      shell: bash  
+      run: echo "::endgroup::"
 
+    - name: "Setup Python Environment"
+      shell: bash
+      run: echo "::group::🐍 Setting up Python Environment"
+      
     - name: Install uv (official Astral action)
       uses: astral-sh/setup-uv@v5
       with:
@@ -96,8 +109,10 @@ runs:
       shell: bash
       working-directory: ${{ github.action_path }}
       run: |
+        echo "Installing Python and dependencies..."
         uv python install
         uv sync
+        echo "::endgroup::"
 
     - name: "Running the Splunk App actions"
       shell: bash
@@ -116,7 +131,7 @@ runs:
         INPUT_LOGGER_SOURCETYPE: ${{inputs.logger_sourcetype}}
         INPUT_SPLUNK_PYTHON_SDK_INSTALL_PATH: ${{inputs.splunk_python_sdk_install_path}}
         INPUT_IS_REMOVE_PYC_FROM_SPLUNKLIB_DIR: ${{inputs.is_remove_pyc_from_splunklib_dir}}
-        WORKSPACE_DIR: ${{ github.workspace }}
+        GITHUB_WORKSPACE: ${{ github.workspace }}
       run: |
         uv run python -u src/main.py
 

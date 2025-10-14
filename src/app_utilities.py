@@ -32,22 +32,30 @@ class SplunkAppUtilities:
         self.add_utilities(app_utilities_list)
 
     def add_utilities(self, app_utilities: list[str]) -> None:
-        gat.info(f"Adding utilities: {app_utilities}")
-        for utility in app_utilities:
-            if utility == "whats_in_the_app":
-                WhatsInsideTheAppUtility(self.app_read_dir, self.app_write_dir)
+        if not app_utilities:
+            gat.debug("No utilities specified - skipping")
+            return
 
-            elif utility == "logger":
-                LoggerUtility(self.app_read_dir, self.app_write_dir).add()
+        with gat.group("🛠️ Installing app utilities"):
+            gat.debug(f"Utilities to install: {app_utilities}")
 
-            elif utility == "splunk_python_sdk":
-                SplunkPythonSDKUtility(self.app_read_dir, self.app_write_dir).add()
+            for utility in app_utilities:
+                if utility == "whats_in_the_app":
+                    WhatsInsideTheAppUtility(self.app_read_dir, self.app_write_dir)
 
-            elif utility == "common_js_utilities":
-                CommonJSUtilitiesFile(self.app_read_dir, self.app_write_dir).add()
+                elif utility == "logger":
+                    LoggerUtility(self.app_read_dir, self.app_write_dir).add()
 
-            elif utility == "ucc_additional_packaging":
-                UCCAdditionalPackagingUtility(self.app_read_dir, self.app_write_dir).add()
+                elif utility == "splunk_python_sdk":
+                    SplunkPythonSDKUtility(self.app_read_dir, self.app_write_dir).add()
 
-            else:
-                gat.error(f"utility={utility} is not supported.")
+                elif utility == "common_js_utilities":
+                    CommonJSUtilitiesFile(self.app_read_dir, self.app_write_dir).add()
+
+                elif utility == "ucc_additional_packaging":
+                    UCCAdditionalPackagingUtility(self.app_read_dir, self.app_write_dir).add()
+
+                else:
+                    gat.error(f"Unsupported utility: {utility}")
+
+            gat.info("App utilities installation completed successfully")

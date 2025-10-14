@@ -65,7 +65,9 @@ class SplunkAppInspect:
         os.chdir(saved_paths.root_dir_path)
 
     def _api_login(self):
-        gat.info("Creating access token.")
+        gat.info("Starting Splunkbase API authentication...")
+        gat.debug(f"Authenticating user: {self.splunkbase_username}")
+
         response = requests.request(
             "GET",
             self.LOGIN_URL,
@@ -75,19 +77,19 @@ class SplunkAppInspect:
         )
 
         if response.status_code != 200:
-            gat.error(
-                f"Error while logging. status_code={response.status_code}, response={response.text}"
-            )
-            raise Exception("Unable to login to Splunkbase.")
+            gat.error(f"Authentication failed with status {response.status_code}: {response.text}")
+            raise Exception("Unable to authenticate with Splunkbase API")
 
         res = response.json()
         token = res["data"]["token"]
         user = res["data"]["user"]["name"]
-        gat.info(f"Got access token for {user}")
+        gat.debug(f"Authentication successful for user: {user}")
 
         self.headers = {
             "Authorization": f"bearer {token}",
         }
+
+        gat.info("Splunkbase API authentication completed successfully")
         self.headers_report = {
             "Authorization": f"bearer {token}",
             "Content-Type": "text/html",
@@ -217,61 +219,71 @@ class SplunkAppInspect:
         return status
 
     def _perform_app_inspect_check(self) -> None:
-        gat.info("Performing app-inspect checks...")
+        gat.info("Starting app-inspect checks...")
         status = "Error"
         try:
             status = self._perform_checks()
+            gat.debug(f"App-inspect check completed with status: {status}")
+            gat.info("App-inspect checks completed successfully")
         except Exception as e:
-            gat.error(f"Error while checking app-inspect:{e}")
+            gat.error(f"App-inspect check failed: {e}")
             gat.error(traceback.format_exc())
             raise e
         self.app_inspect_result[0] = status
 
     def _perform_cloud_inspect_check(self) -> None:
-        gat.info("Performing cloud-inspect checks...")
+        gat.info("Starting cloud-inspect checks...")
         status = "Error"
         try:
             status = self._perform_checks(check_type="CLOUD_INSPECT")
+            gat.debug(f"Cloud-inspect check completed with status: {status}")
+            gat.info("Cloud-inspect checks completed successfully")
         except Exception as e:
-            gat.error(f"Error while checking cloud-inspect:{e}")
+            gat.error(f"Cloud-inspect check failed: {e}")
             gat.error(traceback.format_exc())
             raise e
         self.app_inspect_result[1] = status
 
     def _perform_ssai_inspect_check(self) -> None:
-        gat.info("Performing ssai-inspect checks...")
+        gat.info("Starting SSAI-inspect checks...")
         status = "Error"
         try:
             status = self._perform_checks(check_type="SSAI_INSPECT")
+            gat.debug(f"SSAI-inspect check completed with status: {status}")
+            gat.info("SSAI-inspect checks completed successfully")
         except Exception as e:
-            gat.error(f"Error while checking ssai-inspect:{e}")
+            gat.error(f"SSAI-inspect check failed: {e}")
             gat.error(traceback.format_exc())
             raise e
         self.app_inspect_result[2] = status
 
     def run_all_checks(self) -> None:
-        gat.info("Running the Splunk App inspect check.")
+        with gat.group("🔍 Running Splunk app inspect checks"):
+            gat.debug("Launching app-inspect, cloud-inspect, and SSAI-inspect checks in parallel")
 
-        thread_app_inspect = Thread(target=self._perform_app_inspect_check)
-        thread_app_inspect.start()
+            thread_app_inspect = Thread(target=self._perform_app_inspect_check)
+            thread_app_inspect.start()
 
-        thread_cloud_inspect = Thread(target=self._perform_cloud_inspect_check)
-        thread_cloud_inspect.start()
+            thread_cloud_inspect = Thread(target=self._perform_cloud_inspect_check)
+            thread_cloud_inspect.start()
 
-        thread_ssai_inspect = Thread(target=self._perform_ssai_inspect_check)
-        thread_ssai_inspect.start()
+            thread_ssai_inspect = Thread(target=self._perform_ssai_inspect_check)
+            thread_ssai_inspect.start()
 
-        # wait for all threads to complete
-        thread_app_inspect.join()
-        thread_cloud_inspect.join()
-        thread_ssai_inspect.join()
-        gat.info("All threads for Splunk App Inspect Checks has been completed.")
+            # wait for all threads to complete
+            gat.debug("Waiting for all inspect check threads to complete...")
+            thread_app_inspect.join()
+            thread_cloud_inspect.join()
+            thread_ssai_inspect.join()
 
-        if all(i == "Passed" for i in self.app_inspect_result):
-            gat.info(
-                f"All status [app-inspect, cloud-checks, self-service-checks]:{self.app_inspect_result}"
+            # Evaluate results
+            gat.debug(
+                f"Inspect results - app:{self.app_inspect_result[0]}, cloud:{self.app_inspect_result[1]}, ssai:{self.app_inspect_result[2]}"
             )
-        else:
-            msg = f"All status [app-inspect, cloud-checks, self-service-checks]:{self.app_inspect_result}"
-            gat.error(msg)
-            raise Exception(msg)
+
+            if all(i == "Passed" for i in self.app_inspect_result):
+                gat.info("All Splunk app inspect checks completed successfully - all checks passed")
+            else:
+                msg = f"Splunk app inspect checks failed - results: [app-inspect: {self.app_inspect_result[0]}, cloud-checks: {self.app_inspect_result[1]}, ssai-checks: {self.app_inspect_result[2]}]"
+                gat.error(msg)
+                raise Exception(msg)

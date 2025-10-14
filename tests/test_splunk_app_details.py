@@ -65,7 +65,7 @@ def test_fetch_app_version_from_global_config_json_missing_meta():
             fetch_app_version_from_global_config_json(file_path)
         assert (
             str(excinfo.value)
-            == "Unable to fetch the app_version_number from globalConfig.json file."
+            == "Failed to fetch app version from globalConfig.json."
         )
 
 
@@ -84,7 +84,7 @@ def test_fetch_app_version_from_global_config_json_missing_version():
             fetch_app_version_from_global_config_json(file_path)
         assert (
             str(excinfo.value)
-            == "Unable to fetch the app_version_number from globalConfig.json file."
+            == "Failed to fetch app version from globalConfig.json."
         )
 
 
@@ -105,7 +105,7 @@ id = not_relevant
                           """) as file_path:
         with pytest.raises(Exception) as excinfo:
             fetch_app_package_id_from_app_conf(file_path, ".")
-        assert "`id` attribute in the app.conf" in str(excinfo.value)
+        assert "Add 'id' attribute in app.conf" in str(excinfo.value)
 
 
 def test_fetch_app_package_id_from_app_conf_missing_id():
@@ -115,7 +115,7 @@ not_id = not_relevant
                           """) as file_path:
         with pytest.raises(Exception) as excinfo:
             fetch_app_package_id_from_app_conf(file_path, ".")
-        assert "`id` attribute in the app.conf" in str(excinfo.value)
+        assert "Add 'id' attribute in app.conf" in str(excinfo.value)
 
 
 def test_fetch_app_version_number_from_app_conf_missing_version():
@@ -125,7 +125,7 @@ id = my_app
 """) as file_path:
         with pytest.raises(Exception) as excinfo:
             fetch_app_version_number_from_app_conf(file_path)
-        assert "`id` attribute in the app.conf" in str(excinfo.value)
+        assert "Add 'id' attribute in app.conf" in str(excinfo.value)
 
 
 def test_fetch_app_version_number_from_app_conf_launcher_stanza():
@@ -177,7 +177,7 @@ some_key = some_value
 """) as file_path:
         with pytest.raises(Exception) as excinfo:
             fetch_app_version_number_from_app_conf(file_path)
-        assert "`id` attribute in the app.conf" in str(excinfo.value)
+        assert "Add 'id' attribute in app.conf" in str(excinfo.value)
 
 
 def test_fetch_app_build_number_from_app_conf_build_present():

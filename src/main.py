@@ -16,16 +16,15 @@ from helpers.saved_values import AppInfo, SavedPaths, keep_working_dir_unchanged
 
 
 def main():
-    gat.info("Running Python script main.py")
     gat.print_all_user_inputs()
 
     # Change to workspace directory where repodir/ exists
-    workspace_dir = os.environ.get("WORKSPACE_DIR")
+    workspace_dir = os.environ.get("GITHUB_WORKSPACE")
     if workspace_dir:
         gat.info(f"Changing working directory to workspace: {workspace_dir}")
         os.chdir(workspace_dir)
     else:
-        gat.error("WORKSPACE_DIR not set, assuming current directory has repodir/")
+        gat.error("GITHUB_WORKSPACE not set, assuming current directory has repodir/")
 
     app_dir = gat.get_user_input("app_dir")
     assert app_dir is not None, "app_dir must be provided"
@@ -57,14 +56,13 @@ def main():
     if use_ucc_gen:
         with keep_working_dir_unchanged():
             app_build_dir_name = ucc_gen.build(saved_paths, app_info)
-        gat.info("ucc-gen command Completed.")
 
     else:
+        gat.info("Starting app build preparation without ucc-gen...")
         app_build_dir_name = "without_ucc_build"
         os.system(f"rm -rf {app_build_dir_name}")
-
         shutil.copytree(saved_paths.app_dir_path, app_build_dir_name)
-        gat.info("Copied the code for build process.")
+        gat.info("App build preparation completed successfully")
 
     app_build_dir_path = os.path.join(saved_paths.root_dir_path, app_build_dir_name)
 
@@ -83,22 +81,20 @@ def main():
             SplunkAppUtilities(
                 saved_paths, app_info, app_read_dir=app_build_dir_path, app_write_dir=app_write_dir
             )
-        gat.info("SplunkAppUtilities completed.")
     except Exception as e:
-        gat.error(f"Error Adding Splunk App Utilities: {e}")
+        gat.error(f"Error adding Splunk app utilities: {e}")
         gat.error(traceback.format_exc())
 
     try:
         with keep_working_dir_unchanged():
             # Generate Build
             build_path = app_build_generate.generate_build(
-                saved_paths, app_info, app_build_dir_name, app_build_dir_path
+                saved_paths, app_info, app_build_dir_name
             )
-        gat.info("generate_build Completed.")
 
         # Run App Inspect
         is_app_inspect_check = gat.get_user_input_as("is_app_inspect_check", bool, True)
-        gat.info(f"is_app_inspect_check: {is_app_inspect_check}")
+        gat.debug(f"App inspect check enabled: {is_app_inspect_check}")
 
         if is_app_inspect_check:
             splunkbase_username = gat.get_user_input("splunkbase_username")
@@ -113,13 +109,12 @@ def main():
             SplunkAppInspect(
                 saved_paths, app_info, build_path, splunkbase_username, splunkbase_password
             ).run_all_checks()
-            gat.info("SplunkAppInspect Completed.")
         else:
-            gat.info("Ignoring App-inspect checks.")
+            gat.info("App inspect checks disabled - skipping")
             return
 
     except Exception as e:
-        gat.error(f"Error in SplunkBase Build Generator or App Inspect Checks: {e}")
+        gat.error(f"Error in build generation or app inspect checks: {e}")
         gat.error(traceback.format_exc())
 
         sys.exit(5)
