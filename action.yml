@@ -90,19 +90,18 @@ runs:
     - name: Install uv (official Astral action)
       uses: astral-sh/setup-uv@v5
       with:
-        enable-cache: true
         python-version: 3.12
 
-    - name: Set up Python (using uv)
+    - name: Set up Python and install dependencies
       shell: bash
-      run: uv python install
-
-    - name: Install all dependencies
-      shell: bash
-      run: uv sync
+      working-directory: ${{ github.action_path }}
+      run: |
+        uv python install
+        uv sync
 
     - name: "Running the Splunk App actions"
       shell: bash
+      working-directory: ${{ github.workspace }}
       env:
         INPUT_APP_DIR: ${{inputs.app_dir}}
         INPUT_USE_UCC_GEN: ${{inputs.use_ucc_gen}}
