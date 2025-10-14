@@ -96,6 +96,11 @@ runs:
       shell: bash
       working-directory: ${{ github.action_path }}
       run: |
+        echo "Current working directory:"
+        pwd
+        cd ${{ github.action_path }}
+        echo "Changed working directory to action path:"
+        pwd
         uv python install
         uv sync
 
@@ -117,6 +122,11 @@ runs:
         INPUT_SPLUNK_PYTHON_SDK_INSTALL_PATH: ${{inputs.splunk_python_sdk_install_path}}
         INPUT_IS_REMOVE_PYC_FROM_SPLUNKLIB_DIR: ${{inputs.is_remove_pyc_from_splunklib_dir}}
       run: |
+        echo "[Running-Action] Current working directory:"
+        pwd
+        cd ${{ github.workspace }}
+        echo "[Running-Action] Changed working directory to action path:"
+        pwd
         uv run python -u ${{ github.action_path }}/src/main.py
 
     - name: "Upload the app build as artifact"
