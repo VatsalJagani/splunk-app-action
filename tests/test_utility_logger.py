@@ -131,12 +131,12 @@ def test_logger_utility_updated():
             assert result
             assert os.path.exists(os.path.join(temp_dir, "bin", "logger_manager.py"))
             assert os.path.exists(os.path.join(temp_dir, "default", "props.conf"))
-            with open(os.path.join(temp_dir, "bin", "logger_manager.py")) as f:
-                assert "log_file_prefix_new" in f.read()
-                assert "sample_log_file_prefix" not in f.read()
-            with open(os.path.join(temp_dir, "default", "props.conf")) as f:
-                assert "logger_sourcetype_new" in f.read()
-                assert "sample_logger_sourcetype" not in f.read()
+            with open(os.path.join(temp_dir, "bin", "logger_manager.py")) as f1:
+                assert "log_file_prefix_new" in f1.read()
+                assert "sample_log_file_prefix" not in f1.read()
+            with open(os.path.join(temp_dir, "default", "props.conf")) as f2:
+                assert "logger_sourcetype_new" in f2.read()
+                assert "sample_logger_sourcetype" not in f2.read()
 
 
 def test_logger_utility_not_updated():

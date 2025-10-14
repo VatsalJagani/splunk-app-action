@@ -121,7 +121,7 @@ def get_temp_git_repo(current_branch="my_current_branch"):
         yield temp_dir
     finally:
         del os.environ["GITHUB_TOKEN"]
-        del os.environ["CURRENT_BRANCH_NAME"]
+        del os.environ["INPUT_CURRENT_BRANCH_NAME"]
 
         os.chdir(original_pwd)  # go back to original directory
 

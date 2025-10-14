@@ -9,7 +9,7 @@
 import os
 import sys
 
-# path to be added -> /<this-repo>/tests/src
+# path to be added -> src
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))
 
 

@@ -100,4 +100,3 @@ def fetch_app_build_number_from_app_conf(app_conf_file_path: str) -> str:
         gat.debug("No build number found in app.conf, using default")
         gat.info("App build number extraction completed (using default)")
         return "1"
-        return "1"

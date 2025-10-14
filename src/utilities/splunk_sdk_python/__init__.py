@@ -84,5 +84,4 @@ class SplunkPythonSDKUtility(BaseUtility):
         gat.info(f"Splunk Python SDK installation completed - version: {new_version}")
 
         if not already_exist or previous_version != new_version:
-            gat.info(f"New splunklib version: {new_version}")
             return init_file

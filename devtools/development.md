@@ -47,13 +47,11 @@ make upgrade
 uv run pytest   # all tests
 uv run pytest -s src/some_file.py  # one test, showing outputs
 
-# Build and install current dev executables, to let you use your dev copies
-# as local tools:
-uv tool install --editable .
 
 # Documentation
 # Run Doc locally
 make docs-live
+
 
 # Dependency management directly with uv:
 # Add a new dependency:

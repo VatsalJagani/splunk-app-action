@@ -79,10 +79,6 @@ def test_splunk_sdk_utility_upgraded_existing():
             # Call implement_utility function
             result = sdk_utility.implement_utility()
 
-            # Get the captured stdout
-            output = captured_stdout.getvalue()
-            assert "New splunklib version" in output.strip()
-
         # Validate the result
         assert os.path.exists(init_file)
         assert result == init_file
@@ -111,10 +107,6 @@ def test_splunk_sdk_utility_upgraded_existing_2():
             with stdout_capture() as captured_stdout:
                 # Call implement_utility function
                 result = sdk_utility.implement_utility()
-
-                # Get the captured stdout
-                output = captured_stdout.getvalue()
-                assert "New splunklib version" in output.strip()
 
             # Validate the result
             assert os.path.exists(init_file)
