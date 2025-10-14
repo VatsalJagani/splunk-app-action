@@ -32,8 +32,7 @@ class WhatsInsideTheAppUtility(BaseUtility):
         """
         It returns the file_path of README file when the file has been changed, otherwise None
         """
-        gat.info("Adding WhatsInsideTheAppUtility.")
-
+        gat.info("📋 Adding WhatsInsideTheAppUtility")
         start_markers = [
             "# What's in the App",
             "What's in the Add-on",

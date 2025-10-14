@@ -31,60 +31,58 @@ class SplunkPythonSDKUtility(BaseUtility):
 
     @override
     def implement_utility(self) -> str | bool | None:
-        with gat.group("📚 Installing/Updating Splunk Python SDK"):
-            splunk_python_sdk_install_path = gat.get_user_input("splunk_python_sdk_install_path")
-            gat.debug(f"Install path: {splunk_python_sdk_install_path}")
-            if not splunk_python_sdk_install_path or splunk_python_sdk_install_path == "NONE":
-                splunk_python_sdk_install_path = "bin"
+        gat.info("📚 Adding SplunkPythonSDKUtility - Installing/Updating Splunk Python SDK")
+        splunk_python_sdk_install_path = gat.get_user_input("splunk_python_sdk_install_path")
+        gat.debug(f"Install path: {splunk_python_sdk_install_path}")
+        if not splunk_python_sdk_install_path or splunk_python_sdk_install_path == "NONE":
+            splunk_python_sdk_install_path = "bin"
 
-            is_remove_pyc_from_splunklib_dir = gat.get_user_input_as(
-                "is_remove_pyc_from_splunklib_dir", bool, True
-            )
-            gat.debug(f"Remove .pyc files: {is_remove_pyc_from_splunklib_dir}")
+        is_remove_pyc_from_splunklib_dir = gat.get_user_input_as(
+            "is_remove_pyc_from_splunklib_dir", bool, True
+        )
+        gat.debug(f"Remove .pyc files: {is_remove_pyc_from_splunklib_dir}")
 
-            folder_to_install_splunklib = os.path.join(
-                self.app_write_dir, splunk_python_sdk_install_path
-            )
+        folder_to_install_splunklib = os.path.join(
+            self.app_write_dir, splunk_python_sdk_install_path
+        )
 
-            if not os.path.exists(folder_to_install_splunklib):
-                os.mkdir(folder_to_install_splunklib)
+        if not os.path.exists(folder_to_install_splunklib):
+            os.mkdir(folder_to_install_splunklib)
 
-            os.chdir(folder_to_install_splunklib)
+        os.chdir(folder_to_install_splunklib)
 
-            # Check if splunklib exist already
-            already_exist = False
-            previous_version = None
+        # Check if splunklib exist already
+        already_exist = False
+        previous_version = None
 
-            splunklib_dir = os.path.join(folder_to_install_splunklib, "splunklib")
-            init_file = os.path.join(splunklib_dir, "__init__.py")
+        splunklib_dir = os.path.join(folder_to_install_splunklib, "splunklib")
+        init_file = os.path.join(splunklib_dir, "__init__.py")
 
-            print(f"init_file inside code = {init_file}")
+        print(f"init_file inside code = {init_file}")
 
-            if (
-                os.path.exists(splunklib_dir)
-                and os.path.isdir(splunklib_dir)
-                and os.path.isfile(init_file)
-            ):
-                already_exist = True
-                previous_version = self._get_splunklib_version(init_file)
-                gat.info(f"Found existing splunklib version: {previous_version}")
+        if (
+            os.path.exists(splunklib_dir)
+            and os.path.isdir(splunklib_dir)
+            and os.path.isfile(init_file)
+        ):
+            already_exist = True
+            previous_version = self._get_splunklib_version(init_file)
+            gat.info(f"Found existing splunklib version: {previous_version}")
 
-            if already_exist:
-                gat.info("Upgrading existing splunklib installation...")
-                os.system(
-                    f'pip install splunk-sdk --upgrade --target "{folder_to_install_splunklib}"'
-                )
-            else:
-                gat.info("Installing splunklib for the first time...")
-                os.system(f'pip install splunk-sdk --target "{folder_to_install_splunklib}"')
+        if already_exist:
+            gat.info("Upgrading existing splunklib installation...")
+            os.system(f'pip install splunk-sdk --upgrade --target "{folder_to_install_splunklib}"')
+        else:
+            gat.info("Installing splunklib for the first time...")
+            os.system(f'pip install splunk-sdk --target "{folder_to_install_splunklib}"')
 
-            # Removing .pyc and __pycache__
-            if is_remove_pyc_from_splunklib_dir:
-                self.remove_pycache(folder_to_install_splunklib)
+        # Removing .pyc and __pycache__
+        if is_remove_pyc_from_splunklib_dir:
+            self.remove_pycache(folder_to_install_splunklib)
 
-            new_version = self._get_splunklib_version(init_file)
-            gat.info(f"Splunk Python SDK installation completed - version: {new_version}")
+        new_version = self._get_splunklib_version(init_file)
+        gat.info(f"Splunk Python SDK installation completed - version: {new_version}")
 
-            if not already_exist or previous_version != new_version:
-                gat.info(f"New splunklib version: {new_version}")
-                return init_file
+        if not already_exist or previous_version != new_version:
+            gat.info(f"New splunklib version: {new_version}")
+            return init_file

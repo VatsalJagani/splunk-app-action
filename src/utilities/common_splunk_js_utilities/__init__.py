@@ -10,7 +10,7 @@ from utilities.base_utility import BaseUtility
 class CommonJSUtilitiesFile(BaseUtility):
     @override
     def implement_utility(self) -> str | bool | None:
-        gat.info("Adding CommonJSUtilitiesFile")
+        gat.info("📚 Adding CommonJSUtilitiesFile")
 
         folder_path = os.path.join(self.app_write_dir, "appserver", "static")
         file_path = os.path.join(folder_path, "splunk_common_js_v_utilities.js")

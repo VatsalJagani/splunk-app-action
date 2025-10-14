@@ -10,7 +10,7 @@ from utilities.base_utility import BaseUtility
 class UCCAdditionalPackagingUtility(BaseUtility):
     @override
     def implement_utility(self) -> str | None:
-        gat.info("Adding UCCAdditionalPackagingUtility")
+        gat.info("📦 Adding UCCAdditionalPackagingUtility")
 
         folder_path = os.path.dirname(
             self.app_write_dir

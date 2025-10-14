@@ -16,39 +16,39 @@ class LoggerUtility(BaseUtility):
 
     @override
     def implement_utility(self) -> str | list[str] | bool | None:
-        with gat.group("📝 Setting up logging utility"):
-            should_execute = True
+        gat.info("📝 Adding LoggerUtility")
+        should_execute = True
 
-            log_files_prefix = gat.get_user_input("logger_log_files_prefix")
-            gat.debug(f"Log files prefix: {log_files_prefix}")
-            if not log_files_prefix or log_files_prefix == "NONE":
-                gat.error("Skipping logger setup - logger_log_files_prefix not provided")
-                should_execute = False
+        log_files_prefix = gat.get_user_input("logger_log_files_prefix")
+        gat.debug(f"Log files prefix: {log_files_prefix}")
+        if not log_files_prefix or log_files_prefix == "NONE":
+            gat.error("Skipping logger setup - logger_log_files_prefix not provided")
+            should_execute = False
 
-            logger_sourcetype = gat.get_user_input("logger_sourcetype")
-            gat.debug(f"Logger sourcetype: {logger_sourcetype}")
-            if not logger_sourcetype or logger_sourcetype == "NONE":
-                gat.error("Skipping logger setup - logger_sourcetype not provided")
-                should_execute = False
+        logger_sourcetype = gat.get_user_input("logger_sourcetype")
+        gat.debug(f"Logger sourcetype: {logger_sourcetype}")
+        if not logger_sourcetype or logger_sourcetype == "NONE":
+            gat.error("Skipping logger setup - logger_sourcetype not provided")
+            should_execute = False
 
-            self.words_for_replacement = {
-                "<<<log_files_prefix>>>": log_files_prefix or "",
-                "<<<logger_sourcetype>>>": logger_sourcetype or "",
-            }
+        self.words_for_replacement = {
+            "<<<log_files_prefix>>>": log_files_prefix or "",
+            "<<<logger_sourcetype>>>": logger_sourcetype or "",
+        }
 
-            if not should_execute:
-                return False
+        if not should_execute:
+            return False
 
-            update1 = self.add_logger_manager_py()
-            update2 = self.add_props_content()
+        update1 = self.add_logger_manager_py()
+        update2 = self.add_props_content()
 
-            if update1 or update2:
-                gat.info("Logger utility setup completed successfully")
-                return [
-                    os.path.join(self.app_write_dir, "bin", "logger_manager.py"),
-                    os.path.join(self.app_write_dir, "default", "props.conf"),
-                ]
-            gat.info("Logger utility - no changes needed")
+        if update1 or update2:
+            gat.info("Logger utility setup completed successfully")
+            return [
+                os.path.join(self.app_write_dir, "bin", "logger_manager.py"),
+                os.path.join(self.app_write_dir, "default", "props.conf"),
+            ]
+        gat.info("Logger utility - no changes needed")
 
     def add_logger_manager_py(self):
         return FullRawFileHandler(

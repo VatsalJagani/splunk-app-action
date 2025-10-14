@@ -33,26 +33,24 @@ class SplunkAppUtilities:
             gat.info("🛠️ No utilities specified - skipping")
             return
 
-        with gat.group("🛠️ Installing app utilities"):
-            gat.debug(f"Utilities to install: {app_utilities}")
+        gat.info(f"🛠️ Installing app utilities - {app_utilities}")
+        for utility in app_utilities:
+            if utility == "whats_in_the_app":
+                WhatsInsideTheAppUtility(self.app_read_dir, self.app_write_dir)
 
-            for utility in app_utilities:
-                if utility == "whats_in_the_app":
-                    WhatsInsideTheAppUtility(self.app_read_dir, self.app_write_dir)
+            elif utility == "logger":
+                LoggerUtility(self.app_read_dir, self.app_write_dir).add()
 
-                elif utility == "logger":
-                    LoggerUtility(self.app_read_dir, self.app_write_dir).add()
+            elif utility == "splunk_python_sdk":
+                SplunkPythonSDKUtility(self.app_read_dir, self.app_write_dir).add()
 
-                elif utility == "splunk_python_sdk":
-                    SplunkPythonSDKUtility(self.app_read_dir, self.app_write_dir).add()
+            elif utility == "common_js_utilities":
+                CommonJSUtilitiesFile(self.app_read_dir, self.app_write_dir).add()
 
-                elif utility == "common_js_utilities":
-                    CommonJSUtilitiesFile(self.app_read_dir, self.app_write_dir).add()
+            elif utility == "ucc_additional_packaging":
+                UCCAdditionalPackagingUtility(self.app_read_dir, self.app_write_dir).add()
 
-                elif utility == "ucc_additional_packaging":
-                    UCCAdditionalPackagingUtility(self.app_read_dir, self.app_write_dir).add()
+            else:
+                gat.error(f"🛠️ Unsupported utility: {utility}")
 
-                else:
-                    gat.error(f"Unsupported utility: {utility}")
-
-            gat.info("App utilities installation completed successfully")
+            gat.info("🛠️ App utilities installation completed successfully")

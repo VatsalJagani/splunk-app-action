@@ -87,6 +87,10 @@ runs:
         ref: ${{ steps.extract_branch.outputs.branch }}
         path: repodir
 
+    - name: "Set up the working directory"
+      shell: bash
+      run: cd ${{ github.action_path }}
+
     - name: Install uv (official Astral action)
       uses: astral-sh/setup-uv@v5
       with:
@@ -94,7 +98,6 @@ runs:
 
     - name: Set up Python and install dependencies
       shell: bash
-      working-directory: ${{ github.action_path }}
       run: |
         echo "Installing Python and dependencies..."
         uv python install
@@ -102,7 +105,6 @@ runs:
 
     - name: "Running the Splunk App actions"
       shell: bash
-      working-directory: ${{ github.action_path }}
       env:
         INPUT_APP_DIR: ${{inputs.app_dir}}
         INPUT_USE_UCC_GEN: ${{inputs.use_ucc_gen}}
