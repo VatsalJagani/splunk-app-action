@@ -5,6 +5,10 @@
 # pyright: reportUnknownVariableType=false
 # pyright: reportUnknownParameterType=false
 # pyright: reportUnknownMemberType=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportFunctionMemberAccess=false
+# pyright: reportUnannotatedClassAttribute=false
+
 
 import io
 import os
@@ -39,11 +43,11 @@ def setup_action_yml(
 
     try:
         shutil.rmtree(temp_dir_for_test_path)
-    except:
+    except OSError:
         pass
     try:
         os.mkdir(temp_dir_for_test_path)
-    except:
+    except OSError:
         pass
 
     app_repo_path = os.path.join(os.path.dirname(__file__), "app_repos_for_test", test_app_repo)
@@ -72,7 +76,7 @@ def setup_action_yml(
         print("Test Cleanup after each test-case.")
         try:
             shutil.rmtree(temp_dir_for_test_path)
-        except:
+        except OSError:
             pass
         os.chdir(repo_root_dir_path)
 
@@ -149,5 +153,5 @@ def setup_temporary_env_vars(vars):
     try:
         yield
     finally:
-        for name, value in vars.items():
+        for name, _value in vars.items():
             del os.environ[name]

@@ -5,8 +5,13 @@
 # pyright: reportUnknownVariableType=false
 # pyright: reportUnknownParameterType=false
 # pyright: reportUnknownMemberType=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportFunctionMemberAccess=false
+# pyright: reportUnannotatedClassAttribute=false
+# pyright: reportUninitializedInstanceVariable=false
 
 import unittest
+from typing import override
 from unittest.mock import patch
 
 from utilities.whats_inside_app import WhatsInsideTheAppUtility
@@ -14,6 +19,7 @@ from utilities.whats_inside_app import WhatsInsideTheAppUtility
 
 class TestWhatsInsideTheAppUtility(unittest.TestCase):
     @classmethod
+    @override
     def setUpClass(cls):
         cls.utility = WhatsInsideTheAppUtility("abc", "abc")
 

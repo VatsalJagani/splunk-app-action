@@ -5,17 +5,20 @@
 # pyright: reportUnknownVariableType=false
 # pyright: reportUnknownParameterType=false
 # pyright: reportUnknownMemberType=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportFunctionMemberAccess=false
+# pyright: reportUnannotatedClassAttribute=false
 
 import os
 from unittest.mock import patch
 
-from helper import get_temp_directory, setup_temporary_env_vars, stdout_capture
-
 from utilities.splunk_sdk_python import SplunkPythonSDKUtility
+
+from .helper import get_temp_directory, setup_temporary_env_vars  # pyright: ignore
 
 
 def check_no_pycache(folder_path):
-    for root, dirs, files in os.walk(folder_path):
+    for _root, dirs, files in os.walk(folder_path):
         for file in files:
             if file.endswith(".pyc"):
                 return False
@@ -75,9 +78,7 @@ def test_splunk_sdk_utility_upgraded_existing():
         # Initialize SplunkPythonSDKUtility instance
         sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
 
-        with stdout_capture() as captured_stdout:
-            # Call implement_utility function
-            result = sdk_utility.implement_utility()
+        result = sdk_utility.implement_utility()
 
         # Validate the result
         assert os.path.exists(init_file)
@@ -104,9 +105,7 @@ def test_splunk_sdk_utility_upgraded_existing_2():
             # Initialize SplunkPythonSDKUtility instance
             sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
 
-            with stdout_capture() as captured_stdout:
-                # Call implement_utility function
-                result = sdk_utility.implement_utility()
+            result = sdk_utility.implement_utility()
 
             # Validate the result
             assert os.path.exists(init_file)

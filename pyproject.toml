@@ -116,7 +116,7 @@ ignore = [
 # than mypy and with a good extension for VSCode/Cursor.
 # https://marketplace.visualstudio.com/items?itemName=detachhead.basedpyright
 # https://docs.basedpyright.com/latest/configuration/config-files/#sample-pyprojecttoml-file
-include = ["src", "devtools"]
+include = ["src", "tests", "devtools"]
 # TODO - Ideally tests folder also should be checked for type checking, but filtering for this project
 exclude = [
     "tests/app_repos_for_test",

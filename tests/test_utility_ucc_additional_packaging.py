@@ -5,12 +5,15 @@
 # pyright: reportUnknownVariableType=false
 # pyright: reportUnknownParameterType=false
 # pyright: reportUnknownMemberType=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportFunctionMemberAccess=false
+# pyright: reportUnannotatedClassAttribute=false
 
 import os
 
-from helper import get_temp_directory
-
 from utilities.ucc_additional_packaging import UCCAdditionalPackagingUtility
+
+from .helper import get_temp_directory  # pyright: ignore
 
 UTILITIES_FOLDER_PATH = os.path.join(
     os.path.dirname(__file__), os.path.pardir, "src", "utilities", "ucc_additional_packaging"

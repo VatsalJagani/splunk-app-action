@@ -5,14 +5,20 @@
 # pyright: reportUnknownVariableType=false
 # pyright: reportUnknownParameterType=false
 # pyright: reportUnknownMemberType=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportFunctionMemberAccess=false
+# pyright: reportUnannotatedClassAttribute=false
+# pyright: reportUninitializedInstanceVariable=false
 
 import os
 import unittest
+from typing import override
 
 from utilities.base_utility import BaseUtility
 
 
 class TestBaseUtility(unittest.TestCase):
+    @override
     def setUp(self):
         self.app_read_dir = os.path.join(os.path.dirname(__file__), "app_repos_for_test")
         self.app_write_dir = os.path.join(os.path.dirname(__file__), "app_repos_for_test")

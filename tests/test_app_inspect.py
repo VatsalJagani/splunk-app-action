@@ -1,18 +1,14 @@
 # pyright: reportPrivateUsage=false
 # pyright: reportUnusedVariable=false
-# pyright: reportUnusedParameter=false
-# pyright: reportMissingParameterType=false
-# pyright: reportUnknownVariableType=false
-# pyright: reportUnknownParameterType=false
-# pyright: reportUnknownMemberType=false
 
 import unittest
 from unittest.mock import patch
 
 import pytest
-from helper import setup_action_yml
 
 from main import main
+
+from .helper import setup_action_yml  # pyright: ignore
 
 # import os
 # SPLUNKBASE_USERNAME_FOR_TEST = os.environ["SPLUNKBASE_USERNAME_FOR_TEST"]
@@ -28,7 +24,7 @@ class TestAppInspect(unittest.TestCase):
         patcher_app_inspect_perform_checks = patch("app_inspect.SplunkAppInspect._perform_checks")
         mock_app_inspect_perform_checks = patcher_app_inspect_perform_checks.start()
 
-        def mock_app_inspect_perform_checks_fn(check_type="APP_INSPECT"):
+        def mock_app_inspect_perform_checks_fn(check_type: str = "APP_INSPECT") -> str:
             print(
                 f"Mocked app_inspect.SplunkAppInspect._perform_checks called with args: check_type={check_type}"
             )
@@ -45,7 +41,7 @@ class TestAppInspect(unittest.TestCase):
         ):
             with pytest.raises(SystemExit) as pytest_wrapped_e:
                 main()
-            assert pytest_wrapped_e.type == SystemExit
+            assert pytest_wrapped_e.type is SystemExit
             assert pytest_wrapped_e.value.code == 5
 
     def test_app_inspect_success_integration(self):
@@ -53,7 +49,7 @@ class TestAppInspect(unittest.TestCase):
         patcher_app_inspect_perform_checks = patch("app_inspect.SplunkAppInspect._perform_checks")
         mock_app_inspect_perform_checks = patcher_app_inspect_perform_checks.start()
 
-        def mock_app_inspect_perform_checks_fn(check_type="APP_INSPECT"):
+        def mock_app_inspect_perform_checks_fn(check_type: str = "APP_INSPECT") -> str:
             print(
                 f"Mocked app_inspect.SplunkAppInspect._perform_checks called with args: check_type={check_type}"
             )

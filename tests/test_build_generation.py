@@ -5,15 +5,18 @@
 # pyright: reportUnknownVariableType=false
 # pyright: reportUnknownParameterType=false
 # pyright: reportUnknownMemberType=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportFunctionMemberAccess=false
+# pyright: reportUnannotatedClassAttribute=false
 
 import glob
 import os
 import tarfile
 import unittest
 
-from helper import setup_action_yml
-
 from main import main
+
+from .helper import setup_action_yml  # pyright: ignore
 
 
 def get_file_permissions(filepath):
@@ -66,7 +69,7 @@ def get_file_permissions(filepath):
 
 
 def remove_ds_store_files(directory):
-    for root, dirs, files in os.walk(directory):
+    for root, _dirs, files in os.walk(directory):
         for file in files:
             if file == ".DS_Store":
                 os.remove(os.path.join(root, file))

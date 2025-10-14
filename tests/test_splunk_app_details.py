@@ -5,6 +5,9 @@
 # pyright: reportUnknownVariableType=false
 # pyright: reportUnknownParameterType=false
 # pyright: reportUnknownMemberType=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportFunctionMemberAccess=false
+# pyright: reportUnannotatedClassAttribute=false
 
 import json
 import os
@@ -33,8 +36,8 @@ class WriteMockGlobalConfigJson:
         return self.file_path
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        pass
-        os.remove(self.file_path)  # Cleanup
+        if self.file_path:
+            os.remove(self.file_path)  # Cleanup
 
 
 # Write mock app.conf file
@@ -50,7 +53,8 @@ class WriteMockAppConf:
         return self.file_path
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        os.remove(self.file_path)  # Cleanup
+        if self.file_path:
+            os.remove(self.file_path)  # Cleanup
 
 
 def test_fetch_app_version_from_global_config_json_valid():
@@ -63,18 +67,15 @@ def test_fetch_app_version_from_global_config_json_missing_meta():
     with WriteMockGlobalConfigJson({"data": "some_data"}) as file_path:
         with pytest.raises(Exception) as excinfo:
             fetch_app_version_from_global_config_json(file_path)
-        assert (
-            str(excinfo.value)
-            == "Failed to fetch app version from globalConfig.json."
-        )
+        assert str(excinfo.value) == "Failed to fetch app version from globalConfig.json."
 
 
 def test_fetch_app_package_id_from_global_config_json_missing_name():
     with WriteMockGlobalConfigJson({"meta": {"version": "1.2.3"}}) as file_path:
         with pytest.raises(Exception) as excinfo:
             fetch_app_package_id_from_global_config_json(file_path)
-        assert (
-            "Exception while fetching app_package_id from globalConfig.json file." in str(excinfo.value)
+        assert "Exception while fetching app_package_id from globalConfig.json file." in str(
+            excinfo.value
         )
 
 
@@ -82,10 +83,7 @@ def test_fetch_app_version_from_global_config_json_missing_version():
     with WriteMockGlobalConfigJson({"meta": {"name": "my_app"}}) as file_path:
         with pytest.raises(Exception) as excinfo:
             fetch_app_version_from_global_config_json(file_path)
-        assert (
-            str(excinfo.value)
-            == "Failed to fetch app version from globalConfig.json."
-        )
+        assert str(excinfo.value) == "Failed to fetch app version from globalConfig.json."
 
 
 def test_fetch_app_package_id_from_app_conf_valid():
@@ -93,9 +91,8 @@ def test_fetch_app_package_id_from_app_conf_valid():
 [package]
 id = my_app
 """) as file_path:
-        with pytest.raises(Exception):
-            app_package_id = fetch_app_package_id_from_app_conf(file_path)
-            assert app_package_id == "my_app"
+        app_package_id = fetch_app_package_id_from_app_conf(file_path, ".")
+        assert app_package_id == "my_app"
 
 
 def test_fetch_app_package_id_from_app_conf_empty_package():

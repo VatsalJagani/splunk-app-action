@@ -5,6 +5,9 @@
 # pyright: reportUnknownVariableType=false
 # pyright: reportUnknownParameterType=false
 # pyright: reportUnknownMemberType=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportFunctionMemberAccess=false
+# pyright: reportUnannotatedClassAttribute=false
 
 import os
 import unittest
@@ -22,7 +25,7 @@ class TestSplunkConfigParser(unittest.TestCase):
         return os.path.join(os.path.dirname(__file__), "splunk_config_files", file_name)
 
     def test_file_not_found(self):
-        with self.assertRaises(Exception):
+        with self.assertRaisesRegex(Exception, "Splunk Conf File Not Found."):
             SplunkConfigParser(self._util_conf_path("no_file.conf"))
 
     def test_read_config_file(self):

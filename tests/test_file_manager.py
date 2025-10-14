@@ -5,11 +5,13 @@
 # pyright: reportUnknownVariableType=false
 # pyright: reportUnknownParameterType=false
 # pyright: reportUnknownMemberType=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportFunctionMemberAccess=false
+# pyright: reportUnannotatedClassAttribute=false
 
 import os
 
 import pytest
-from helper import get_temp_directory
 
 from helpers.file_manager import (
     FullRawFileHandler,
@@ -19,6 +21,8 @@ from helpers.file_manager import (
     get_folder_hash,
     get_multi_files_hash,
 )
+
+from .helper import get_temp_directory  # pyright: ignore
 
 
 # Use a fixture to create temporary files with known content for testing
