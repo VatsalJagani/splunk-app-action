@@ -53,4 +53,4 @@ class SplunkAppUtilities:
             else:
                 gat.error(f"🛠️ Unsupported utility: {utility}")
 
-            gat.info("🛠️ App utilities installation completed successfully")
+        gat.info("🛠️ App utilities installation completed successfully")

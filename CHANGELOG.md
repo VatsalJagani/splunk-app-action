@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+- Added scripts to create new tag quickly.
+- Separated creating just tag and creating release for GitHub action as for GitHub action is usually used with v4 instead of v4.0.0.
+
+
 ## [v4.3.4](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v4.3.4) - 2025-10-14
 
 ## [v4.3.3](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v4.3.3) - 2025-10-14

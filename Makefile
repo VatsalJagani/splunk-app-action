@@ -57,6 +57,6 @@ docs-check:
 	$(MAKE) -C docs html
 
 
-.PHONY : create-release
-create-release:
-	./devtools/release.sh
+.PHONY : create-tag
+create-tag:
+	./devtools/create_tag.sh

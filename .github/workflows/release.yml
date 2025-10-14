@@ -3,7 +3,7 @@ name: Publish Package & Docs
 on:
   push:
     tags:
-      - "v*.*.*"
+      - "v[0-9]+"
   workflow_dispatch:   # Enable manual trigger.
 
 jobs:

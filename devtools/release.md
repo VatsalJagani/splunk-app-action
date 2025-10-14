@@ -1,4 +1,4 @@
-## Releasing a new Version / Publishing new Package
+## Creating a new minor Tag
 
 1. Update the version in `src/version.py`.
 
@@ -8,17 +8,41 @@
 3. Run the release script:
 
     ```bash
-    make create-release
+    make create-tag
     ```
 
-    This will commit the changes to the CHANGELOG and `version.py` files and then create a new tag in git
-    which will trigger a workflow on GitHub Actions that handles the rest.
+    This will commit the changes and then create a new tag in git.
 
 
-### What does `release.yml` GitHub Workflow Do Automatically:
+## Publishing new Release or Updating the Release (to patch issues)
 
-* It generates Release Notes from Change Log.
-* It publishes a GitHub release on the Repo.
+1. Update the version in `src/version.py`.
+
+2. Update dependencies, run checks and tests.
+    * `make`
+
+3. Prepare changelog.
+
+    ```bash
+    python devtools/prepare_changelog.py
+    ```
+
+4. Creating the new vX tag.
+
+    ```bash
+    git tag "<tag-here>" -m "<tag-here>"
+    # Example - git tag "v4" -m "v4"
+    ```
+
+5. Push the Changes.
+
+    ```bash
+    git push --tags
+    ```
+
+6. Workflow Run (This will be executed automatically given that the tag is in vX format.)
+    * It generates Release Notes from Change Log.
+    * It publishes a GitHub release on the Repo.
 
 
 ### Fixing a failed release
