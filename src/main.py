@@ -19,6 +19,14 @@ def main():
     gat.info("Running Python script main.py")
     gat.print_all_user_inputs()
 
+    # Change to workspace directory where repodir/ exists
+    workspace_dir = os.environ.get("WORKSPACE_DIR")
+    if workspace_dir:
+        gat.info(f"Changing working directory to workspace: {workspace_dir}")
+        os.chdir(workspace_dir)
+    else:
+        gat.error("WORKSPACE_DIR not set, assuming current directory has repodir/")
+
     app_dir = gat.get_user_input("app_dir")
     assert app_dir is not None, "app_dir must be provided"
     saved_paths = SavedPaths(app_dir)
