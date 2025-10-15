@@ -1,0 +1,96 @@
+# Development
+
+## Setting Up uv
+
+This project is set up to use [uv](https://docs.astral.sh/uv/) to manage Python and
+dependencies. First, be sure you
+[have uv installed](https://docs.astral.sh/uv/getting-started/installation/).
+
+Then [fork the VatsalJagani/splunk-app-action
+repo](https://github.com/VatsalJagani/splunk-app-action/fork) (having your own
+fork will make it easier to contribute) and
+[clone it](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository).
+
+## Basic Developer Workflows
+
+The `Makefile` simply offers shortcuts to `uv` commands for developer convenience.
+(For clarity, GitHub Actions don't use the Makefile and just call `uv` directly.)
+
+```shell
+
+# Create virtual environment with uv
+uv venv --python 3.12
+
+# Activate virtual environment
+source .venv/bin/activate
+
+# This simply runs `uv sync --all-extras` to install all packages,
+# including dev dependencies and optional dependencies.
+make install
+
+# Run uv sync, lint, and test (and also generate agent rules):
+make
+
+# Linting:
+make lint
+
+# Run tests:
+make test
+
+# Delete all the build artifacts:
+make clean
+
+# Upgrade dependencies to compatible versions:
+make upgrade
+
+# To run tests by hand:
+uv run pytest   # all tests
+uv run pytest -s src/some_file.py  # one test, showing outputs
+
+
+# Documentation
+# Run Doc locally
+make docs-live
+
+
+# Dependency management directly with uv:
+# Add a new dependency:
+uv add package_name
+# Add a development dependency:
+uv add --dev package_name
+# Update to latest compatible versions (including dependencies on git repos):
+uv sync --upgrade
+# Update a specific package:
+uv lock --upgrade-package package_name
+# Update dependencies on a package:
+uv add package_name@latest
+```
+
+See [uv docs](https://docs.astral.sh/uv/) for details.
+
+
+
+## Agent Rules
+
+See [.cursor/rules](.cursor/rules) for agent rules.
+These rules are written for [Cursor](https://www.cursor.com/).
+However, they are also used by other agents.
+The Makefile will generate the following files from the same rules:
+- `CLAUDE.md` (for Claude AI)
+- `AGENTS.md` (for general agents)
+- `.copilot-instructions.md` (for GitHub Copilot)
+
+```shell
+make agent-rules
+```
+
+## IDE setup
+
+If you use VSCode or a fork like Cursor or Windsurf, you can install the following
+extensions:
+
+- [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+
+- [Based Pyright](https://marketplace.visualstudio.com/items?itemName=detachhead.basedpyright)
+  for type checking. Note that this extension works with non-Microsoft VSCode forks like
+  Cursor.

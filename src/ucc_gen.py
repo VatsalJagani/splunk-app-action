@@ -1,25 +1,27 @@
-
 import os
 import shutil
-import helpers.github_action_utils as utils
-from helpers.global_variables import GlobalVariables
+
+import github_action_toolkit as gat
+
+from helpers.saved_values import AppInfo, SavedPaths
 
 
-def build():
-    utils.info("Running ucc-gen command.")
-
+def build(saved_paths: SavedPaths, app_info: AppInfo) -> str:
+    """Build UCC-based add-on and return the build directory name."""
     # copy folder to generate build, rather than affecting the original repo checkout
-    utils.execute_system_command("rm -rf ucc_build_dir")
-    shutil.copytree(GlobalVariables.ORIGINAL_REPO_DIR_NAME, "ucc_build_dir")
+    gat.debug("Preparing temporary build directory")
+    if os.path.exists("ucc_build_dir"):
+        shutil.rmtree("ucc_build_dir")
+    shutil.copytree(saved_paths.repo_dir_name, "ucc_build_dir")
 
-    org_ta_dir = os.path.join(GlobalVariables.ORIGINAL_REPO_DIR_NAME, GlobalVariables.APP_DIR_NAME)
+    ta_dir = os.path.join("ucc_build_dir", saved_paths.app_dir_name)
+    gat.debug(f"Executing ucc-gen build in directory: {ta_dir}")
+    os.chdir(ta_dir)
+    os.system(f"ucc-gen build --ta-version {app_info.version_number}")
+    os.chdir(saved_paths.root_dir_path)
 
-    os.chdir(org_ta_dir)
+    gat.debug(f"Copying UCC output for package: {app_info.package_id}")
+    shutil.copytree(os.path.join(ta_dir, "output", app_info.package_id), "ucc_generated_build")
 
-    utils.execute_system_command(f"ucc-gen build --ta-version {GlobalVariables.APP_VERSION}")
-
-    os.chdir(GlobalVariables.ROOT_DIR_PATH)
-
-    shutil.copytree(os.path.join(org_ta_dir, 'output', GlobalVariables.APP_PACKAGE_ID), "ucc_generated_build")
-
+    gat.info("UCC build generation completed successfully")
     return "ucc_generated_build"

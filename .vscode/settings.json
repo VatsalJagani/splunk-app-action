@@ -1,5 +1,5 @@
 {
-    "cSpell.words": [
-        "splunklib"
-    ]
+  "python.testing.framework": "pytest",
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": ["tests"]
 }

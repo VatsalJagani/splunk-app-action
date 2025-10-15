@@ -1,0 +1,25 @@
+name: 📚 Documentation
+description: Report an issue related to the documentation for this GitHub Action
+labels: 'documentation'
+
+body:
+- type: markdown
+  attributes:
+    value: |
+      **Note:** If your documentation issue relates to a workflow, please include relevant YAML snippets.
+- type: textarea
+  attributes:
+    label: 📚 The doc issue
+    description: |
+      A clear and concise description of what content in the documentation is an issue. If you have a custom documentation site.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Suggest a potential alternative/fix
+    description: |
+      Tell us how we could improve the documentation in this regard.
+- type: markdown
+  attributes:
+    value: |
+      Thanks for contributing 🎉!

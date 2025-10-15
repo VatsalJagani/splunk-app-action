@@ -1,62 +1,108 @@
-
 import os
+import shutil
+import subprocess
 
-import helpers.github_action_utils as utils
-from helpers.global_variables import GlobalVariables
+import github_action_toolkit as gat
 
-
-
-def remove_unwanted_files():
-    utils.info("Removing .git and .github directory from repo.")
-    utils.execute_system_command("rm -rf .github")
-    utils.execute_system_command("rm -rf .git")
-    utils.execute_system_command("rm -rf .gitignore")
-    utils.execute_system_command('find . -name "*.py[co]" -type f -delete')
-    utils.execute_system_command('find . -name "__pycache__" -type d -delete')
+from helpers.saved_values import AppInfo, SavedPaths
 
 
-def file_folder_permission_changes():
-    to_make_permission_changes = utils.str_to_boolean_default_false(
-            utils.get_input("to_make_permission_changes"))
+def remove_unwanted_files() -> None:
+    """Remove unwanted files and directories from the app build."""
+    gat.info("Starting cleanup of unwanted files...")
+
+    # Remove directories using shutil for safety
+    for dir_name in [".github", ".git"]:
+        if os.path.exists(dir_name):
+            shutil.rmtree(dir_name)
+
+    # Remove .gitignore file
+    if os.path.exists(".gitignore"):
+        os.remove(".gitignore")
+
+    # Clean Python cache files using subprocess for better control
+    subprocess.run(["find", ".", "-name", "*.py[co]", "-type", "f", "-delete"], check=False)
+    subprocess.run(["find", ".", "-name", "__pycache__", "-type", "d", "-delete"], check=False)
+
+    gat.info("File cleanup completed successfully")
+
+
+def file_folder_permission_changes() -> None:
+    """Apply file and folder permission changes for Splunk App Inspect requirements."""
+    to_make_permission_changes = gat.get_user_input_as("to_make_permission_changes", bool, False)
 
     if to_make_permission_changes:
-        # Permission Changes
-        utils.execute_system_command(
-            "find . -type f -exec chmod 644 '{}' \\;")
+        gat.info("📝 Adjusting file permissions")
+        gat.debug("Setting default file permissions (644)")
+        subprocess.run(["find", ".", "-type", "f", "-exec", "chmod", "644", "{}", ";"], check=False)
 
+        gat.debug("Setting executable permissions for script files")
         for file_ext in [".sh", ".exe", ".cmd", ".msi", ".bat"]:
-            utils.execute_system_command(
-                f"find . -type f -name '*{file_ext}' -exec chmod 755 '{{}}' \\;")
+            subprocess.run(
+                [
+                    "find",
+                    ".",
+                    "-type",
+                    "f",
+                    "-name",
+                    f"*{file_ext}",
+                    "-exec",
+                    "chmod",
+                    "755",
+                    "{}",
+                    ";",
+                ],
+                check=False,
+            )
 
-        utils.execute_system_command(
-            "find . -type d -exec chmod 755 '{}' \\;")
+        gat.debug("Setting directory permissions (755)")
+        subprocess.run(["find", ".", "-type", "d", "-exec", "chmod", "755", "{}", ";"], check=False)
+        gat.info("File permission adjustments completed successfully")
+    else:
+        gat.debug("File permission changes disabled - skipping")
 
 
 def run_custom_user_defined_commands():
-    utils.info("Executing custom user defined commands.")
+    gat.info("⚙️ Executing custom user-defined commands")
+    commands_executed = 0
     for no in range(1, 100):
         try:
-            cmd = utils.get_input(f"APP_ACTION_{no}")
+            cmd = os.environ.get(f"SPLUNK_APP_ACTION_{no}")
             if cmd:
-                utils.execute_system_command(cmd)
+                gat.debug(f"Executing custom command {no}: {cmd}")
+                os.system(cmd)
+                commands_executed += 1
         except Exception as e:
-            utils.warning(f"Error - {e}")
+            gat.warning(f"Failed to execute custom command {no}: {e}")
+
+    if commands_executed > 0:
+        gat.info(
+            f"⚙️ Custom commands execution completed successfully ({commands_executed} commands)"
+        )
+    else:
+        gat.debug("⚙️ No custom commands found - skipping")
 
 
-def generate_build(app_build_dir_name, app_build_dir_path):
-    utils.info(f"Generating the app build., app_dir_path={app_build_dir_path}, app_package_id={GlobalVariables.APP_PACKAGE_ID}, app_version_encoded={GlobalVariables.APP_VERSION_ENCODED}, app_build_number_encoded={GlobalVariables.APP_BUILD_NUMBER_ENCODED}")
+def generate_build(saved_paths: SavedPaths, app_info: AppInfo, app_build_dir_name: str) -> str:
+    with gat.group("🏗️ Generating app build package"):
+        gat.debug(
+            f"Build parameters - package_id: {app_info.package_id}, version: {app_info.version_number_encoded}, build: {app_info.build_number_encoded}"
+        )
 
-    os.chdir(GlobalVariables.ROOT_DIR_PATH)
-    utils.execute_system_command(
-            f'mv {app_build_dir_name} {GlobalVariables.APP_PACKAGE_ID}')
+        gat.debug(f"Renaming build directory: {app_build_dir_name} -> {app_info.package_id}")
+        os.system(f"mv {app_build_dir_name} {app_info.package_id}")
+        os.chdir(app_info.package_id)
 
-    os.chdir(GlobalVariables.APP_PACKAGE_ID)
-    remove_unwanted_files()
-    run_custom_user_defined_commands()
-    file_folder_permission_changes()
-    os.chdir(GlobalVariables.ROOT_DIR_PATH)
+        remove_unwanted_files()
+        run_custom_user_defined_commands()
+        file_folder_permission_changes()
+        os.chdir(saved_paths.root_dir_path)
 
-    # Generate Build
-    build_name = f"{GlobalVariables.APP_PACKAGE_ID}_{GlobalVariables.APP_VERSION_ENCODED}_{GlobalVariables.APP_BUILD_NUMBER_ENCODED}.tgz"
-    utils.execute_system_command(f"tar -czf {build_name} {GlobalVariables.APP_PACKAGE_ID}")
-    return os.path.join(GlobalVariables.ROOT_DIR_PATH, build_name)
+        # Generate Build
+        build_name = f"{app_info.package_id}_{app_info.version_number_encoded}_{app_info.build_number_encoded}.tgz"
+        gat.debug(f"Creating tarball: {build_name}")
+        os.system(f"tar -czf {build_name} {app_info.package_id}")
+
+        build_path = os.path.join(saved_paths.root_dir_path, build_name)
+        gat.info("App build generation completed successfully")
+        return build_path

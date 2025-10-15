@@ -1,34 +1,39 @@
+import github_action_toolkit as gat
 
-import os
-import helpers.github_action_utils as utils
-from helpers.global_variables import GlobalVariables
-from utilities.whats_inside_app import WhatsInsideTheAppUtility
+from utilities.common_splunk_js_utilities import CommonJSUtilitiesFile
 from utilities.logger import LoggerUtility
 from utilities.splunk_sdk_python import SplunkPythonSDKUtility
-from utilities.common_splunk_js_utilities import CommonJSUtilitiesFile
 from utilities.ucc_additional_packaging import UCCAdditionalPackagingUtility
+from utilities.whats_inside_app import WhatsInsideTheAppUtility
 
 
 class SplunkAppUtilities:
-    def __init__(self, app_read_dir, app_write_dir, is_test=False) -> None:
-        self.app_read_dir = app_read_dir
-        self.app_write_dir = app_write_dir
-        self.is_test = is_test
+    def __init__(
+        self,
+        app_read_dir: str,
+        app_write_dir: str,
+        is_test: bool = False,
+    ) -> None:
+        self.app_read_dir: str = app_read_dir
+        self.app_write_dir: str = app_write_dir
+        self.is_test: bool = is_test
         # Get Inputs
-        app_utilities = utils.get_input('app_utilities')
-        if not app_utilities or app_utilities == "NONE" or app_utilities == "":
-            self.app_utilities = []
+        app_utilities_input = gat.get_user_input("app_utilities")
+        if not app_utilities_input or app_utilities_input == "NONE" or app_utilities_input == "":
+            self.app_utilities: list[str] = []
+            app_utilities_list: list[str] = []
         else:
-            app_utilities = app_utilities.split(',')
-            app_utilities = [u.strip() for u in app_utilities]
+            app_utilities_split = app_utilities_input.split(",")
+            app_utilities_list = [u.strip() for u in app_utilities_split]
 
-        os.chdir(GlobalVariables.ROOT_DIR_PATH)
+        self.add_utilities(app_utilities_list)
 
-        self.add_utilities(app_utilities)
+    def add_utilities(self, app_utilities: list[str]) -> None:
+        if not app_utilities:
+            gat.info("🛠️ No utilities specified - skipping")
+            return
 
-
-    def add_utilities(self, app_utilities):
-        utils.info(f"Adding utilities: {app_utilities}")
+        gat.info(f"🛠️ Installing app utilities - {app_utilities}")
         for utility in app_utilities:
             if utility == "whats_in_the_app":
                 WhatsInsideTheAppUtility(self.app_read_dir, self.app_write_dir)
@@ -46,4 +51,6 @@ class SplunkAppUtilities:
                 UCCAdditionalPackagingUtility(self.app_read_dir, self.app_write_dir).add()
 
             else:
-                utils.error("utility={} is not supported.".format(utility))
+                gat.error(f"🛠️ Unsupported utility: {utility}")
+
+        gat.info("🛠️ App utilities installation completed successfully")

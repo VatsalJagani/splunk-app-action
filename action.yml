@@ -7,7 +7,7 @@ branding:
 
 inputs:
   app_dir:
-    description: "Provide app directory inside your repository. Do not provide the value if the repo's root directory itself if app directory."
+    description: "Provide app directory inside your repository. Do not provide a value if the repo's root directory itself is the app directory."
     required: false
     default: "."
 
@@ -17,7 +17,7 @@ inputs:
     default: false
 
   use_ucc_gen:
-    description: "Use ucc-gen command to generate the build for Add-on. The 'app_dir' folder must have a sub-folder named 'package', and a file named 'globalConfig.json' for this to work."
+    description: "Use ucc-gen command to generate the build for Add-ons. The 'app_dir' folder must have a sub-folder named 'package' and a file named 'globalConfig.json' for this to work."
     required: false
     default: false
 
@@ -87,54 +87,39 @@ runs:
         ref: ${{ steps.extract_branch.outputs.branch }}
         path: repodir
 
-    - name: "Pre-tasks"
-      shell: bash
-      run: |
-        pwd
-        echo "=== Inputs ==="
-        echo "app_dir -> ${{inputs.app_dir}}"
-        echo "use_ucc_gen -> ${{inputs.use_ucc_gen}}"
-        echo "to_make_permission_changes -> ${{inputs.to_make_permission_changes}}"
-        echo "is_app_inspect_check -> ${{inputs.is_app_inspect_check}}"
-        echo "splunkbase_username -> ${{inputs.splunkbase_username}} (If using Github secret the value will be ***)"
-        echo "splunkbase_password -> ${{inputs.splunkbase_password}} (If using Github secret the value will be ***)"
-        echo "app_utilities -> ${{inputs.app_utilities}}"
-        echo "my_github_token -> ${{inputs.my_github_token}} (If using Github secret the value will be ***)"
-        echo "current_branch_name -> ${{steps.extract_branch.outputs.branch}}"
-        echo "logger_log_files_prefix -> ${{inputs.logger_log_files_prefix}}"
-        echo "logger_sourcetype -> ${{inputs.logger_sourcetype}}"
-        echo "splunk_python_sdk_install_path -> ${{inputs.splunk_python_sdk_install_path}}"
-        echo "is_remove_pyc_from_splunklib_dir -> ${{inputs.is_remove_pyc_from_splunklib_dir}}"
-
-    - name: "Install Python"
-      uses: actions/setup-python@v5
+    - name: Install uv (official Astral action)
+      uses: astral-sh/setup-uv@v5
       with:
-        python-version: '3.11'
+        python-version: 3.12
 
-    - name: "Install required packages"
+    - name: Set up Python and install dependencies
+      working-directory: ${{ github.action_path }}
       shell: bash
       run: |
-        pip install requests
-        pip install splunk-add-on-ucc-framework
+        echo "Installing Python and dependencies..."
+        uv python install
+        uv sync
 
     - name: "Running the Splunk App actions"
+      working-directory: ${{ github.action_path }}
       shell: bash
       env:
-        SPLUNK_app_dir: ${{inputs.app_dir}}
-        SPLUNK_use_ucc_gen: ${{inputs.use_ucc_gen}}
-        SPLUNK_to_make_permission_changes: ${{inputs.to_make_permission_changes}}
-        SPLUNK_is_app_inspect_check: ${{inputs.is_app_inspect_check}}
-        SPLUNK_splunkbase_username: ${{inputs.splunkbase_username}}
-        SPLUNK_splunkbase_password: ${{inputs.splunkbase_password}}
-        SPLUNK_app_utilities: ${{inputs.app_utilities}}
+        INPUT_APP_DIR: ${{inputs.app_dir}}
+        INPUT_USE_UCC_GEN: ${{inputs.use_ucc_gen}}
+        INPUT_TO_MAKE_PERMISSION_CHANGES: ${{inputs.to_make_permission_changes}}
+        INPUT_IS_APP_INSPECT_CHECK: ${{inputs.is_app_inspect_check}}
+        INPUT_SPLUNKBASE_USERNAME: ${{inputs.splunkbase_username}}
+        INPUT_SPLUNKBASE_PASSWORD: ${{inputs.splunkbase_password}}
+        INPUT_APP_UTILITIES: ${{inputs.app_utilities}}
         GITHUB_TOKEN: ${{inputs.my_github_token}}
-        SPLUNK_current_branch_name: ${{steps.extract_branch.outputs.branch}}
-        SPLUNK_logger_log_files_prefix: ${{inputs.logger_log_files_prefix}}
-        SPLUNK_logger_sourcetype: ${{inputs.logger_sourcetype}}
-        SPLUNK_splunk_python_sdk_install_path: ${{inputs.splunk_python_sdk_install_path}}
-        SPLUNK_is_remove_pyc_from_splunklib_dir: ${{inputs.is_remove_pyc_from_splunklib_dir}}
+        INPUT_CURRENT_BRANCH_NAME: ${{steps.extract_branch.outputs.branch}}
+        INPUT_LOGGER_LOG_FILES_PREFIX: ${{inputs.logger_log_files_prefix}}
+        INPUT_LOGGER_SOURCETYPE: ${{inputs.logger_sourcetype}}
+        INPUT_SPLUNK_PYTHON_SDK_INSTALL_PATH: ${{inputs.splunk_python_sdk_install_path}}
+        INPUT_IS_REMOVE_PYC_FROM_SPLUNKLIB_DIR: ${{inputs.is_remove_pyc_from_splunklib_dir}}
+        GITHUB_WORKSPACE: ${{ github.workspace }}
       run: |
-        python -u ${{ github.action_path }}/src/main.py
+        uv run python -u src/main.py
 
     - name: "Upload the app build as artifact"
       uses: actions/upload-artifact@v4

@@ -1,16 +1,30 @@
+# pyright: reportPrivateUsage=false
+# pyright: reportUnusedVariable=false
+# pyright: reportUnusedParameter=false
+# pyright: reportMissingParameterType=false
+# pyright: reportUnknownVariableType=false
+# pyright: reportUnknownParameterType=false
+# pyright: reportUnknownMemberType=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportFunctionMemberAccess=false
+# pyright: reportUnannotatedClassAttribute=false
+# pyright: reportUninitializedInstanceVariable=false
+
 import os
-from .helper import get_temp_directory, setup_temporary_env_vars
 
-from utilities.logger import LoggerUtility
+from utilities.logger import LoggerUtility  # pyright: ignore[reportMissingImports]
 
+from .helper_test import get_temp_directory, setup_temporary_env_vars
 
 
 def test_logger_utility_skipped_due_to_missing_prefix_1():
     with get_temp_directory() as temp_dir:
-        with setup_temporary_env_vars({
-            "SPLUNK_logger_log_files_prefix": "NONE", 
-            "SPLUNK_logger_sourcetype": "sample_logger_sourcetype"
-        }):
+        with setup_temporary_env_vars(
+            {
+                "INPUT_LOGGER_LOG_FILES_PREFIX": "NONE",
+                "INPUT_LOGGER_SOURCETYPE": "sample_logger_sourcetype",
+            }
+        ):
             logger = LoggerUtility("dummy", temp_dir)
 
             # Exercise: Call the function
@@ -18,16 +32,13 @@ def test_logger_utility_skipped_due_to_missing_prefix_1():
 
             # Verify: Check if the utility was skipped due to missing prefix
             assert not result
-            assert not os.path.exists(os.path.join(temp_dir, 'bin', 'logger_manager.py'))
-            assert not os.path.exists(os.path.join(temp_dir, 'default', 'props.conf'))
-
+            assert not os.path.exists(os.path.join(temp_dir, "bin", "logger_manager.py"))
+            assert not os.path.exists(os.path.join(temp_dir, "default", "props.conf"))
 
 
 def test_logger_utility_skipped_due_to_missing_prefix_2():
     with get_temp_directory() as temp_dir:
-        with setup_temporary_env_vars({
-            "SPLUNK_logger_sourcetype": "sample_logger_sourcetype"
-        }):
+        with setup_temporary_env_vars({"INPUT_LOGGER_SOURCETYPE": "sample_logger_sourcetype"}):
             logger = LoggerUtility("dummy", temp_dir)
 
             # Exercise: Call the function
@@ -35,107 +46,113 @@ def test_logger_utility_skipped_due_to_missing_prefix_2():
 
             # Verify: Check if the utility was skipped due to missing prefix
             assert not result
-            assert not os.path.exists(os.path.join(temp_dir, 'bin', 'logger_manager.py'))
-            assert not os.path.exists(os.path.join(temp_dir, 'default', 'props.conf'))
+            assert not os.path.exists(os.path.join(temp_dir, "bin", "logger_manager.py"))
+            assert not os.path.exists(os.path.join(temp_dir, "default", "props.conf"))
 
 
 def test_logger_utility_skipped_due_to_missing_sourcetype_1():
     with get_temp_directory() as temp_dir:
-        with setup_temporary_env_vars({
-            "SPLUNK_logger_log_files_prefix": "sample_prefix",
-            "SPLUNK_logger_sourcetype": "NONE"
-        }):
+        with setup_temporary_env_vars(
+            {"INPUT_LOGGER_LOG_FILES_PREFIX": "sample_prefix", "INPUT_LOGGER_SOURCETYPE": "NONE"}
+        ):
             logger = LoggerUtility("dummy", temp_dir)
-
 
             # Exercise: Call the function
             result = logger.implement_utility()
 
             # Verify: Check if the utility was skipped due to missing sourcetype
             assert not result
-            assert not os.path.exists(os.path.join(temp_dir, 'bin', 'logger_manager.py'))
-            assert not os.path.exists(os.path.join(temp_dir, 'default', 'props.conf'))
-
+            assert not os.path.exists(os.path.join(temp_dir, "bin", "logger_manager.py"))
+            assert not os.path.exists(os.path.join(temp_dir, "default", "props.conf"))
 
 
 def test_logger_utility_skipped_due_to_missing_sourcetype_2():
     with get_temp_directory() as temp_dir:
-        with setup_temporary_env_vars({
-            "SPLUNK_logger_log_files_prefix": "sample_prefix",
-        }):
+        with setup_temporary_env_vars(
+            {
+                "INPUT_LOGGER_LOG_FILES_PREFIX": "sample_prefix",
+            }
+        ):
             logger = LoggerUtility("dummy", temp_dir)
-
 
             # Exercise: Call the function
             result = logger.implement_utility()
 
             # Verify: Check if the utility was skipped due to missing sourcetype
             assert not result
-            assert not os.path.exists(os.path.join(temp_dir, 'bin', 'logger_manager.py'))
-            assert not os.path.exists(os.path.join(temp_dir, 'default', 'props.conf'))
+            assert not os.path.exists(os.path.join(temp_dir, "bin", "logger_manager.py"))
+            assert not os.path.exists(os.path.join(temp_dir, "default", "props.conf"))
 
 
 def test_logger_utility_added():
     with get_temp_directory() as temp_dir:
-        with setup_temporary_env_vars({
-            "SPLUNK_logger_log_files_prefix": "sample_log_file_prefix", 
-            "SPLUNK_logger_sourcetype": "sample_logger_sourcetype"
-        }):
+        with setup_temporary_env_vars(
+            {
+                "INPUT_LOGGER_LOG_FILES_PREFIX": "sample_log_file_prefix",
+                "INPUT_LOGGER_SOURCETYPE": "sample_logger_sourcetype",
+            }
+        ):
             logger = LoggerUtility("dumpy", temp_dir)
             result = logger.implement_utility()
 
             # Verify: Check if the utility was successfully added
             assert result
-            assert os.path.exists(os.path.join(temp_dir, 'bin', 'logger_manager.py'))
-            assert os.path.exists(os.path.join(temp_dir, 'default', 'props.conf'))
-            with open(os.path.join(temp_dir, 'bin', 'logger_manager.py'), 'r') as f:
+            assert os.path.exists(os.path.join(temp_dir, "bin", "logger_manager.py"))
+            assert os.path.exists(os.path.join(temp_dir, "default", "props.conf"))
+            with open(os.path.join(temp_dir, "bin", "logger_manager.py")) as f:
                 assert "sample_log_file_prefix" in f.read()
-            with open(os.path.join(temp_dir, 'default', 'props.conf'), 'r') as f:
+            with open(os.path.join(temp_dir, "default", "props.conf")) as f:
                 assert "sample_logger_sourcetype" in f.read()
 
 
 def test_logger_utility_updated():
     with get_temp_directory() as temp_dir:
-        with setup_temporary_env_vars({
-            "SPLUNK_logger_log_files_prefix": "sample_log_file_prefix", 
-            "SPLUNK_logger_sourcetype": "sample_logger_sourcetype"
-        }):
+        with setup_temporary_env_vars(
+            {
+                "INPUT_LOGGER_LOG_FILES_PREFIX": "sample_log_file_prefix",
+                "INPUT_LOGGER_SOURCETYPE": "sample_logger_sourcetype",
+            }
+        ):
             logger = LoggerUtility("dumpy", temp_dir)
             result = logger.implement_utility()
 
             # Verify: Check if the utility was successfully added
             assert result
-            assert os.path.exists(os.path.join(temp_dir, 'bin', 'logger_manager.py'))
-            assert os.path.exists(os.path.join(temp_dir, 'default', 'props.conf'))
+            assert os.path.exists(os.path.join(temp_dir, "bin", "logger_manager.py"))
+            assert os.path.exists(os.path.join(temp_dir, "default", "props.conf"))
 
         # Updating the logger
-        with setup_temporary_env_vars({
-            "SPLUNK_logger_log_files_prefix": "log_file_prefix_new", 
-            "SPLUNK_logger_sourcetype": "logger_sourcetype_new"
-        }):
+        with setup_temporary_env_vars(
+            {
+                "INPUT_LOGGER_LOG_FILES_PREFIX": "log_file_prefix_new",
+                "INPUT_LOGGER_SOURCETYPE": "logger_sourcetype_new",
+            }
+        ):
             logger = LoggerUtility("dumpy", temp_dir)
             result = logger.implement_utility()
 
             # Verify: Check if the utility was successfully updated with new content
             assert result
-            assert os.path.exists(os.path.join(temp_dir, 'bin', 'logger_manager.py'))
-            assert os.path.exists(os.path.join(temp_dir, 'default', 'props.conf'))
-            with open(os.path.join(temp_dir, 'bin', 'logger_manager.py'), 'r') as f:
-                assert "log_file_prefix_new" in f.read()
-                assert "sample_log_file_prefix" not in f.read()
-            with open(os.path.join(temp_dir, 'default', 'props.conf'), 'r') as f:
-                assert "logger_sourcetype_new" in f.read()
-                assert "sample_logger_sourcetype" not in f.read()
+            assert os.path.exists(os.path.join(temp_dir, "bin", "logger_manager.py"))
+            assert os.path.exists(os.path.join(temp_dir, "default", "props.conf"))
+            with open(os.path.join(temp_dir, "bin", "logger_manager.py")) as f1:
+                assert "log_file_prefix_new" in f1.read()
+                assert "sample_log_file_prefix" not in f1.read()
+            with open(os.path.join(temp_dir, "default", "props.conf")) as f2:
+                assert "logger_sourcetype_new" in f2.read()
+                assert "sample_logger_sourcetype" not in f2.read()
 
 
 def test_logger_utility_not_updated():
     with get_temp_directory() as temp_dir:
-        with setup_temporary_env_vars({
-            "SPLUNK_logger_log_files_prefix": "sample_log_file_prefix", 
-            "SPLUNK_logger_sourcetype": "sample_logger_sourcetype"
-        }):
+        with setup_temporary_env_vars(
+            {
+                "INPUT_LOGGER_LOG_FILES_PREFIX": "sample_log_file_prefix",
+                "INPUT_LOGGER_SOURCETYPE": "sample_logger_sourcetype",
+            }
+        ):
             logger = LoggerUtility("dumpy", temp_dir)
-            
+
             # Exercise: Call the function twice to simulate no changes
             result1 = logger.implement_utility()
             result2 = logger.implement_utility()
