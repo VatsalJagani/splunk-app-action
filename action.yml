@@ -88,7 +88,7 @@ runs:
         path: repodir
 
     - name: Install uv (official Astral action)
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v7
       with:
         python-version: 3.12
 
