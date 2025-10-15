@@ -68,7 +68,7 @@ splunk-app-action = "src:main"
 # Set as desired, typically 88 (black standard) or 100 (wide).
 line-length = 100
 exclude = [
-    "tests/app_repos_for_test",
+    "tests/test_app_repos",
     "tests/dummy_utility_files",
     "tests/splunk_config_files"
 ]
@@ -119,7 +119,7 @@ ignore = [
 include = ["src", "tests", "devtools"]
 # TODO - Ideally tests folder also should be checked for type checking, but filtering for this project
 exclude = [
-    "tests/app_repos_for_test",
+    "tests/test_app_repos",
     "tests/dummy_utility_files",
     "tests/splunk_config_files",
     "src/utilities/logger/logger_manager.py"

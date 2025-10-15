@@ -20,8 +20,8 @@ from utilities.base_utility import BaseUtility  # pyright: ignore[reportMissingI
 class TestBaseUtility(unittest.TestCase):
     @override
     def setUp(self):
-        self.app_read_dir = os.path.join(os.path.dirname(__file__), "app_repos_for_test")
-        self.app_write_dir = os.path.join(os.path.dirname(__file__), "app_repos_for_test")
+        self.app_read_dir = os.path.join(os.path.dirname(__file__), "test_app_repos")
+        self.app_write_dir = os.path.join(os.path.dirname(__file__), "test_app_repos")
         self.base_utility = BaseUtility(self.app_read_dir, self.app_write_dir)
 
     def test_implement_utility_not_implemented(self):

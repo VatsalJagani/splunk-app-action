@@ -51,7 +51,7 @@ def setup_action_yml(
     except OSError:
         pass
 
-    app_repo_path = os.path.join(os.path.dirname(__file__), "app_repos_for_test", test_app_repo)
+    app_repo_path = os.path.join(os.path.dirname(__file__), "test_app_repos", test_app_repo)
     shutil.copytree(app_repo_path, repo_dir_path)
 
     os.chdir(temp_dir_for_test_path)

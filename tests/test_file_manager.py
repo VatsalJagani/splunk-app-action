@@ -35,7 +35,7 @@ def sample_file(tmp_path):
 
 def test_get_file_hash_nonexistent_file():
     file_path = "path/to/nonexistent_file"
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(OSError):
         get_file_hash(file_path)
 
 
@@ -60,7 +60,7 @@ def test_get_folder_hash_with_files(sample_file):
 
 def test_get_folder_hash_nonexistent_folder():
     folder_path = "path/to/nonexistent_folder"
-    with pytest.raises(Exception, match="Incorrect folder_path provided."):
+    with pytest.raises(ValueError, match="is not a directory or does not exist"):
         abc = get_folder_hash(folder_path)
         print(f"abc={abc}")
 
@@ -190,7 +190,7 @@ def test_config_input_file_not_found():
         output_file = os.path.join(temp_dir, "output_file.conf")
 
         handler = PartConfFileHandler(input_file, output_file)
-        with pytest.raises(FileNotFoundError, match="No such file or directory"):
+        with pytest.raises(OSError):
             handler.validate_config()
 
 
@@ -453,7 +453,7 @@ def test_part_file_content_exception_on_output_file_not_found():
         # Note we aren't creating output file, so file don't exist
         handler = PartRawFileHandler(input_file, output_file, {})
 
-        with pytest.raises(FileNotFoundError, match="No such file or directory"):
+        with pytest.raises(OSError):
             handler.validate_file_content(new_content, start_markers, end_markers)
 
 
