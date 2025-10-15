@@ -6,10 +6,12 @@ import github_action_toolkit as gat
 from helpers.saved_values import AppInfo, SavedPaths
 
 
-def build(saved_paths: SavedPaths, app_info: AppInfo):
+def build(saved_paths: SavedPaths, app_info: AppInfo) -> str:
+    """Build UCC-based add-on and return the build directory name."""
     # copy folder to generate build, rather than affecting the original repo checkout
     gat.debug("Preparing temporary build directory")
-    os.system("rm -rf ucc_build_dir")
+    if os.path.exists("ucc_build_dir"):
+        shutil.rmtree("ucc_build_dir")
     shutil.copytree(saved_paths.repo_dir_name, "ucc_build_dir")
 
     ta_dir = os.path.join("ucc_build_dir", saved_paths.app_dir_name)

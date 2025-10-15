@@ -14,9 +14,9 @@ import os
 import tarfile
 import unittest
 
-from main import main
+from main import main  # pyright: ignore[reportMissingImports]
 
-from .helper import setup_action_yml  # pyright: ignore
+from .helper_test import setup_action_yml
 
 
 def get_file_permissions(filepath):

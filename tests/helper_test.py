@@ -8,6 +8,7 @@
 # pyright: reportUnknownArgumentType=false
 # pyright: reportFunctionMemberAccess=false
 # pyright: reportUnannotatedClassAttribute=false
+# pyright: reportUninitializedInstanceVariable=false
 
 
 import io

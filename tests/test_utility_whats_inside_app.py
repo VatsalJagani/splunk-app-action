@@ -14,7 +14,9 @@ import unittest
 from typing import override
 from unittest.mock import patch
 
-from utilities.whats_inside_app import WhatsInsideTheAppUtility
+from utilities.whats_inside_app import (  # pyright: ignore[reportMissingImports]
+    WhatsInsideTheAppUtility,
+)
 
 
 class TestWhatsInsideTheAppUtility(unittest.TestCase):

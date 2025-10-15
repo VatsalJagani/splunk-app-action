@@ -22,10 +22,11 @@ class WhatsInsideTheAppUtility(BaseUtility):
         "collections": "Lookups - KVStore Collections",
     }
 
-    def _get_readme_file_location(self):
+    def _get_readme_file_location(self) -> str | None:
         for file in os.listdir(self.app_write_dir):
             if file.lower() in ["readme.md", "readme.txt"]:
                 return os.path.join(self.app_write_dir, file)
+        return None
 
     @override
     def implement_utility(self) -> str | bool | None:

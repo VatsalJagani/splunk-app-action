@@ -8,13 +8,16 @@
 # pyright: reportUnknownArgumentType=false
 # pyright: reportFunctionMemberAccess=false
 # pyright: reportUnannotatedClassAttribute=false
+# pyright: reportUninitializedInstanceVariable=false
 
 import os
 from unittest.mock import patch
 
-from utilities.splunk_sdk_python import SplunkPythonSDKUtility
+from utilities.splunk_sdk_python import (  # pyright: ignore[reportMissingImports]
+    SplunkPythonSDKUtility,
+)
 
-from .helper import get_temp_directory, setup_temporary_env_vars  # pyright: ignore
+from .helper_test import get_temp_directory, setup_temporary_env_vars
 
 
 def check_no_pycache(folder_path):

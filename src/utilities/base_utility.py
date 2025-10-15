@@ -11,7 +11,7 @@ class BaseUtility:
         self.app_read_dir: str = app_read_dir
         self.app_write_dir: str = app_write_dir
 
-    def add(self):
+    def add(self) -> None:
         with gat.group(f"🛠️ Applying Utility: {type(self).__name__}"):
             try:
                 with gat.Repo(path=self.app_write_dir, cleanup=True) as github:

@@ -9,22 +9,31 @@ from helpers.splunk_config_parser import SplunkConfigParser
 
 
 def get_file_hash(file_path: str) -> str:
+    """Generate MD5 hash for a single file."""
     hash_md5 = hashlib.md5()
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+    except OSError as e:
+        raise OSError(f"Unable to read file '{file_path}': {e}") from e
 
 
 def get_folder_hash(folder_path: str) -> str:
+    """Generate MD5 hash for all files in a folder."""
     hash_md5 = hashlib.md5()
     if not os.path.isdir(folder_path):
-        raise Exception("Incorrect folder_path provided.")
+        raise ValueError(f"Path '{folder_path}' is not a directory or does not exist.")
     for root, _dirs, files in os.walk(folder_path):
         for file in files:
             file_path = os.path.join(root, file)
-            file_hash = get_file_hash(file_path)
-            hash_md5.update(file_hash.encode("utf-8"))
+            try:
+                file_hash = get_file_hash(file_path)
+                hash_md5.update(file_hash.encode("utf-8"))
+            except OSError as e:
+                gat.warning(f"Skipping file {file_path}: {e}")
+                continue
     return hash_md5.hexdigest()
 
 

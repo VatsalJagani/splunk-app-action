@@ -13,7 +13,7 @@ import os
 
 import pytest
 
-from helpers.file_manager import (
+from helpers.file_manager import (  # pyright: ignore[reportMissingImports]
     FullRawFileHandler,
     PartConfFileHandler,
     PartRawFileHandler,
@@ -22,7 +22,7 @@ from helpers.file_manager import (
     get_multi_files_hash,
 )
 
-from .helper import get_temp_directory  # pyright: ignore
+from .helper_test import get_temp_directory
 
 
 # Use a fixture to create temporary files with known content for testing

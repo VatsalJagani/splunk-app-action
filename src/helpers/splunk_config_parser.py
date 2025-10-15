@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 from collections.abc import Iterator
 from typing import override
@@ -67,7 +69,7 @@ class _SplunkStanzaOptions:
         return iter(self._stanza_content)
 
     def merge(
-        self, second_options_obj: "_SplunkStanzaOptions", to_merge_pre_stanza_comments: bool = True
+        self, second_options_obj: _SplunkStanzaOptions, to_merge_pre_stanza_comments: bool = True
     ) -> bool:
         is_changed = False
 
@@ -284,7 +286,7 @@ class SplunkConfigParser:
 
     def merge(
         self,
-        second_conf_parser: "SplunkConfigParser",
+        second_conf_parser: SplunkConfigParser,
         to_merge_pre_stanza_comments: bool = True,
         to_merge_file_level_parameters: bool = False,
     ) -> bool:

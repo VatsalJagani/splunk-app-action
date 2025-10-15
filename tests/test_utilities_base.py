@@ -14,7 +14,7 @@ import os
 import unittest
 from typing import override
 
-from utilities.base_utility import BaseUtility
+from utilities.base_utility import BaseUtility  # pyright: ignore[reportMissingImports]
 
 
 class TestBaseUtility(unittest.TestCase):

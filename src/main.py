@@ -15,7 +15,7 @@ from helpers import splunk_app_details
 from helpers.saved_values import AppInfo, SavedPaths, keep_working_dir_unchanged
 
 
-def main():
+def main() -> None:
     gat.print_all_user_inputs()
 
     # Change to workspace directory where repodir/ exists

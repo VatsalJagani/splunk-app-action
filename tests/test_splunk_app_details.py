@@ -14,7 +14,7 @@ import os
 
 import pytest
 
-from helpers.splunk_app_details import (
+from helpers.splunk_app_details import (  # pyright: ignore[reportMissingImports]
     fetch_app_build_number_from_app_conf,
     fetch_app_package_id_from_app_conf,
     fetch_app_package_id_from_global_config_json,

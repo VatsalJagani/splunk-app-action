@@ -8,12 +8,13 @@
 # pyright: reportUnknownArgumentType=false
 # pyright: reportFunctionMemberAccess=false
 # pyright: reportUnannotatedClassAttribute=false
+# pyright: reportUninitializedInstanceVariable=false
 
 import os
 
-from utilities.logger import LoggerUtility
+from utilities.logger import LoggerUtility  # pyright: ignore[reportMissingImports]
 
-from .helper import get_temp_directory, setup_temporary_env_vars  # pyright: ignore
+from .helper_test import get_temp_directory, setup_temporary_env_vars
 
 
 def test_logger_utility_skipped_due_to_missing_prefix_1():

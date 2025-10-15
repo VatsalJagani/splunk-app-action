@@ -138,6 +138,7 @@ reportAny = false
 reportExplicitAny = false
 reportImplicitStringConcatenation = false
 reportUnreachable = false
+reportImplicitRelativeImport = false
 # reportPrivateImportUsage = false
 # reportPrivateLocalImportUsage = false
 # reportMissingImports = false

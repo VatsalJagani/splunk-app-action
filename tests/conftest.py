@@ -8,6 +8,7 @@
 # pyright: reportUnknownArgumentType=false
 # pyright: reportFunctionMemberAccess=false
 # pyright: reportUnannotatedClassAttribute=false
+# pyright: reportUninitializedInstanceVariable=false
 
 import os
 import sys
@@ -29,7 +30,7 @@ patcher_set_env = patch("github_action_toolkit.set_env", side_effect=mock_set_en
 mock_set_env_patcher = patcher_set_env.start()
 
 
-mock_set_env.side_effect = mock_set_env
+mock_set_env.side_effect = mock_set_env  # pyright: ignore[reportFunctionMemberAccess]
 
 
 # Mock the App Inspect API related function _api_login

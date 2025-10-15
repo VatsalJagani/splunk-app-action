@@ -1,34 +1,62 @@
 import os
+import shutil
+import subprocess
 
 import github_action_toolkit as gat
 
 from helpers.saved_values import AppInfo, SavedPaths
 
 
-def remove_unwanted_files():
+def remove_unwanted_files() -> None:
+    """Remove unwanted files and directories from the app build."""
     gat.info("Starting cleanup of unwanted files...")
-    os.system("rm -rf .github")
-    os.system("rm -rf .git")
-    os.system("rm -rf .gitignore")
-    os.system('find . -name "*.py[co]" -type f -delete')
-    os.system('find . -name "__pycache__" -type d -delete')
+
+    # Remove directories using shutil for safety
+    for dir_name in [".github", ".git"]:
+        if os.path.exists(dir_name):
+            shutil.rmtree(dir_name)
+
+    # Remove .gitignore file
+    if os.path.exists(".gitignore"):
+        os.remove(".gitignore")
+
+    # Clean Python cache files using subprocess for better control
+    subprocess.run(["find", ".", "-name", "*.py[co]", "-type", "f", "-delete"], check=False)
+    subprocess.run(["find", ".", "-name", "__pycache__", "-type", "d", "-delete"], check=False)
+
     gat.info("File cleanup completed successfully")
 
 
-def file_folder_permission_changes():
+def file_folder_permission_changes() -> None:
+    """Apply file and folder permission changes for Splunk App Inspect requirements."""
     to_make_permission_changes = gat.get_user_input_as("to_make_permission_changes", bool, False)
 
     if to_make_permission_changes:
         gat.info("📝 Adjusting file permissions")
         gat.debug("Setting default file permissions (644)")
-        os.system("find . -type f -exec chmod 644 '{}' \\;")
+        subprocess.run(["find", ".", "-type", "f", "-exec", "chmod", "644", "{}", ";"], check=False)
 
         gat.debug("Setting executable permissions for script files")
         for file_ext in [".sh", ".exe", ".cmd", ".msi", ".bat"]:
-            os.system(f"find . -type f -name '*{file_ext}' -exec chmod 755 '{{}}' \\;")
+            subprocess.run(
+                [
+                    "find",
+                    ".",
+                    "-type",
+                    "f",
+                    "-name",
+                    f"*{file_ext}",
+                    "-exec",
+                    "chmod",
+                    "755",
+                    "{}",
+                    ";",
+                ],
+                check=False,
+            )
 
         gat.debug("Setting directory permissions (755)")
-        os.system("find . -type d -exec chmod 755 '{}' \\;")
+        subprocess.run(["find", ".", "-type", "d", "-exec", "chmod", "755", "{}", ";"], check=False)
         gat.info("File permission adjustments completed successfully")
     else:
         gat.debug("File permission changes disabled - skipping")

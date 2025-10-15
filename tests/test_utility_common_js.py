@@ -8,12 +8,15 @@
 # pyright: reportUnknownArgumentType=false
 # pyright: reportFunctionMemberAccess=false
 # pyright: reportUnannotatedClassAttribute=false
+# pyright: reportUninitializedInstanceVariable=false
 
 import os
 
-from utilities.common_splunk_js_utilities import CommonJSUtilitiesFile
+from utilities.common_splunk_js_utilities import (  # pyright: ignore[reportMissingImports]
+    CommonJSUtilitiesFile,
+)
 
-from .helper import get_temp_directory  # pyright: ignore
+from .helper_test import get_temp_directory
 
 UTILITIES_FOLDER_PATH = os.path.join(
     os.path.dirname(__file__), os.path.pardir, "src", "utilities", "common_splunk_js_utilities"

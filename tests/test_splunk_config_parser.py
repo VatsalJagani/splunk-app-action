@@ -12,7 +12,7 @@
 import os
 import unittest
 
-from helpers.splunk_config_parser import (
+from helpers.splunk_config_parser import (  # pyright: ignore[reportMissingImports]
     DEFAULT_SETTING,
     FILE_SECTION,
     GLOBAL_SETTING,

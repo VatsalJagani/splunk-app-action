@@ -1,14 +1,23 @@
 # pyright: reportPrivateUsage=false
 # pyright: reportUnusedVariable=false
+# pyright: reportUnusedParameter=false
+# pyright: reportMissingParameterType=false
+# pyright: reportUnknownVariableType=false
+# pyright: reportUnknownParameterType=false
+# pyright: reportUnknownMemberType=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportFunctionMemberAccess=false
+# pyright: reportUnannotatedClassAttribute=false
+# pyright: reportUninitializedInstanceVariable=false
 
 import unittest
 from unittest.mock import patch
 
 import pytest
 
-from main import main
+from main import main  # pyright: ignore[reportMissingImports]
 
-from .helper import setup_action_yml  # pyright: ignore
+from .helper_test import setup_action_yml
 
 # import os
 # SPLUNKBASE_USERNAME_FOR_TEST = os.environ["SPLUNKBASE_USERNAME_FOR_TEST"]

@@ -7,7 +7,7 @@ branding:
 
 inputs:
   app_dir:
-    description: "Provide app directory inside your repository. Do not provide the value if the repo's root directory itself if app directory."
+    description: "Provide app directory inside your repository. Do not provide a value if the repo's root directory itself is the app directory."
     required: false
     default: "."
 
@@ -17,7 +17,7 @@ inputs:
     default: false
 
   use_ucc_gen:
-    description: "Use ucc-gen command to generate the build for Add-on. The 'app_dir' folder must have a sub-folder named 'package', and a file named 'globalConfig.json' for this to work."
+    description: "Use ucc-gen command to generate the build for Add-ons. The 'app_dir' folder must have a sub-folder named 'package' and a file named 'globalConfig.json' for this to work."
     required: false
     default: false
 
