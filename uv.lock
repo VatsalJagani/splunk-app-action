@@ -352,15 +352,15 @@ wheels = [
 
 [[package]]
 name = "github-action-toolkit"
-version = "0.5.1"
+version = "0.6.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "gitpython" },
     { name = "pygithub" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/58/82/36f53018b0bb92e38d600d9e57600d4b40ad921f9943554cc3f88b6f179b/github_action_toolkit-0.5.1.tar.gz", hash = "sha256:6a5581c129e70422165c572448078cacfb7919fb05e4753f930efc00295597f0", size = 118235, upload-time = "2025-10-13T04:48:46.017Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f3/0c/355c52da6cd32bd04abe52157ab9be19454aa50067f5bfae40b26e9e2a74/github_action_toolkit-0.6.0.tar.gz", hash = "sha256:dc03f3693c68ccb1aaf3d768010a8c9264eb0fd69fa8c550cbe01aeb40240c37", size = 122608, upload-time = "2025-10-15T18:13:50.073Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/23/59/522499315d80ce75e899e963911de3ebc472bedf8e24385f3944fd4b7f35/github_action_toolkit-0.5.1-py3-none-any.whl", hash = "sha256:b7d702ea144c13e4023df3c109ce0ef7d8afc0f43511dd5c2c1c493acf91290b", size = 19276, upload-time = "2025-10-13T04:48:44.804Z" },
+    { url = "https://files.pythonhosted.org/packages/81/59/8513fe0ad1e0659677bb2120e312daccf78c62ae0f9244bf7151873706c5/github_action_toolkit-0.6.0-py3-none-any.whl", hash = "sha256:9a953aff22cfcae5928a94d737bf0e990079515183b88b9b621f92f45c240a98", size = 21046, upload-time = "2025-10-15T18:13:49.22Z" },
 ]
 
 [[package]]
@@ -1092,7 +1092,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "github-action-toolkit", specifier = ">=0.5.1" },
+    { name = "github-action-toolkit", specifier = ">=0.6.0" },
     { name = "pip", specifier = ">=25.2" },
     { name = "requests", specifier = ">=2.32.5" },
     { name = "splunk-add-on-ucc-framework", specifier = ">=6.0.1" },
