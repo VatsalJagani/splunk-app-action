@@ -82,7 +82,7 @@ runs:
       id: extract_branch
 
     - name: "Clone the Repository"
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         ref: ${{ steps.extract_branch.outputs.branch }}
         path: repodir
