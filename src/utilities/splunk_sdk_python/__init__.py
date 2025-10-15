@@ -52,16 +52,15 @@ class SplunkPythonSDKUtility(BaseUtility):
                     if current_version:
                         # Extract version from the directory name
                         # e.g., splunk_sdk-1.7.0.dist-info -> 1.7.0
-                        version_match = re.search(r"-(\d+\.\d+\.\d+)", item)
+                        # Support various version formats (1.7.0, 2.0, 1.7.0.1, etc.)
+                        version_match = re.search(r"-([\d.]+)\.(?:dist-info|egg-info)", item)
                         if version_match:
                             dir_version = version_match.group(1)
                             # Only remove if it's not the current version
-                            if dir_version not in (current_version or ""):
+                            if dir_version != current_version:
                                 items_to_remove.append(item_path)
                                 gat.debug(f"Marking old metadata directory for removal: {item}")
-                    else:
-                        # No version info, keep all metadata directories
-                        pass
+                    # else: No version info, keep all metadata directories
 
         # Remove the marked items
         for item_path in items_to_remove:
