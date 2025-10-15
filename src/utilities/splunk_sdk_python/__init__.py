@@ -29,6 +29,48 @@ class SplunkPythonSDKUtility(BaseUtility):
                 if dir == "__pycache__":
                     shutil.rmtree(os.path.join(root, dir))
 
+    def cleanup_old_package_files(self, directory: str, current_version: str | None) -> None:
+        """
+        Remove old package metadata files from previous installations.
+        This includes old .dist-info and .egg-info directories.
+        """
+        if not os.path.exists(directory):
+            return
+
+        items_to_remove: list[str] = []
+
+        for item in os.listdir(directory):
+            item_path: str = os.path.join(directory, item)
+
+            # Check for old dist-info or egg-info directories related to splunk-sdk
+            if os.path.isdir(item_path) and (
+                item.startswith("splunk_sdk-") or item.startswith("splunk-sdk-")
+            ):
+                # Check if it's a metadata directory
+                if item.endswith(".dist-info") or item.endswith(".egg-info"):
+                    # If we have a current version, only remove if it's different
+                    if current_version:
+                        # Extract version from the directory name
+                        # e.g., splunk_sdk-1.7.0.dist-info -> 1.7.0
+                        version_match = re.search(r"-(\d+\.\d+\.\d+)", item)
+                        if version_match:
+                            dir_version = version_match.group(1)
+                            # Only remove if it's not the current version
+                            if dir_version not in (current_version or ""):
+                                items_to_remove.append(item_path)
+                                gat.debug(f"Marking old metadata directory for removal: {item}")
+                    else:
+                        # No version info, keep all metadata directories
+                        pass
+
+        # Remove the marked items
+        for item_path in items_to_remove:
+            try:
+                gat.info(f"Removing old package metadata: {os.path.basename(item_path)}")
+                shutil.rmtree(item_path)
+            except Exception as e:
+                gat.warning(f"Failed to remove {item_path}: {e}")
+
     @override
     def implement_utility(self) -> str | bool | None:
         gat.info("📚 Adding SplunkPythonSDKUtility - Installing/Updating Splunk Python SDK")
@@ -76,12 +118,17 @@ class SplunkPythonSDKUtility(BaseUtility):
             gat.info("Installing splunklib for the first time...")
             os.system(f'pip install splunk-sdk --target "{folder_to_install_splunklib}"')
 
+        new_version = self._get_splunklib_version(init_file)
+        gat.info(f"Splunk Python SDK installation completed - version: {new_version}")
+
+        # Clean up old package metadata files if we upgraded
+        if already_exist and previous_version != new_version:
+            gat.info("Cleaning up old package metadata files...")
+            self.cleanup_old_package_files(folder_to_install_splunklib, new_version)
+
         # Removing .pyc and __pycache__
         if is_remove_pyc_from_splunklib_dir:
             self.remove_pycache(folder_to_install_splunklib)
-
-        new_version = self._get_splunklib_version(init_file)
-        gat.info(f"Splunk Python SDK installation completed - version: {new_version}")
 
         if not already_exist or previous_version != new_version:
             return init_file

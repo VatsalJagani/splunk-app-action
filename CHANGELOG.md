@@ -35,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed various app build process issues and file handling problems.
 
+- Splunk Python SDK Utility now properly cleans up old package metadata files (`.dist-info` and `.egg-info` directories) after upgrading splunklib to a new version, preventing accumulation of outdated files.
+
 ### Developer & Internal Changes
 
 - Improved GitHub workflows for better CI/CD and release management.
