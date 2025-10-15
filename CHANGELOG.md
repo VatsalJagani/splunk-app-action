@@ -7,83 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-- Added scripts to create new tag quickly.
-- Separated creating just tag and creating release for GitHub action as for GitHub action is usually used with v4 instead of v4.0.0.
-
-
-## [v4.3.4](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v4.3.4) - 2025-10-14
-
-## [v4.3.3](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v4.3.3) - 2025-10-14
-
-## [v4.3.2](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v4.3.2) - 2025-10-14
-
-- Logging Improvements
-- Fixed warnings by uv command in installing python.
-
-## [v4.3.1](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v4.3.1) - 2025-10-14
-
-## [v4.3.0](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v4.3.0) - 2025-10-14
-
-### Changed
-
-- Logging improved for better troubleshooting and user readability.
-
-
-## [v4.2.3](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v4.2.3) - 2025-10-14
-
-## [v4.2.2](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v4.2.2) - 2025-10-14
-
-## [v4.2.1](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v4.2.1) - 2025-10-14
-
 ### Added
+- New Documentation
+  - Moved comprehensive documentation from README to dedicated Read the Docs site.
+  - Enhanced documentation with dedicated troubleshooting section and debugging steps.
 
 ### Changed
-
-- Full codebase is now properly formatted.
-- Full source-code is now properly type-checked and properly annotated.
+- Significantly improved logging output for better troubleshooting and user readability.
+- Enhanced working directory management for more consistent builds across different environments.
+- Improved app build dependency handling for more reliable builds.
 
 ### Fixed
+- Fixed various app build process issues and file handling problems.
+- Resolved Python installation warnings when using uv command.
 
-### Removed
-
-
-
-## [v4.2.0](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v4.2.0) - 2025-10-13
-
-### Added
-- Support for version file test cases.
-- New GitHub workflows for CI/CD and release.
-- Dependabot configuration.
-- Developer tools and related documentation.
-- `pyproject.toml` and `Makefile` for standardized developer ease.
-- Agent rules and issue templates for GitHub.
-
-### Changed
-- Replaced usage of `GlobalVariables` with standard classes.
-- Input variable names are now capitalized and consistently named.
-- Switched to `github_action_toolkit` for GitHub-related operations.
-- Rearranged file-related functions for better maintainability.
-- Improved handling of app-build dependencies.
-- Changed temp file generation strategy for test cases.
-- Improved working directory management for consistency across builds.
-
-### Fixed
-- Code formatting improved throughout the codebase.
-- Fixed naming and parsing of GitHub Action inputs.
-- Fixed bug in executing user-defined shell commands in workflows.
-- Fixed coverage reporting and test failures.
-- Minor fixes related to app build processes and file handling.
-
-### Removed
-- Redundant test cases.
-- Unused or incorrect files from the repo.
-
-### Documentation
-- Moved Documentation from GitHub's README.md file to separate on read-the-docs.
-- Major improvements and fixes to documentation.
-- Added a dedicated troubleshooting section.
-- Added support for building documentation separately.
-- Included debugging steps and developer contribution help.
+### Developer & Internal Changes
+- Improved GitHub workflows for better CI/CD and release management.
+- Replaced usage of `GlobalVariables` with standard classes for better code maintainability.
+- Switched to `github_action_toolkit` for GitHub-action-related operations.
+- Rearranged file-related functions for better code organization.
+- Changed temp file generation strategy for more reliable test cases.
+- Full codebase is now properly formatted and type-checked.
+- Added comprehensive test coverage including version file test cases.
+- Improved development tooling with `pyproject.toml` and `Makefile`.
+- Added Dependabot configuration and GitHub issue templates.
+- Streamlined release process with automated tag creation scripts.
+- Removed redundant test cases and cleaned up unused files.
 
 
 ## [v4.1](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v4.1) - 2024-04-09
