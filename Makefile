@@ -6,7 +6,7 @@
 
 .PHONY: default install lint test upgrade clean agent-rules
 
-default: agent-rules install lint test
+default: agent-rules install lint test docs-check
 
 install:
 	uv sync --all-extras
