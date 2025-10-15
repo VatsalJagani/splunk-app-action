@@ -128,7 +128,10 @@ class TestAppBuild(unittest.TestCase):
 
     def test_build_1_regular(self):
         with setup_action_yml(
-            "repo_1_regular_build", app_dir="my_app_1", is_app_inspect_check="false"
+            "repo_1_regular_build",
+            app_dir="my_app_1",
+            use_ucc_gen="false",
+            is_app_inspect_check="false",
         ):
             main()
 

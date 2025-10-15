@@ -35,6 +35,7 @@ class TestAppInspect(unittest.TestCase):
         with setup_action_yml(
             "my_app_inspect_fail",
             app_dir=".",
+            use_ucc_gen="false",
             is_app_inspect_check="true",
             splunkbase_username=SPLUNKBASE_USERNAME_FOR_TEST,
             splunkbase_password=SPLUNKBASE_PASSWORD_FOR_TEST,
@@ -60,6 +61,7 @@ class TestAppInspect(unittest.TestCase):
         with setup_action_yml(
             "my_app_inspect_pass",
             app_dir=".",
+            use_ucc_gen="false",
             to_make_permission_changes="true",
             is_app_inspect_check="true",
             splunkbase_username=SPLUNKBASE_USERNAME_FOR_TEST,

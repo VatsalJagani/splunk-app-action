@@ -55,6 +55,9 @@ def setup_action_yml(
 
     os.chdir(temp_dir_for_test_path)
 
+    # Save original GITHUB_WORKSPACE if it exists
+    original_github_workspace = os.environ.get("GITHUB_WORKSPACE")
+
     # setup inputs
     os.environ["INPUT_APP_DIR"] = app_dir
     os.environ["INPUT_USE_UCC_GEN"] = use_ucc_gen
@@ -70,6 +73,9 @@ def setup_action_yml(
     os.environ["INPUT_SPLUNK_PYTHON_SDK_INSTALL_PATH"] = splunk_python_sdk_install_path
     os.environ["INPUT_IS_REMOVE_PYC_FROM_SPLUNKLIB_DIR"] = is_remove_pyc_from_splunklib_dir
 
+    # Set GITHUB_WORKSPACE to the test directory so main() works correctly
+    os.environ["GITHUB_WORKSPACE"] = temp_dir_for_test_path
+
     try:
         yield
     finally:
@@ -79,6 +85,13 @@ def setup_action_yml(
         except OSError:
             pass
         os.chdir(repo_root_dir_path)
+
+        # Restore original GITHUB_WORKSPACE
+        if original_github_workspace is not None:
+            os.environ["GITHUB_WORKSPACE"] = original_github_workspace
+        else:
+            # Remove GITHUB_WORKSPACE if it wasn't set originally
+            os.environ.pop("GITHUB_WORKSPACE", None)
 
 
 @contextmanager
