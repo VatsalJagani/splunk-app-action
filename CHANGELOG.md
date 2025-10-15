@@ -8,31 +8,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+
 - New Documentation
   - Moved comprehensive documentation from README to dedicated Read the Docs site.
   - Enhanced documentation with dedicated troubleshooting section and debugging steps.
 
+
 ### Changed
-- Significantly improved logging output for better troubleshooting and user readability.
+
+- Logging Improvements
+  - GitHub action now generates more readable logs.
+  - GitHub action now also creates log groups, so not every single logs is visible at a time, user can expand the group and check more details if needed.
+  - Emojis are used in important logs to easily distinguish logs.
+
+- `logger_manager.py` file (from Logger Utility) is now following better code formatting and type-checking.
+
+- `additional_packaging.py` file (from UCC Additional Packaging Utility) is now following better code formatting and type-checking.
+
 - Enhanced working directory management for more consistent builds across different environments.
+
 - Improved app build dependency handling for more reliable builds.
 
 ### Fixed
+
+- Adding Utility Errors are now handled gracefully. So if one utility fails, rest of the utility continues to operate normal.
+
 - Fixed various app build process issues and file handling problems.
-- Resolved Python installation warnings when using uv command.
 
 ### Developer & Internal Changes
+
 - Improved GitHub workflows for better CI/CD and release management.
-- Replaced usage of `GlobalVariables` with standard classes for better code maintainability.
-- Switched to `github_action_toolkit` for GitHub-action-related operations.
-- Rearranged file-related functions for better code organization.
-- Changed temp file generation strategy for more reliable test cases.
-- Full codebase is now properly formatted and type-checked.
-- Added comprehensive test coverage including version file test cases.
-- Improved development tooling with `pyproject.toml` and `Makefile`.
-- Added Dependabot configuration and GitHub issue templates.
-- Streamlined release process with automated tag creation scripts.
-- Removed redundant test cases and cleaned up unused files.
+  - `changelog_check.yml` - Validating changelogs.
+  - `test.yml` - Linting checks, Type-checking, testing, and docs validation.
+  - `release.yml` - For creating release on GitHub.
+  - (Removed) `py_unit_tests.yml` - Old test workflow.
+
+- Added `CONTRIBUTING.md` and `pull_request_template.md` files.
+- Added GitHub issue templates.
+- Added Dependabot configuration.
+- Added `development.md` and `release.md` files for developer notes.
+- Removed `DEV.md` file.
+
+- Added developer tools and helper files for easy development workflow
+  - create_tag.sh
+  - lint.py
+  - prepare_changelog.py
+  - release_notes.py
+  - Makefile
+  - pyproject.toml
+
+- Overall Coding Improvements
+  - Full codebase code is now properly formatted.
+  - Full codebase is now properly linted and type-checked.
+
+- Source code changes:
+  - file and folder hash related functions moved to file_manager.py
+  - Removed git_manager.py (using `github-action-toolkit` lib instead.)
+  - Removed github_action_utils.py (using `github-action-toolkit` lib instead.)
+  - Replaced usage of `GlobalVariables` with standard classes (SavedPaths and AppInfo) for better code.
+  - version.py file added.
+
+- Test code changes:
+  - Improved `setup_action_yml` contextmanager to handle all the different scenarios and possible issues.
+  - Test-cases are now executed in a separate folder that works both locally and on GitHub workflow in the same way.
+  - Removed redundant test cases and cleaned up unused files.
+  - Changed temp file generation strategy for more reliable test cases.
+  - Full codebase is now properly formatted and type-checked.
 
 
 ## [v4.1](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v4.1) - 2024-04-09
