@@ -53,7 +53,7 @@ class SplunkPythonSDKUtility(BaseUtility):
                         # Extract version from the directory name
                         # e.g., splunk_sdk-1.7.0.dist-info -> 1.7.0
                         # Support various version formats (1.7.0, 2.0, 1.7.0.1, etc.)
-                        version_match = re.search(r"-([\d.]+)\.(?:dist-info|egg-info)", item)
+                        version_match = re.search(r"-(\d+(?:\.\d+)*)\.(?:dist-info|egg-info)", item)
                         if version_match:
                             dir_version = version_match.group(1)
                             # Only remove if it's not the current version
