@@ -1071,7 +1071,7 @@ dependencies = [
     { name = "splunk-add-on-ucc-framework" },
 ]
 
-[package.dev-dependencies]
+[package.optional-dependencies]
 dev = [
     { name = "basedpyright" },
     { name = "codespell" },
@@ -1092,30 +1092,27 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "basedpyright", marker = "extra == 'dev'", specifier = ">=1.29.1" },
+    { name = "codespell", marker = "extra == 'dev'", specifier = ">=2.4.1" },
+    { name = "funlog", marker = "extra == 'dev'", specifier = ">=0.2.1" },
+    { name = "furo", marker = "extra == 'dev'", specifier = ">=2025.9.25" },
     { name = "github-action-toolkit", specifier = ">=0.6.0" },
+    { name = "myst-parser", marker = "extra == 'dev'", specifier = ">=4.0.1" },
     { name = "pip", specifier = ">=25.2" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.5" },
+    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=7.0.0" },
+    { name = "pytest-sugar", marker = "extra == 'dev'", specifier = ">=1.0.0" },
     { name = "requests", specifier = ">=2.32.5" },
+    { name = "rich", marker = "extra == 'dev'", specifier = ">=14.0.0" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.11.9" },
+    { name = "sphinx", marker = "extra == 'dev'", specifier = ">=8.2.3" },
+    { name = "sphinx-autobuild", marker = "extra == 'dev'", specifier = ">=2025.8.25" },
+    { name = "sphinx-autodoc-typehints", marker = "extra == 'dev'", specifier = ">=3.4.0" },
+    { name = "sphinx-copybutton", marker = "extra == 'dev'", specifier = ">=0.5.2" },
+    { name = "sphinxcontrib-mermaid", marker = "extra == 'dev'", specifier = ">=1.0.0" },
     { name = "splunk-add-on-ucc-framework", specifier = ">=6.0.1" },
 ]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "basedpyright", specifier = ">=1.29.1" },
-    { name = "codespell", specifier = ">=2.4.1" },
-    { name = "funlog", specifier = ">=0.2.1" },
-    { name = "furo", specifier = ">=2025.9.25" },
-    { name = "myst-parser", specifier = ">=4.0.1" },
-    { name = "pytest", specifier = ">=8.3.5" },
-    { name = "pytest-cov", specifier = ">=7.0.0" },
-    { name = "pytest-sugar", specifier = ">=1.0.0" },
-    { name = "rich", specifier = ">=14.0.0" },
-    { name = "ruff", specifier = ">=0.11.9" },
-    { name = "sphinx", specifier = ">=8.2.3" },
-    { name = "sphinx-autobuild", specifier = ">=2025.8.25" },
-    { name = "sphinx-autodoc-typehints", specifier = ">=3.4.0" },
-    { name = "sphinx-copybutton", specifier = ">=0.5.2" },
-    { name = "sphinxcontrib-mermaid", specifier = ">=1.0.0" },
-]
+provides-extras = ["dev"]
 
 [[package]]
 name = "starlette"
