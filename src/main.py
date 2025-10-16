@@ -21,25 +21,25 @@ def validate_mutually_exclusive_features() -> None:
     use_ucc_gen = gat.get_user_input_as("use_ucc_gen", bool, False)
     python_requirements_file = gat.get_user_input("python_requirements_file")
     app_utilities_input = gat.get_user_input("app_utilities")
-    
+
     # Check if Splunk Python SDK utility is being used
     use_splunk_python_sdk = False
     if app_utilities_input and app_utilities_input != "NONE" and app_utilities_input != "":
         app_utilities_list = [u.strip() for u in app_utilities_input.split(",")]
         use_splunk_python_sdk = "splunk_python_sdk" in app_utilities_list
-    
+
     # Check if Python dependency manager is being used
     use_python_deps = python_requirements_file and python_requirements_file != ""
-    
+
     # Count active features
-    active_features = []
+    active_features: list[str] = []
     if use_ucc_gen:
         active_features.append("UCC-Gen")
     if use_python_deps:
         active_features.append("Python-Dependency-Management")
     if use_splunk_python_sdk:
         active_features.append("Splunk-Python-SDK")
-    
+
     if len(active_features) > 1:
         error_msg = (
             f"Error: Multiple build features detected: {', '.join(active_features)}. "
@@ -75,7 +75,7 @@ def main() -> None:
 
     # Build Add-on with UCC
     use_ucc_gen = gat.get_user_input_as("use_ucc_gen", bool, False)
-    
+
     # Check if Python dependency manager is being used
     python_requirements_file = gat.get_user_input("python_requirements_file")
     use_python_deps = python_requirements_file and python_requirements_file != ""
