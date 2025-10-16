@@ -11,7 +11,10 @@ def install_dependencies(
     saved_paths: SavedPaths,
     app_info: AppInfo,  # pyright: ignore[reportUnusedParameter]
 ) -> str:
-    """Install Python dependencies from requirements.txt and return the build directory name."""
+    """Install Python dependencies from requirements.txt and return the build directory name.
+
+    Note: app_info parameter is kept for API consistency with other build functions (e.g., ucc_gen.build).
+    """
     python_requirements_file = gat.get_user_input("python_requirements_file")
 
     if not python_requirements_file or python_requirements_file == "":
