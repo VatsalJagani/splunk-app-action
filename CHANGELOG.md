@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- New input parameter `local_app_inspect` to enable local Splunk App Inspect validation using the splunk-appinspect Python library instead of the Splunkbase API. This provides faster validation but may not be as up-to-date as the Splunkbase API. Default is `false`.
+
 - New Documentation
   - Moved comprehensive documentation from README to dedicated Read the Docs site.
   - Enhanced documentation with dedicated troubleshooting section and debugging steps.

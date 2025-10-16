@@ -40,6 +40,24 @@ jobs:
           splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
 
+### Build with Local App-Inspect
+Use local validation for faster feedback during development:
+
+```yaml
+name: Build with Local Inspect
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          local_app_inspect: true
+```
+
 ## Multi-App Repository
 
 Build multiple apps from a single repository:
@@ -261,6 +279,35 @@ jobs:
           app_dir: "my_app"
           # Only run app-inspect on main branch
           is_app_inspect_check: ${{ github.ref == 'refs/heads/main' }}
+          splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+          splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+```
+
+### Development vs Production Validation
+```yaml
+name: Smart Validation Strategy
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Use fast local validation for PRs and dev branches
+      - name: Build with Local Inspect
+        if: github.ref != 'refs/heads/main'
+        uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          local_app_inspect: true
+      
+      # Use Splunkbase API for main branch (production-ready validation)
+      - name: Build with Splunkbase Inspect
+        if: github.ref == 'refs/heads/main'
+        uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
           splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
