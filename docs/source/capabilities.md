@@ -268,6 +268,7 @@ Automatically installs and upgrades the Splunk Python SDK (splunklib):
 - Upgrades to newer versions automatically
 - Removes `.pyc` files and `__pycache__` directories by default
 - Cleans up old package metadata files (`.dist-info` and `.egg-info`) after upgrade
+- Also cleans up old versions of splunk-sdk dependencies (e.g., `deprecation`, `packaging`)
 
 ```yaml
 # Default installation (bin folder)
