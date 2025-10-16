@@ -103,6 +103,103 @@ jobs:
           splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
 
+## Python Dependency Management Examples
+
+### Basic Python Dependencies
+```yaml
+name: Build with Python Dependencies
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          python_requirements_file: "requirements.txt"
+          splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+          splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+```
+
+### With GitHub Dependabot
+Set up automatic dependency updates by adding `.github/dependabot.yml`:
+```yaml
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/my_app"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+```
+
+Then use the action:
+```yaml
+name: Build with Managed Dependencies
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          python_requirements_file: "requirements.txt"
+          splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+          splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+```
+
+### Custom Requirements Path
+```yaml
+name: Build with Custom Requirements
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          python_requirements_file: "requirements/production.txt"
+          splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+          splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+```
+
+### Multi-Environment Dependencies
+For different dependency sets (dev/prod):
+```yaml
+name: Multi-Environment Build
+on:
+  push:
+    branches: [main, develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Determine requirements file
+        id: reqs
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "file=requirements/production.txt" >> $GITHUB_OUTPUT
+          else
+            echo "file=requirements/development.txt" >> $GITHUB_OUTPUT
+          fi
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          python_requirements_file: ${{ steps.reqs.outputs.file }}
+          splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+          splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+```
+
 ## File Permission Examples
 
 ### Automatic Permission Fixes

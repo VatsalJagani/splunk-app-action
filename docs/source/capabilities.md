@@ -48,6 +48,98 @@ Supports Add-on build with **UCC Add-on Generator** using the `ucc-gen build` co
 You must run `ucc-gen init` locally first to set up the proper UCC structure before using this GitHub Action. See the [UCC Framework documentation](https://splunk.github.io/addonfactory-ucc-generator/quickstart/) for details.
 ```
 
+```{important}
+**Mutually Exclusive Feature:** UCC-Gen cannot be used together with Python Dependency Manager (`python_requirements_file`) or Splunk Python SDK utility (`splunk_python_sdk`). The workflow will fail if multiple features are enabled.
+```
+
+---
+
+## Python Dependency Manager
+
+Manage Python dependencies for your Splunk Apps and Add-ons using a `requirements.txt` file. Dependencies are automatically installed at build time, keeping your repository clean and enabling automated dependency updates through GitHub Dependabot.
+
+### Key Benefits
+
+- ✅ **GitHub Dependabot Integration** - Automatically receive pull requests for dependency updates
+- ✅ **Clean Repository** - No third-party code committed to your repository
+- ✅ **Automatic Cleanup** - Removes dangling code and cache files (`.pyc`, `__pycache__`)
+- ✅ **Build-Time Installation** - Dependencies installed to `lib` folder during build process
+- ✅ **Easy Maintenance** - Single file to manage all Python dependencies
+
+### Basic Usage
+
+```yaml
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    python_requirements_file: "requirements.txt"
+```
+
+### Setup Instructions
+
+1. Create a `requirements.txt` file in your app directory:
+   ```
+   requests==2.31.0
+   beautifulsoup4==4.12.2
+   lxml==4.9.3
+   ```
+
+2. Add the action to your workflow with the `python_requirements_file` parameter:
+   ```yaml
+   - uses: VatsalJagani/splunk-app-action@v4
+     with:
+       app_dir: "my_splunk_app"
+       python_requirements_file: "requirements.txt"
+       splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+       splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+   ```
+
+3. (Optional) Enable GitHub Dependabot by adding `.github/dependabot.yml`:
+   ```yaml
+   version: 2
+   updates:
+     - package-ecosystem: "pip"
+       directory: "/my_splunk_app"
+       schedule:
+         interval: "weekly"
+   ```
+
+### Advanced Configuration
+
+You can specify a different requirements file path:
+```yaml
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    python_requirements_file: "requirements/production.txt"
+```
+
+### How It Works
+
+1. The action copies your app directory to a temporary build location
+2. Creates a `lib` folder in your app (if it doesn't exist)
+3. Runs `pip install -r requirements.txt --target lib/` to install all dependencies
+4. Cleans up `.pyc` files and `__pycache__` directories
+5. Proceeds with normal build generation
+
+### Important Notes
+
+```{important}
+**Mutually Exclusive Feature:** Python Dependency Manager cannot be used together with:
+- UCC-Gen (`use_ucc_gen: true`)
+- Splunk Python SDK utility (`app_utilities: splunk_python_sdk`)
+
+The workflow will fail with a clear error message if multiple features are enabled.
+```
+
+```{note}
+The `lib` folder is automatically added to Python's import path in Splunk, so your scripts can import the dependencies normally:
+```python
+import requests
+from bs4 import BeautifulSoup
+```
+```
+
 ---
 
 ## File and Folder Permission Management
