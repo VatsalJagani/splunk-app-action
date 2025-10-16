@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import subprocess
@@ -369,19 +370,23 @@ class SplunkLocalAppInspect:
                 capture_output=True,
                 text=True,
                 timeout=600,  # 10 minutes timeout
+                check=False,  # Don't raise exception on non-zero exit code
             )
 
             gat.debug(f"Command stdout: {result.stdout}")
             if result.stderr:
                 gat.debug(f"Command stderr: {result.stderr}")
 
-            # Check if report file was generated
+            # Check if the command completed successfully or at least generated a report
+            # Note: splunk-appinspect may return non-zero exit code even when it generates a valid report
+            # if there are failures in the checks, so we check for the report file rather than exit code
             if not os.path.exists(report_file_path):
-                gat.error(f"Report file was not generated: {report_file_path}")
+                gat.error(
+                    f"Report file was not generated: {report_file_path}. Command exit code: {result.returncode}"
+                )
                 return "Exception"
 
             # Parse the JSON report to determine status
-            import json
 
             with open(report_file_path) as f:
                 report_data = json.load(f)
