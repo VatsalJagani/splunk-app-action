@@ -35,7 +35,7 @@ dependencies = [
 
 # ---- Dev dependencies ----
 
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
     "pytest>=8.3.5",
     "pytest-sugar>=1.0.0",
