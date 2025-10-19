@@ -280,6 +280,25 @@ Use Sphinx with MyST Markdown (`.md`) to author documentation.
   - If a docs-only change is clearly user-facing, include it under Added/Changed (don’t hide it under internal changes).
 - Keep entries short, specific, and actionable. Use imperative mood and avoid implementation detail.
 
+## Documentation and README updates
+
+Whenever a change is user-facing, update the documentation and README in the same pull request.
+
+- What to update in docs (`docs/source`):
+  - Pages that reflect behavior, inputs/outputs, configuration, environment variables, supported versions, CLI/entry points, defaults, and migration/deprecation notes.
+  - Examples and code snippets to match new APIs, flags, defaults, or workflows.
+  - Toctree entries when adding/removing pages; fix cross-references and anchors.
+  - Screenshots/diagrams if UI or output changes are visible to users.
+- What to update in `README.md`:
+  - Quickstart/installation, minimum supported versions, badges, and primary usage examples.
+  - High-level configuration summary and links into the docs for details.
+  - Any action usage snippets or copy-paste examples so they remain accurate.
+- Validation before submitting the PR:
+  - Run the docs validation task and ensure it passes with no warnings treated as errors: `make docs-check`.
+  - Ensure `CHANGELOG.md` has an Unreleased entry matching the change and links to updated docs when relevant.
+  - Confirm README and docs are consistent (no conflicting instructions).
+
+
 ## Testing
 
 - For longer tests put them in a file like `tests/test_somename.py` in the `tests/`
