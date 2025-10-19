@@ -11,11 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Python Dependency Manager** - New feature for managing Python dependencies from requirements.txt
   - New input parameter `python_requirements_file` to specify the path to requirements.txt file
-  - Automatically installs dependencies to the `lib` folder before generating the build
+  - Automatically installs dependencies to the `lib` folder inside app_dir before generating the build
+  - Cleans the directory containing requirements.txt before installation (except essential Splunk directories)
+  - Removes requirements.txt file from the final build package
   - Enables use of GitHub Dependabot for automatic dependency updates
   - Keeps repository clean by managing dependencies at build time instead of committing third-party code
   - Automatically cleans up `.pyc` files and `__pycache__` directories
   - Mutually exclusive with UCC-Gen and Splunk-Python-SDK utility to prevent conflicts
+  - Can replicate splunk-python-sdk installation functionality by using `splunk-sdk` in requirements.txt
 
 - New Documentation
   - Moved comprehensive documentation from README to dedicated Read the Docs site.

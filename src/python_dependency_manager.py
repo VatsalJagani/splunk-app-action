@@ -39,10 +39,34 @@ def install_dependencies(
 
     gat.debug(f"Installing dependencies from: {requirements_file_path}")
 
-    # Install dependencies to lib folder by default
+    # Get the directory containing the requirements file
+    requirements_dir = os.path.dirname(requirements_file_path)
+
+    # Clean up the directory containing requirements.txt before installing dependencies
+    gat.info(f"Cleaning directory: {requirements_dir}")
+    for item in os.listdir(requirements_dir):
+        item_path = os.path.join(requirements_dir, item)
+        # Skip the requirements file itself and essential directories
+        if item == os.path.basename(python_requirements_file):
+            continue
+        # Skip essential Splunk directories to preserve app structure
+        if item in ["default", "metadata", "static", "appserver", "bin", "local", "lookups"]:
+            continue
+        try:
+            if os.path.isfile(item_path) or os.path.islink(item_path):
+                os.unlink(item_path)
+            elif os.path.isdir(item_path):
+                shutil.rmtree(item_path)
+            gat.debug(f"Removed: {item_path}")
+        except Exception as e:
+            gat.warning(f"Failed to remove {item_path}: {e}")
+
+    # Install dependencies to lib folder inside app_dir
     lib_dir = os.path.join(app_dir, "lib")
-    if not os.path.exists(lib_dir):
-        os.makedirs(lib_dir)
+    if os.path.exists(lib_dir):
+        gat.info(f"Removing existing lib directory: {lib_dir}")
+        shutil.rmtree(lib_dir)
+    os.makedirs(lib_dir)
 
     gat.info(f"Installing Python dependencies to: {lib_dir}")
 
@@ -63,6 +87,13 @@ def install_dependencies(
     gat.debug("Cleaning up cache files...")
     subprocess.run(["find", lib_dir, "-name", "*.py[co]", "-type", "f", "-delete"], check=False)
     subprocess.run(["find", lib_dir, "-name", "__pycache__", "-type", "d", "-delete"], check=False)
+
+    # Remove requirements.txt file after installing dependencies
+    gat.info(f"Removing requirements file: {requirements_file_path}")
+    try:
+        os.remove(requirements_file_path)
+    except Exception as e:
+        gat.warning(f"Failed to remove requirements file: {e}")
 
     # Copy the build to final location
     final_build_dir = "python_deps_generated_build"

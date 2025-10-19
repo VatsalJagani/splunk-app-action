@@ -117,10 +117,26 @@ You can specify a different requirements file path:
 ### How It Works
 
 1. The action copies your app directory to a temporary build location
-2. Creates a `lib` folder in your app (if it doesn't exist)
-3. Runs `pip install -r requirements.txt --target lib/` to install all dependencies
-4. Cleans up `.pyc` files and `__pycache__` directories
-5. Proceeds with normal build generation
+2. Cleans the directory containing the requirements.txt file (removes all files except essential Splunk directories like `default`, `metadata`, `bin`, etc.)
+3. Creates a `lib` folder inside your app directory (removes it first if it already exists)
+4. Runs `pip install -r requirements.txt --target lib/` to install all dependencies
+5. Cleans up `.pyc` files and `__pycache__` directories
+6. Removes the requirements.txt file from the build
+7. Proceeds with normal build generation
+
+The `lib` folder is automatically added to Python's import path in Splunk, so your scripts can import the dependencies normally:
+```python
+import requests
+from bs4 import BeautifulSoup
+```
+
+```{note}
+**Cleanup Behavior:**
+- The directory containing requirements.txt will be cleaned before installing dependencies (except essential Splunk directories)
+- The existing `lib` folder will be removed and recreated
+- The requirements.txt file will be removed from the final build package
+- This ensures a clean build without any leftover files or dependencies
+```
 
 ### Important Notes
 
@@ -132,11 +148,22 @@ You can specify a different requirements file path:
 The workflow will fail with a clear error message if multiple features are enabled.
 ```
 
+```{tip}
+**Replicating Splunk Python SDK Installation:**
+You can use the Python Dependency Manager instead of the Splunk Python SDK utility by adding `splunk-sdk` to your requirements.txt:
+```txt
+splunk-sdk==2.1.1
+```
+This provides the same functionality with the added benefits of Dependabot integration and version control.
+```
+
 ```{note}
 The `lib` folder is automatically added to Python's import path in Splunk, so your scripts can import the dependencies normally:
 ```python
 import requests
 from bs4 import BeautifulSoup
+# Or use Splunk SDK
+import splunklib.client as client
 ```
 ```
 

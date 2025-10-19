@@ -22,7 +22,7 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 - **⚠️ Note:** Cannot be used together with `python_requirements_file` or `splunk_python_sdk` utility.
 
 ### `python_requirements_file`
-- **Description:** Path to the requirements.txt file for Python dependency management. Path is relative to the app_dir. When provided, dependencies will be installed to the `lib` folder before generating the build.
+- **Description:** Path to the requirements.txt file for Python dependency management. Path is relative to the app_dir. When provided, dependencies will be installed to the `lib` folder inside app_dir before generating the build. **Important:** The directory containing the requirements.txt file will be cleaned before installation (except for essential Splunk directories like default, metadata, bin, etc.), and the requirements.txt file itself will be removed after dependency installation.
 - **Required:** false
 - **Default:** "" (disabled)
 - **Example:** `"requirements.txt"` or `"requirements/production.txt"`
@@ -30,6 +30,7 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
   - Enables GitHub Dependabot for automatic dependency updates
   - Keeps repository clean without third-party code
   - Automatically cleans up dangling code and cache files
+  - Removes requirements.txt from the final build
 - **⚠️ Note:** Cannot be used together with `use_ucc_gen` or `splunk_python_sdk` utility.
 
 ## App-Inspect Inputs

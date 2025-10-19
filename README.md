@@ -24,6 +24,7 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
     use_ucc_gen: true
 
 # With Python dependency management
+# Note: Cleans directory, installs to lib/, removes requirements.txt from build
 - uses: VatsalJagani/splunk-app-action@v4
   with:
     app_dir: "my_app"

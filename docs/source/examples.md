@@ -105,6 +105,14 @@ jobs:
 
 ## Python Dependency Management Examples
 
+```{note}
+**Important Behavior:**
+- The directory containing requirements.txt will be cleaned before installation (except essential Splunk directories)
+- Dependencies are installed to the `lib` folder inside app_dir
+- The requirements.txt file is removed from the final build package
+- This can replicate the splunk-python-sdk installation by adding `splunk-sdk` to requirements.txt
+```
+
 ### Basic Python Dependencies
 ```yaml
 name: Build with Python Dependencies
