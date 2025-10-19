@@ -121,6 +121,84 @@ jobs:
           splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
 
+## Python Dependency Management Examples
+
+```{note}
+**Important Behavior:**
+- The `python_requirements_file` path is **relative to app_dir**
+- Dependencies are installed in the same directory as the requirements file
+- The directory containing requirements.txt will be cleaned before installation
+- The requirements.txt file is removed from the final build package
+- This can replicate the splunk-python-sdk installation by adding `splunk-sdk` to requirements.txt
+```
+
+### Basic Python Dependencies
+```yaml
+name: Build with Python Dependencies
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          python_requirements_file: "lib/requirements.txt"  # Path relative to app_dir
+          splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+          splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+```
+
+### With GitHub Dependabot
+Set up automatic dependency updates by adding `.github/dependabot.yml`:
+```yaml
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/my_app/lib"  # Match the directory containing requirements.txt
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+```
+
+Then use the action:
+```yaml
+name: Build with Managed Dependencies
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          python_requirements_file: "lib/requirements.txt"  # Path relative to app_dir
+          splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+          splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+```
+
+### Custom Requirements Path
+Dependencies will be installed in the same directory as the requirements file:
+```yaml
+name: Build with Custom Requirements
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          python_requirements_file: "dependencies/production.txt"  # Installs to dependencies/
+          splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+          splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+```
+
 ## File Permission Examples
 
 ### Automatic Permission Fixes
@@ -244,6 +322,10 @@ jobs:
 ```
 
 ### Splunk SDK with Custom Path
+
+> [!WARNING]
+> **DEPRECATED:** The `splunk_python_sdk` utility is deprecated and will be removed in v6.
+
 ```yaml
 name: Install SDK in Custom Location
 on: [push]

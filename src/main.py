@@ -8,6 +8,7 @@ sys.path.append(os.path.dirname(__file__))
 import github_action_toolkit as gat
 
 import app_build_generate
+import python_dependency_manager
 import ucc_gen
 from app_inspect import SplunkAppInspect, SplunkLocalAppInspect
 from app_utilities import SplunkAppUtilities
@@ -15,8 +16,50 @@ from helpers import splunk_app_details
 from helpers.saved_values import AppInfo, SavedPaths, keep_working_dir_unchanged
 
 
+def validate_mutually_exclusive_features() -> None:
+    """Validate that only one build feature is enabled at a time."""
+    use_ucc_gen = gat.get_user_input_as("use_ucc_gen", bool, False)
+    python_requirements_file = gat.get_user_input("python_requirements_file")
+    app_utilities_input = gat.get_user_input("app_utilities")
+
+    # Check if Splunk Python SDK utility is being used
+    use_splunk_python_sdk = False
+    if app_utilities_input and app_utilities_input != "NONE" and app_utilities_input != "":
+        app_utilities_list = [u.strip() for u in app_utilities_input.split(",")]
+        use_splunk_python_sdk = "splunk_python_sdk" in app_utilities_list
+
+    # Check if Python dependency manager is being used
+    use_python_deps = python_requirements_file and python_requirements_file != ""
+
+    # Count active features
+    active_features: list[str] = []
+    if use_ucc_gen:
+        active_features.append("UCC-Gen")
+    if use_python_deps:
+        active_features.append("Python-Dependency-Management")
+    if use_splunk_python_sdk:
+        active_features.append("Splunk-Python-SDK")
+
+    if len(active_features) > 1:
+        error_msg = (
+            f"Error: Multiple build features detected: {', '.join(active_features)}. "
+            "You can only use ONE of the following features at a time:\n"
+            "  - UCC-Gen (use_ucc_gen: true)\n"
+            "  - Python-Dependency-Management (python_requirements_file)\n"
+            "  - Splunk-Python-SDK (app_utilities: splunk_python_sdk)\n"
+            "Please update your workflow configuration to use only one feature."
+        )
+        gat.error(error_msg)
+        sys.exit(1)
+
+
 def main() -> None:
     gat.print_all_user_inputs()
+
+    # Validate mutually exclusive features
+    with gat.group("🔍 Validating Build Configuration"):
+        validate_mutually_exclusive_features()
+        gat.info("✅ Build configuration is valid")
 
     # Change to workspace directory where repodir/ exists
     workspace_dir = os.environ.get("GITHUB_WORKSPACE")
@@ -32,6 +75,10 @@ def main() -> None:
 
     # Build Add-on with UCC
     use_ucc_gen = gat.get_user_input_as("use_ucc_gen", bool, False)
+
+    # Check if Python dependency manager is being used
+    python_requirements_file = gat.get_user_input("python_requirements_file")
+    use_python_deps = python_requirements_file and python_requirements_file != ""
 
     with gat.group("🔍 Getting the App Details"):
         if use_ucc_gen:
@@ -62,6 +109,13 @@ def main() -> None:
         with gat.group("🏗️ Preparing for App Build with UCC"):
             with keep_working_dir_unchanged():
                 app_build_dir_name = ucc_gen.build(saved_paths, app_info)
+
+    elif use_python_deps:
+        with gat.group("🏗️ Installing dynamic Python Dependencies"):
+            with keep_working_dir_unchanged():
+                app_build_dir_name = python_dependency_manager.install_dependencies(
+                    saved_paths, app_info
+                )
 
     else:
         with gat.group("🏗️ Preparing for App Build without UCC"):

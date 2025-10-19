@@ -24,6 +24,7 @@ def setup_action_yml(
     test_app_repo,
     app_dir=".",
     use_ucc_gen="false",
+    python_requirements_file="",
     to_make_permission_changes="false",
     is_app_inspect_check="true",
     splunkbase_username="NONE",
@@ -63,6 +64,7 @@ def setup_action_yml(
     # setup inputs
     os.environ["INPUT_APP_DIR"] = app_dir
     os.environ["INPUT_USE_UCC_GEN"] = use_ucc_gen
+    os.environ["INPUT_PYTHON_REQUIREMENTS_FILE"] = python_requirements_file
     os.environ["INPUT_TO_MAKE_PERMISSION_CHANGES"] = to_make_permission_changes
     os.environ["INPUT_IS_APP_INSPECT_CHECK"] = is_app_inspect_check
     os.environ["INPUT_SPLUNKBASE_USERNAME"] = splunkbase_username

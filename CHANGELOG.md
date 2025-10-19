@@ -9,14 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- New input parameter `local_app_inspect` to enable local Splunk App Inspect validation using the splunk-appinspect Python library instead of the Splunkbase API. This provides faster validation but may not be as up-to-date as the Splunkbase API. Default is `false`.
+- **Python Dependency Manager** - New feature for managing Python dependencies from requirements.txt
+  - New input parameter `python_requirements_file` to specify the path to requirements.txt file (relative to app_dir)
+  - Dependencies are installed in the same directory as the requirements file (e.g., `lib/requirements.txt` → installs to `lib/`)
+  - If requirements file is in app root, automatically creates and uses `lib/` subdirectory.
+  - Cleans the target directory before installation to ensure clean state
+  - Removes requirements.txt file from the final build package
+  - Enables use of GitHub Dependabot for automatic dependency updates
+  - Keeps repository clean by managing dependencies at build time instead of committing third-party code
+  - Automatically cleans up `.pyc` files and `__pycache__` directories
+  - Mutually exclusive with UCC-Gen and Splunk-Python-SDK utility to prevent conflicts
+  - Can replicate splunk-python-sdk installation functionality by using `splunk-sdk` in requirements.txt
 
 - New Documentation
   - Moved comprehensive documentation from README to dedicated Read the Docs site.
   - Enhanced documentation with dedicated troubleshooting section and debugging steps.
 
+- New input parameter `local_app_inspect` to enable local Splunk App Inspect validation using the splunk-appinspect Python library instead of the Splunkbase API. This provides faster validation but may not be as up-to-date as the Splunkbase API. Default is `false`.
+
 
 ### Changed
+
+- **Build Feature Validation** - Added validation to ensure only one build feature is used at a time
+  - Users can now only use ONE of: UCC-Gen, Python-Dependency-Management, or Splunk-Python-SDK utility
+  - Workflow will fail with clear error message if multiple features are enabled
+  - Prevents conflicting dependency management approaches
 
 - Logging Improvements
   - GitHub action now generates more readable logs.
@@ -31,13 +48,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Improved app build dependency handling for more reliable builds.
 
+### Deprecated
+
+- **Splunk Python SDK Utility (`splunk_python_sdk`)** is now deprecated and will be removed in v6. Users should plan to migrate to the new dynamic library installation feature in v5, which allows installing splunklib and other libraries without copying them into the repository. A deprecation warning is now displayed when using this utility.
+
 ### Fixed
 
 - Adding Utility Errors are now handled gracefully. So if one utility fails, rest of the utility continues to operate normal.
 
 - Fixed various app build process issues and file handling problems.
 
+- Splunk Python SDK Utility now properly cleans up old package metadata files (`.dist-info` and `.egg-info` directories) after upgrading splunklib to a new version, preventing accumulation of outdated files. This also includes cleanup of old versions of splunk-sdk's dependencies (e.g., `deprecation`, `packaging`).
+
 ### Developer & Internal Changes
+
+- AI Agent's instruction files are added for AI Agents (Claude or GitHub Copilot) to generate good code and perform checks without explicit instructions all the time.
 
 - Improved GitHub workflows for better CI/CD and release management.
   - `changelog_check.yml` - Validating changelogs.

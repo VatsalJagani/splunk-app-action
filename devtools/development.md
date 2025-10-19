@@ -28,7 +28,7 @@ source .venv/bin/activate
 # including dev dependencies and optional dependencies.
 make install
 
-# Run uv sync, lint, and test (and also generate agent rules):
+# Run uv sync, lint, and test, docs-check:
 make
 
 # Linting:
@@ -72,17 +72,14 @@ See [uv docs](https://docs.astral.sh/uv/) for details.
 
 ## Agent Rules
 
-See [.cursor/rules](.cursor/rules) for agent rules.
-These rules are written for [Cursor](https://www.cursor.com/).
-However, they are also used by other agents.
-The Makefile will generate the following files from the same rules:
-- `CLAUDE.md` (for Claude AI)
-- `AGENTS.md` (for general agents)
-- `.copilot-instructions.md` (for GitHub Copilot)
+This project includes instructions for AI coding assistants. The source rules are located under `.github/copilot-instructions.md`.
 
-```shell
-make agent-rules
-```
+But we have a soft-link of instructions/rules for different AI tools:
+
+- **Claude**: `CLAUDE.md` (root) 
+- **GitHub Copilot**: `.github/copilot-instructions.md`
+- **Other agents**: `AGENTS.md` (root)
+
 
 ## IDE setup
 
