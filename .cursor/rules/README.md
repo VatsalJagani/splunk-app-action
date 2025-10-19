@@ -19,7 +19,7 @@ This creates the following files (all git-ignored):
 
 ### Standard Locations
 - `.cursorrules` - For Cursor (root directory)
-- `.clinerules` - For Claude/Cline (root directory)  
+- `.clinerules` - For Claude/Cline (root directory)
 - `.windsurfrules` - For Windsurf (root directory)
 - `.github/copilot-instructions.md` - For GitHub Copilot (standard location)
 
