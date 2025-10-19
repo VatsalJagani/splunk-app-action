@@ -82,6 +82,16 @@ outputs:
     description: "Program stderr"
   error:
     description: "A string of 'true' or 'false' that tells if there were errors."
+  build_path:
+    description: "Full path to the generated build artifact (.tgz file)"
+  artifact_name:
+    description: "Name of the generated build artifact (e.g., my_app_1.0.0_1.tgz)"
+  app_package_id:
+    description: "The Splunk app package ID extracted from app.conf or globalConfig.json"
+  app_version:
+    description: "The app version number extracted from app.conf or globalConfig.json"
+  app_build_number:
+    description: "The app build number extracted from app.conf"
 
 runs:
   using: "composite"
