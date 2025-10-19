@@ -41,13 +41,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Improved app build dependency handling for more reliable builds.
 
+### Deprecated
+
+- **Splunk Python SDK Utility (`splunk_python_sdk`)** is now deprecated and will be removed in v6. Users should plan to migrate to the new dynamic library installation feature in v5, which allows installing splunklib and other libraries without copying them into the repository. A deprecation warning is now displayed when using this utility.
+
 ### Fixed
 
 - Adding Utility Errors are now handled gracefully. So if one utility fails, rest of the utility continues to operate normal.
 
 - Fixed various app build process issues and file handling problems.
 
+- Splunk Python SDK Utility now properly cleans up old package metadata files (`.dist-info` and `.egg-info` directories) after upgrading splunklib to a new version, preventing accumulation of outdated files. This also includes cleanup of old versions of splunk-sdk's dependencies (e.g., `deprecation`, `packaging`).
+
 ### Developer & Internal Changes
+
+- AI Agent's instruction files are added for AI Agents (Claude or GitHub Copilot) to generate good code and perform checks without explicit instructions all the time.
 
 - Improved GitHub workflows for better CI/CD and release management.
   - `changelog_check.yml` - Validating changelogs.

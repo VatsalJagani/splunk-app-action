@@ -323,6 +323,10 @@ jobs:
 ```
 
 ### Splunk SDK with Custom Path
+
+> [!WARNING]
+> **DEPRECATED:** The `splunk_python_sdk` utility is deprecated and will be removed in v6.
+
 ```yaml
 name: Install SDK in Custom Location
 on: [push]

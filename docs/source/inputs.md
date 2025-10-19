@@ -78,6 +78,9 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 
 ## Splunk SDK Inputs
 
+> [!WARNING]
+> **DEPRECATED:** The `splunk_python_sdk` utility and its related inputs are deprecated and will be removed in v6. Please plan to migrate to the new dynamic library installation feature in v5.
+
 ### `splunk_python_sdk_install_path`
 - **Description:** Path where you would like to install splunk-python-sdk (splunklib). Path is relative to App's root folder.
 - **Required:** false

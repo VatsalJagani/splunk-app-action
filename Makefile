@@ -4,9 +4,9 @@
 
 .DEFAULT_GOAL := default
 
-.PHONY: default install lint test upgrade clean agent-rules
+.PHONY: default install lint test upgrade clean
 
-default: agent-rules install lint test docs-check
+default: install lint test docs-check
 
 install:
 	uv sync --all-extras
@@ -20,19 +20,6 @@ test:
 upgrade:
 	uv sync --upgrade --all-extras --dev
 
-agent-rules: CLAUDE.md AGENTS.md .copilot-instructions.md
-
-# Use .cursor/rules for sources of rules.
-# Create Claude, Codex, and GitHub Copilot rules from these.
-CLAUDE.md: .cursor/rules/general.mdc .cursor/rules/python.mdc
-	cat .cursor/rules/general.mdc .cursor/rules/python.mdc > CLAUDE.md
-
-AGENTS.md: .cursor/rules/general.mdc .cursor/rules/python.mdc
-	cat .cursor/rules/general.mdc .cursor/rules/python.mdc > AGENTS.md
-
-.copilot-instructions.md: .cursor/rules/general.mdc .cursor/rules/python.mdc
-	cat .cursor/rules/general.mdc .cursor/rules/python.mdc > .copilot-instructions.md
-
 clean:
 	-rm -rf dist/
 	-rm -rf *.egg-info/
@@ -44,7 +31,6 @@ clean:
 	-rm -rf src/splunk_app_action.egg-info
 	-rm -rf src/utilities/logger/props.conf_temp
 	-rm -rf temp_for_test
-	-rm -rf CLAUDE.md AGENTS.md .copilot-instructions.md
 	-find . -type d -name "__pycache__" -exec rm -rf {} +
 
 

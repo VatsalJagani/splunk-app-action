@@ -355,10 +355,15 @@ Adds a complete Python logging solution including:
 
 ### `splunk_python_sdk` - Splunk SDK Management
 
+> [!WARNING]
+> **DEPRECATED:** This utility is deprecated and will be removed in v5. Please plan to migrate to the new dynamic library installation feature in v5, which allows installing splunklib and other libraries without copying them into the repository.
+
 Automatically installs and upgrades the Splunk Python SDK (splunklib):
 - Installs latest version if not present
 - Upgrades to newer versions automatically
 - Removes `.pyc` files and `__pycache__` directories by default
+- Cleans up old package metadata files (`.dist-info` and `.egg-info`) after upgrade
+- Also cleans up old versions of splunk-sdk dependencies (e.g., `deprecation`, `packaging`)
 
 ```yaml
 # Default installation (bin folder)
