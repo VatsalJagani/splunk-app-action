@@ -266,6 +266,20 @@ Use Sphinx with MyST Markdown (`.md`) to author documentation.
 - Version drift in content: centralize versioning via Sphinx config or a single source, and reference it in pages.
 - Image path issues: keep assets under a static directory and use correct relative paths from the page.
 
+## Changelog updates (Keep a Changelog)
+
+- Always update `CHANGELOG.md` whenever a change is user-facing. This includes, but isn’t limited to:
+  - Source code behavior changes (inputs/outputs, defaults, errors, messages, CLI/entry points, public APIs)
+  - Configuration/schema or environment variable changes
+  - Inputs changes
+  - Behavioral changes
+  - Logging format or content that users see
+  - Documentation changes that affect how users use or understand the project (guides, examples, reference, navigation)
+- Add entries under the Unreleased section using concise bullets. Prefer the standard categories:
+  - Added, Changed, Fixed, Deprecated, Removed, Security
+  - If a docs-only change is clearly user-facing, include it under Added/Changed (don’t hide it under internal changes).
+- Keep entries short, specific, and actionable. Use imperative mood and avoid implementation detail.
+
 ## Testing
 
 - For longer tests put them in a file like `tests/test_somename.py` in the `tests/`
