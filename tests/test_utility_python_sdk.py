@@ -227,3 +227,271 @@ def test_splunk_sdk_utility_error_upgrading_existing_2():
             # Validate the result
             assert result is None
             assert check_no_pycache(folder_path)
+
+
+def test_cleanup_old_package_files():
+    """Test that old .dist-info and .egg-info directories are removed."""
+    with get_temp_directory() as temp_dir:
+        folder_path = os.path.join(temp_dir, "bin")
+        os.makedirs(folder_path)
+
+        # Create old metadata directories
+        old_dist_info = os.path.join(folder_path, "splunk_sdk-1.7.0.dist-info")
+        old_egg_info = os.path.join(folder_path, "splunk_sdk-1.7.0.egg-info")
+        new_dist_info = os.path.join(folder_path, "splunk_sdk-2.0.0.dist-info")
+
+        os.makedirs(old_dist_info)
+        os.makedirs(old_egg_info)
+        os.makedirs(new_dist_info)
+
+        # Create some dummy files in the metadata directories
+        with open(os.path.join(old_dist_info, "METADATA"), "w") as f:
+            f.write("old metadata")
+        with open(os.path.join(old_egg_info, "PKG-INFO"), "w") as f:
+            f.write("old egg info")
+        with open(os.path.join(new_dist_info, "METADATA"), "w") as f:
+            f.write("new metadata")
+
+        # Initialize SplunkPythonSDKUtility and call cleanup with None (backward compat mode)
+        sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+        sdk_utility.cleanup_old_package_files(folder_path, None)
+
+        # Verify old directories are removed (in backward compat mode)
+        assert not os.path.exists(old_dist_info), "Old .dist-info should be removed"
+        assert not os.path.exists(old_egg_info), "Old .egg-info should be removed"
+        # Verify new directory is kept
+        assert os.path.exists(new_dist_info), "New .dist-info should be kept"
+
+
+def test_cleanup_old_package_files_no_version():
+    """Test that cleanup doesn't remove metadata when no version is provided."""
+    with get_temp_directory() as temp_dir:
+        folder_path = os.path.join(temp_dir, "bin")
+        os.makedirs(folder_path)
+
+        # Create metadata directories
+        dist_info = os.path.join(folder_path, "splunk_sdk-1.7.0.dist-info")
+        os.makedirs(dist_info)
+
+        with open(os.path.join(dist_info, "METADATA"), "w") as f:
+            f.write("metadata")
+
+        # Initialize SplunkPythonSDKUtility and call cleanup with no version
+        sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+        sdk_utility.cleanup_old_package_files(folder_path, None)
+
+        # Verify directory is kept when no version is provided
+        assert os.path.exists(dist_info), "Metadata should be kept when no version provided"
+
+
+def test_cleanup_old_package_files_different_packages():
+    """Test that cleanup only removes splunk-sdk related metadata in backward compat mode."""
+    with get_temp_directory() as temp_dir:
+        folder_path = os.path.join(temp_dir, "bin")
+        os.makedirs(folder_path)
+
+        # Create metadata directories for different packages
+        splunk_old = os.path.join(folder_path, "splunk_sdk-1.7.0.dist-info")
+        other_package = os.path.join(folder_path, "other_package-1.0.0.dist-info")
+        splunk_new = os.path.join(folder_path, "splunk_sdk-2.0.0.dist-info")
+
+        os.makedirs(splunk_old)
+        os.makedirs(other_package)
+        os.makedirs(splunk_new)
+
+        with open(os.path.join(splunk_old, "METADATA"), "w") as f:
+            f.write("old splunk metadata")
+        with open(os.path.join(other_package, "METADATA"), "w") as f:
+            f.write("other package metadata")
+        with open(os.path.join(splunk_new, "METADATA"), "w") as f:
+            f.write("new splunk metadata")
+
+        # Initialize SplunkPythonSDKUtility and call cleanup with None (backward compat)
+        sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+        sdk_utility.cleanup_old_package_files(folder_path, None)
+
+        # Verify only old splunk-sdk metadata is removed
+        assert not os.path.exists(splunk_old), "Old splunk-sdk metadata should be removed"
+        assert os.path.exists(other_package), "Other package metadata should be kept"
+        assert os.path.exists(splunk_new), "New splunk-sdk metadata should be kept"
+
+
+def test_cleanup_old_package_files_integration():
+    """Test cleanup is called during upgrade process."""
+    with get_temp_directory() as temp_dir:
+        # Prepare the temporary directory with splunklib
+        folder_path = os.path.join(temp_dir, "bin")
+        os.makedirs(folder_path)
+        splunklib_dir = os.path.join(folder_path, "splunklib")
+        os.makedirs(splunklib_dir)
+        init_file = os.path.join(splunklib_dir, "__init__.py")
+
+        # Create old version
+        with open(init_file, "w") as f:
+            f.write("__version_info__ = (1, 7, 0)")
+
+        # Create old metadata directory
+        old_dist_info = os.path.join(folder_path, "splunk_sdk-1.7.0.dist-info")
+        os.makedirs(old_dist_info)
+        with open(os.path.join(old_dist_info, "METADATA"), "w") as f:
+            f.write("old metadata")
+
+        # Mock the version checks to simulate an upgrade
+        def mock_get_version_side_effect(file_path):
+            # First call returns old version, second call returns new version
+            if not hasattr(mock_get_version_side_effect, "call_count"):
+                mock_get_version_side_effect.call_count = 0
+            mock_get_version_side_effect.call_count += 1
+
+            if mock_get_version_side_effect.call_count == 1:
+                return "(1, 7, 0)"
+            else:
+                # Create new metadata after "upgrade"
+                new_dist_info = os.path.join(folder_path, "splunk_sdk-2.0.0.dist-info")
+                if not os.path.exists(new_dist_info):
+                    os.makedirs(new_dist_info)
+                    with open(os.path.join(new_dist_info, "METADATA"), "w") as f:
+                        f.write("new metadata")
+                return "(2, 0, 0)"
+
+        with patch.object(
+            SplunkPythonSDKUtility,
+            "_get_splunklib_version",
+            side_effect=mock_get_version_side_effect,
+        ):
+            sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+            result = sdk_utility.implement_utility()
+
+            # Verify the upgrade happened and old metadata was cleaned up
+            assert result == init_file
+            # Old metadata should be removed
+            assert not os.path.exists(old_dist_info), (
+                "Old metadata should be cleaned up after upgrade"
+            )
+
+
+def test_cleanup_with_dependencies():
+    """Test that cleanup removes old versions of dependencies as well."""
+    with get_temp_directory() as temp_dir:
+        folder_path = os.path.join(temp_dir, "bin")
+        os.makedirs(folder_path)
+
+        # Create old metadata directories for splunk-sdk and its dependencies
+        old_splunk = os.path.join(folder_path, "splunk_sdk-1.7.0.dist-info")
+        old_deprecation = os.path.join(folder_path, "deprecation-2.0.7.dist-info")
+        old_packaging = os.path.join(folder_path, "packaging-24.0.dist-info")
+
+        # Create new metadata directories after "upgrade"
+        new_splunk = os.path.join(folder_path, "splunk_sdk-2.0.0.dist-info")
+        new_deprecation = os.path.join(folder_path, "deprecation-2.1.0.dist-info")
+        new_packaging = os.path.join(folder_path, "packaging-25.0.dist-info")
+
+        # Unrelated package that should be kept
+        other_package = os.path.join(folder_path, "other_package-1.0.0.dist-info")
+
+        for dir_path in [
+            old_splunk,
+            old_deprecation,
+            old_packaging,
+            new_splunk,
+            new_deprecation,
+            new_packaging,
+            other_package,
+        ]:
+            os.makedirs(dir_path)
+            with open(os.path.join(dir_path, "METADATA"), "w") as f:
+                f.write("metadata")
+
+        # Simulate the before state
+        sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+        packages_before = {
+            "splunk_sdk": ["1.7.0"],
+            "deprecation": ["2.0.7"],
+            "packaging": ["24.0"],
+            "other_package": ["1.0.0"],
+        }
+
+        # Call cleanup with before state (new mode)
+        sdk_utility.cleanup_old_package_files(folder_path, packages_before)
+
+        # Verify old versions are removed
+        assert not os.path.exists(old_splunk), "Old splunk-sdk should be removed"
+        assert not os.path.exists(old_deprecation), "Old deprecation should be removed"
+        assert not os.path.exists(old_packaging), "Old packaging should be removed"
+
+        # Verify new versions are kept
+        assert os.path.exists(new_splunk), "New splunk-sdk should be kept"
+        assert os.path.exists(new_deprecation), "New deprecation should be kept"
+        assert os.path.exists(new_packaging), "New packaging should be kept"
+
+        # Verify unrelated package is kept
+        assert os.path.exists(other_package), "Other package should be kept"
+
+
+def test_cleanup_with_dependencies_partial_upgrade():
+    """Test cleanup when only some dependencies are upgraded."""
+    with get_temp_directory() as temp_dir:
+        folder_path = os.path.join(temp_dir, "bin")
+        os.makedirs(folder_path)
+
+        # Create metadata - splunk-sdk and deprecation upgraded, packaging stays same
+        old_splunk = os.path.join(folder_path, "splunk_sdk-1.7.0.dist-info")
+        old_deprecation = os.path.join(folder_path, "deprecation-2.0.7.dist-info")
+        new_splunk = os.path.join(folder_path, "splunk_sdk-2.0.0.dist-info")
+        new_deprecation = os.path.join(folder_path, "deprecation-2.1.0.dist-info")
+        packaging = os.path.join(folder_path, "packaging-24.0.dist-info")
+
+        for dir_path in [old_splunk, old_deprecation, new_splunk, new_deprecation, packaging]:
+            os.makedirs(dir_path)
+            with open(os.path.join(dir_path, "METADATA"), "w") as f:
+                f.write("metadata")
+
+        sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+        packages_before = {
+            "splunk_sdk": ["1.7.0"],
+            "deprecation": ["2.0.7"],
+            "packaging": ["24.0"],
+        }
+
+        sdk_utility.cleanup_old_package_files(folder_path, packages_before)
+
+        # Verify upgraded packages' old versions are removed
+        assert not os.path.exists(old_splunk), "Old splunk-sdk should be removed"
+        assert not os.path.exists(old_deprecation), "Old deprecation should be removed"
+
+        # Verify new versions are kept
+        assert os.path.exists(new_splunk), "New splunk-sdk should be kept"
+        assert os.path.exists(new_deprecation), "New deprecation should be kept"
+
+        # Verify unchanged package is kept
+        assert os.path.exists(packaging), "Unchanged packaging should be kept"
+
+
+def test_get_installed_packages():
+    """Test the get_installed_packages helper method."""
+    with get_temp_directory() as temp_dir:
+        folder_path = os.path.join(temp_dir, "bin")
+        os.makedirs(folder_path)
+
+        # Create various metadata directories
+        os.makedirs(os.path.join(folder_path, "splunk_sdk-1.7.0.dist-info"))
+        os.makedirs(os.path.join(folder_path, "splunk_sdk-2.0.0.dist-info"))
+        os.makedirs(os.path.join(folder_path, "deprecation-2.1.0.egg-info"))
+        os.makedirs(os.path.join(folder_path, "packaging-25.0.dist-info"))
+
+        sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+        packages = sdk_utility.get_installed_packages(folder_path)
+
+        # Verify the packages are correctly identified
+        assert "splunk_sdk" in packages
+        assert "1.7.0" in packages["splunk_sdk"]
+        assert "2.0.0" in packages["splunk_sdk"]
+        assert len(packages["splunk_sdk"]) == 2
+
+        assert "deprecation" in packages
+        assert "2.1.0" in packages["deprecation"]
+        assert len(packages["deprecation"]) == 1
+
+        assert "packaging" in packages
+        assert "25.0" in packages["packaging"]
+        assert len(packages["packaging"]) == 1
