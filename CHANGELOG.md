@@ -37,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Developer & Internal Changes
 
+- AI Agent's instruction files are added for AI Agents (Claude or GitHub Copilot) to generate good code and perform checks without explicit instructions all the time.
+
 - Improved GitHub workflows for better CI/CD and release management.
   - `changelog_check.yml` - Validating changelogs.
   - `test.yml` - Linting checks, Type-checking, testing, and docs validation.
