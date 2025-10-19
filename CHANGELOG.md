@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-- **Splunk Python SDK Utility (`splunk_python_sdk`)** is now deprecated and will be removed in v5. Users should plan to migrate to the new dynamic library installation feature in v5, which allows installing splunklib and other libraries without copying them into the repository. A deprecation warning is now displayed when using this utility.
+- **Splunk Python SDK Utility (`splunk_python_sdk`)** is now deprecated and will be removed in v6. Users should plan to migrate to the new dynamic library installation feature in v5, which allows installing splunklib and other libraries without copying them into the repository. A deprecation warning is now displayed when using this utility.
 
 ### Fixed
 

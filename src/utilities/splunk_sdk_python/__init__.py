@@ -146,7 +146,7 @@ class SplunkPythonSDKUtility(BaseUtility):
         gat.info("📚 Adding SplunkPythonSDKUtility - Installing/Updating Splunk Python SDK")
         gat.warning(
             "⚠️  DEPRECATION WARNING: The splunk_python_sdk utility is deprecated and will be "
-            "removed in v5. Please use the new dynamic library installation feature in v5 instead, "
+            "removed in v6. Please use the new dynamic library installation feature in v5 instead, "
             "which allows installing splunklib and other libraries without copying them into the repository."
         )
         splunk_python_sdk_install_path = gat.get_user_input("splunk_python_sdk_install_path")
