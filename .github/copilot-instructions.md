@@ -39,7 +39,7 @@ Therefore:
 
 # General Coding Guidelines
 
-## Using Comments
+## Comments
 
 - Keep all comments concise and clear and suitable for inclusion in final production.
 
@@ -62,6 +62,7 @@ Therefore:
   This is fine: “// Now fetch the data from the cache”
 
 - DO NOT use emojis or special unicode characters like ① or • or – or — in comments.
+  Comments should explain why, not restate what the code clearly does. Keep them concise.
 
 - Use emojis in output if it enhances the clarity and can be done consistently.
   You may use ✔︎ and ✘ to indicate success and failure, and ∆ and ‼︎ for user-facing
@@ -194,9 +195,9 @@ File level pyright ignore can be written in this format, example `# pyright: rep
 Line specific pyright ignore can be written in this format, example `# pyright: ignore[reportMissingImports]`.
 
 
-## Documentation (Sphinx + MyST Markdown)
+## Documentation & README
 
-Use Sphinx with MyST Markdown (`.md`) to author documentation.
+Use Sphinx with MyST Markdown (`.md`) to author documentation, and keep `README.md` aligned with user-facing behavior.
 
 - Typical layout: a `docs/` directory with a `source/` (inputs) and `build/` (outputs) subdirectory.
 - Theme: choose a modern Sphinx theme (for example, Furo) suitable for your audience.
@@ -206,9 +207,9 @@ Use Sphinx with MyST Markdown (`.md`) to author documentation.
 - Static assets: keep CSS/images under a static directory (commonly `_static/`).
 - Versioning: avoid hardcoding versions inside pages; prefer a single source of truth injected via Sphinx config.
 
-### Authoring guidelines
+### Authoring
 
-- Write one H1 (`# Title`) per page. Use `##`/`###` for subsections.
+- Write one top-level H1 per page. Use H2 and H3 for subsections.
 - Add each page to a toctree (commonly in the project’s main index page). Example:
   ```md
   ```{toctree}
@@ -244,7 +245,7 @@ Use Sphinx with MyST Markdown (`.md`) to author documentation.
     B -->|fail| D[Fix]
   ```
   ```
-- Images: store under a static folder and reference relatively, for example `![](./_static/img.png)`.
+- Images: store under a static folder and reference with a relative path (for example: ./_static/img.png).
 
 ### Build, validate, and preview
 
@@ -266,6 +267,17 @@ Use Sphinx with MyST Markdown (`.md`) to author documentation.
 - Version drift in content: centralize versioning via Sphinx config or a single source, and reference it in pages.
 - Image path issues: keep assets under a static directory and use correct relative paths from the page.
 
+### When to update and how to validate
+
+Whenever a change is user-facing, update docs and README in the same pull request.
+
+- Update docs under `docs/source` when behavior, inputs/outputs, configuration, environment variables, supported versions, CLI/entry points, defaults, or migration/deprecation notes change. Keep examples and code snippets in sync, update toctrees/cross-references, and refresh screenshots/diagrams when UI/output changes.
+- Update `README.md` for quickstart/installation, minimum supported versions, badges, primary usage examples, high-level configuration summary, and any copy-paste action usage snippets.
+- Validate before submitting:
+  - Run the docs validation task and ensure it passes with no warnings treated as errors: `make docs-check`.
+  - Ensure `CHANGELOG.md` has an Unreleased entry matching the change and, when relevant, links to updated docs.
+  - Confirm README and docs are consistent (no conflicting instructions).
+
 ## Changelog updates (Keep a Changelog)
 
 - Always update `CHANGELOG.md` whenever a change is user-facing. This includes, but isn’t limited to:
@@ -280,23 +292,6 @@ Use Sphinx with MyST Markdown (`.md`) to author documentation.
   - If a docs-only change is clearly user-facing, include it under Added/Changed (don’t hide it under internal changes).
 - Keep entries short, specific, and actionable. Use imperative mood and avoid implementation detail.
 
-## Documentation and README updates
-
-Whenever a change is user-facing, update the documentation and README in the same pull request.
-
-- What to update in docs (`docs/source`):
-  - Pages that reflect behavior, inputs/outputs, configuration, environment variables, supported versions, CLI/entry points, defaults, and migration/deprecation notes.
-  - Examples and code snippets to match new APIs, flags, defaults, or workflows.
-  - Toctree entries when adding/removing pages; fix cross-references and anchors.
-  - Screenshots/diagrams if UI or output changes are visible to users.
-- What to update in `README.md`:
-  - Quickstart/installation, minimum supported versions, badges, and primary usage examples.
-  - High-level configuration summary and links into the docs for details.
-  - Any action usage snippets or copy-paste examples so they remain accurate.
-- Validation before submitting the PR:
-  - Run the docs validation task and ensure it passes with no warnings treated as errors: `make docs-check`.
-  - Ensure `CHANGELOG.md` has an Unreleased entry matching the change and links to updated docs when relevant.
-  - Confirm README and docs are consistent (no conflicting instructions).
 
 
 ## Testing
@@ -402,21 +397,6 @@ Whenever a change is user-facing, update the documentation and README in the sam
       """).strip()
   ```
 
-## Guidelines for Comments
-
-- Comments should be EXPLANATORY: Explain *WHY* something is done a certain way and not
-  just *what* is done.
-
-- Comments should be CONCISE: Remove all extraneous words.
-
-- DO NOT use comments to state obvious things or repeat what is evident from the code.
-  Here is an example of a comment that SHOULD BE REMOVED because it simply repeats the
-  code, which is distracting and adds no value:
-  ```python
-  if self.failed == 0:
-      # All successful
-      return "All tasks finished successfully"
-  ```
 
 ## Guidelines for Docstrings
 
