@@ -1,0 +1,281 @@
+"""
+Convert Splunk AppInspect JSON reports to SARIF format for GitHub Code Scanning.
+
+SARIF (Static Analysis Results Interchange Format) is a standard JSON format
+for representing static analysis results. GitHub Code Scanning supports SARIF
+uploads for inline annotations and quality gates.
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any, cast
+
+import github_action_toolkit as gat
+
+
+class SARIFConverter:
+    """Convert AppInspect JSON reports to SARIF format."""
+
+    SARIF_VERSION = "2.1.0"
+    SARIF_SCHEMA = "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"
+
+    def __init__(
+        self,
+        tool_name: str = "Splunk AppInspect",
+        tool_version: str = "4.0.2",
+    ) -> None:
+        """
+        Initialize SARIF converter.
+
+        Args:
+            tool_name: Name of the analysis tool
+            tool_version: Version of the analysis tool
+        """
+        self.tool_name = tool_name
+        self.tool_version = tool_version
+
+    def convert_to_sarif(
+        self,
+        appinspect_json_path: str | Path,
+        check_type: str = "APP_INSPECT",
+    ) -> dict[str, Any]:
+        """
+        Convert AppInspect JSON report to SARIF format.
+
+        Args:
+            appinspect_json_path: Path to AppInspect JSON report
+            check_type: Type of check (APP_INSPECT, CLOUD_INSPECT, SSAI_INSPECT)
+
+        Returns:
+            SARIF report as dictionary
+        """
+        gat.debug(f"Converting AppInspect report to SARIF: {appinspect_json_path}")
+
+        # Load AppInspect report
+        with open(appinspect_json_path) as f:
+            appinspect_data_raw = json.load(f)
+            if not isinstance(appinspect_data_raw, dict):
+                gat.error("Unexpected AppInspect report format: root is not a dict")
+                return self._create_empty_sarif()
+            appinspect_data: dict[str, Any] = cast(dict[str, Any], appinspect_data_raw)
+
+        # Create SARIF structure
+        sarif = {
+            "$schema": self.SARIF_SCHEMA,
+            "version": self.SARIF_VERSION,
+            "runs": [
+                {
+                    "tool": {
+                        "driver": {
+                            "name": f"{self.tool_name} ({check_type})",
+                            "version": self.tool_version,
+                            "informationUri": "https://dev.splunk.com/enterprise/docs/developapps/testvalidate/appinspect/",
+                            "rules": self._extract_rules(appinspect_data),
+                        }
+                    },
+                    "results": self._convert_results(appinspect_data),
+                }
+            ],
+        }
+
+        return sarif
+
+    def _create_empty_sarif(self) -> dict[str, Any]:
+        """Create an empty SARIF report."""
+        return {
+            "$schema": self.SARIF_SCHEMA,
+            "version": self.SARIF_VERSION,
+            "runs": [
+                {
+                    "tool": {
+                        "driver": {
+                            "name": self.tool_name,
+                            "version": self.tool_version,
+                            "informationUri": "https://dev.splunk.com/enterprise/docs/developapps/testvalidate/appinspect/",
+                            "rules": [],
+                        }
+                    },
+                    "results": [],
+                }
+            ],
+        }
+
+    def _extract_rules(self, appinspect_data: dict[str, Any]) -> list[dict[str, Any]]:
+        """
+        Extract rules from AppInspect report.
+
+        Each unique check name becomes a SARIF rule.
+        """
+        reports = appinspect_data.get("reports", [])
+        if not isinstance(reports, list):
+            return []
+
+        rules: dict[str, dict[str, Any]] = {}
+        for report in reports:
+            if not isinstance(report, dict):
+                continue
+
+            check_name = str(report.get("name", "unknown_check"))
+            if check_name not in rules:
+                # Extract check metadata
+                description = str(report.get("description", ""))
+                tags = report.get("tags", [])
+                if not isinstance(tags, list):
+                    tags = []
+
+                rules[check_name] = {
+                    "id": check_name,
+                    "name": check_name,
+                    "shortDescription": {"text": description[:100] if description else check_name},
+                    "fullDescription": {"text": description if description else check_name},
+                    "helpUri": "https://dev.splunk.com/enterprise/docs/developapps/testvalidate/appinspect/",
+                    "properties": {
+                        "tags": [str(t) for t in tags],
+                    },
+                }
+
+        return list(rules.values())
+
+    def _convert_results(self, appinspect_data: dict[str, Any]) -> list[dict[str, Any]]:
+        """
+        Convert AppInspect check results to SARIF results.
+
+        Maps AppInspect severity levels to SARIF levels:
+        - failure -> error
+        - error -> error
+        - warning -> warning
+        - manual_check -> note
+        - success -> note (but typically not reported)
+        """
+        reports = appinspect_data.get("reports", [])
+        if not isinstance(reports, list):
+            return []
+
+        sarif_results: list[dict[str, Any]] = []
+
+        for report in reports:
+            if not isinstance(report, dict):
+                continue
+
+            result_type = str(report.get("result", "unknown"))
+            check_name = str(report.get("name", "unknown_check"))
+
+            # Only convert failures, errors, and warnings to SARIF results
+            # Success and not_applicable don't need to be reported
+            if result_type not in ["failure", "error", "warning", "manual_check"]:
+                continue
+
+            # Map AppInspect result to SARIF level
+            level = self._map_result_to_level(result_type)
+
+            # Extract messages
+            messages = report.get("messages", [])
+            if not isinstance(messages, list):
+                messages = []
+
+            # Extract file locations from messages
+            message_texts = []
+            locations: list[dict[str, Any]] = []
+
+            for msg in messages:
+                if not isinstance(msg, dict):
+                    continue
+
+                message_text = str(msg.get("message", ""))
+                if message_text:
+                    message_texts.append(message_text)
+
+                # Extract file path and line number if available
+                file_path = msg.get("filename") or msg.get("file_path")
+                line_number = msg.get("line_number") or msg.get("line")
+
+                if file_path:
+                    location: dict[str, Any] = {
+                        "physicalLocation": {
+                            "artifactLocation": {"uri": str(file_path)},
+                        }
+                    }
+
+                    # Add line number if available
+                    if line_number:
+                        try:
+                            line_num = int(line_number)
+                            location["physicalLocation"]["region"] = {
+                                "startLine": line_num,
+                            }
+                        except (ValueError, TypeError):
+                            pass
+
+                    locations.append(location)
+
+            # Combine all message texts
+            combined_message = "\n".join(message_texts) if message_texts else "Check failed"
+
+            # Create SARIF result
+            sarif_result: dict[str, Any] = {
+                "ruleId": check_name,
+                "level": level,
+                "message": {"text": combined_message},
+            }
+
+            # Add locations if available
+            if locations:
+                sarif_result["locations"] = locations
+            else:
+                # If no specific location, create a placeholder
+                sarif_result["locations"] = [
+                    {
+                        "physicalLocation": {
+                            "artifactLocation": {"uri": "app/"},
+                        }
+                    }
+                ]
+
+            sarif_results.append(sarif_result)
+
+        return sarif_results
+
+    def _map_result_to_level(self, result_type: str) -> str:
+        """
+        Map AppInspect result type to SARIF level.
+
+        SARIF levels: error, warning, note, none
+        """
+        mapping = {
+            "failure": "error",
+            "error": "error",
+            "warning": "warning",
+            "manual_check": "note",
+        }
+        return mapping.get(result_type, "warning")
+
+    def save_sarif(self, sarif_data: dict[str, Any], output_path: str | Path) -> None:
+        """
+        Save SARIF data to file.
+
+        Args:
+            sarif_data: SARIF report dictionary
+            output_path: Path to save SARIF file
+        """
+        with open(output_path, "w") as f:
+            json.dump(sarif_data, f, indent=2)
+        gat.info(f"SARIF report saved to: {output_path}")
+
+    def convert_and_save(
+        self,
+        appinspect_json_path: str | Path,
+        output_path: str | Path,
+        check_type: str = "APP_INSPECT",
+    ) -> None:
+        """
+        Convert AppInspect JSON to SARIF and save to file.
+
+        Args:
+            appinspect_json_path: Path to AppInspect JSON report
+            output_path: Path to save SARIF file
+            check_type: Type of check (APP_INSPECT, CLOUD_INSPECT, SSAI_INSPECT)
+        """
+        sarif_data = self.convert_to_sarif(appinspect_json_path, check_type)
+        self.save_sarif(sarif_data, output_path)

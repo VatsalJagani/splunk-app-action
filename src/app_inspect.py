@@ -11,7 +11,9 @@ import github_action_toolkit as gat
 import requests
 from requests.auth import HTTPBasicAuth
 
+from github_check_runs import create_check_runs_for_appinspect
 from helpers.saved_values import AppInfo, SavedPaths
+from sarif_converter import SARIFConverter
 
 TIMEOUT_MAX = 240
 
@@ -320,6 +322,9 @@ class SplunkLocalAppInspect:
         self.app_inspect_result: list[str] = ["Running", "Running", "Running"]
         # For Above  ->  app_inspect_result, cloud_inspect_result, ssai_inspect_result
 
+        # Store summaries for Check Runs
+        self.appinspect_summaries: list[tuple[str, dict[str, Any]]] = []
+
         os.chdir(saved_paths.root_dir_path)
 
     def _run_local_inspect(self, check_type: str = "APP_INSPECT") -> str:
@@ -402,6 +407,11 @@ class SplunkLocalAppInspect:
             html_report_path = os.path.join(self.app_inspect_report_dir, html_report_name)
             self._generate_html_report(report_data, html_report_path, check_type)
 
+            # Generate SARIF report
+            sarif_report_name = report_file_name.replace(".json", ".sarif")
+            sarif_report_path = os.path.join(self.app_inspect_report_dir, sarif_report_name)
+            self._generate_sarif_report(report_data, sarif_report_path, check_type)
+
             # Determine status based on report summary
             summary_val = report_data.get("summary")
             summary: dict[str, Any] = (
@@ -409,6 +419,10 @@ class SplunkLocalAppInspect:
                 if isinstance(summary_val, dict)
                 else dict[str, Any]()
             )
+
+            # Store summary for Check Runs
+            self.appinspect_summaries.append((check_type, summary))
+
             failure_count = int(summary.get("failure", 0))
             error_count = int(summary.get("error", 0))
 
@@ -524,6 +538,28 @@ class SplunkLocalAppInspect:
         except Exception as e:
             gat.warning(f"Could not generate HTML report: {e}")
 
+    def _generate_sarif_report(
+        self, report_data: dict[str, Any], sarif_path: str, check_type: str
+    ) -> None:
+        """Generate SARIF report from AppInspect JSON data"""
+        try:
+            # Create a temporary JSON file from report_data
+            temp_json_path = sarif_path.replace(".sarif", "_temp.json")
+            with open(temp_json_path, "w") as f:
+                json.dump(report_data, f)
+
+            # Convert to SARIF
+            converter = SARIFConverter()
+            converter.convert_and_save(temp_json_path, sarif_path, check_type)
+
+            # Clean up temporary file
+            os.remove(temp_json_path)
+
+            gat.debug(f"SARIF report generated: {sarif_path}")
+
+        except Exception as e:
+            gat.warning(f"Could not generate SARIF report: {e}")
+
     def _perform_app_inspect_check(self) -> None:
         gat.info("Starting local app-inspect checks...")
         status = "Error"
@@ -596,4 +632,25 @@ class SplunkLocalAppInspect:
             else:
                 msg = f"Local Splunk app inspect checks failed - results: [app-inspect: {self.app_inspect_result[0]}, cloud-checks: {self.app_inspect_result[1]}, ssai-checks: {self.app_inspect_result[2]}]"
                 gat.error(msg)
+
+            # Create GitHub Check Runs for quality gates
+            if self.appinspect_summaries:
+                gat.info("Creating GitHub Check Runs for quality gates...")
+                try:
+                    # Get quality gate thresholds from environment or use defaults
+                    max_errors = int(os.environ.get("INPUT_APPINSPECT_MAX_ERRORS", "0"))
+                    max_warnings = int(os.environ.get("INPUT_APPINSPECT_MAX_WARNINGS", "10"))
+
+                    create_check_runs_for_appinspect(
+                        self.appinspect_summaries,
+                        max_errors=max_errors,
+                        max_warnings=max_warnings,
+                    )
+                except Exception as e:
+                    gat.warning(f"Failed to create GitHub Check Runs: {e}")
+                    gat.debug(traceback.format_exc())
+
+            # Raise exception if checks failed
+            if not all(i == "Passed" for i in self.app_inspect_result):
+                msg = f"Local Splunk app inspect checks failed - results: [app-inspect: {self.app_inspect_result[0]}, cloud-checks: {self.app_inspect_result[1]}, ssai-checks: {self.app_inspect_result[2]}]"
                 raise Exception(msg)

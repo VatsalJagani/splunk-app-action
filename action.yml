@@ -44,6 +44,26 @@ inputs:
     required: false
     default: false
 
+  appinspect_max_errors:
+    description: "Maximum number of AppInspect errors allowed before failing the quality gate. Set to 0 to fail on any errors (default: 0)."
+    required: false
+    default: "0"
+
+  appinspect_max_warnings:
+    description: "Maximum number of AppInspect warnings allowed before failing the quality gate. Set higher to be more permissive (default: 10)."
+    required: false
+    default: "10"
+
+  enable_sarif_reports:
+    description: "Generate SARIF (Static Analysis Results Interchange Format) reports for GitHub Code Scanning integration. Default: true."
+    required: false
+    default: true
+
+  enable_check_runs:
+    description: "Create GitHub Check Runs for merge gating based on AppInspect results. Requires GITHUB_TOKEN with checks:write permission. Default: true."
+    required: false
+    default: true
+
   app_utilities:
     description: "Add comma separated list of utilities to use. You need to enable read and write permission for workflow to create Pull Requests. Valid options: whats_in_the_app, logger, splunk_python_sdk, common_js_utilities, ucc_additional_packaging"
     required: false
@@ -132,6 +152,10 @@ runs:
         INPUT_SPLUNKBASE_USERNAME: ${{inputs.splunkbase_username}}
         INPUT_SPLUNKBASE_PASSWORD: ${{inputs.splunkbase_password}}
         INPUT_LOCAL_APP_INSPECT: ${{inputs.local_app_inspect}}
+        INPUT_APPINSPECT_MAX_ERRORS: ${{inputs.appinspect_max_errors}}
+        INPUT_APPINSPECT_MAX_WARNINGS: ${{inputs.appinspect_max_warnings}}
+        INPUT_ENABLE_SARIF_REPORTS: ${{inputs.enable_sarif_reports}}
+        INPUT_ENABLE_CHECK_RUNS: ${{inputs.enable_check_runs}}
         INPUT_APP_UTILITIES: ${{inputs.app_utilities}}
         GITHUB_TOKEN: ${{inputs.my_github_token}}
         INPUT_CURRENT_BRANCH_NAME: ${{steps.extract_branch.outputs.branch}}
@@ -156,3 +180,11 @@ runs:
       with:
         name: "App-Inspect-Reports-${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}"
         path: ${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}_reports
+
+    - name: "Upload SARIF reports to GitHub Code Scanning"
+      uses: github/codeql-action/upload-sarif@v3
+      if: always() && inputs.enable_sarif_reports == 'true'
+      with:
+        sarif_file: ${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}_reports
+        category: splunk-appinspect
+      continue-on-error: true
