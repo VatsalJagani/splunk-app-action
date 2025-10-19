@@ -19,6 +19,23 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 - **Description:** Use ucc-gen command to generate the build for Add-on. The 'app_dir' folder must have a sub-folder named 'package', and a file named 'globalConfig.json' for this to work.
 - **Required:** false
 - **Default:** false
+- **⚠️ Note:** Cannot be used together with `python_requirements_file` or `splunk_python_sdk` utility.
+
+### `python_requirements_file`
+- **Description:** Path to the requirements.txt file for Python dependency management. **Path is relative to app_dir.** Dependencies will be installed in the same directory as the requirements file. If the requirements file is in the app root, a `lib` subdirectory is automatically created. **Important:** The directory containing the requirements.txt file will be cleaned before installation, and the requirements.txt file itself will be removed after dependency installation.
+- **Required:** false
+- **Default:** "" (disabled)
+- **Example:** `"lib/requirements.txt"` (recommended), `"dependencies/requirements.txt"`, or `"requirements.txt"` (auto-creates lib/)
+- **Path behavior:**
+  - `lib/requirements.txt` → installs dependencies to `lib/`
+  - `dependencies/requirements.txt` → installs dependencies to `dependencies/`
+  - `requirements.txt` → installs dependencies to `lib/` (auto-created)
+- **Benefits:**
+  - Enables GitHub Dependabot for automatic dependency updates
+  - Keeps repository clean without third-party code
+  - Automatically cleans up dangling code and cache files
+  - Removes requirements.txt from the final build
+- **⚠️ Note:** Cannot be used together with `use_ucc_gen` or `splunk_python_sdk` utility.
 
 ## App-Inspect Inputs
 
@@ -45,6 +62,7 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 - **Default:** "" (no utilities)
 - **Valid options:** `whats_in_the_app`, `logger`, `splunk_python_sdk`, `common_js_utilities`, `ucc_additional_packaging`
 - **Example:** `"whats_in_the_app,logger,splunk_python_sdk"`
+- **⚠️ Note:** The `splunk_python_sdk` utility cannot be used together with `python_requirements_file` or `use_ucc_gen`.
 
 ### `my_github_token`
 - **Description:** GitHub Secret Token to automatically create Pull request. Make sure to put it in the Repo secret on GitHub as `MY_GITHUB_TOKEN` and then use it like `${{ secrets.MY_GITHUB_TOKEN }}`. Do not write it in plain text. Only required if app_utilities is being used.

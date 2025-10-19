@@ -48,6 +48,136 @@ Supports Add-on build with **UCC Add-on Generator** using the `ucc-gen build` co
 You must run `ucc-gen init` locally first to set up the proper UCC structure before using this GitHub Action. See the [UCC Framework documentation](https://splunk.github.io/addonfactory-ucc-generator/quickstart/) for details.
 ```
 
+```{important}
+**Mutually Exclusive Feature:** UCC-Gen cannot be used together with Python Dependency Manager (`python_requirements_file`) or Splunk Python SDK utility (`splunk_python_sdk`). The workflow will fail if multiple features are enabled.
+```
+
+---
+
+## Python Dependency Manager
+
+Manage Python dependencies for your Splunk Apps and Add-ons using a `requirements.txt` file. Dependencies are automatically installed at build time, keeping your repository clean and enabling automated dependency updates through GitHub Dependabot.
+
+### Key Benefits
+
+- ✅ **GitHub Dependabot Integration** - Automatically receive pull requests for dependency updates
+- ✅ **Clean Repository** - No third-party code committed to your repository
+- ✅ **Automatic Cleanup** - Removes dangling code and cache files (`.pyc`, `__pycache__`)
+- ✅ **Build-Time Installation** - Dependencies installed to `lib` folder during build process
+- ✅ **Easy Maintenance** - Single file to manage all Python dependencies
+
+### Basic Usage
+
+```yaml
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    python_requirements_file: "lib/requirements.txt"  # Path relative to app_dir
+```
+
+### Setup Instructions
+
+1. Create a `requirements.txt` file in a subdirectory within your app (e.g., `lib/requirements.txt`):
+   ```
+   requests==2.31.0
+   beautifulsoup4==4.12.2
+   lxml==4.9.3
+   ```
+   
+   **Note:** The path to requirements.txt should be relative to your app_dir. Dependencies will be installed in the same directory as the requirements file.
+
+2. Add the action to your workflow with the `python_requirements_file` parameter:
+   ```yaml
+   - uses: VatsalJagani/splunk-app-action@v4
+     with:
+       app_dir: "my_splunk_app"
+       python_requirements_file: "lib/requirements.txt"  # Path relative to app_dir
+       splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+       splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+   ```
+
+3. (Optional) Enable GitHub Dependabot by adding `.github/dependabot.yml`:
+   ```yaml
+   version: 2
+   updates:
+     - package-ecosystem: "pip"
+       directory: "/my_splunk_app"
+       schedule:
+         interval: "weekly"
+   ```
+
+### Advanced Configuration
+
+You can specify a different requirements file path (always relative to app_dir):
+```yaml
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    python_requirements_file: "dependencies/production.txt"  # Dependencies installed to dependencies/
+```
+
+**Note:** Dependencies will be installed in the same directory as the requirements file. For example:
+- `lib/requirements.txt` → installs to `lib/`
+- `dependencies/requirements.txt` → installs to `dependencies/`
+- `requirements.txt` → installs to `lib/` (creates lib subdirectory automatically)
+
+### How It Works
+
+1. The action copies your app directory to a temporary build location
+2. Determines the target directory from the requirements file path (e.g., `lib/requirements.txt` → target is `lib/`)
+3. Cleans the target directory (removes all existing files)
+4. Runs `pip install -r requirements.txt --target <target_directory>` to install dependencies
+5. Cleans up `.pyc` files and `__pycache__` directories
+6. Removes requirements.txt file from the build
+7. Proceeds with normal build generation
+
+**Path Handling:**
+- The `python_requirements_file` path is **relative to app_dir**
+- Dependencies are installed in the same directory as the requirements file
+- If requirements.txt is in the app root, a `lib/` subdirectory is automatically created.
+
+The target folder is automatically added to Python's import path in Splunk, so your scripts can import the dependencies normally:
+```python
+import requests
+from bs4 import BeautifulSoup
+```
+
+```{note}
+**Cleanup Behavior:**
+- The directory containing requirements.txt will be cleaned before installing dependencies
+- The requirements.txt file will be removed from the final build package
+- This ensures a clean build without any leftover files or dependencies
+```
+
+### Important Notes
+
+```{important}
+**Mutually Exclusive Feature:** Python Dependency Manager cannot be used together with:
+- UCC-Gen (`use_ucc_gen: true`)
+- Splunk Python SDK utility (`app_utilities: splunk_python_sdk`)
+
+The workflow will fail with a clear error message if multiple features are enabled.
+```
+
+```{tip}
+**Replicating Splunk Python SDK Installation:**
+You can use the Python Dependency Manager instead of the Splunk Python SDK utility by adding `splunk-sdk` to your requirements.txt:
+```text
+splunk-sdk==2.1.1
+```
+This provides the same functionality with the added benefits of Dependabot integration and version control.
+```
+
+```{note}
+The `lib` folder is automatically added to Python's import path in Splunk, so your scripts can import the dependencies normally:
+```python
+import requests
+from bs4 import BeautifulSoup
+# Or use Splunk SDK
+import splunklib.client as client
+```
+```
+
 ---
 
 ## File and Folder Permission Management
