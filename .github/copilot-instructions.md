@@ -351,6 +351,11 @@ Whenever a change is user-facing, update the documentation and README in the sam
     assert link.title == "Example"
   ```
 
+- Always add or update tests when introducing new functionality or changing user-facing behavior. Cover the happy path and at least one edge case for each new behavior.
+- Do not modify tests for purely non-behavioral changes (formatting, refactors without behavior change, comments). If test updates seem necessary for such changes, reconsider the code change or justify the behavior change explicitly.
+- Ensure the full test suite passes before considering a task complete. Use targeted runs for speed during development, but finish with the standard test task.
+
+
 ## Types and Type Annotations
 
 - Use modern union syntax: `str | None` instead of `Optional[str]`, `dict[str]` instead
