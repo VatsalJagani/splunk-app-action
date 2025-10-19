@@ -35,11 +35,27 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
   with:
     app_dir: "my_app"
     python_requirements_file: "lib/requirements.txt"
+
+# Using action outputs in workflows
+- id: build_step
+  uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+- name: Use build outputs
+  run: |
+    echo "Build: ${{ steps.build_step.outputs.artifact_name }}"
+    echo "Path: ${{ steps.build_step.outputs.build_path }}"
 ```
+
+## Requirements
+
+- **Operating System:** Linux-based GitHub Actions runners (ubuntu-latest, ubuntu-22.04, ubuntu-20.04)
+- **Note:** Windows and macOS runners are not supported
 
 ## Key Features
 
 - ✅ **Automatic Build Generation** - Creates `.tgz` artifacts for Splunk apps/add-ons
+- ✅ **Action Outputs** - Provides build path, artifact name, and app metadata for workflow integration
 - ✅ **Splunkbase App-Inspect** - Runs official app-inspect, cloud-inspect, and SSAI checks  
 - ✅ **Local App-Inspect** - Fast local validation with splunk-appinspect library (no credentials needed)
 - ✅ **UCC Add-on Support** - Full integration with UCC Generator framework

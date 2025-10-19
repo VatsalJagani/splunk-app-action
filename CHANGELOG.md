@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Enhanced Action Outputs** - New output variables for better workflow integration
+  - `build_path` - Full path to the generated build artifact (.tgz file)
+  - `artifact_name` - Name of the generated build artifact (e.g., my_app_1.0.0_1.tgz)
+  - `app_package_id` - The Splunk app package ID extracted from app.conf or globalConfig.json
+  - `app_version` - The app version number extracted from app.conf or globalConfig.json
+  - `app_build_number` - The app build number extracted from app.conf
+  - These outputs can be used in subsequent workflow steps for custom processing, release automation, or artifact management
+
+- **Operating System Support Documentation** - Explicit documentation about supported platforms
+  - Action is tested and supported on ubuntu-latest, ubuntu-22.04, and ubuntu-20.04
+  - Windows and macOS runners are not supported due to Linux-specific dependencies
+  - Clear guidance on required `runs-on` configuration
+
+- **Artifact Naming Documentation** - Comprehensive documentation of artifact naming patterns
+  - Build artifacts follow the pattern: `{app_package_id}_{version_encoded}_{build_number_encoded}.tgz`
+  - GitHub artifact uploads use: `App-Build-{app_package_id}_{version_encoded}_{build_number_encoded}`
+  - Inspect reports use: `App-Inspect-Reports-{app_package_id}_{version_encoded}_{build_number_encoded}`
+  - All special characters are encoded to underscores for filesystem and URL safety
+
 - **Python Dependency Manager** - New feature for managing Python dependencies from requirements.txt
   - New input parameter `python_requirements_file` to specify the path to requirements.txt file (relative to app_dir)
   - Dependencies are installed in the same directory as the requirements file (e.g., `lib/requirements.txt` → installs to `lib/`)

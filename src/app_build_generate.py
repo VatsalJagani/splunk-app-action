@@ -104,5 +104,7 @@ def generate_build(saved_paths: SavedPaths, app_info: AppInfo, app_build_dir_nam
         os.system(f"tar -czf {build_name} {app_info.package_id}")
 
         build_path = os.path.join(saved_paths.root_dir_path, build_name)
+        gat.set_output("build_path", build_path)
+        gat.set_output("artifact_name", build_name)
         gat.info("App build generation completed successfully")
         return build_path

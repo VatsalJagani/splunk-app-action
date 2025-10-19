@@ -31,10 +31,12 @@ class AppInfo:
     def __init__(self, package_id: str, version_number: str) -> None:
         self.package_id: str = package_id
         gat.set_env("app_package_id", package_id)
+        gat.set_output("app_package_id", package_id)
 
         self.version_number: str = version_number
         self.version_number_encoded: str = self.encode(version_number)
         gat.set_env("app_version_encoded", self.version_number_encoded)
+        gat.set_output("app_version", version_number)
 
         # These will be set later via set_build_number()
         self.build_number: str = ""
@@ -44,3 +46,4 @@ class AppInfo:
         self.build_number = build_number
         self.build_number_encoded = self.encode(build_number)
         gat.set_env("app_build_number_encoded", self.build_number_encoded)
+        gat.set_output("app_build_number", build_number)
