@@ -20,18 +20,33 @@ test:
 upgrade:
 	uv sync --upgrade --all-extras --dev
 
-agent-rules: CLAUDE.md AGENTS.md .copilot-instructions.md
+agent-rules: .cursorrules .clinerules .windsurfrules .github/copilot-instructions.md CLAUDE.md AGENTS.md
 
 # Use .cursor/rules for sources of rules.
-# Create Claude, Codex, and GitHub Copilot rules from these.
+# Create agent instruction files for all major AI coding assistants from the source rules.
+
+# Cursor rules file (standard location)
+.cursorrules: .cursor/rules/general.mdc .cursor/rules/python.mdc
+	cat .cursor/rules/general.mdc .cursor/rules/python.mdc > .cursorrules
+
+# Claude/Cline rules file
+.clinerules: .cursor/rules/general.mdc .cursor/rules/python.mdc
+	cat .cursor/rules/general.mdc .cursor/rules/python.mdc > .clinerules
+
+# Windsurf rules file
+.windsurfrules: .cursor/rules/general.mdc .cursor/rules/python.mdc
+	cat .cursor/rules/general.mdc .cursor/rules/python.mdc > .windsurfrules
+
+# GitHub Copilot instructions (new standard location)
+.github/copilot-instructions.md: .cursor/rules/general.mdc .cursor/rules/python.mdc
+	cat .cursor/rules/general.mdc .cursor/rules/python.mdc > .github/copilot-instructions.md
+
+# Legacy files (kept for backward compatibility)
 CLAUDE.md: .cursor/rules/general.mdc .cursor/rules/python.mdc
 	cat .cursor/rules/general.mdc .cursor/rules/python.mdc > CLAUDE.md
 
 AGENTS.md: .cursor/rules/general.mdc .cursor/rules/python.mdc
 	cat .cursor/rules/general.mdc .cursor/rules/python.mdc > AGENTS.md
-
-.copilot-instructions.md: .cursor/rules/general.mdc .cursor/rules/python.mdc
-	cat .cursor/rules/general.mdc .cursor/rules/python.mdc > .copilot-instructions.md
 
 clean:
 	-rm -rf dist/
@@ -44,7 +59,7 @@ clean:
 	-rm -rf src/splunk_app_action.egg-info
 	-rm -rf src/utilities/logger/props.conf_temp
 	-rm -rf temp_for_test
-	-rm -rf CLAUDE.md AGENTS.md .copilot-instructions.md
+	-rm -rf CLAUDE.md AGENTS.md .cursorrules .clinerules .windsurfrules .github/copilot-instructions.md
 	-find . -type d -name "__pycache__" -exec rm -rf {} +
 
 

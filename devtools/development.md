@@ -76,9 +76,12 @@ See [.cursor/rules](.cursor/rules) for agent rules.
 These rules are written for [Cursor](https://www.cursor.com/).
 However, they are also used by other agents.
 The Makefile will generate the following files from the same rules:
-- `CLAUDE.md` (for Claude AI)
-- `AGENTS.md` (for general agents)
-- `.copilot-instructions.md` (for GitHub Copilot)
+- `.cursorrules` (for Cursor - standard location)
+- `.clinerules` (for Claude/Cline)
+- `.windsurfrules` (for Windsurf)
+- `.github/copilot-instructions.md` (for GitHub Copilot - new standard location)
+- `CLAUDE.md` (for Claude AI - legacy)
+- `AGENTS.md` (for general agents - legacy)
 
 ```shell
 make agent-rules
