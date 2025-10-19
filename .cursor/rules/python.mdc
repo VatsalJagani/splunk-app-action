@@ -38,8 +38,11 @@ Always use full type annotations, generics, and other modern practices.
   
   # Run tests:
   make test
+
+  # Validate docs
+  make docs-check
   
-  # Run uv sync, lint, and test in one command:
+  # Run uv sync, lint, and test, docs-check in one command:
   make
   ```
 
@@ -94,6 +97,103 @@ Always use full type annotations, generics, and other modern practices.
 
 - ALWAYS use `@override` decorators to override methods from base classes.
   This is a modern Python practice and helps avoid bugs.
+
+
+## Linting, Formatting, and Type Checking
+
+This project uses a comprehensive set of tools to ensure code quality:
+
+- codespell: Automatically checks and fixes spelling errors in code and documentation. Runs with --write-changes, so typos are auto-fixed.
+- ruff check: Fast linter; runs with --fix to auto-fix where possible.
+- ruff format: Formatter compatible with Black; formats code and sorts imports.
+- basedpyright: Modern type checker; shows coverage stats with --stats.
+
+All these run together via `make lint`. It will:
+1. Fix spelling errors automatically
+2. Fix lint issues where possible
+3. Format all code consistently
+4. Check types and report any errors
+
+After `make lint`, address any remaining issues that couldn’t be auto-fixed. Prefer adding types over ignores; use `# pyright: ignore` only for justified false positives. See pyproject.toml for configured rules.
+
+For test files prefer to fix the test-cases issues first before coming to fix the linting and type-checking issues.
+As some type-checking issues are common for test-files, ignore specific rule for particular line in the test file. And if the same rule ignore needs to be ignores for more than 1 line then ignore it at file level.
+
+File level pyright ignore can be written in this format, example `# pyright: reportUnusedVariable=false`.
+Line specific pyright ignore can be written in this format, example `# pyright: ignore[reportMissingImports]`.
+
+
+## Documentation (Sphinx + MyST Markdown)
+
+Use Sphinx with MyST Markdown (`.md`) to author documentation.
+
+- Typical layout: a `docs/` directory with a `source/` (inputs) and `build/` (outputs) subdirectory.
+- Theme: choose a modern Sphinx theme (for example, Furo) suitable for your audience.
+- Parser/format: MyST Markdown via `myst_parser`.
+- Helpful extensions often include: `sphinx.ext.autodoc`, `sphinx.ext.napoleon`, `sphinx.ext.intersphinx`, `sphinx.ext.viewcode`, `sphinx.ext.doctest`, `sphinx_copybutton`, `sphinx_autodoc_typehints`, and a Mermaid plugin.
+- MyST features: enable the ones you need (e.g., `colon_fence` for colon directives, heading anchors for linkable headings).
+- Static assets: keep CSS/images under a static directory (commonly `_static/`).
+- Versioning: avoid hardcoding versions inside pages; prefer a single source of truth injected via Sphinx config.
+
+### Authoring guidelines
+
+- Write one H1 (`# Title`) per page. Use `##`/`###` for subsections.
+- Add each page to a toctree (commonly in the project’s main index page). Example:
+  ```md
+  ```{toctree}
+  :maxdepth: 2
+  :caption: Guide
+
+  overview
+  usage
+  troubleshooting
+  ```
+  ```
+- Prefer Sphinx roles over raw URLs for cross-references:
+  - Link to another page with `{doc}`: ``{doc}`overview``
+  - Use intersphinx for external APIs (e.g., ``:py:class:`pathlib.Path``).
+- Code blocks: use fenced blocks with language hints (`python`, `yaml`, `bash`, `json`) and keep examples copyable.
+- Admonitions: use MyST directives, for example:
+  ```md
+  ```{note}
+  Short helpful note.
+  ```
+  ```
+  or colon-fence syntax:
+
+  ::: tip
+  Friendly tip.
+  :::
+- Mermaid diagrams: use the MyST directive and ensure the extension is enabled:
+  ```md
+  ```{mermaid}
+  graph TD
+    A[Start] --> B{Build}
+    B -->|pass| C[Publish]
+    B -->|fail| D[Fix]
+  ```
+  ```
+- Images: store under a static folder and reference relatively, for example `![](./_static/img.png)`.
+
+### Build, validate, and preview
+
+- Validate docs with Sphinx, ideally treating warnings as errors:
+  ```bash
+  sphinx-build -W -b html docs/source docs/build
+  ```
+- Many projects expose a Makefile wrapper; if available, prefer that (for example, `make -C docs html`).
+- For live preview with auto-rebuild, use sphinx-autobuild:
+  ```bash
+  sphinx-autobuild -b html docs/source docs/build
+  ```
+
+### Common pitfalls and fixes
+
+- “Document isn’t included in any toctree” (orphan page): add the page to a toctree (often the main index page).
+- Broken anchors to headings: if heading anchors aren’t available, add explicit labels or use `{ref}`.
+- Unknown directive errors (admonitions/mermaid): verify the directive syntax and that the related extensions are enabled.
+- Version drift in content: centralize versioning via Sphinx config or a single source, and reference it in pages.
+- Image path issues: keep assets under a static directory and use correct relative paths from the page.
 
 ## Testing
 
