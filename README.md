@@ -10,12 +10,18 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
   with:
     app_dir: "my_app"
 
-# With app-inspect checks  
+# Build with app-inspect checks  
 - uses: VatsalJagani/splunk-app-action@v4
   with:
     app_dir: "my_app"
     splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
     splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+
+# Build with local app-inspect (faster, no credentials needed)
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    local_app_inspect: true
 
 # UCC Add-on build
 - uses: VatsalJagani/splunk-app-action@v4
@@ -35,6 +41,7 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
 
 - ✅ **Automatic Build Generation** - Creates `.tgz` artifacts for Splunk apps/add-ons
 - ✅ **Splunkbase App-Inspect** - Runs official app-inspect, cloud-inspect, and SSAI checks  
+- ✅ **Local App-Inspect** - Fast local validation with splunk-appinspect library (no credentials needed)
 - ✅ **UCC Add-on Support** - Full integration with UCC Generator framework
 - ✅ **Python Dependency Manager** - Manage dependencies via requirements.txt with Dependabot support
 - ✅ **Multi-App Repositories** - Build multiple apps from single repository

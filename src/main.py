@@ -10,7 +10,7 @@ import github_action_toolkit as gat
 import app_build_generate
 import python_dependency_manager
 import ucc_gen
-from app_inspect import SplunkAppInspect
+from app_inspect import SplunkAppInspect, SplunkLocalAppInspect
 from app_utilities import SplunkAppUtilities
 from helpers import splunk_app_details
 from helpers.saved_values import AppInfo, SavedPaths, keep_working_dir_unchanged
@@ -155,18 +155,27 @@ def main() -> None:
         is_app_inspect_check = gat.get_user_input_as("is_app_inspect_check", bool, True)
 
         if is_app_inspect_check:
-            splunkbase_username = gat.get_user_input("splunkbase_username")
-            splunkbase_password = gat.get_user_input("splunkbase_password")
+            local_app_inspect = gat.get_user_input_as("local_app_inspect", bool, False)
 
-            if splunkbase_username is None or splunkbase_password is None:
-                gat.error(
-                    "✅ splunkbase_username and splunkbase_password are required for app inspect."
-                )
-                return
+            if local_app_inspect:
+                # Use local app inspect with splunk-appinspect library
+                gat.info("Using local Splunk app inspect validation")
+                SplunkLocalAppInspect(saved_paths, app_info, build_path).run_all_checks()
+            else:
+                # Use Splunkbase API for app inspect
+                gat.info("Using Splunkbase API for Splunk app inspect validation")
+                splunkbase_username = gat.get_user_input("splunkbase_username")
+                splunkbase_password = gat.get_user_input("splunkbase_password")
 
-            SplunkAppInspect(
-                saved_paths, app_info, build_path, splunkbase_username, splunkbase_password
-            ).run_all_checks()
+                if splunkbase_username is None or splunkbase_password is None:
+                    gat.error(
+                        "✅ splunkbase_username and splunkbase_password are required for app inspect."
+                    )
+                    return
+
+                SplunkAppInspect(
+                    saved_paths, app_info, build_path, splunkbase_username, splunkbase_password
+                ).run_all_checks()
         else:
             gat.info("✅ App inspect checks disabled - skipping")
             return

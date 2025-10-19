@@ -77,3 +77,51 @@ class TestAppInspect(unittest.TestCase):
             splunkbase_password=SPLUNKBASE_PASSWORD_FOR_TEST,
         ):
             main()
+
+    def test_local_app_inspect_success_integration(self):
+        # Mock the local App Inspect related function _run_local_inspect
+        patcher_local_app_inspect = patch("app_inspect.SplunkLocalAppInspect._run_local_inspect")
+        mock_local_app_inspect = patcher_local_app_inspect.start()
+
+        def mock_local_app_inspect_fn(check_type: str = "APP_INSPECT") -> str:
+            print(
+                f"Mocked app_inspect.SplunkLocalAppInspect._run_local_inspect called with args: check_type={check_type}"
+            )
+            return "Passed"
+
+        mock_local_app_inspect.side_effect = mock_local_app_inspect_fn
+
+        with setup_action_yml(
+            "my_app_inspect_pass",
+            app_dir=".",
+            use_ucc_gen="false",
+            to_make_permission_changes="true",
+            is_app_inspect_check="true",
+            local_app_inspect="true",
+        ):
+            main()
+
+    def test_local_app_inspect_failure_integration(self):
+        # Mock the local App Inspect related function _run_local_inspect
+        patcher_local_app_inspect = patch("app_inspect.SplunkLocalAppInspect._run_local_inspect")
+        mock_local_app_inspect = patcher_local_app_inspect.start()
+
+        def mock_local_app_inspect_fn(check_type: str = "APP_INSPECT") -> str:
+            print(
+                f"Mocked app_inspect.SplunkLocalAppInspect._run_local_inspect called with args: check_type={check_type}"
+            )
+            return "Failure"
+
+        mock_local_app_inspect.side_effect = mock_local_app_inspect_fn
+
+        with setup_action_yml(
+            "my_app_inspect_fail",
+            app_dir=".",
+            use_ucc_gen="false",
+            is_app_inspect_check="true",
+            local_app_inspect="true",
+        ):
+            with pytest.raises(SystemExit) as pytest_wrapped_e:
+                main()
+            assert pytest_wrapped_e.type is SystemExit
+            assert pytest_wrapped_e.value.code == 5

@@ -54,6 +54,12 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 - **Required:** false  
 - **Usage:** Always use via GitHub secrets: `${{ secrets.SPLUNKBASE_PASSWORD }}`
 
+### `local_app_inspect`
+- **Description:** Use local Splunk App Inspect validation with splunk-appinspect Python library instead of the Splunkbase API. This is faster but may not be as up-to-date as the Splunkbase API. When enabled, splunkbase_username and splunkbase_password are not required.
+- **Required:** false
+- **Default:** false
+- **Note:** While local validation is faster, the Splunkbase API is recommended for production use as it reflects the most current validation rules used when submitting to Splunkbase.
+
 ## Utilities Inputs
 
 ### `app_utilities`

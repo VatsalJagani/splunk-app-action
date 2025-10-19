@@ -29,6 +29,7 @@ def setup_action_yml(
     is_app_inspect_check="true",
     splunkbase_username="NONE",
     splunkbase_password="NONE",
+    local_app_inspect="false",
     app_utilities="",
     my_github_token="NONE",
     current_branch="NONE",
@@ -68,6 +69,7 @@ def setup_action_yml(
     os.environ["INPUT_IS_APP_INSPECT_CHECK"] = is_app_inspect_check
     os.environ["INPUT_SPLUNKBASE_USERNAME"] = splunkbase_username
     os.environ["INPUT_SPLUNKBASE_PASSWORD"] = splunkbase_password
+    os.environ["INPUT_LOCAL_APP_INSPECT"] = local_app_inspect
     os.environ["INPUT_APP_UTILITIES"] = app_utilities
     os.environ["GITHUB_TOKEN"] = my_github_token
     os.environ["INPUT_CURRENT_BRANCH_NAME"] = current_branch

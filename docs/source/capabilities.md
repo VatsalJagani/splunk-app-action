@@ -288,24 +288,28 @@ Set environment variables `SPLUNK_APP_ACTION_<n>` to run commands before build g
 
 ## App-Inspect & Cloud Checks
 
-The action runs comprehensive app-inspect checks using the **Splunkbase API** for the most accurate and up-to-date validation.
+The action runs comprehensive app-inspect checks using either the **Splunkbase API** (recommended) or **local validation** with the splunk-appinspect Python library.
 
-### Why Splunkbase API?
+### Splunkbase API (Recommended)
+
+The Splunkbase API provides the most accurate and up-to-date validation as it's the same system used when submitting apps to Splunkbase.
+
+#### Why Splunkbase API?
 ```{note}
-We use the Splunkbase API instead of CLI versions because:
+We recommend the Splunkbase API because:
 - CLI versions are often outdated compared to the Splunkbase API
 - You would fail checks when uploading to Splunkbase if using outdated CLI tools
 - This provides the same validation as the actual Splunkbase submission process
 ```
 
-### Features:
+#### Features:
 - **App-Inspect checks** - Core Splunk app validation
 - **Cloud-Inspect checks** - Splunk Cloud compatibility validation  
 - **SSAI checks** - Splunk Security Analytics Integration validation
 - **HTML reports** generated as GitHub artifacts (available in Actions tab)
 - **Workflow failure** on any inspect errors or failures
 
-### Requirements:
+#### Requirements:
 - `splunkbase_username`: Your Splunkbase account username
 - `splunkbase_password`: Your Splunkbase account password (use GitHub secrets!)
 
@@ -315,6 +319,27 @@ We use the Splunkbase API instead of CLI versions because:
         app_dir: "my_app"
         splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
         splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+```
+
+### Local App Inspect (Faster Alternative)
+
+For faster validation during development, you can use local app inspect with the splunk-appinspect Python library. This doesn't require Splunkbase credentials.
+
+```{warning}
+Local app inspect may not be as up-to-date as the Splunkbase API. For production releases, we recommend using the Splunkbase API to ensure your app will pass validation when submitting to Splunkbase.
+```
+
+#### Features:
+- **Faster validation** - No API calls, runs locally
+- **No credentials required** - Doesn't need Splunkbase username/password
+- **Same check types** - Supports app-inspect, cloud-inspect, and SSAI checks
+- **JSON and HTML reports** generated as GitHub artifacts
+
+```yaml
+- uses: VatsalJagani/splunk-app-action@v4
+    with:
+        app_dir: "my_app"
+        local_app_inspect: true
 ```
 
 ### Disable App Inspect (Optional):
