@@ -33,6 +33,20 @@ mock_set_env_patcher = patcher_set_env.start()
 mock_set_env.side_effect = mock_set_env  # pyright: ignore[reportFunctionMemberAccess]
 
 
+# Mock the set_output function during the test
+def mock_set_output(name, value):
+    print(f"Mocked set_output called with args: name={name}, value={value}")
+    # Store in environment for verification if needed
+    os.environ[f"OUTPUT_{name}"] = str(value)
+
+
+patcher_set_output = patch("github_action_toolkit.set_output", side_effect=mock_set_output)
+mock_set_output_patcher = patcher_set_output.start()
+
+
+mock_set_output.side_effect = mock_set_output  # pyright: ignore[reportFunctionMemberAccess]
+
+
 # Mock the App Inspect API related function _api_login
 patcher_app_inspect_login = patch("app_inspect.SplunkAppInspect._api_login")
 mock_app_inspect_login = patcher_app_inspect_login.start()
