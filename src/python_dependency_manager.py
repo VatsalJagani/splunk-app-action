@@ -39,40 +39,50 @@ def install_dependencies(
 
     gat.debug(f"Installing dependencies from: {requirements_file_path}")
 
-    # Get the directory containing the requirements file
-    requirements_dir = os.path.dirname(requirements_file_path)
+    # Get the directory containing the requirements file - this is where dependencies will be installed
+    target_dir = os.path.dirname(requirements_file_path)
+
+    # If requirements file is in app root, create lib subdirectory
+    if target_dir == app_dir:
+        target_dir = os.path.join(app_dir, "lib")
+        gat.info(f"Requirements file is in app root, using lib subdirectory: {target_dir}")
 
     # Clean up the directory containing requirements.txt before installing dependencies
-    gat.info(f"Cleaning directory: {requirements_dir}")
-    for item in os.listdir(requirements_dir):
-        item_path = os.path.join(requirements_dir, item)
-        # Skip the requirements file itself and essential directories
-        if item == os.path.basename(python_requirements_file):
-            continue
-        # Skip essential Splunk directories to preserve app structure
-        if item in ["default", "metadata", "static", "appserver", "bin", "local", "lookups"]:
-            continue
-        try:
-            if os.path.isfile(item_path) or os.path.islink(item_path):
-                os.unlink(item_path)
-            elif os.path.isdir(item_path):
-                shutil.rmtree(item_path)
-            gat.debug(f"Removed: {item_path}")
-        except Exception as e:
-            gat.warning(f"Failed to remove {item_path}: {e}")
+    gat.info(f"Cleaning directory: {target_dir}")
+    if os.path.exists(target_dir):
+        for item in os.listdir(target_dir):
+            item_path = os.path.join(target_dir, item)
+            # Skip the requirements file itself
+            if item == os.path.basename(python_requirements_file):
+                continue
+            # Skip essential Splunk directories if we're cleaning the app root
+            if target_dir == app_dir and item in [
+                "default",
+                "metadata",
+                "static",
+                "appserver",
+                "bin",
+                "local",
+                "lookups",
+            ]:
+                continue
+            try:
+                if os.path.isfile(item_path) or os.path.islink(item_path):
+                    os.unlink(item_path)
+                elif os.path.isdir(item_path):
+                    shutil.rmtree(item_path)
+                gat.debug(f"Removed: {item_path}")
+            except Exception as e:
+                gat.warning(f"Failed to remove {item_path}: {e}")
+    else:
+        # Create the target directory if it doesn't exist
+        os.makedirs(target_dir)
 
-    # Install dependencies to lib folder inside app_dir
-    lib_dir = os.path.join(app_dir, "lib")
-    if os.path.exists(lib_dir):
-        gat.info(f"Removing existing lib directory: {lib_dir}")
-        shutil.rmtree(lib_dir)
-    os.makedirs(lib_dir)
-
-    gat.info(f"Installing Python dependencies to: {lib_dir}")
+    gat.info(f"Installing Python dependencies to: {target_dir}")
 
     # Run pip install with requirements.txt
     result = subprocess.run(
-        ["pip", "install", "-r", requirements_file_path, "--target", lib_dir],
+        ["pip", "install", "-r", requirements_file_path, "--target", target_dir],
         capture_output=True,
         text=True,
     )
@@ -85,8 +95,10 @@ def install_dependencies(
 
     # Clean up cache files
     gat.debug("Cleaning up cache files...")
-    subprocess.run(["find", lib_dir, "-name", "*.py[co]", "-type", "f", "-delete"], check=False)
-    subprocess.run(["find", lib_dir, "-name", "__pycache__", "-type", "d", "-delete"], check=False)
+    subprocess.run(["find", target_dir, "-name", "*.py[co]", "-type", "f", "-delete"], check=False)
+    subprocess.run(
+        ["find", target_dir, "-name", "__pycache__", "-type", "d", "-delete"], check=False
+    )
 
     # Remove requirements.txt file after installing dependencies
     gat.info(f"Removing requirements file: {requirements_file_path}")

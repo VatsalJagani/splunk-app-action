@@ -64,7 +64,7 @@ class TestPythonDependencyManager(unittest.TestCase):
         with setup_action_yml(
             "repo_python_deps",
             app_dir="my_app_3",
-            python_requirements_file="requirements.txt",
+            python_requirements_file="lib/requirements.txt",
             is_app_inspect_check="false",
         ):
             try:
@@ -83,7 +83,8 @@ class TestPythonDependencyManager(unittest.TestCase):
             # Verify basic app structure
             assert "my_app_3/default/app.conf" in all_files
             assert "my_app_3/README.md" in all_files
-            assert "my_app_3/requirements.txt" in all_files
+            # requirements.txt should be removed from build
+            assert "my_app_3/lib/requirements.txt" not in all_files
 
             # Verify lib folder was created
             assert "my_app_3/lib" in all_folders
@@ -110,7 +111,7 @@ class TestPythonDependencyManager(unittest.TestCase):
             "repo_python_deps",
             app_dir="my_app_3",
             use_ucc_gen="true",
-            python_requirements_file="requirements.txt",
+            python_requirements_file="lib/requirements.txt",
             is_app_inspect_check="false",
         ):
             # Should exit with error code 1
@@ -123,7 +124,7 @@ class TestPythonDependencyManager(unittest.TestCase):
         with setup_action_yml(
             "repo_python_deps",
             app_dir="my_app_3",
-            python_requirements_file="requirements.txt",
+            python_requirements_file="lib/requirements.txt",
             app_utilities="splunk_python_sdk",
             is_app_inspect_check="false",
         ):
@@ -137,7 +138,7 @@ class TestPythonDependencyManager(unittest.TestCase):
         with setup_action_yml(
             "repo_python_deps",
             app_dir="my_app_3",
-            python_requirements_file="nonexistent_requirements.txt",
+            python_requirements_file="lib/nonexistent_requirements.txt",
             is_app_inspect_check="false",
         ):
             # Should raise FileNotFoundError

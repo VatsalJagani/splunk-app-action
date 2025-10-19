@@ -107,8 +107,9 @@ jobs:
 
 ```{note}
 **Important Behavior:**
-- The directory containing requirements.txt will be cleaned before installation (except essential Splunk directories)
-- Dependencies are installed to the `lib` folder inside app_dir
+- The `python_requirements_file` path is **relative to app_dir**
+- Dependencies are installed in the same directory as the requirements file
+- The directory containing requirements.txt will be cleaned before installation
 - The requirements.txt file is removed from the final build package
 - This can replicate the splunk-python-sdk installation by adding `splunk-sdk` to requirements.txt
 ```
@@ -126,7 +127,7 @@ jobs:
       - uses: VatsalJagani/splunk-app-action@v4
         with:
           app_dir: "my_app"
-          python_requirements_file: "requirements.txt"
+          python_requirements_file: "lib/requirements.txt"  # Path relative to app_dir
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
           splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
@@ -137,7 +138,7 @@ Set up automatic dependency updates by adding `.github/dependabot.yml`:
 version: 2
 updates:
   - package-ecosystem: "pip"
-    directory: "/my_app"
+    directory: "/my_app/lib"  # Match the directory containing requirements.txt
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
@@ -156,12 +157,13 @@ jobs:
       - uses: VatsalJagani/splunk-app-action@v4
         with:
           app_dir: "my_app"
-          python_requirements_file: "requirements.txt"
+          python_requirements_file: "lib/requirements.txt"  # Path relative to app_dir
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
           splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
 
 ### Custom Requirements Path
+Dependencies will be installed in the same directory as the requirements file:
 ```yaml
 name: Build with Custom Requirements
 on: [push]
@@ -174,7 +176,7 @@ jobs:
       - uses: VatsalJagani/splunk-app-action@v4
         with:
           app_dir: "my_app"
-          python_requirements_file: "requirements/production.txt"
+          python_requirements_file: "dependencies/production.txt"  # Installs to dependencies/
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
           splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
@@ -196,9 +198,9 @@ jobs:
         id: reqs
         run: |
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            echo "file=requirements/production.txt" >> $GITHUB_OUTPUT
+            echo "file=lib/production.txt" >> $GITHUB_OUTPUT
           else
-            echo "file=requirements/development.txt" >> $GITHUB_OUTPUT
+            echo "file=lib/development.txt" >> $GITHUB_OUTPUT
           fi
       - uses: VatsalJagani/splunk-app-action@v4
         with:

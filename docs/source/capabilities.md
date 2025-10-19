@@ -72,24 +72,26 @@ Manage Python dependencies for your Splunk Apps and Add-ons using a `requirement
 - uses: VatsalJagani/splunk-app-action@v4
   with:
     app_dir: "my_app"
-    python_requirements_file: "requirements.txt"
+    python_requirements_file: "lib/requirements.txt"  # Path relative to app_dir
 ```
 
 ### Setup Instructions
 
-1. Create a `requirements.txt` file in your app directory:
+1. Create a `requirements.txt` file in a subdirectory within your app (e.g., `lib/requirements.txt`):
    ```
    requests==2.31.0
    beautifulsoup4==4.12.2
    lxml==4.9.3
    ```
+   
+   **Note:** The path to requirements.txt should be relative to your app_dir. Dependencies will be installed in the same directory as the requirements file.
 
 2. Add the action to your workflow with the `python_requirements_file` parameter:
    ```yaml
    - uses: VatsalJagani/splunk-app-action@v4
      with:
        app_dir: "my_splunk_app"
-       python_requirements_file: "requirements.txt"
+       python_requirements_file: "lib/requirements.txt"  # Path relative to app_dir
        splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
        splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
    ```
@@ -106,25 +108,35 @@ Manage Python dependencies for your Splunk Apps and Add-ons using a `requirement
 
 ### Advanced Configuration
 
-You can specify a different requirements file path:
+You can specify a different requirements file path (always relative to app_dir):
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v4
   with:
     app_dir: "my_app"
-    python_requirements_file: "requirements/production.txt"
+    python_requirements_file: "dependencies/production.txt"  # Dependencies installed to dependencies/
 ```
+
+**Note:** Dependencies will be installed in the same directory as the requirements file. For example:
+- `lib/requirements.txt` → installs to `lib/`
+- `dependencies/requirements.txt` → installs to `dependencies/`
+- `requirements.txt` → installs to `lib/` (creates lib subdirectory automatically)
 
 ### How It Works
 
 1. The action copies your app directory to a temporary build location
-2. Cleans the directory containing the requirements.txt file (removes all files except essential Splunk directories like `default`, `metadata`, `bin`, etc.)
-3. Creates a `lib` folder inside your app directory (removes it first if it already exists)
-4. Runs `pip install -r requirements.txt --target lib/` to install all dependencies
+2. Determines the target directory from the requirements file path (e.g., `lib/requirements.txt` → target is `lib/`)
+3. Cleans the target directory (removes all existing files)
+4. Runs `pip install -r requirements.txt --target <target_directory>` to install dependencies
 5. Cleans up `.pyc` files and `__pycache__` directories
-6. Removes the requirements.txt file from the build
+6. Removes requirements.txt file from the build
 7. Proceeds with normal build generation
 
-The `lib` folder is automatically added to Python's import path in Splunk, so your scripts can import the dependencies normally:
+**Path Handling:**
+- The `python_requirements_file` path is **relative to app_dir**
+- Dependencies are installed in the same directory as the requirements file
+- If requirements.txt is in the app root, a `lib/` subdirectory is automatically created
+
+The target folder is automatically added to Python's import path in Splunk, so your scripts can import the dependencies normally:
 ```python
 import requests
 from bs4 import BeautifulSoup
@@ -132,8 +144,8 @@ from bs4 import BeautifulSoup
 
 ```{note}
 **Cleanup Behavior:**
-- The directory containing requirements.txt will be cleaned before installing dependencies (except essential Splunk directories)
-- The existing `lib` folder will be removed and recreated
+- The directory containing requirements.txt will be cleaned before installing dependencies
+- If requirements.txt is in the app root, only the lib subdirectory is cleaned (essential Splunk directories are preserved)
 - The requirements.txt file will be removed from the final build package
 - This ensures a clean build without any leftover files or dependencies
 ```
