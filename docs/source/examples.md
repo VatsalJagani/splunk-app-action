@@ -346,6 +346,57 @@ jobs:
 
 ## Advanced Workflows
 
+### Using Action Outputs
+
+The action provides several output variables that you can use in subsequent workflow steps for automation and integration:
+
+```yaml
+name: Build with Output Integration
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - id: build_app
+        uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+          splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+      
+      # Use outputs for automation
+      - name: Display Build Information
+        run: |
+          echo "✅ Build successful!"
+          echo "📦 Artifact: ${{ steps.build_app.outputs.artifact_name }}"
+          echo "🆔 App ID: ${{ steps.build_app.outputs.app_package_id }}"
+          echo "📌 Version: ${{ steps.build_app.outputs.app_version }}"
+          echo "🔢 Build: ${{ steps.build_app.outputs.app_build_number }}"
+          echo "📁 Path: ${{ steps.build_app.outputs.build_path }}"
+      
+      # Upload to GitHub Release
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ steps.build_app.outputs.build_path }}
+          name: Release ${{ steps.build_app.outputs.app_version }}
+          body: |
+            Release of ${{ steps.build_app.outputs.app_package_id }} version ${{ steps.build_app.outputs.app_version }}
+            Build number: ${{ steps.build_app.outputs.app_build_number }}
+      
+      # Upload with custom naming
+      - name: Upload to Custom Location
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.build_app.outputs.app_package_id }}-v${{ steps.build_app.outputs.app_version }}
+          path: ${{ steps.build_app.outputs.build_path }}
+          retention-days: 90
+```
+
 ### Conditional Builds
 ```yaml
 name: Conditional Build
