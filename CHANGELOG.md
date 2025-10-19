@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Pipeline Trust & Quality Gates** - New features for merge gating and inline feedback
+  - **SARIF Reports** - Automatically generate SARIF (Static Analysis Results Interchange Format) reports from AppInspect results for GitHub Code Scanning integration
+  - **GitHub Check Runs** - Create Check Runs that appear in PR interface for merge blocking based on quality gates
+  - **Quality Gate Thresholds** - Configure maximum allowed errors and warnings via `appinspect_max_errors` (default: 0) and `appinspect_max_warnings` (default: 10)
+  - **Inline Annotations** - See AppInspect issues directly in pull request diffs with file and line-level precision
+  - **Merge Blocking** - Prevent merges when AppInspect results exceed configured thresholds
+  - New input parameters:
+    - `appinspect_max_errors` - Maximum errors allowed before failing (default: "0")
+    - `appinspect_max_warnings` - Maximum warnings allowed before failing (default: "10")
+    - `enable_sarif_reports` - Enable SARIF report generation (default: true)
+    - `enable_check_runs` - Enable GitHub Check Runs (default: true)
+  - SARIF reports automatically uploaded to GitHub Code Scanning
+  - Check Runs show summary of failures, errors, and warnings with quality gate status
+  - Compatible with both local and Splunkbase API AppInspect modes
+
 - **Enhanced Action Outputs** - New output variables for better workflow integration
   - `build_path` - Full path to the generated build artifact (.tgz file)
   - `artifact_name` - Name of the generated build artifact (e.g., my_app_1.0.0_1.tgz)

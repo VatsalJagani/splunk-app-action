@@ -349,6 +349,134 @@ Local app inspect may not be as up-to-date as the Splunkbase API. For production
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v4
     with:
+        app_dir: "my_app"
+        is_app_inspect_check: false
+```
+
+---
+
+## Pipeline Trust & Quality Gates
+
+The action provides advanced pipeline trust features using **SARIF reports** and **GitHub Check Runs** for merge gating and inline code feedback.
+
+### SARIF Reports
+
+**SARIF (Static Analysis Results Interchange Format)** is a standard JSON format for representing static analysis results. The action automatically converts AppInspect results to SARIF format and uploads them to GitHub Code Scanning.
+
+#### Benefits:
+- 📍 **Inline Annotations** - See AppInspect issues directly in your pull request diffs
+- 🔒 **Security Integration** - Results appear in GitHub's Security tab
+- 📊 **Trend Analysis** - Track issues over time across branches
+- 🎯 **Precise Feedback** - File and line-level issue reporting
+
+#### Automatic Upload:
+SARIF reports are automatically generated and uploaded for both local and API-based AppInspect checks. No additional configuration required!
+
+```yaml
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    local_app_inspect: true
+    # SARIF reports are automatically generated and uploaded
+```
+
+#### Disable SARIF (Optional):
+```yaml
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    enable_sarif_reports: false
+```
+
+### GitHub Check Runs & Merge Gating
+
+**GitHub Check Runs** provide quality gates that can block merges based on AppInspect results. Check Runs appear prominently in the PR interface, giving clear pass/fail status.
+
+#### Features:
+- ✅ **Merge Blocking** - Prevent merges when quality gates fail
+- 🎚️ **Configurable Thresholds** - Set maximum errors and warnings
+- 📈 **Clear Status** - Pass/fail displayed in PR checks section
+- 🔔 **Fast Feedback** - Developers see results immediately in PR
+
+#### Quality Gate Configuration:
+
+Control merge gating by setting error and warning thresholds:
+
+```yaml
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    local_app_inspect: true
+    appinspect_max_errors: "0"      # Fail on any errors (default)
+    appinspect_max_warnings: "10"   # Allow up to 10 warnings (default)
+```
+
+#### Strict Quality Gates:
+```yaml
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+    splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+    appinspect_max_errors: "0"    # No errors allowed
+    appinspect_max_warnings: "0"  # No warnings allowed
+```
+
+#### Permissive Quality Gates:
+```yaml
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    local_app_inspect: true
+    appinspect_max_errors: "5"    # Allow up to 5 errors
+    appinspect_max_warnings: "20" # Allow up to 20 warnings
+```
+
+#### GitHub Token Permissions:
+For Check Runs to work, ensure your workflow has the necessary permissions:
+
+```yaml
+name: Build and Inspect
+on: [push, pull_request]
+
+permissions:
+  contents: read
+  checks: write        # Required for Check Runs
+  security-events: write  # Required for SARIF uploads
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          local_app_inspect: true
+```
+
+#### Disable Check Runs (Optional):
+```yaml
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    enable_check_runs: false
+```
+
+```{note}
+**Check Runs and SARIF work together:**
+- SARIF provides inline annotations on code
+- Check Runs provide merge gating at the PR level
+- Both features enhance developer feedback and enforce quality standards
+```
+
+```{tip}
+**Branch Protection Rules:**
+You can configure branch protection rules in GitHub to require Check Runs to pass before merging. Go to Settings → Branches → Add rule → Require status checks to pass before merging.
+```
+
+---
+    with:
         app_dir: "my_app" 
         is_app_inspect_check: false
 ```

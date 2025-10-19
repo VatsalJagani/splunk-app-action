@@ -585,3 +585,185 @@ When creating `MY_GITHUB_TOKEN`:
 ```{tip}
 Test your workflow on a feature branch first to ensure all secrets are correctly configured before applying to your main branch.
 ```
+
+---
+
+## Pipeline Trust & Quality Gates
+
+### Basic Quality Gate with Check Runs
+
+Enable merge blocking based on AppInspect results:
+
+```yaml
+name: Build with Quality Gates
+on: [push, pull_request]
+
+permissions:
+  contents: read
+  checks: write           # Required for Check Runs
+  security-events: write  # Required for SARIF uploads
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          local_app_inspect: true
+          # Default: fail on any errors, allow up to 10 warnings
+          appinspect_max_errors: "0"
+          appinspect_max_warnings: "10"
+```
+
+### Strict Quality Gates
+
+Enforce zero tolerance for issues:
+
+```yaml
+name: Strict Quality Control
+on: [push, pull_request]
+
+permissions:
+  contents: read
+  checks: write
+  security-events: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+          splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+          appinspect_max_errors: "0"    # No errors allowed
+          appinspect_max_warnings: "0"  # No warnings allowed
+```
+
+### Permissive Quality Gates for Development
+
+Allow more flexibility during active development:
+
+```yaml
+name: Development Build
+on: [pull_request]
+
+permissions:
+  contents: read
+  checks: write
+  security-events: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          local_app_inspect: true
+          appinspect_max_errors: "5"    # Allow up to 5 errors
+          appinspect_max_warnings: "20" # Allow up to 20 warnings
+```
+
+### Different Gates for Main vs Development
+
+Use strict gates for main branch, permissive for development:
+
+```yaml
+name: Conditional Quality Gates
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  checks: write
+  security-events: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Strict for main branch
+      - name: Build for Main Branch
+        if: github.ref == 'refs/heads/main'
+        uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+          splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+          appinspect_max_errors: "0"
+          appinspect_max_warnings: "0"
+      
+      # Permissive for development
+      - name: Build for Development
+        if: github.ref != 'refs/heads/main'
+        uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          local_app_inspect: true
+          appinspect_max_errors: "5"
+          appinspect_max_warnings: "15"
+```
+
+### SARIF Reports with Branch Protection
+
+Configure branch protection to require Check Runs:
+
+```yaml
+name: Protected Branch Build
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  checks: write
+  security-events: write
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+          splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+          appinspect_max_errors: "0"
+          appinspect_max_warnings: "5"
+          enable_sarif_reports: true   # Generate SARIF for inline annotations
+          enable_check_runs: true       # Create Check Runs for merge blocking
+```
+
+```{note}
+**GitHub Branch Protection Setup:**
+1. Go to Repository Settings → Branches
+2. Add or edit branch protection rule for `main`
+3. Enable "Require status checks to pass before merging"
+4. Search for and select the Check Runs created by the action:
+   - "Splunk AppInspect"
+   - "Splunk Cloud Inspect" 
+   - "Splunk SSAI Inspect"
+5. Save the rule
+
+Now pull requests cannot be merged until all AppInspect checks pass the quality gates.
+```
+
+```{tip}
+**Viewing SARIF Results:**
+- Inline annotations appear automatically in pull request file diffs
+- View all security findings in the Security tab → Code scanning alerts
+- Track trends over time across branches and commits
+```
+```

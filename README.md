@@ -58,6 +58,8 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
 - ✅ **Action Outputs** - Provides build path, artifact name, and app metadata for workflow integration
 - ✅ **Splunkbase App-Inspect** - Runs official app-inspect, cloud-inspect, and SSAI checks  
 - ✅ **Local App-Inspect** - Fast local validation with splunk-appinspect library (no credentials needed)
+- ✅ **SARIF Reports** - Generate SARIF format for GitHub Code Scanning with inline annotations
+- ✅ **GitHub Check Runs** - Quality gates for merge blocking based on AppInspect thresholds
 - ✅ **UCC Add-on Support** - Full integration with UCC Generator framework
 - ✅ **Python Dependency Manager** - Manage dependencies via requirements.txt with Dependabot support
 - ✅ **Multi-App Repositories** - Build multiple apps from single repository

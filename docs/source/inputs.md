@@ -60,6 +60,32 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 - **Default:** false
 - **Note:** While local validation is faster, the Splunkbase API is recommended for production use as it reflects the most current validation rules used when submitting to Splunkbase.
 
+### `appinspect_max_errors`
+- **Description:** Maximum number of AppInspect errors allowed before failing the quality gate. Set to 0 to fail on any errors.
+- **Required:** false
+- **Default:** "0"
+- **Usage:** Controls merge gating when using GitHub Check Runs. The pipeline will fail if the number of errors exceeds this threshold.
+- **Example:** `"0"` (default - no errors allowed), `"5"` (allow up to 5 errors)
+
+### `appinspect_max_warnings`
+- **Description:** Maximum number of AppInspect warnings allowed before failing the quality gate. Set higher to be more permissive.
+- **Required:** false
+- **Default:** "10"
+- **Usage:** Controls merge gating when using GitHub Check Runs. The pipeline will fail if the number of warnings exceeds this threshold.
+- **Example:** `"10"` (default), `"0"` (fail on any warnings), `"20"` (allow up to 20 warnings)
+
+### `enable_sarif_reports`
+- **Description:** Generate SARIF (Static Analysis Results Interchange Format) reports for GitHub Code Scanning integration. SARIF reports provide inline code annotations and integrate with GitHub's security features.
+- **Required:** false
+- **Default:** true
+- **Note:** SARIF reports are automatically uploaded to GitHub Code Scanning, providing inline feedback on pull requests and in the Security tab.
+
+### `enable_check_runs`
+- **Description:** Create GitHub Check Runs for merge gating based on AppInspect results. Check Runs appear in the PR interface and can block merges based on quality gate thresholds.
+- **Required:** false
+- **Default:** true
+- **Note:** Requires `GITHUB_TOKEN` with `checks:write` permission. Check Runs respect the `appinspect_max_errors` and `appinspect_max_warnings` thresholds.
+
 ## Utilities Inputs
 
 ### `app_utilities`
