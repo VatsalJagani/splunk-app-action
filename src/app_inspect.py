@@ -5,6 +5,7 @@ import subprocess
 import traceback
 from threading import Thread
 from time import sleep
+from typing import Any, cast
 
 import github_action_toolkit as gat
 import requests
@@ -389,7 +390,12 @@ class SplunkLocalAppInspect:
             # Parse the JSON report to determine status
 
             with open(report_file_path) as f:
-                report_data = json.load(f)
+                report_data_raw = json.load(f)
+                if not isinstance(report_data_raw, dict):
+                    gat.error("Unexpected report format: root is not a dict")
+                    return "Exception"
+                # Narrow dynamic JSON to a typed mapping for downstream usage
+                report_data: dict[str, Any] = cast(dict[str, Any], report_data_raw)
 
             # Generate HTML report from JSON for consistency with API-based approach
             html_report_name = report_file_name.replace(".json", ".html")
@@ -397,9 +403,14 @@ class SplunkLocalAppInspect:
             self._generate_html_report(report_data, html_report_path, check_type)
 
             # Determine status based on report summary
-            summary = report_data.get("summary", {})
-            failure_count = summary.get("failure", 0)
-            error_count = summary.get("error", 0)
+            summary_val = report_data.get("summary")
+            summary: dict[str, Any] = (
+                cast(dict[str, Any], summary_val)
+                if isinstance(summary_val, dict)
+                else dict[str, Any]()
+            )
+            failure_count = int(summary.get("failure", 0))
+            error_count = int(summary.get("error", 0))
 
             gat.debug(f"Check results - failures: {failure_count}, errors: {error_count}")
 
@@ -418,11 +429,24 @@ class SplunkLocalAppInspect:
             gat.error(traceback.format_exc())
             return "Exception"
 
-    def _generate_html_report(self, report_data: dict, html_path: str, check_type: str) -> None:
+    def _generate_html_report(
+        self, report_data: dict[str, Any], html_path: str, check_type: str
+    ) -> None:
         """Generate a simple HTML report from JSON data"""
         try:
-            summary = report_data.get("summary", {})
-            reports = report_data.get("reports", [])
+            # Helpers to coerce dynamic JSON values to typed structures
+            def _as_dict_any(val: Any) -> dict[str, Any]:
+                return cast(dict[str, Any], val) if isinstance(val, dict) else dict[str, Any]()
+
+            def _as_list_of_dict_any(val: Any) -> list[dict[str, Any]]:
+                if isinstance(val, list):
+                    return [
+                        cast(dict[str, Any], v) for v in cast(list[Any], val) if isinstance(v, dict)
+                    ]
+                return []
+
+            summary = _as_dict_any(report_data.get("summary"))
+            reports = _as_list_of_dict_any(report_data.get("reports"))
 
             html_content = f"""
 <!DOCTYPE html>
@@ -450,13 +474,13 @@ class SplunkLocalAppInspect:
     <h1>Splunk App Inspect Report - {check_type}</h1>
     <div class="summary">
         <h2>Summary</h2>
-        <p><strong>Success:</strong> <span class="passed">{summary.get("success", 0)}</span></p>
-        <p><strong>Failure:</strong> <span class="failure">{summary.get("failure", 0)}</span></p>
-        <p><strong>Error:</strong> <span class="error">{summary.get("error", 0)}</span></p>
-        <p><strong>Warning:</strong> <span class="warning">{summary.get("warning", 0)}</span></p>
-        <p><strong>Manual Check:</strong> <span class="manual">{summary.get("manual_check", 0)}</span></p>
-        <p><strong>Not Applicable:</strong> <span class="not_applicable">{summary.get("not_applicable", 0)}</span></p>
-        <p><strong>Skipped:</strong> <span class="skipped">{summary.get("skipped", 0)}</span></p>
+    <p><strong>Success:</strong> <span class="passed">{summary.get("success", 0)}</span></p>
+    <p><strong>Failure:</strong> <span class="failure">{summary.get("failure", 0)}</span></p>
+    <p><strong>Error:</strong> <span class="error">{summary.get("error", 0)}</span></p>
+    <p><strong>Warning:</strong> <span class="warning">{summary.get("warning", 0)}</span></p>
+    <p><strong>Manual Check:</strong> <span class="manual">{summary.get("manual_check", 0)}</span></p>
+    <p><strong>Not Applicable:</strong> <span class="not_applicable">{summary.get("not_applicable", 0)}</span></p>
+    <p><strong>Skipped:</strong> <span class="skipped">{summary.get("skipped", 0)}</span></p>
     </div>
 """
 
@@ -473,10 +497,10 @@ class SplunkLocalAppInspect:
         </tr>
 """
                 for report in failures_and_errors:
-                    check_name = report.get("name", "Unknown")
-                    result = report.get("result", "unknown")
-                    messages = report.get("messages", [])
-                    message_text = "<br>".join([msg.get("message", "") for msg in messages])
+                    check_name = str(report.get("name", "Unknown"))
+                    result = str(report.get("result", "unknown"))
+                    messages = _as_list_of_dict_any(report.get("messages"))
+                    message_text = "<br>".join([str(m.get("message", "")) for m in messages])
 
                     html_content += f"""
         <tr>
