@@ -162,7 +162,7 @@ The workflow will fail with a clear error message if multiple features are enabl
 ```{tip}
 **Replicating Splunk Python SDK Installation:**
 You can use the Python Dependency Manager instead of the Splunk Python SDK utility by adding `splunk-sdk` to your requirements.txt:
-```txt
+```text
 splunk-sdk==2.1.1
 ```
 This provides the same functionality with the added benefits of Dependabot integration and version control.
