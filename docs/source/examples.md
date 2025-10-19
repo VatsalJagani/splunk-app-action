@@ -766,4 +766,3 @@ Now pull requests cannot be merged until all AppInspect checks pass the quality 
 - View all security findings in the Security tab → Code scanning alerts
 - Track trends over time across branches and commits
 ```
-```

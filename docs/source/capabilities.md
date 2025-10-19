@@ -476,12 +476,6 @@ You can configure branch protection rules in GitHub to require Check Runs to pas
 ```
 
 ---
-    with:
-        app_dir: "my_app" 
-        is_app_inspect_check: false
-```
-
----
 
 ## Utilities
 
