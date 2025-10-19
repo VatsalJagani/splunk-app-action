@@ -181,35 +181,6 @@ jobs:
           splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
 
-### Multi-Environment Dependencies
-For different dependency sets (dev/prod):
-```yaml
-name: Multi-Environment Build
-on:
-  push:
-    branches: [main, develop]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Determine requirements file
-        id: reqs
-        run: |
-          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            echo "file=lib/production.txt" >> $GITHUB_OUTPUT
-          else
-            echo "file=lib/development.txt" >> $GITHUB_OUTPUT
-          fi
-      - uses: VatsalJagani/splunk-app-action@v4
-        with:
-          app_dir: "my_app"
-          python_requirements_file: ${{ steps.reqs.outputs.file }}
-          splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
-          splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
-```
-
 ## File Permission Examples
 
 ### Automatic Permission Fixes

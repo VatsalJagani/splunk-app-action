@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Python Dependency Manager** - New feature for managing Python dependencies from requirements.txt
   - New input parameter `python_requirements_file` to specify the path to requirements.txt file (relative to app_dir)
   - Dependencies are installed in the same directory as the requirements file (e.g., `lib/requirements.txt` → installs to `lib/`)
-  - If requirements file is in app root, automatically creates and uses `lib/` subdirectory
+  - If requirements file is in app root, automatically creates and uses `lib/` subdirectory.
   - Cleans the target directory before installation to ensure clean state
   - Removes requirements.txt file from the final build package
   - Enables use of GitHub Dependabot for automatic dependency updates

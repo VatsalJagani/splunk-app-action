@@ -111,7 +111,7 @@ def main() -> None:
                 app_build_dir_name = ucc_gen.build(saved_paths, app_info)
 
     elif use_python_deps:
-        with gat.group("🏗️ Preparing for App Build with Python Dependency Manager"):
+        with gat.group("🏗️ Installing dynamic Python Dependencies"):
             with keep_working_dir_unchanged():
                 app_build_dir_name = python_dependency_manager.install_dependencies(
                     saved_paths, app_info

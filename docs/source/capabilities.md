@@ -134,7 +134,7 @@ You can specify a different requirements file path (always relative to app_dir):
 **Path Handling:**
 - The `python_requirements_file` path is **relative to app_dir**
 - Dependencies are installed in the same directory as the requirements file
-- If requirements.txt is in the app root, a `lib/` subdirectory is automatically created
+- If requirements.txt is in the app root, a `lib/` subdirectory is automatically created.
 
 The target folder is automatically added to Python's import path in Splunk, so your scripts can import the dependencies normally:
 ```python
@@ -145,7 +145,6 @@ from bs4 import BeautifulSoup
 ```{note}
 **Cleanup Behavior:**
 - The directory containing requirements.txt will be cleaned before installing dependencies
-- If requirements.txt is in the app root, only the lib subdirectory is cleaned (essential Splunk directories are preserved)
 - The requirements.txt file will be removed from the final build package
 - This ensures a clean build without any leftover files or dependencies
 ```
