@@ -168,51 +168,53 @@ class SARIFConverter:
                             if result_type not in ["failure", "error", "warning", "manual_check"]:
                                 continue
                             level = self._map_result_to_level(result_type)
+                            description = str(check.get("description", ""))
                             messages = check.get("messages", [])
                             if not isinstance(messages, list):
                                 messages = []
-                            message_texts = []
-                            locations: list[dict[str, Any]] = []
                             for msg in messages:
                                 if not isinstance(msg, dict):
                                     continue
+                                # Compose SARIF message as description + message
                                 message_text = str(msg.get("message", ""))
-                                if message_text:
-                                    message_texts.append(message_text)
-                                file_path = msg.get("filename") or msg.get("file_path")
-                                line_number = msg.get("line_number") or msg.get("line")
-                                if file_path:
-                                    location: dict[str, Any] = {
+                                sarif_message = description + ("\n" if description and message_text else "") + message_text
+                                # Prefer message_filename and message_line for location
+                                msg_file = msg.get("message_filename")
+                                msg_line = msg.get("message_line")
+                                if msg_file and msg_line:
+                                    location = {
                                         "physicalLocation": {
-                                            "artifactLocation": {"uri": str(file_path)},
+                                            "artifactLocation": {"uri": str(msg_file)},
+                                            "region": {"startLine": int(msg_line)},
+                                        }
+                                    }
+                                elif msg_file:
+                                    location = {
+                                        "physicalLocation": {
+                                            "artifactLocation": {"uri": str(msg_file)},
+                                        }
+                                    }
+                                else:
+                                    # fallback to filename/line or extract from message text
+                                    file_path = msg.get("filename") or msg.get("file_path")
+                                    line_number = msg.get("line_number") or msg.get("line")
+                                    location = {
+                                        "physicalLocation": {
+                                            "artifactLocation": {"uri": str(file_path) if file_path else "app/"},
                                         }
                                     }
                                     if line_number:
                                         try:
-                                            line_num = int(line_number)
-                                            location["physicalLocation"]["region"] = {
-                                                "startLine": line_num,
-                                            }
-                                        except (ValueError, TypeError):
+                                            location["physicalLocation"]["region"] = {"startLine": int(line_number)}
+                                        except Exception:
                                             pass
-                                    locations.append(location)
-                            combined_message = "\n".join(message_texts) if message_texts else "Check failed"
-                            sarif_result: dict[str, Any] = {
-                                "ruleId": check_name,
-                                "level": level,
-                                "message": {"text": combined_message},
-                            }
-                            if locations:
-                                sarif_result["locations"] = locations
-                            else:
-                                sarif_result["locations"] = [
-                                    {
-                                        "physicalLocation": {
-                                            "artifactLocation": {"uri": "app/"},
-                                        }
-                                    }
-                                ]
-                            sarif_results.append(sarif_result)
+                                sarif_result = {
+                                    "ruleId": check_name,
+                                    "level": level,
+                                    "message": {"text": sarif_message},
+                                    "locations": [location],
+                                }
+                                sarif_results.append(sarif_result)
         return sarif_results
 
     def _map_result_to_level(self, result_type: str) -> str:
