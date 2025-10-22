@@ -428,7 +428,7 @@ Control merge gating by setting error and warning thresholds:
   with:
     app_dir: "my_app"
     local_app_inspect: true
-    appinspect_max_errors: "5"    # Allow up to 5 errors
+    appinspect_max_errors: "2"    # Allow up to 2 errors, but remember this will stop you from uploading App on Splunkbase
     appinspect_max_warnings: "20" # Allow up to 20 warnings
 ```
 

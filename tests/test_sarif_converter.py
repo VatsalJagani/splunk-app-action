@@ -7,7 +7,7 @@ import os
 import tempfile
 from pathlib import Path
 
-from src.sarif_converter import SARIFConverter
+from src.helpers.sarif_converter import SARIFConverter
 
 
 def test_sarif_converter_basic():

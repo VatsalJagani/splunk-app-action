@@ -104,8 +104,7 @@ class SARIFConverter:
 
     def _extract_rules(self, appinspect_data: dict[str, Any]) -> list[dict[str, Any]]:
         """
-        Extract rules from AppInspect report.
-
+        Extract rules from AppInspect report, handling nested groups/checks.
         Each unique check name becomes a SARIF rule.
         """
         reports = appinspect_data.get("reports", [])
@@ -116,38 +115,36 @@ class SARIFConverter:
         for report in reports:
             if not isinstance(report, dict):
                 continue
-
-            check_name = str(report.get("name", "unknown_check"))
-            if check_name not in rules:
-                # Extract check metadata
-                description = str(report.get("description", ""))
-                tags = report.get("tags", [])
-                if not isinstance(tags, list):
-                    tags = []
-
-                rules[check_name] = {
-                    "id": check_name,
-                    "name": check_name,
-                    "shortDescription": {"text": description[:100] if description else check_name},
-                    "fullDescription": {"text": description if description else check_name},
-                    "helpUri": "https://dev.splunk.com/enterprise/docs/developapps/testvalidate/appinspect/",
-                    "properties": {
-                        "tags": [str(t) for t in tags],
-                    },
-                }
-
+            # Handle nested groups/checks
+            groups = report.get("groups")
+            if isinstance(groups, list):
+                for group in groups:
+                    checks = group.get("checks") if isinstance(group, dict) else None
+                    if isinstance(checks, list):
+                        for check in checks:
+                            if not isinstance(check, dict):
+                                continue
+                            check_name = str(check.get("name", "unknown_check"))
+                            if check_name not in rules:
+                                description = str(check.get("description", ""))
+                                tags = check.get("tags", [])
+                                if not isinstance(tags, list):
+                                    tags = []
+                                rules[check_name] = {
+                                    "id": check_name,
+                                    "name": check_name,
+                                    "shortDescription": {"text": description[:100] if description else check_name},
+                                    "fullDescription": {"text": description if description else check_name},
+                                    "helpUri": "https://dev.splunk.com/enterprise/docs/developapps/testvalidate/appinspect/",
+                                    "properties": {
+                                        "tags": [str(t) for t in tags],
+                                    },
+                                }
         return list(rules.values())
 
     def _convert_results(self, appinspect_data: dict[str, Any]) -> list[dict[str, Any]]:
         """
-        Convert AppInspect check results to SARIF results.
-
-        Maps AppInspect severity levels to SARIF levels:
-        - failure -> error
-        - error -> error
-        - warning -> warning
-        - manual_check -> note
-        - success -> note (but typically not reported)
+        Convert AppInspect check results to SARIF results, handling nested groups/checks.
         """
         reports = appinspect_data.get("reports", [])
         if not isinstance(reports, list):
@@ -158,83 +155,64 @@ class SARIFConverter:
         for report in reports:
             if not isinstance(report, dict):
                 continue
-
-            result_type = str(report.get("result", "unknown"))
-            check_name = str(report.get("name", "unknown_check"))
-
-            # Only convert failures, errors, and warnings to SARIF results
-            # Success and not_applicable don't need to be reported
-            if result_type not in ["failure", "error", "warning", "manual_check"]:
-                continue
-
-            # Map AppInspect result to SARIF level
-            level = self._map_result_to_level(result_type)
-
-            # Extract messages
-            messages = report.get("messages", [])
-            if not isinstance(messages, list):
-                messages = []
-
-            # Extract file locations from messages
-            message_texts = []
-            locations: list[dict[str, Any]] = []
-
-            for msg in messages:
-                if not isinstance(msg, dict):
-                    continue
-
-                message_text = str(msg.get("message", ""))
-                if message_text:
-                    message_texts.append(message_text)
-
-                # Extract file path and line number if available
-                file_path = msg.get("filename") or msg.get("file_path")
-                line_number = msg.get("line_number") or msg.get("line")
-
-                if file_path:
-                    location: dict[str, Any] = {
-                        "physicalLocation": {
-                            "artifactLocation": {"uri": str(file_path)},
-                        }
-                    }
-
-                    # Add line number if available
-                    if line_number:
-                        try:
-                            line_num = int(line_number)
-                            location["physicalLocation"]["region"] = {
-                                "startLine": line_num,
+            groups = report.get("groups")
+            if isinstance(groups, list):
+                for group in groups:
+                    checks = group.get("checks") if isinstance(group, dict) else None
+                    if isinstance(checks, list):
+                        for check in checks:
+                            if not isinstance(check, dict):
+                                continue
+                            result_type = str(check.get("result", "unknown"))
+                            check_name = str(check.get("name", "unknown_check"))
+                            if result_type not in ["failure", "error", "warning", "manual_check"]:
+                                continue
+                            level = self._map_result_to_level(result_type)
+                            messages = check.get("messages", [])
+                            if not isinstance(messages, list):
+                                messages = []
+                            message_texts = []
+                            locations: list[dict[str, Any]] = []
+                            for msg in messages:
+                                if not isinstance(msg, dict):
+                                    continue
+                                message_text = str(msg.get("message", ""))
+                                if message_text:
+                                    message_texts.append(message_text)
+                                file_path = msg.get("filename") or msg.get("file_path")
+                                line_number = msg.get("line_number") or msg.get("line")
+                                if file_path:
+                                    location: dict[str, Any] = {
+                                        "physicalLocation": {
+                                            "artifactLocation": {"uri": str(file_path)},
+                                        }
+                                    }
+                                    if line_number:
+                                        try:
+                                            line_num = int(line_number)
+                                            location["physicalLocation"]["region"] = {
+                                                "startLine": line_num,
+                                            }
+                                        except (ValueError, TypeError):
+                                            pass
+                                    locations.append(location)
+                            combined_message = "\n".join(message_texts) if message_texts else "Check failed"
+                            sarif_result: dict[str, Any] = {
+                                "ruleId": check_name,
+                                "level": level,
+                                "message": {"text": combined_message},
                             }
-                        except (ValueError, TypeError):
-                            pass
-
-                    locations.append(location)
-
-            # Combine all message texts
-            combined_message = "\n".join(message_texts) if message_texts else "Check failed"
-
-            # Create SARIF result
-            sarif_result: dict[str, Any] = {
-                "ruleId": check_name,
-                "level": level,
-                "message": {"text": combined_message},
-            }
-
-            # Add locations if available
-            if locations:
-                sarif_result["locations"] = locations
-            else:
-                # If no specific location, create a placeholder
-                sarif_result["locations"] = [
-                    {
-                        "physicalLocation": {
-                            "artifactLocation": {"uri": "app/"},
-                        }
-                    }
-                ]
-
-            sarif_results.append(sarif_result)
-
+                            if locations:
+                                sarif_result["locations"] = locations
+                            else:
+                                sarif_result["locations"] = [
+                                    {
+                                        "physicalLocation": {
+                                            "artifactLocation": {"uri": "app/"},
+                                        }
+                                    }
+                                ]
+                            sarif_results.append(sarif_result)
         return sarif_results
 
     def _map_result_to_level(self, result_type: str) -> str:

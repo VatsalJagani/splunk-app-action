@@ -13,7 +13,7 @@ from requests.auth import HTTPBasicAuth
 
 from github_check_runs import create_check_runs_for_appinspect
 from helpers.saved_values import AppInfo, SavedPaths
-from sarif_converter import SARIFConverter
+from helpers.sarif_converter import SARIFConverter
 
 TIMEOUT_MAX = 240
 
@@ -604,6 +604,8 @@ class SplunkLocalAppInspect:
             gat.debug(
                 "Launching local Splunk app-inspect, cloud-inspect, and SSAI-inspect checks in parallel."
             )
+
+            self._perform_app_inspect_check()
 
             thread_app_inspect = Thread(target=self._perform_app_inspect_check)
             thread_app_inspect.start()
