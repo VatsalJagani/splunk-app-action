@@ -9,6 +9,7 @@
 # pyright: reportFunctionMemberAccess=false
 # pyright: reportUnannotatedClassAttribute=false
 
+import glob
 import os
 import unittest
 
@@ -55,8 +56,6 @@ class TestDryRunMode(unittest.TestCase):
             main()
 
             # Check that .tgz file was NOT created
-            import glob
-
             tgz_files = glob.glob("*.tgz")
             self.assertEqual(
                 len(tgz_files),
@@ -79,8 +78,6 @@ class TestEnhancedPermissions(unittest.TestCase):
             main()
 
             # Find the generated build
-            import glob
-
             tgz_files = glob.glob("*.tgz")
             self.assertGreater(len(tgz_files), 0, "Build file should be created")
 
@@ -110,9 +107,7 @@ class TestEnhancedPermissions(unittest.TestCase):
             self.assertIn("Script mode: 750", content)
 
 
-## Tests
-
-
+# Inline test for get_permission_preview function
 def test_get_permission_preview():
     """Test the get_permission_preview function."""
     from app_build_generate import get_permission_preview  # pyright: ignore[reportMissingImports]
