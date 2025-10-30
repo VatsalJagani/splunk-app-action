@@ -26,6 +26,12 @@ def setup_action_yml(
     use_ucc_gen="false",
     python_requirements_file="",
     to_make_permission_changes="false",
+    permission_owner="",
+    permission_group="",
+    permission_file_mode="644",
+    permission_dir_mode="755",
+    permission_script_mode="755",
+    dry_run="false",
     is_app_inspect_check="true",
     splunkbase_username="NONE",
     splunkbase_password="NONE",
@@ -66,6 +72,12 @@ def setup_action_yml(
     os.environ["INPUT_USE_UCC_GEN"] = use_ucc_gen
     os.environ["INPUT_PYTHON_REQUIREMENTS_FILE"] = python_requirements_file
     os.environ["INPUT_TO_MAKE_PERMISSION_CHANGES"] = to_make_permission_changes
+    os.environ["INPUT_PERMISSION_OWNER"] = permission_owner
+    os.environ["INPUT_PERMISSION_GROUP"] = permission_group
+    os.environ["INPUT_PERMISSION_FILE_MODE"] = permission_file_mode
+    os.environ["INPUT_PERMISSION_DIR_MODE"] = permission_dir_mode
+    os.environ["INPUT_PERMISSION_SCRIPT_MODE"] = permission_script_mode
+    os.environ["INPUT_DRY_RUN"] = dry_run
     os.environ["INPUT_IS_APP_INSPECT_CHECK"] = is_app_inspect_check
     os.environ["INPUT_SPLUNKBASE_USERNAME"] = splunkbase_username
     os.environ["INPUT_SPLUNKBASE_PASSWORD"] = splunkbase_password

@@ -181,3 +181,5 @@ site/
 .DS_Store
 src/utilities/logger/props.conf_temp
 temp_for_test/*
+tests/tempdir/*
+dry_run_preview.txt
