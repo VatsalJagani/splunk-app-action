@@ -9,6 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Performance: UV Dependency Caching** - Automatic caching of uv/pip artifacts for faster cold-starts
+  - Cache is keyed by `uv.lock` file hash for precise cache invalidation
+  - Integrated with official `astral-sh/setup-uv@v5` action's built-in caching
+  - Significantly reduces dependency installation time in CI/CD workflows
+
+- **Dry-Run Mode** - Preview planned actions without making changes
+  - New input parameter `dry_run` (default: `false`) to enable preview mode
+  - Generates a preview diff artifact showing planned packaging, permissions, and AppInspect intent
+  - Outputs detailed preview including:
+    - File and directory permission changes
+    - Custom commands that would be executed
+    - Files that would be cleaned up
+    - AppInspect mode (local or Splunkbase API)
+  - Preview artifact uploaded as `Dry-Run-Preview-{app_package_id}_{version}_{build}`
+  - Useful for validating workflow changes before production deployment
+
+- **Enhanced Permission Controls** - Fine-grained permission normalization inputs
+  - New input `permission_owner` - Specify file owner (e.g., 'root', '1000')
+  - New input `permission_group` - Specify file group (e.g., 'root', '1000')
+  - New input `permission_file_mode` - File permission mode in octal (default: '644')
+  - New input `permission_dir_mode` - Directory permission mode in octal (default: '755')
+  - New input `permission_script_mode` - Script file permission mode in octal (default: '755')
+  - All permission inputs work with `to_make_permission_changes: true`
+  - Provides better control over permission normalization for different deployment scenarios
+
 - **Enhanced Action Outputs** - New output variables for better workflow integration
   - `build_path` - Full path to the generated build artifact (.tgz file)
   - `artifact_name` - Name of the generated build artifact (e.g., my_app_1.0.0_1.tgz)

@@ -144,6 +144,8 @@ def main() -> None:
         gat.error(f"Error adding Splunk app utilities: {e}")
         gat.error(traceback.format_exc())
 
+    dry_run = gat.get_user_input_as("dry_run", bool, False)
+
     try:
         with keep_working_dir_unchanged():
             # Generate Build
@@ -153,6 +155,26 @@ def main() -> None:
 
         # Run App Inspect
         is_app_inspect_check = gat.get_user_input_as("is_app_inspect_check", bool, True)
+
+        if dry_run:
+            if is_app_inspect_check:
+                gat.info("=" * 60)
+                gat.info("DRY-RUN: App-Inspect would be performed")
+                gat.info("=" * 60)
+                local_app_inspect = gat.get_user_input_as("local_app_inspect", bool, False)
+                if local_app_inspect:
+                    gat.info("  Mode: Local App Inspect (using splunk-appinspect library)")
+                else:
+                    gat.info("  Mode: Splunkbase API")
+                    splunkbase_username = gat.get_user_input("splunkbase_username")
+                    if splunkbase_username:
+                        gat.info(f"  Username: {splunkbase_username}")
+            else:
+                gat.info("DRY-RUN: App-Inspect checks are disabled - would skip")
+            gat.info("=" * 60)
+            gat.info("DRY-RUN MODE COMPLETED - No actual changes were made")
+            gat.info("=" * 60)
+            return
 
         if is_app_inspect_check:
             local_app_inspect = gat.get_user_input_as("local_app_inspect", bool, False)

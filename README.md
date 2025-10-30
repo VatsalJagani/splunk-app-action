@@ -36,6 +36,23 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
     app_dir: "my_app"
     python_requirements_file: "lib/requirements.txt"
 
+# Dry-run mode - preview changes without applying them
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    dry_run: true
+    to_make_permission_changes: true
+
+# Custom permission controls
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    to_make_permission_changes: true
+    permission_file_mode: "644"
+    permission_dir_mode: "755"
+    permission_owner: "root"
+    permission_group: "root"
+
 # Using action outputs in workflows
 - id: build_step
   uses: VatsalJagani/splunk-app-action@v4
@@ -56,6 +73,8 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
 
 - ✅ **Automatic Build Generation** - Creates `.tgz` artifacts for Splunk apps/add-ons
 - ✅ **Action Outputs** - Provides build path, artifact name, and app metadata for workflow integration
+- ✅ **Performance: UV Caching** - Automatic dependency caching for faster cold-starts
+- ✅ **Dry-Run Mode** - Preview planned actions without making changes
 - ✅ **Splunkbase App-Inspect** - Runs official app-inspect, cloud-inspect, and SSAI checks  
 - ✅ **Local App-Inspect** - Fast local validation with splunk-appinspect library (no credentials needed)
 - ✅ **UCC Add-on Support** - Full integration with UCC Generator framework
@@ -63,7 +82,7 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
 - ✅ **Multi-App Repositories** - Build multiple apps from single repository
 - ✅ **App Utilities** - Auto-add logger, SDK, documentation, and more via PRs
 - ✅ **Custom Commands** - Run user-defined shell commands before build
-- ✅ **File Permissions** - Automatic permission fixes for app-inspect compliance
+- ✅ **File Permissions** - Fine-grained permission controls for app-inspect compliance
 
 ## Documentation
 

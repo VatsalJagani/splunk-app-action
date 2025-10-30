@@ -16,6 +16,36 @@ inputs:
     required: false
     default: false
 
+  permission_owner:
+    description: "File owner for permission changes (e.g., 'root', '1000'). Used when to_make_permission_changes is true."
+    required: false
+    default: ""
+
+  permission_group:
+    description: "File group for permission changes (e.g., 'root', '1000'). Used when to_make_permission_changes is true."
+    required: false
+    default: ""
+
+  permission_file_mode:
+    description: "File permission mode in octal format (e.g., '644'). Used when to_make_permission_changes is true."
+    required: false
+    default: "644"
+
+  permission_dir_mode:
+    description: "Directory permission mode in octal format (e.g., '755'). Used when to_make_permission_changes is true."
+    required: false
+    default: "755"
+
+  permission_script_mode:
+    description: "Script file permission mode in octal format (e.g., '755'). Used when to_make_permission_changes is true."
+    required: false
+    default: "755"
+
+  dry_run:
+    description: "Enable dry-run mode to preview planned actions without making changes. Generates a preview diff artifact showing what would be changed."
+    required: false
+    default: false
+
   use_ucc_gen:
     description: "Use ucc-gen command to generate the build for Add-ons. The 'app_dir' folder must have a sub-folder named 'package' and a file named 'globalConfig.json' for this to work."
     required: false
@@ -111,6 +141,8 @@ runs:
       uses: astral-sh/setup-uv@v5
       with:
         python-version: 3.12
+        enable-cache: true
+        cache-dependency-glob: "${{ github.action_path }}/uv.lock"
 
     - name: Set up Python and install dependencies
       working-directory: ${{ github.action_path }}
@@ -128,6 +160,12 @@ runs:
         INPUT_USE_UCC_GEN: ${{inputs.use_ucc_gen}}
         INPUT_PYTHON_REQUIREMENTS_FILE: ${{inputs.python_requirements_file}}
         INPUT_TO_MAKE_PERMISSION_CHANGES: ${{inputs.to_make_permission_changes}}
+        INPUT_PERMISSION_OWNER: ${{inputs.permission_owner}}
+        INPUT_PERMISSION_GROUP: ${{inputs.permission_group}}
+        INPUT_PERMISSION_FILE_MODE: ${{inputs.permission_file_mode}}
+        INPUT_PERMISSION_DIR_MODE: ${{inputs.permission_dir_mode}}
+        INPUT_PERMISSION_SCRIPT_MODE: ${{inputs.permission_script_mode}}
+        INPUT_DRY_RUN: ${{inputs.dry_run}}
         INPUT_IS_APP_INSPECT_CHECK: ${{inputs.is_app_inspect_check}}
         INPUT_SPLUNKBASE_USERNAME: ${{inputs.splunkbase_username}}
         INPUT_SPLUNKBASE_PASSWORD: ${{inputs.splunkbase_password}}
@@ -149,6 +187,13 @@ runs:
       with:
         name: "App-Build-${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}"
         path: ${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}.tgz
+
+    - name: "Upload the dry-run preview as artifact"
+      uses: actions/upload-artifact@v4
+      if: always() && inputs.dry_run == 'true'
+      with:
+        name: "Dry-Run-Preview-${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}"
+        path: dry_run_preview.txt
 
     - name: "Upload the app-inspect reports as artifact"
       uses: actions/upload-artifact@v4

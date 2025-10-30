@@ -15,6 +15,49 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 - **Default:** false
 - **⚠️ Warning:** Read the file permission section in capabilities before enabling this. Can break apps with non-standard executable files.
 
+### `permission_owner`
+- **Description:** File owner for permission changes (e.g., 'root', '1000'). Used when to_make_permission_changes is true.
+- **Required:** false
+- **Default:** "" (no owner change)
+- **Example:** `"root"`, `"1000"`
+
+### `permission_group`
+- **Description:** File group for permission changes (e.g., 'root', '1000'). Used when to_make_permission_changes is true.
+- **Required:** false
+- **Default:** "" (no group change)
+- **Example:** `"root"`, `"1000"`
+
+### `permission_file_mode`
+- **Description:** File permission mode in octal format. Used when to_make_permission_changes is true.
+- **Required:** false
+- **Default:** "644"
+- **Example:** `"644"`, `"600"`
+
+### `permission_dir_mode`
+- **Description:** Directory permission mode in octal format. Used when to_make_permission_changes is true.
+- **Required:** false
+- **Default:** "755"
+- **Example:** `"755"`, `"750"`
+
+### `permission_script_mode`
+- **Description:** Script file permission mode in octal format. Used when to_make_permission_changes is true.
+- **Required:** false
+- **Default:** "755"
+- **Example:** `"755"`, `"750"`
+- **Note:** Applies to files with extensions: .sh, .exe, .cmd, .msi, .bat
+
+### `dry_run`
+- **Description:** Enable dry-run mode to preview planned actions without making changes. Generates a preview diff artifact showing what would be changed.
+- **Required:** false
+- **Default:** false
+- **Benefits:**
+  - Preview permission changes before applying
+  - See what files would be cleaned up
+  - Validate custom commands
+  - Preview AppInspect mode
+  - Safe workflow validation
+- **Output:** Creates `dry_run_preview.txt` artifact with detailed preview
+
 ### `use_ucc_gen`
 - **Description:** Use ucc-gen command to generate the build for Add-on. The 'app_dir' folder must have a sub-folder named 'package', and a file named 'globalConfig.json' for this to work.
 - **Required:** false
