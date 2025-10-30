@@ -84,6 +84,10 @@ class SplunkAppInspect:
         gat.info("Starting Splunkbase API authentication with username/password...")
         gat.debug(f"Authenticating user: {self.splunkbase_username}")
 
+        # At this point, we know username and password are not None due to validation in __init__
+        assert self.splunkbase_username is not None
+        assert self.splunkbase_password is not None
+
         response = requests.request(
             "GET",
             self.LOGIN_URL,
