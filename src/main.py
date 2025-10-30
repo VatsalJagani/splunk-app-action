@@ -8,6 +8,7 @@ sys.path.append(os.path.dirname(__file__))
 import github_action_toolkit as gat
 
 import app_build_generate
+import job_summary
 import python_dependency_manager
 import ucc_gen
 from app_inspect import SplunkAppInspect, SplunkLocalAppInspect
@@ -151,34 +152,95 @@ def main() -> None:
                 saved_paths, app_info, app_build_dir_name
             )
 
+        # Get artifact name from outputs
+        artifact_name = os.path.basename(build_path)
+
+        # Track AppInspect statuses
+        app_inspect_status = "Not Run"
+        cloud_inspect_status = "Not Run"
+        ssai_inspect_status = "Not Run"
+
+        # Track if there was an inspect exception
+        inspect_exception = None
+
         # Run App Inspect
         is_app_inspect_check = gat.get_user_input_as("is_app_inspect_check", bool, True)
 
         if is_app_inspect_check:
             local_app_inspect = gat.get_user_input_as("local_app_inspect", bool, False)
 
-            if local_app_inspect:
-                # Use local app inspect with splunk-appinspect library
-                gat.info("Using local Splunk app inspect validation")
-                SplunkLocalAppInspect(saved_paths, app_info, build_path).run_all_checks()
-            else:
-                # Use Splunkbase API for app inspect
-                gat.info("Using Splunkbase API for Splunk app inspect validation")
-                splunkbase_username = gat.get_user_input("splunkbase_username")
-                splunkbase_password = gat.get_user_input("splunkbase_password")
+            try:
+                if local_app_inspect:
+                    # Use local app inspect with splunk-appinspect library
+                    gat.info("Using local Splunk app inspect validation")
+                    SplunkLocalAppInspect(saved_paths, app_info, build_path).run_all_checks()
+                else:
+                    # Use Splunkbase API for app inspect
+                    gat.info("Using Splunkbase API for Splunk app inspect validation")
+                    splunkbase_username = gat.get_user_input("splunkbase_username")
+                    splunkbase_password = gat.get_user_input("splunkbase_password")
 
-                if splunkbase_username is None or splunkbase_password is None:
-                    gat.error(
-                        "✅ splunkbase_username and splunkbase_password are required for app inspect."
-                    )
-                    return
+                    if splunkbase_username is None or splunkbase_password is None:
+                        gat.error(
+                            "✅ splunkbase_username and splunkbase_password are required for app inspect."
+                        )
+                        # Set statuses to Skipped
+                        app_inspect_status = "Skipped"
+                        cloud_inspect_status = "Skipped"
+                        ssai_inspect_status = "Skipped"
+                        gat.set_output("app_inspect_status", app_inspect_status)
+                        gat.set_output("cloud_inspect_status", cloud_inspect_status)
+                        gat.set_output("ssai_inspect_status", ssai_inspect_status)
+                    else:
+                        SplunkAppInspect(
+                            saved_paths,
+                            app_info,
+                            build_path,
+                            splunkbase_username,
+                            splunkbase_password,
+                        ).run_all_checks()
+            except Exception as e:
+                # Inspect checks may have set their own status outputs before failing
+                # Store the exception to re-raise after writing summary
+                inspect_exception = e
 
-                SplunkAppInspect(
-                    saved_paths, app_info, build_path, splunkbase_username, splunkbase_password
-                ).run_all_checks()
+            # Get the statuses from outputs (they were set by the inspect classes)
+            # If not set, they'll remain as default values
+            try:
+                # Try to get from environment variables which gat.set_output sets
+                app_inspect_status = os.environ.get("OUTPUT_APP_INSPECT_STATUS", app_inspect_status)
+                cloud_inspect_status = os.environ.get(
+                    "OUTPUT_CLOUD_INSPECT_STATUS", cloud_inspect_status
+                )
+                ssai_inspect_status = os.environ.get(
+                    "OUTPUT_SSAI_INSPECT_STATUS", ssai_inspect_status
+                )
+            except Exception:
+                # Use defaults if there's any issue
+                pass
         else:
             gat.info("✅ App inspect checks disabled - skipping")
-            return
+            app_inspect_status = "Skipped"
+            cloud_inspect_status = "Skipped"
+            ssai_inspect_status = "Skipped"
+            gat.set_output("app_inspect_status", app_inspect_status)
+            gat.set_output("cloud_inspect_status", cloud_inspect_status)
+            gat.set_output("ssai_inspect_status", ssai_inspect_status)
+
+        # Write job summary
+        with gat.group("📊 Writing job summary"):
+            job_summary.write_build_summary(
+                app_info=app_info,
+                build_path=build_path,
+                artifact_name=artifact_name,
+                app_inspect_status=app_inspect_status,
+                cloud_inspect_status=cloud_inspect_status,
+                ssai_inspect_status=ssai_inspect_status,
+            )
+
+        # Re-raise inspect exception if it occurred
+        if inspect_exception is not None:
+            raise inspect_exception
 
     except Exception as e:
         gat.error(f"Error in build generation or app inspect checks: {e}")
