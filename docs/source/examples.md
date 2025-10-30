@@ -376,6 +376,9 @@ jobs:
           echo "📌 Version: ${{ steps.build_app.outputs.app_version }}"
           echo "🔢 Build: ${{ steps.build_app.outputs.app_build_number }}"
           echo "📁 Path: ${{ steps.build_app.outputs.build_path }}"
+          echo "🔍 App Inspect: ${{ steps.build_app.outputs.app_inspect_status }}"
+          echo "☁️ Cloud Inspect: ${{ steps.build_app.outputs.cloud_inspect_status }}"
+          echo "🛡️ SSAI Inspect: ${{ steps.build_app.outputs.ssai_inspect_status }}"
       
       # Upload to GitHub Release
       - name: Create GitHub Release
@@ -387,6 +390,11 @@ jobs:
           body: |
             Release of ${{ steps.build_app.outputs.app_package_id }} version ${{ steps.build_app.outputs.app_version }}
             Build number: ${{ steps.build_app.outputs.app_build_number }}
+            
+            **AppInspect Results:**
+            - App-Inspect: ${{ steps.build_app.outputs.app_inspect_status }}
+            - Cloud-Inspect: ${{ steps.build_app.outputs.cloud_inspect_status }}
+            - SSAI-Inspect: ${{ steps.build_app.outputs.ssai_inspect_status }}
       
       # Upload with custom naming
       - name: Upload to Custom Location
@@ -443,6 +451,57 @@ jobs:
           app_dir: "my_app"
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
           splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+```
+
+### Using AppInspect Status Outputs
+
+The action provides detailed AppInspect status outputs that can be used for conditional workflows:
+
+```yaml
+name: Conditional Deployment Based on AppInspect
+on: [push]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - id: build_app
+        uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+          splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+      
+      # Deploy only if all AppInspect checks passed
+      - name: Deploy to Production
+        if: |
+          steps.build_app.outputs.app_inspect_status == 'Passed' &&
+          steps.build_app.outputs.cloud_inspect_status == 'Passed' &&
+          steps.build_app.outputs.ssai_inspect_status == 'Passed'
+        run: |
+          echo "✅ All AppInspect checks passed - deploying to production"
+          # Add your deployment commands here
+      
+      # Create warning issue if any check failed
+      - name: Create Issue for Failed Checks
+        if: |
+          steps.build_app.outputs.app_inspect_status != 'Passed' ||
+          steps.build_app.outputs.cloud_inspect_status != 'Passed' ||
+          steps.build_app.outputs.ssai_inspect_status != 'Passed'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'AppInspect Checks Failed',
+              body: `AppInspect checks failed for build ${{ steps.build_app.outputs.artifact_name }}:
+              - App-Inspect: ${{ steps.build_app.outputs.app_inspect_status }}
+              - Cloud-Inspect: ${{ steps.build_app.outputs.cloud_inspect_status }}
+              - SSAI-Inspect: ${{ steps.build_app.outputs.ssai_inspect_status }}`
+            })
 ```
 
 ### Matrix Strategy for Multiple Apps

@@ -15,7 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `app_package_id` - The Splunk app package ID extracted from app.conf or globalConfig.json
   - `app_version` - The app version number extracted from app.conf or globalConfig.json
   - `app_build_number` - The app build number extracted from app.conf
+  - `app_inspect_status` - Status of app-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)
+  - `cloud_inspect_status` - Status of cloud-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)
+  - `ssai_inspect_status` - Status of SSAI-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)
   - These outputs can be used in subsequent workflow steps for custom processing, release automation, or artifact management
+
+- **GitHub Job Summary** - Comprehensive build summary displayed in GitHub Actions UI
+  - Automatically generates a job summary with build metadata and AppInspect results
+  - Displays build information table with app package ID, version, build number, and artifact paths
+  - Shows AppInspect results table with status indicators and emoji for easy visualization (✅ Passed, ❌ Failure, ⏭️ Skipped, etc.)
+  - Includes direct link to download workflow artifacts
+  - Written to `$GITHUB_STEP_SUMMARY` for visibility in GitHub Actions interface
 
 - **Operating System Support Documentation** - Explicit documentation about supported platforms
   - Action is tested and supported on ubuntu-latest, ubuntu-22.04, and ubuntu-20.04
