@@ -32,11 +32,15 @@ inputs:
     default: true
 
   splunkbase_username:
-    description: "Username required to call the Splunkbase API for App-Inspect. Required when is_app_inspect_check is set to true."
+    description: "Username required to call the Splunkbase API for App-Inspect. Required when is_app_inspect_check is set to true and splunkbase_token is not provided."
     required: false
 
   splunkbase_password:
-    description: "Password required to call the Splunkbase API for App-Inspect. Required when is_app_inspect_check is set to true. Strongly recommend to use via GitHub secrets only and specify like `{{secrets.MY_SPLUNK_PASSWORD}}`."
+    description: "Password required to call the Splunkbase API for App-Inspect. Required when is_app_inspect_check is set to true and splunkbase_token is not provided. Strongly recommend to use via GitHub secrets only and specify like `{{secrets.MY_SPLUNK_PASSWORD}}`."
+    required: false
+
+  splunkbase_token:
+    description: "Splunkbase API token for authentication. Preferred over username/password for improved security. When provided, splunkbase_username and splunkbase_password are not required. Strongly recommend to use via GitHub secrets only and specify like `{{secrets.SPLUNKBASE_TOKEN}}`."
     required: false
 
   local_app_inspect:
@@ -102,13 +106,13 @@ runs:
       id: extract_branch
 
     - name: "Clone the Repository"
-      uses: actions/checkout@v5
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
         ref: ${{ steps.extract_branch.outputs.branch }}
         path: repodir
 
     - name: Install uv (official Astral action)
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@50cb469c430ff56d9c7f512b7f3c4a20980d3387 # v4.0.0
       with:
         python-version: 3.12
 
@@ -131,6 +135,7 @@ runs:
         INPUT_IS_APP_INSPECT_CHECK: ${{inputs.is_app_inspect_check}}
         INPUT_SPLUNKBASE_USERNAME: ${{inputs.splunkbase_username}}
         INPUT_SPLUNKBASE_PASSWORD: ${{inputs.splunkbase_password}}
+        INPUT_SPLUNKBASE_TOKEN: ${{inputs.splunkbase_token}}
         INPUT_LOCAL_APP_INSPECT: ${{inputs.local_app_inspect}}
         INPUT_APP_UTILITIES: ${{inputs.app_utilities}}
         GITHUB_TOKEN: ${{inputs.my_github_token}}
@@ -144,14 +149,14 @@ runs:
         uv run python -u src/main.py
 
     - name: "Upload the app build as artifact"
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8b308b8b1f8b5acc8f7b5085c5a557c1fc # v4.6.0
       if: always()
       with:
         name: "App-Build-${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}"
         path: ${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}.tgz
 
     - name: "Upload the app-inspect reports as artifact"
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8b308b8b1f8b5acc8f7b5085c5a557c1fc # v4.6.0
       if: always()
       with:
         name: "App-Inspect-Reports-${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}"

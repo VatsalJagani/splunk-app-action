@@ -17,6 +17,12 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
     splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
     splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 
+# Build with app-inspect using token authentication (recommended)
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    splunkbase_token: ${{ secrets.SPLUNKBASE_TOKEN }}
+
 # Build with local app-inspect (faster, no credentials needed)
 - uses: VatsalJagani/splunk-app-action@v4
   with:

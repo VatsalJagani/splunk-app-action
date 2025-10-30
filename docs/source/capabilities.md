@@ -309,7 +309,19 @@ We recommend the Splunkbase API because:
 - **HTML reports** generated as GitHub artifacts (available in Actions tab)
 - **Workflow failure** on any inspect errors or failures
 
-#### Requirements:
+#### Requirements (choose one):
+
+**Option 1: Token Authentication (Recommended)**
+- `splunkbase_token`: Your Splunkbase API token (use GitHub secrets!)
+
+```yaml
+- uses: VatsalJagani/splunk-app-action@v4
+    with:
+        app_dir: "my_app"
+        splunkbase_token: ${{ secrets.SPLUNKBASE_TOKEN }}
+```
+
+**Option 2: Username/Password Authentication (Legacy)**
 - `splunkbase_username`: Your Splunkbase account username
 - `splunkbase_password`: Your Splunkbase account password (use GitHub secrets!)
 
@@ -319,6 +331,10 @@ We recommend the Splunkbase API because:
         app_dir: "my_app"
         splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
         splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+```
+
+```{tip}
+For improved security, use token-based authentication. See the [Security Best Practices](security.md) page for more information.
 ```
 
 ### Local App Inspect (Faster Alternative)

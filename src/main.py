@@ -166,15 +166,23 @@ def main() -> None:
                 gat.info("Using Splunkbase API for Splunk app inspect validation")
                 splunkbase_username = gat.get_user_input("splunkbase_username")
                 splunkbase_password = gat.get_user_input("splunkbase_password")
+                splunkbase_token = gat.get_user_input("splunkbase_token")
 
-                if splunkbase_username is None or splunkbase_password is None:
-                    gat.error(
-                        "✅ splunkbase_username and splunkbase_password are required for app inspect."
-                    )
-                    return
+                # Validate that we have either token OR username+password
+                if not splunkbase_token:
+                    if not splunkbase_username or not splunkbase_password:
+                        gat.error(
+                            "Either splunkbase_token OR both splunkbase_username and splunkbase_password are required for app inspect."
+                        )
+                        return
 
                 SplunkAppInspect(
-                    saved_paths, app_info, build_path, splunkbase_username, splunkbase_password
+                    saved_paths,
+                    app_info,
+                    build_path,
+                    splunkbase_username,
+                    splunkbase_password,
+                    splunkbase_token,
                 ).run_all_checks()
         else:
             gat.info("✅ App inspect checks disabled - skipping")

@@ -28,21 +28,20 @@ class SplunkAppInspect:
         saved_paths: SavedPaths,
         app_info: AppInfo,
         app_build_path: str,
-        splunkbase_username: str,
-        splunkbase_password: str,
+        splunkbase_username: str | None = None,
+        splunkbase_password: str | None = None,
+        splunkbase_token: str | None = None,
     ) -> None:
-        self.splunkbase_username: str = splunkbase_username
-        self.splunkbase_password: str = splunkbase_password
+        self.splunkbase_username: str | None = splunkbase_username
+        self.splunkbase_password: str | None = splunkbase_password
+        self.splunkbase_token: str | None = splunkbase_token
 
-        if not self.splunkbase_username:
-            msg = "splunkbase_username input is not provided."
-            gat.error(msg)
-            raise Exception(msg)
-
-        if not self.splunkbase_password:
-            msg = "splunkbase_password input is not provided."
-            gat.error(msg)
-            raise Exception(msg)
+        # Validate that we have either token OR username+password
+        if not self.splunkbase_token:
+            if not self.splunkbase_username or not self.splunkbase_password:
+                msg = "Either splunkbase_token OR both splunkbase_username and splunkbase_password must be provided."
+                gat.error(msg)
+                raise Exception(msg)
 
         self.app_build_path: str = app_build_path
 
@@ -68,7 +67,21 @@ class SplunkAppInspect:
         os.chdir(saved_paths.root_dir_path)
 
     def _api_login(self):
-        gat.info("Starting Splunkbase API authentication...")
+        # If token is provided, use it directly
+        if self.splunkbase_token:
+            gat.info("Using provided Splunkbase API token for authentication...")
+            self.headers = {
+                "Authorization": f"bearer {self.splunkbase_token}",
+            }
+            self.headers_report = {
+                "Authorization": f"bearer {self.splunkbase_token}",
+                "Content-Type": "text/html",
+            }
+            gat.info("Splunkbase API token authentication configured successfully")
+            return
+
+        # Otherwise, use username/password to get a token
+        gat.info("Starting Splunkbase API authentication with username/password...")
         gat.debug(f"Authenticating user: {self.splunkbase_username}")
 
         response = requests.request(

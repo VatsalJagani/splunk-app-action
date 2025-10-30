@@ -44,13 +44,19 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 - **Required:** false
 - **Default:** true
 
+### `splunkbase_token`
+- **Description:** Splunkbase API token for authentication. **Recommended over username/password for improved security.** When provided, splunkbase_username and splunkbase_password are not required.
+- **Required:** false
+- **Usage:** Always use via GitHub secrets: `${{ secrets.SPLUNKBASE_TOKEN }}`
+- **Security Note:** Token authentication is more secure as it allows for easier token rotation and doesn't expose your password.
+
 ### `splunkbase_username`
-- **Description:** Username required to call the Splunkbase API for App-Inspect. Required when is_app_inspect_check is set to true.
+- **Description:** Username required to call the Splunkbase API for App-Inspect. Required when is_app_inspect_check is set to true and splunkbase_token is not provided.
 - **Required:** false
 - **Usage:** Always use via GitHub secrets: `${{ secrets.SPLUNKBASE_USERNAME }}`
 
 ### `splunkbase_password`
-- **Description:** Password required to call the Splunkbase API for App-Inspect. Required when is_app_inspect_check is set to true. Strongly recommend to use via GitHub secrets only.
+- **Description:** Password required to call the Splunkbase API for App-Inspect. Required when is_app_inspect_check is set to true and splunkbase_token is not provided. Strongly recommend to use via GitHub secrets only.
 - **Required:** false  
 - **Usage:** Always use via GitHub secrets: `${{ secrets.SPLUNKBASE_PASSWORD }}`
 

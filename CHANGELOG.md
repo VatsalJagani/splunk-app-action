@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Security Enhancements**
+  - Added support for Splunkbase token-based authentication via new `splunkbase_token` input parameter
+  - Token authentication is now the recommended method for improved security
+  - Comprehensive security documentation page with best practices for secrets management, permissions, and supply chain security
+  - Documented use of GitHub Environments for enhanced secret management and approval workflows
+  - Documented minimal required workflow permissions (contents: read for basic usage, contents: write + pull-requests: write for utilities)
+
+- **Supply Chain Security**
+  - Pinned all reusable GitHub Actions to specific commit SHAs to prevent supply chain attacks
+  - actions/checkout pinned to v4.2.2 (11bd71901bbe5b1630ceea73d27597364c9af683)
+  - astral-sh/setup-uv pinned to v4.0.0 (50cb469c430ff56d9c7f512b7f3c4a20980d3387)
+  - actions/upload-artifact pinned to v4.6.0 (ea165f8b308b8b1f8b5acc8f7b5085c5a557c1fc)
+  - softprops/action-gh-release pinned to v2.2.0 (c062e08bd532815e2082a85e87e3ef29c3e6d191)
+  - VatsalJagani/pytest-cov-action pinned to v1.3 (9e6db111ee2ae88cf6d84dce04416f8b069f5a17)
+
 - **Enhanced Action Outputs** - New output variables for better workflow integration
   - `build_path` - Full path to the generated build artifact (.tgz file)
   - `artifact_name` - Name of the generated build artifact (e.g., my_app_1.0.0_1.tgz)

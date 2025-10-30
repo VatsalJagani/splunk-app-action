@@ -2,6 +2,10 @@
 
 This page provides comprehensive examples for different use cases of the splunk-app-action.
 
+:::{note}
+**Security Recommendation:** For app-inspect authentication, we recommend using `splunkbase_token` instead of `splunkbase_username` and `splunkbase_password`. Token-based authentication is more secure and easier to rotate. See the [Security Best Practices](security.md) page for more information.
+:::
+
 ## Basic Examples
 
 ### Simple App Build
@@ -21,8 +25,30 @@ jobs:
           app_dir: "my_app"
 ```
 
-### Build with App-Inspect
-Include Splunkbase app-inspect checks:
+### Build with App-Inspect (Token Authentication - Recommended)
+Include Splunkbase app-inspect checks using secure token authentication:
+
+```yaml
+name: Build and Inspect
+on: [push]
+
+permissions:
+  contents: read  # Minimal required permissions
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: production  # Use environment for secret management
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          splunkbase_token: ${{ secrets.SPLUNKBASE_TOKEN }}
+```
+
+### Build with App-Inspect (Username/Password - Legacy)
+Include Splunkbase app-inspect checks using username/password:
 
 ```yaml
 name: Build and Inspect

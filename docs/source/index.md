@@ -9,6 +9,7 @@ overview
 capabilities
 examples
 inputs
+security
 troubleshooting
 ```
 
