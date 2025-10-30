@@ -41,7 +41,7 @@ class SplunkAppInspect:
             if not self.splunkbase_username or not self.splunkbase_password:
                 msg = "Either splunkbase_token OR both splunkbase_username and splunkbase_password must be provided."
                 gat.error(msg)
-                raise Exception(msg)
+                raise ValueError(msg)
 
         self.app_build_path: str = app_build_path
 
@@ -88,7 +88,7 @@ class SplunkAppInspect:
         if not self.splunkbase_username or not self.splunkbase_password:
             msg = "Username and password must be provided for password-based authentication"
             gat.error(msg)
-            raise Exception(msg)
+            raise ValueError(msg)
         
         gat.debug(f"Authenticating user: {self.splunkbase_username}")
 
@@ -102,7 +102,7 @@ class SplunkAppInspect:
 
         if response.status_code != 200:
             gat.error(f"Authentication failed with status {response.status_code}: {response.text}")
-            raise Exception("Unable to authenticate with Splunkbase API")
+            raise RuntimeError(f"Unable to authenticate with Splunkbase API: HTTP {response.status_code}")
 
         res = response.json()
         token = res["data"]["token"]
@@ -312,7 +312,7 @@ class SplunkAppInspect:
             else:
                 msg = f"Splunk app inspect checks failed - results: [app-inspect: {self.app_inspect_result[0]}, cloud-checks: {self.app_inspect_result[1]}, ssai-checks: {self.app_inspect_result[2]}]"
                 gat.error(msg)
-                raise Exception(msg)
+                raise RuntimeError(msg)
 
 
 class SplunkLocalAppInspect:
@@ -617,4 +617,4 @@ class SplunkLocalAppInspect:
             else:
                 msg = f"Local Splunk app inspect checks failed - results: [app-inspect: {self.app_inspect_result[0]}, cloud-checks: {self.app_inspect_result[1]}, ssai-checks: {self.app_inspect_result[2]}]"
                 gat.error(msg)
-                raise Exception(msg)
+                raise RuntimeError(msg)
