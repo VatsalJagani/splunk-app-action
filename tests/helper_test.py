@@ -58,8 +58,12 @@ def setup_action_yml(
 
     os.chdir(temp_dir_for_test_path)
 
-    # Save original GITHUB_WORKSPACE if it exists
+    # Save original environment variables
     original_github_workspace = os.environ.get("GITHUB_WORKSPACE")
+    original_github_step_summary = os.environ.get("GITHUB_STEP_SUMMARY")
+
+    # Create a temporary file for job summary
+    summary_file_path = os.path.join(temp_dir_for_test_path, "job_summary.md")
 
     # setup inputs
     os.environ["INPUT_APP_DIR"] = app_dir
@@ -81,6 +85,9 @@ def setup_action_yml(
     # Set GITHUB_WORKSPACE to the test directory so main() works correctly
     os.environ["GITHUB_WORKSPACE"] = temp_dir_for_test_path
 
+    # Set GITHUB_STEP_SUMMARY for job summary writing
+    os.environ["GITHUB_STEP_SUMMARY"] = summary_file_path
+
     try:
         yield
     finally:
@@ -91,12 +98,16 @@ def setup_action_yml(
             pass
         os.chdir(repo_root_dir_path)
 
-        # Restore original GITHUB_WORKSPACE
+        # Restore original environment variables
         if original_github_workspace is not None:
             os.environ["GITHUB_WORKSPACE"] = original_github_workspace
         else:
-            # Remove GITHUB_WORKSPACE if it wasn't set originally
             os.environ.pop("GITHUB_WORKSPACE", None)
+
+        if original_github_step_summary is not None:
+            os.environ["GITHUB_STEP_SUMMARY"] = original_github_step_summary
+        else:
+            os.environ.pop("GITHUB_STEP_SUMMARY", None)
 
 
 @contextmanager
