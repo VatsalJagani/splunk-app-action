@@ -10,6 +10,14 @@ from utilities.base_utility import BaseUtility
 
 
 class WhatsInsideTheAppUtility(BaseUtility):
+    """
+    Utility to generate and maintain a "What's inside the App" section in README.
+
+    Automatically scans the Splunk app for dashboards, reports, alerts, custom commands,
+    and other configuration elements, then generates or updates a summary section in the
+    README file documenting what features are included in the app.
+    """
+
     IMP_CONF_FILES: dict[str, str] = {
         "savedsearches": "Reports and Alerts",
         "commands": "Custom Commands",
@@ -23,6 +31,12 @@ class WhatsInsideTheAppUtility(BaseUtility):
     }
 
     def _get_readme_file_location(self) -> str | None:
+        """
+        Locate the README file in the app directory.
+
+        Returns:
+            Path to README.md or README.txt if found, None otherwise.
+        """
         for file in os.listdir(self.app_write_dir):
             if file.lower() in ["readme.md", "readme.txt"]:
                 return os.path.join(self.app_write_dir, file)
@@ -31,7 +45,13 @@ class WhatsInsideTheAppUtility(BaseUtility):
     @override
     def implement_utility(self) -> str | bool | None:
         """
-        It returns the file_path of README file when the file has been changed, otherwise None
+        Generate or update the "What's inside the App" section in README.
+
+        Scans the app for various components (dashboards, alerts, commands, etc.)
+        and updates the README file with a formatted summary of what's included.
+
+        Returns:
+            Path to the updated README file if changes were made, None otherwise.
         """
         gat.info("📋 Adding WhatsInsideTheAppUtility")
         start_markers = [

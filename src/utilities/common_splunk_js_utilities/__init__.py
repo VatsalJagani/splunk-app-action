@@ -8,8 +8,24 @@ from utilities.base_utility import BaseUtility
 
 
 class CommonJSUtilitiesFile(BaseUtility):
+    """
+    Utility to add common JavaScript utilities file to a Splunk app.
+
+    Adds the `splunk_common_js_v_utilities.js` file to the app's static directory,
+    providing reusable JavaScript functions for Splunk app development.
+    """
+
     @override
     def implement_utility(self) -> str | bool | None:
+        """
+        Add the common JavaScript utilities file to the app.
+
+        Copies the JavaScript utilities file to the app's `appserver/static` directory
+        and returns the file path if changes were made.
+
+        Returns:
+            Path to the updated JavaScript file if changes were made, None otherwise.
+        """
         gat.info("📚 Adding CommonJSUtilitiesFile")
 
         folder_path = os.path.join(self.app_write_dir, "appserver", "static")
