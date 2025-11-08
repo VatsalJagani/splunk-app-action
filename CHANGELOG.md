@@ -95,6 +95,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Dependency Updates** - Upgraded dependencies to latest stable versions
+  - `basedpyright`: 1.31.7 → 1.33.0 (improved type checking)
+  - `coverage`: 7.11.0 → 7.11.1 (test coverage improvements)
+  - `github-action-toolkit`: 0.7.0 → 0.8.0 (GitHub Actions integration)
+  - `lxml`: 3.9 → 3.10 (XML processing)
+  - `pip`: 25.2 → 25.3 (package installer)
+  - `pydantic`: 2.12.3 → 2.12.4 (data validation)
+  - `requests`: 2.41.4 → 2.41.5 (HTTP library)
+  - `rich`: 8.4.2 → 9.0.0 (terminal formatting)
+  - `ruff`: 0.14.1 → 0.14.4 (linter and formatter)
+  - `splunk-appinspect`: 4.0.2 → 4.1.0 (AppInspect validation)
+  - `starlette`: 0.48.0 → 0.50.0 (web framework)
+  - `termcolor`: 3.1.0 → 3.2.0 (colored terminal output)
+
 - **Build Feature Validation** - Added validation to ensure only one build feature is used at a time
   - Users can now only use ONE of: UCC-Gen, Python-Dependency-Management, or Splunk-Python-SDK utility
   - Workflow will fail with clear error message if multiple features are enabled

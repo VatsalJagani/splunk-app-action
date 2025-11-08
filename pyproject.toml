@@ -26,8 +26,8 @@ dynamic = ["version"]
 # ---- Main dependencies ----
 
 dependencies = [
-    "github-action-toolkit>=0.6.0",
-    "pip>=25.2",
+    "github-action-toolkit>=0.8.0",
+    "pip>=25.3",
     "requests>=2.32.5",
     "splunk-add-on-ucc-framework>=6.0.1",
     "splunk-appinspect>=2.0.0",
@@ -41,10 +41,10 @@ dev = [
     "pytest>=8.3.5",
     "pytest-sugar>=1.0.0",
     "pytest-cov>=7.0.0",
-    "ruff>=0.11.9",
+    "ruff>=0.14.4",
     "codespell>=2.4.1",
     "rich>=14.0.0",
-    "basedpyright>=1.29.1",
+    "basedpyright>=1.33.0",
     "funlog>=0.2.1",
     "sphinx>=8.2.3",
     "sphinx-autobuild>=2025.8.25",
