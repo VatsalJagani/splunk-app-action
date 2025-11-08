@@ -17,6 +17,37 @@ from helpers import splunk_app_details
 from helpers.saved_values import AppInfo, SavedPaths, keep_working_dir_unchanged
 
 
+def _should_fail_on_status(
+    fail_on: str, app_inspect: str, cloud_inspect: str, ssai_inspect: str
+) -> bool:
+    """
+    Determine if the workflow should fail based on fail_on setting and status values.
+
+    Args:
+        fail_on: "errors", "warnings", or "none"
+        app_inspect: Status of app-inspect check
+        cloud_inspect: Status of cloud-inspect check
+        ssai_inspect: Status of SSAI-inspect check
+
+    Returns:
+        True if workflow should fail, False otherwise
+    """
+    if fail_on == "none":
+        return False
+
+    statuses = [app_inspect.lower(), cloud_inspect.lower(), ssai_inspect.lower()]
+
+    # Always fail on errors
+    if any(s in ["failure", "error"] for s in statuses):
+        return True
+
+    # If fail_on is "warnings", also fail on warnings
+    if fail_on == "warnings" and any(s == "warning" for s in statuses):
+        return True
+
+    return False
+
+
 def validate_mutually_exclusive_features() -> None:
     """Validate that only one build feature is enabled at a time."""
     use_ucc_gen = gat.get_user_input_as("use_ucc_gen", bool, False)
@@ -169,11 +200,20 @@ def main() -> None:
         if is_app_inspect_check:
             local_app_inspect = gat.get_user_input_as("local_app_inspect", bool, False)
 
+            # Initialize inspect objects to None
+            inspect_obj_local: SplunkLocalAppInspect | None = None
+            inspect_obj: SplunkAppInspect | None = None
+
             try:
                 if local_app_inspect:
                     # Use local app inspect with splunk-appinspect library
                     gat.info("Using local Splunk app inspect validation")
-                    SplunkLocalAppInspect(saved_paths, app_info, build_path).run_all_checks()
+                    inspect_obj_local = SplunkLocalAppInspect(saved_paths, app_info, build_path)
+                    inspect_obj_local.run_all_checks()
+                    # Get statuses from the object
+                    app_inspect_status = inspect_obj_local.app_inspect_result[0]
+                    cloud_inspect_status = inspect_obj_local.app_inspect_result[1]
+                    ssai_inspect_status = inspect_obj_local.app_inspect_result[2]
                 else:
                     # Use Splunkbase API for app inspect
                     gat.info("Using Splunkbase API for Splunk app inspect validation")
@@ -192,32 +232,32 @@ def main() -> None:
                         gat.set_output("cloud_inspect_status", cloud_inspect_status)
                         gat.set_output("ssai_inspect_status", ssai_inspect_status)
                     else:
-                        SplunkAppInspect(
+                        inspect_obj = SplunkAppInspect(
                             saved_paths,
                             app_info,
                             build_path,
                             splunkbase_username,
                             splunkbase_password,
-                        ).run_all_checks()
+                        )
+                        inspect_obj.run_all_checks()
+                        # Get statuses from the object
+                        app_inspect_status = inspect_obj.app_inspect_result[0]
+                        cloud_inspect_status = inspect_obj.app_inspect_result[1]
+                        ssai_inspect_status = inspect_obj.app_inspect_result[2]
             except Exception as e:
-                # Inspect checks may have set their own status outputs before failing
+                # Inspect checks set their status outputs before failing
+                # Try to get statuses from the exception context if they were set
+                # If we created an inspect object, get statuses from it
+                if inspect_obj_local is not None:
+                    app_inspect_status = inspect_obj_local.app_inspect_result[0]
+                    cloud_inspect_status = inspect_obj_local.app_inspect_result[1]
+                    ssai_inspect_status = inspect_obj_local.app_inspect_result[2]
+                elif inspect_obj is not None:
+                    app_inspect_status = inspect_obj.app_inspect_result[0]
+                    cloud_inspect_status = inspect_obj.app_inspect_result[1]
+                    ssai_inspect_status = inspect_obj.app_inspect_result[2]
                 # Store the exception to re-raise after writing summary
                 inspect_exception = e
-
-            # Get the statuses from outputs (they were set by the inspect classes)
-            # If not set, they'll remain as default values
-            try:
-                # Try to get from environment variables which gat.set_output sets
-                app_inspect_status = os.environ.get("OUTPUT_APP_INSPECT_STATUS", app_inspect_status)
-                cloud_inspect_status = os.environ.get(
-                    "OUTPUT_CLOUD_INSPECT_STATUS", cloud_inspect_status
-                )
-                ssai_inspect_status = os.environ.get(
-                    "OUTPUT_SSAI_INSPECT_STATUS", ssai_inspect_status
-                )
-            except Exception:
-                # Use defaults if there's any issue
-                pass
         else:
             gat.info("✅ App inspect checks disabled - skipping")
             app_inspect_status = "Skipped"
@@ -238,9 +278,35 @@ def main() -> None:
                 ssai_inspect_status=ssai_inspect_status,
             )
 
-        # Re-raise inspect exception if it occurred
-        if inspect_exception is not None:
-            raise inspect_exception
+        # Handle failure mode based on fail_on parameter
+        fail_on = gat.get_user_input("fail_on") or "errors"
+        fail_on = fail_on.lower().strip()
+
+        # Re-raise inspect exception if it occurred, unless fail_on is "none"
+        if inspect_exception is not None and fail_on != "none":
+            # Determine if we should fail based on the fail_on setting
+            gat.debug(
+                f"Checking if should fail: fail_on={fail_on}, statuses=[{app_inspect_status}, {cloud_inspect_status}, {ssai_inspect_status}]"
+            )
+            should_fail = _should_fail_on_status(
+                fail_on, app_inspect_status, cloud_inspect_status, ssai_inspect_status
+            )
+            gat.debug(f"Should fail result: {should_fail}")
+            if should_fail:
+                raise inspect_exception
+            else:
+                gat.warning(
+                    f"AppInspect checks had issues but fail_on={fail_on} - continuing without failure"
+                )
+        elif fail_on != "none":
+            # No exception but check if we should fail based on statuses
+            should_fail = _should_fail_on_status(
+                fail_on, app_inspect_status, cloud_inspect_status, ssai_inspect_status
+            )
+            if should_fail:
+                msg = f"AppInspect checks failed with fail_on={fail_on} - results: [app-inspect: {app_inspect_status}, cloud-checks: {cloud_inspect_status}, ssai-checks: {ssai_inspect_status}]"
+                gat.error(msg)
+                raise Exception(msg)
 
     except Exception as e:
         gat.error(f"Error in build generation or app inspect checks: {e}")
