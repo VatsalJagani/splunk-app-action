@@ -52,6 +52,7 @@ def _build_sarif_report(appinspect_data: dict[str, Any], check_type: str) -> dic
     results: list[dict[str, Any]] = []
     rule_ids_seen: set[str] = set()
 
+    # Navigate the nested structure: reports > groups > checks
     reports = appinspect_data.get("reports", [])
     if not isinstance(reports, list):
         reports = []
@@ -60,23 +61,40 @@ def _build_sarif_report(appinspect_data: dict[str, Any], check_type: str) -> dic
         if not isinstance(report, dict):
             continue
 
-        result_status = report.get("result", "").lower()
-        # Only include failures, errors, and warnings in SARIF
-        if result_status not in ["failure", "error", "warning"]:
+        # Get groups from each report
+        groups = report.get("groups", [])
+        if not isinstance(groups, list):
             continue
 
-        check_name = report.get("name", "unknown-check")
-        rule_id = f"splunk-appinspect/{check_name}"
+        for group in groups:
+            if not isinstance(group, dict):
+                continue
 
-        # Add rule definition if not already added
-        if rule_id not in rule_ids_seen:
-            rule_ids_seen.add(rule_id)
-            rules.append(_create_rule(report, rule_id, check_type))
+            # Get checks from each group
+            checks = group.get("checks", [])
+            if not isinstance(checks, list):
+                continue
 
-        # Add result for this check
-        result = _create_result(report, rule_id)
-        if result:
-            results.append(result)
+            for check in checks:
+                if not isinstance(check, dict):
+                    continue
+
+                result_status = check.get("result", "").lower()
+                # Only include failures, errors, and warnings in SARIF
+                if result_status not in ["failure", "error", "warning"]:
+                    continue
+
+                check_name = check.get("name", "unknown-check")
+                rule_id = f"splunk-appinspect/{check_name}"
+
+                # Add rule definition if not already added
+                if rule_id not in rule_ids_seen:
+                    rule_ids_seen.add(rule_id)
+                    rules.append(_create_rule(check, rule_id, check_type))
+
+                # Add results for this check
+                check_results = _create_result(check, rule_id)
+                results.extend(check_results)
 
     sarif_report = {
         "version": "2.1.0",
@@ -137,24 +155,12 @@ def _create_rule(report: dict[str, Any], rule_id: str, check_type: str) -> dict[
     return rule
 
 
-def _create_result(report: dict[str, Any], rule_id: str) -> dict[str, Any] | None:
-    """Create SARIF result from AppInspect check report."""
+def _create_result(report: dict[str, Any], rule_id: str) -> list[dict[str, Any]]:
+    """Create SARIF result(s) from AppInspect check report. Returns a list of results, one per message."""
+    results = []
     messages = report.get("messages", [])
     if not isinstance(messages, list):
         messages = []
-
-    # Combine all message texts
-    message_texts = []
-    for msg in messages:
-        if isinstance(msg, dict):
-            msg_text = msg.get("message", "")
-            if msg_text:
-                message_texts.append(msg_text)
-
-    if not message_texts:
-        message_texts = ["AppInspect check failed"]
-
-    combined_message = "\n".join(message_texts)
 
     # Map AppInspect result to SARIF level
     result_status = report.get("result", "").lower()
@@ -167,24 +173,52 @@ def _create_result(report: dict[str, Any], rule_id: str) -> dict[str, Any] | Non
     else:
         level = "note"
 
-    result: dict[str, Any] = {
-        "ruleId": rule_id,
-        "level": level,
-        "message": {"text": combined_message},
-    }
+    description = report.get("description", "")
 
-    # Try to extract file location from messages
-    file_path = _extract_file_path(messages)
-    if file_path:
-        result["locations"] = [
-            {
+    # Create a SARIF result for each message
+    for msg in messages:
+        if not isinstance(msg, dict):
+            continue
+
+        msg_text = msg.get("message", "")
+        if not msg_text:
+            continue
+
+        # Combine description and message text
+        combined_message = description + "\n" + msg_text if description else msg_text
+
+        result: dict[str, Any] = {
+            "ruleId": rule_id,
+            "level": level,
+            "message": {"text": combined_message},
+        }
+
+        # Add file location from message_filename/message_line
+        file_path = msg.get("message_filename")
+        line_number = msg.get("message_line")
+        if file_path:
+            location = {
                 "physicalLocation": {
-                    "artifactLocation": {"uri": file_path},
+                    "artifactLocation": {"uri": file_path}
                 }
             }
-        ]
+            if line_number:
+                location["physicalLocation"]["region"] = {
+                    "startLine": line_number
+                }
+            result["locations"] = [location]
 
-    return result
+        results.append(result)
+
+    # If no messages, create a single result
+    if not results:
+        results.append({
+            "ruleId": rule_id,
+            "level": level,
+            "message": {"text": "AppInspect check failed"}
+        })
+
+    return results
 
 
 def _extract_file_path(messages: list[dict[str, Any]]) -> str | None:

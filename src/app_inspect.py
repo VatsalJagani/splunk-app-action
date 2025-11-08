@@ -12,7 +12,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 import check_run_publisher
-import sarif_converter
+import helpers.sarif_converter as sarif_converter
 from helpers.saved_values import AppInfo, SavedPaths
 
 TIMEOUT_MAX = 240

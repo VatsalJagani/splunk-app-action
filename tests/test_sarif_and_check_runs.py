@@ -17,7 +17,7 @@ import unittest
 from pathlib import Path
 
 from check_run_publisher import _create_check_summary, _extract_failed_checks
-from sarif_converter import (
+from helpers.sarif_converter import (
     _create_result,
     _create_rule,
     convert_appinspect_to_sarif,
@@ -53,37 +53,49 @@ class TestSarifConverter(unittest.TestCase):
         }
         rule_id = "splunk-appinspect/check_test_example"
 
-        result = _create_result(report, rule_id)
+        results = _create_result(report, rule_id)
 
-        assert result is not None
+        assert results is not None
+        assert isinstance(results, list)
+        assert len(results) == 1
+        result = results[0]
         assert result["ruleId"] == rule_id
         assert result["level"] == "error"
         assert "This check failed" in result["message"]["text"]
 
     def test_convert_appinspect_to_sarif(self):
-        # Create a sample AppInspect JSON report
+        # Create a sample AppInspect JSON report with the correct nested structure
         appinspect_data = {
             "run_parameters": {"appinspect_version": "4.0.0"},
             "summary": {"failure": 1, "error": 0, "warning": 1},
             "reports": [
                 {
-                    "name": "check_failure_example",
-                    "description": "Example failure check",
-                    "result": "failure",
-                    "messages": [{"message": "This check failed"}],
-                },
-                {
-                    "name": "check_warning_example",
-                    "description": "Example warning check",
-                    "result": "warning",
-                    "messages": [{"message": "This is a warning"}],
-                },
-                {
-                    "name": "check_success_example",
-                    "description": "Example success check",
-                    "result": "success",
-                    "messages": [],
-                },
+                    "groups": [
+                        {
+                            "name": "test_group",
+                            "checks": [
+                                {
+                                    "name": "check_failure_example",
+                                    "description": "Example failure check",
+                                    "result": "failure",
+                                    "messages": [{"message": "This check failed"}],
+                                },
+                                {
+                                    "name": "check_warning_example",
+                                    "description": "Example warning check",
+                                    "result": "warning",
+                                    "messages": [{"message": "This is a warning"}],
+                                },
+                                {
+                                    "name": "check_success_example",
+                                    "description": "Example success check",
+                                    "result": "success",
+                                    "messages": [],
+                                },
+                            ],
+                        }
+                    ]
+                }
             ],
         }
 
