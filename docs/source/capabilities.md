@@ -290,6 +290,54 @@ Set environment variables `SPLUNK_APP_ACTION_<n>` to run commands before build g
 
 The action runs comprehensive app-inspect checks using either the **Splunkbase API** (recommended) or **local validation** with the splunk-appinspect Python library.
 
+### SARIF Code Scanning & GitHub Check Runs
+
+AppInspect results can be published as SARIF reports for GitHub Code Scanning and as GitHub Check Runs for inline feedback in Pull Requests.
+
+#### SARIF Code Scanning
+- Converts AppInspect failures, errors, and warnings to SARIF 2.1.0 format
+- Enables inline code annotations in Pull Requests
+- Integrates with GitHub Security tab for vulnerability tracking
+- Supports merge protection based on code scanning results
+
+```yaml
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    local_app_inspect: true
+    publish_sarif: true
+```
+
+```{note}
+SARIF upload requires `security-events: write` permission. Add this to your workflow:
+```yaml
+permissions:
+  security-events: write
+  contents: read
+```
+```
+
+#### GitHub Check Runs
+- Displays AppInspect status with detailed summaries
+- Shows error/warning counts and links to artifacts
+- Visible in PR checks UI for quick feedback
+- Automatically published for all AppInspect runs
+
+#### Failure Control
+Control when the workflow fails based on AppInspect results:
+
+```yaml
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    local_app_inspect: true
+    fail_on: "errors"  # Options: errors (default), warnings, none
+```
+
+- `"errors"` - Fail only on errors and failures (default)
+- `"warnings"` - Fail on warnings, errors, or failures (strict mode)
+- `"none"` - Never fail, useful for informational checks during development
+
 ### Splunkbase API (Recommended)
 
 The Splunkbase API provides the most accurate and up-to-date validation as it's the same system used when submitting apps to Splunkbase.

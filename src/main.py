@@ -244,11 +244,11 @@ def main() -> None:
                 # Inspect checks set their status outputs before failing
                 # Try to get statuses from the exception context if they were set
                 # If we created an inspect object, get statuses from it
-                if local_app_inspect and 'inspect_obj_local' in locals():
+                if local_app_inspect and "inspect_obj_local" in locals():
                     app_inspect_status = inspect_obj_local.app_inspect_result[0]
                     cloud_inspect_status = inspect_obj_local.app_inspect_result[1]
                     ssai_inspect_status = inspect_obj_local.app_inspect_result[2]
-                elif 'inspect_obj' in locals():
+                elif "inspect_obj" in locals():
                     app_inspect_status = inspect_obj.app_inspect_result[0]
                     cloud_inspect_status = inspect_obj.app_inspect_result[1]
                     ssai_inspect_status = inspect_obj.app_inspect_result[2]

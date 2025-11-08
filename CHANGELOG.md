@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **SARIF Code Scanning Support** - Publish AppInspect results for GitHub Code Scanning
+  - New `publish_sarif` input to enable SARIF report generation from AppInspect JSON results
+  - Converts AppInspect failures, errors, and warnings to SARIF 2.1.0 format
+  - Enables inline code annotations in Pull Requests for quality issues
+  - Automatically uploaded to GitHub Code Scanning via CodeQL action
+  - Supports all three inspect types (app-inspect, cloud-inspect, ssai-inspect)
+  - Merged into single SARIF file for unified reporting
+
+- **GitHub Check Runs** - Display AppInspect status with summaries
+  - Publishes check run summaries with error/warning counts
+  - Shows detailed breakdown of success, failure, error, warning, manual check, skipped, and not applicable counts
+  - Lists up to 5 failed checks with option to view full report
+  - Includes direct links to AppInspect artifacts
+  - Visible in PR checks UI for quick feedback
+
+- **Flexible Failure Modes** - Control workflow failure based on AppInspect results
+  - New `fail_on` input to control failure behavior (default: "errors")
+  - Options:
+    - `"errors"` - Fail only on errors and failures (default behavior)
+    - `"warnings"` - Fail on warnings, errors, or failures (strict quality enforcement)
+    - `"none"` - Never fail based on AppInspect results (informational mode)
+  - Allows gradual adoption of AppInspect checks without breaking builds
+  - Useful for collecting metrics while fixing existing issues
+
 - **Enhanced Action Outputs** - New output variables for better workflow integration
   - `build_path` - Full path to the generated build artifact (.tgz file)
   - `artifact_name` - Name of the generated build artifact (e.g., my_app_1.0.0_1.tgz)
