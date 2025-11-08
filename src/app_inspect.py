@@ -286,6 +286,11 @@ class SplunkAppInspect:
                 f"Inspect results - app:{self.app_inspect_result[0]}, cloud:{self.app_inspect_result[1]}, ssai:{self.app_inspect_result[2]}"
             )
 
+            # Set output variables for inspect statuses
+            gat.set_output("app_inspect_status", self.app_inspect_result[0])
+            gat.set_output("cloud_inspect_status", self.app_inspect_result[1])
+            gat.set_output("ssai_inspect_status", self.app_inspect_result[2])
+
             if all(i == "Passed" for i in self.app_inspect_result):
                 gat.info("All Splunk app inspect checks completed successfully - all checks passed")
             else:
@@ -588,6 +593,11 @@ class SplunkLocalAppInspect:
             gat.debug(
                 f"Local inspect results - app:{self.app_inspect_result[0]}, cloud:{self.app_inspect_result[1]}, ssai:{self.app_inspect_result[2]}"
             )
+
+            # Set output variables for inspect statuses
+            gat.set_output("app_inspect_status", self.app_inspect_result[0])
+            gat.set_output("cloud_inspect_status", self.app_inspect_result[1])
+            gat.set_output("ssai_inspect_status", self.app_inspect_result[2])
 
             if all(i == "Passed" for i in self.app_inspect_result):
                 gat.info(

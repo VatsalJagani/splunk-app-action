@@ -92,6 +92,12 @@ outputs:
     description: "The app version number extracted from app.conf or globalConfig.json"
   app_build_number:
     description: "The app build number extracted from app.conf"
+  app_inspect_status:
+    description: "Status of app-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)"
+  cloud_inspect_status:
+    description: "Status of cloud-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)"
+  ssai_inspect_status:
+    description: "Status of SSAI-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)"
 
 runs:
   using: "composite"

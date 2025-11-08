@@ -35,11 +35,19 @@ The action provides several output variables that can be used in subsequent work
 
 ### Available Outputs
 
+#### Build Metadata
 - `build_path` - Full path to the generated build artifact (.tgz file)
 - `artifact_name` - Name of the generated build artifact (e.g., `my_app_1.0.0_1.tgz`)
 - `app_package_id` - The Splunk app package ID extracted from app.conf or globalConfig.json
 - `app_version` - The app version number extracted from app.conf or globalConfig.json  
 - `app_build_number` - The app build number extracted from app.conf
+
+#### AppInspect Status
+- `app_inspect_status` - Status of app-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)
+- `cloud_inspect_status` - Status of cloud-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)
+- `ssai_inspect_status` - Status of SSAI-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)
+
+#### Other
 - `stdout` - Program stdout
 - `stderr` - Program stderr
 - `error` - A string of 'true' or 'false' indicating if there were errors
@@ -64,6 +72,9 @@ jobs:
           echo "Version: ${{ steps.build_app.outputs.app_version }}"
           echo "Build number: ${{ steps.build_app.outputs.app_build_number }}"
           echo "Build path: ${{ steps.build_app.outputs.build_path }}"
+          echo "App Inspect: ${{ steps.build_app.outputs.app_inspect_status }}"
+          echo "Cloud Inspect: ${{ steps.build_app.outputs.cloud_inspect_status }}"
+          echo "SSAI Inspect: ${{ steps.build_app.outputs.ssai_inspect_status }}"
       
       - name: Upload to release
         if: github.ref == 'refs/heads/main'
@@ -72,6 +83,53 @@ jobs:
           name: splunk-app-${{ steps.build_app.outputs.app_version }}
           path: ${{ steps.build_app.outputs.build_path }}
 ```
+
+## Job Summary
+
+The action automatically generates a comprehensive job summary that appears in the GitHub Actions UI. This summary provides a quick overview of the build results without having to dig through logs.
+
+### Summary Contents
+
+The job summary includes:
+
+- **Build Information Table** - Displays app package ID, version, build number, artifact name, and build path
+- **AppInspect Results Table** - Shows the status of all three inspect checks with color-coded emoji indicators:
+  - ✅ Passed
+  - ❌ Failure or Error  
+  - ⏱️ Timed-out
+  - ⚠️ Exception
+  - ⏭️ Skipped
+  - ⚪ Not Run
+- **Artifacts Section** - Provides a direct link to download workflow run artifacts
+
+### Example Summary
+
+When you view a completed workflow run in GitHub Actions, you'll see a summary like this:
+
+```markdown
+## 🎉 Splunk App Build Summary
+
+### Build Information
+| Property | Value |
+|----------|-------|
+| App Package ID | my_splunk_app |
+| Version | 2.5.1 |
+| Build Number | 123 |
+| Artifact Name | my_splunk_app_2_5_1_123.tgz |
+| Build Path | /workspace/my_splunk_app_2_5_1_123.tgz |
+
+### AppInspect Results
+| Check Type | Status |
+|------------|--------|
+| App-Inspect | ✅ Passed |
+| Cloud-Inspect | ✅ Passed |
+| SSAI-Inspect | ✅ Passed |
+
+### Artifacts
+📦 [Download artifacts from this run](https://github.com/org/repo/actions/runs/123456)
+```
+
+The summary is automatically written to `$GITHUB_STEP_SUMMARY` and appears in the workflow run page.
 
 ## Artifact Naming Convention
 
