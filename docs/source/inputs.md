@@ -60,6 +60,18 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 - **Default:** false
 - **Note:** While local validation is faster, the Splunkbase API is recommended for production use as it reflects the most current validation rules used when submitting to Splunkbase.
 
+### `app_inspect_comment_on_pr`
+- **Description:** Post app-inspect errors and failures as PR comments/annotations using GitHub Actions file annotations. When enabled, errors and failures will be commented on specific lines when file details are available.
+- **Required:** false
+- **Default:** true
+- **Note:** Uses GitHub Actions file annotation feature to highlight issues directly in the PR files view.
+
+### `app_inspect_comment_for_warnings`
+- **Description:** Include warnings in PR comments/annotations along with errors and failures. Only applies when `app_inspect_comment_on_pr` is enabled.
+- **Required:** false
+- **Default:** false
+- **Note:** Enable this to see all warnings as annotations. By default, only errors and failures are shown to reduce noise.
+
 ## Utilities Inputs
 
 ### `app_utilities`

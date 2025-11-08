@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **App-Inspect PR Comments/Annotations** - Automatic posting of app-inspect findings as GitHub PR comments
+  - New `app_inspect_comment_on_pr` input (default: true) to enable/disable PR comments feature
+  - New `app_inspect_comment_for_warnings` input (default: false) to include warnings in addition to errors/failures
+  - Parses JSON app-inspect reports and posts findings as GitHub Actions file annotations
+  - Comments appear directly on specific file lines when file details are available in the report
+  - Falls back to PR-level comments when file information is not available
+  - Uses GitHub Actions toolkit error() and warning() functions for native annotation support
+  - Helps developers quickly identify and fix app-inspect issues without downloading report files
+
 - **Enhanced Action Outputs** - New output variables for better workflow integration
   - `build_path` - Full path to the generated build artifact (.tgz file)
   - `artifact_name` - Name of the generated build artifact (e.g., my_app_1.0.0_1.tgz)
