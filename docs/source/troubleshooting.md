@@ -90,3 +90,136 @@ app_utilities: "logger"
 logger_log_files_prefix: "my_app"
 logger_sourcetype: "my_app:logs"  # recommended
 ```
+
+### Python Dependency Management Issues
+
+#### Requirements File Not Found
+```
+Requirements file not found at: lib/requirements.txt
+```
+
+**Solution:**
+- Ensure the requirements file path is relative to `app_dir`
+- Verify the file exists in your repository
+- Check that the file name matches exactly (case-sensitive)
+
+#### Dependency Installation Failures
+```
+Failed to install dependencies: pip install error
+```
+
+**Solution:**
+- Check requirements.txt for syntax errors
+- Ensure all package names are spelled correctly
+- Verify that packages are available on PyPI
+- Consider adding version constraints (e.g., `requests>=2.31.0`)
+
+#### Conflicting Dependencies
+```
+ERROR: Cannot install package-a and package-b because these package versions have conflicting dependencies
+```
+
+**Solution:**
+- Review your requirements.txt for version conflicts
+- Use specific version pinning to resolve conflicts
+- Consider using a requirements lock file
+
+### Build Generation Issues
+
+#### Missing app.conf
+```
+Missing 'version' attribute in app.conf [launcher] stanza
+```
+
+**Solution:**
+- Ensure `default/app.conf` exists in your app
+- Add required fields to app.conf:
+  ```ini
+  [launcher]
+  version = 1.0.0
+  
+  [id]
+  name = MyApp
+  
+  [package]
+  id = my_app
+  ```
+
+#### Build Path Issues
+```
+Build directory not found or access denied
+```
+
+**Solution:**
+- Ensure your workflow checks out the repository first: `uses: actions/checkout@v4`
+- Verify the `app_dir` path is correct and relative to repository root
+- Check that the directory contains a valid Splunk app structure
+
+### AppInspect Timeout Issues
+
+#### Check Times Out
+```
+App-inspect check timed out after 240 seconds
+```
+
+**Solution:**
+- Large apps may take longer to validate
+- Consider using local AppInspect instead:
+  ```yaml
+  local_app_inspect: true
+  ```
+- For production, the Splunkbase API is recommended despite longer wait times
+
+### Multiple Feature Conflicts
+
+#### Mutually Exclusive Features Error
+```
+Error: Multiple build features detected: UCC-Gen, Python-Dependency-Management
+```
+
+**Solution:**
+- Only use ONE of these features at a time:
+  - UCC-Gen (`use_ucc_gen: true`)
+  - Python Dependency Management (`python_requirements_file`)
+  - Splunk Python SDK utility (`app_utilities: splunk_python_sdk`)
+- Remove or disable the conflicting features from your workflow
+
+### SARIF Publishing Issues
+
+#### Code Scanning Not Enabled
+```
+Failed to upload SARIF: Code scanning is not enabled for this repository
+```
+
+**Solution:**
+1. Go to repository `Settings` > `Security` > `Code security and analysis`
+2. Enable "Code scanning"
+3. Or ensure you have a CodeQL workflow configured
+
+#### Invalid SARIF Format
+```
+SARIF upload failed: Invalid SARIF file format
+```
+
+**Solution:**
+- This is usually an internal issue with SARIF generation
+- Report the issue on the GitHub repository with your workflow logs
+- As a workaround, disable SARIF publishing: `publish_sarif: false`
+
+## Getting Help
+
+If you encounter issues not covered here:
+
+1. **Check the Examples** - Review the [examples page](examples.md) for working configurations
+2. **Review Inputs** - Verify your inputs against the [inputs reference](inputs.md)
+3. **Enable Debug Logging** - Add this to your workflow:
+   ```yaml
+   env:
+     ACTIONS_STEP_DEBUG: true
+   ```
+4. **Search Issues** - Look for similar problems in [GitHub Issues](https://github.com/VatsalJagani/splunk-app-action/issues)
+5. **Open an Issue** - If you've found a bug or need help, create a new issue with:
+   - Your workflow YAML
+   - Relevant error messages
+   - Steps to reproduce
+   - Expected vs actual behavior

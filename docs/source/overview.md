@@ -4,6 +4,39 @@ Welcome to **splunk-app-action**!
 
 This documentation covers the usage, capabilities, and development of the custom GitHub Action for Splunk Apps and Add-ons. It is designed for ReadTheDocs and uses MyST/Markdown formatting.
 
+## What is splunk-app-action?
+
+**splunk-app-action** is a comprehensive GitHub Action that automates the build, validation, and packaging process for Splunk Apps and Add-ons. It streamlines your development workflow by:
+
+- **Automated Build Generation** - Creates production-ready `.tgz` packages from your source code
+- **Quality Validation** - Runs Splunk AppInspect checks to ensure your app meets Splunk's quality standards
+- **Cloud Compatibility** - Validates apps for Splunk Cloud deployment
+- **UCC Support** - Seamlessly integrates with the Splunk Add-on UCC Framework for building modern add-ons
+- **Python Dependency Management** - Automatically installs Python dependencies at build time
+- **Utility Integration** - Adds common utilities like logging, Python SDK, and JavaScript helpers
+- **Security Scanning** - Integrates with GitHub Code Scanning for security analysis
+
+## Key Features
+
+### Build Automation
+- Generate builds from any branch or pull request
+- Support for multiple apps in a single repository
+- Customizable build process with user-defined commands
+- Automatic file permission management for AppInspect compliance
+
+### Quality Assurance
+- **AppInspect** - Core Splunk app validation
+- **Cloud-Inspect** - Splunk Cloud compatibility checks
+- **SSAI-Inspect** - Self-Service App Installation validation
+- Configurable failure thresholds (errors, warnings, or never fail)
+- SARIF report generation for GitHub Code Scanning
+
+### Developer Productivity
+- Automatic PR creation when using app utilities
+- Comprehensive job summaries with build metadata
+- Detailed output variables for workflow integration
+- Support for GitHub Dependabot with Python dependency management
+
 ## Supported Operating Systems
 
 This GitHub Action is designed to run on **Linux-based GitHub Actions runners** and has been extensively tested on:
