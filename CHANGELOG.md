@@ -74,6 +74,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Mutually exclusive with UCC-Gen and Splunk-Python-SDK utility to prevent conflicts
   - Can replicate splunk-python-sdk installation functionality by using `splunk-sdk` in requirements.txt
 
+- **Comprehensive Code Documentation** - Added docstrings throughout the codebase
+  - Added comprehensive docstrings to all previously undocumented classes and functions
+  - Core modules: `app_build_generate.py`, `ucc_gen.py`, `app_utilities.py`
+  - Helper modules: `file_manager.py` (all handler classes), `saved_values.py` (AppInfo, SavedPaths)
+  - All utility classes: `BaseUtility`, `LoggerUtility`, `SplunkPythonSDKUtility`, `WhatsInsideTheAppUtility`, `UCCAdditionalPackagingUtility`, `CommonJSUtilitiesFile`
+  - All docstrings follow consistent style with parameter descriptions, return value documentation, and behavioral context
+
+- **Enhanced Documentation Pages** - Improved documentation completeness and consistency
+  - Enhanced `overview.md` with comprehensive introduction explaining action purpose, key features, and capabilities
+  - Significantly expanded `troubleshooting.md` with 10+ additional issue scenarios including Python dependency failures, build errors, AppInspect timeouts, feature conflicts, and SARIF publishing issues
+  - Rewrote `CONTRIBUTING.md` with detailed contribution workflow, development setup steps, coding standards, and testing guidelines
+
 - New Documentation
   - Moved comprehensive documentation from README to dedicated Read the Docs site.
   - Enhanced documentation with dedicated troubleshooting section and debugging steps.
