@@ -8,8 +8,22 @@ from utilities.base_utility import BaseUtility
 
 
 class UCCAdditionalPackagingUtility(BaseUtility):
+    """
+    Utility to add additional packaging script for UCC-based add-ons.
+
+    Adds the `additional_packaging.py` script to UCC add-on projects, which can be
+    used for custom build steps or packaging requirements beyond the standard UCC
+    generator output.
+    """
+
     @override
     def implement_utility(self) -> str | None:
+        """
+        Add the additional_packaging.py script to the app directory.
+
+        Returns:
+            Path to the added script if changes were made, None otherwise.
+        """
         gat.info("📦 Adding UCCAdditionalPackagingUtility")
 
         folder_path = os.path.dirname(

@@ -8,14 +8,39 @@ from utilities.base_utility import BaseUtility
 
 
 class LoggerUtility(BaseUtility):
+    """
+    Utility to add logging functionality to a Splunk app.
+
+    Adds a logger manager module and configures props.conf for log indexing,
+    enabling structured logging within Splunk apps with customizable log file
+    prefixes and sourcetypes.
+    """
+
     words_for_replacement: dict[str, str]
 
     def __init__(self, app_read_dir: str, app_write_dir: str) -> None:
+        """
+        Initialize the logger utility.
+
+        Args:
+            app_read_dir: Directory to read the original app files from.
+            app_write_dir: Directory to write modified app files to.
+        """
         super().__init__(app_read_dir, app_write_dir)
         self.words_for_replacement = {}
 
     @override
     def implement_utility(self) -> str | list[str] | bool | None:
+        """
+        Add logger manager and props configuration to the app.
+
+        Retrieves user inputs for log file prefix and sourcetype, adds the logger
+        manager Python module, and configures props.conf for log indexing.
+
+        Returns:
+            List of modified file paths if changes were made, False if required
+            inputs are missing, None if no changes were needed.
+        """
         gat.info("📝 Adding LoggerUtility")
         should_execute = True
 
@@ -50,14 +75,26 @@ class LoggerUtility(BaseUtility):
             ]
         gat.info("Logger utility - no changes needed")
 
-    def add_logger_manager_py(self):
+    def add_logger_manager_py(self) -> bool:
+        """
+        Add logger_manager.py file to the app's bin directory.
+
+        Returns:
+            True if the file was added or updated, False otherwise.
+        """
         return FullRawFileHandler(
             os.path.join(os.path.dirname(__file__), "logger_manager.py"),
             os.path.join(self.app_write_dir, "bin", "logger_manager.py"),
             self.words_for_replacement,
         ).validate_file_content()
 
-    def add_props_content(self):
+    def add_props_content(self) -> bool:
+        """
+        Add logger configuration to the app's default/props.conf file.
+
+        Returns:
+            True if the configuration was added or updated, False otherwise.
+        """
         return PartConfFileHandler(
             os.path.join(os.path.dirname(__file__), "props.conf"),
             os.path.join(self.app_write_dir, "default", "props.conf"),

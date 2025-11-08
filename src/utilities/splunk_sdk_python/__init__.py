@@ -9,7 +9,23 @@ from utilities.base_utility import BaseUtility
 
 
 class SplunkPythonSDKUtility(BaseUtility):
+    """
+    Utility to add the Splunk Python SDK to a Splunk app.
+
+    Installs the Splunk SDK for Python into the app's lib directory, enabling
+    apps to interact with Splunk's REST API and services programmatically.
+    """
+
     def _get_splunklib_version(self, file_path: str) -> str | None:
+        """
+        Extract the version number from the splunklib __init__.py file.
+
+        Args:
+            file_path: Path to the splunklib __init__.py file.
+
+        Returns:
+            Version string if found, None otherwise.
+        """
         try:
             with open(file_path) as f:
                 match = re.search(r"\n__version_info__\s*=\s*([^\n]+)", f.read())
@@ -21,6 +37,12 @@ class SplunkPythonSDKUtility(BaseUtility):
         return None
 
     def remove_pycache(self, directory: str) -> None:
+        """
+        Remove Python cache files and directories from the specified directory.
+
+        Args:
+            directory: Root directory to clean cache files from.
+        """
         for root, dirs, files in os.walk(directory):
             for file in files:
                 if file.endswith(".pyc"):

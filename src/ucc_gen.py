@@ -7,7 +7,20 @@ from helpers.saved_values import AppInfo, SavedPaths
 
 
 def build(saved_paths: SavedPaths, app_info: AppInfo) -> str:
-    """Build UCC-based add-on and return the build directory name."""
+    """
+    Build UCC-based add-on using the ucc-gen command and return the build directory name.
+
+    Creates a temporary build directory, copies the repository, executes the ucc-gen
+    build command with the appropriate version, and copies the generated output to
+    the final build location.
+
+    Args:
+        saved_paths: Container for directory paths used during the build process.
+        app_info: Application metadata including package ID and version number.
+
+    Returns:
+        Name of the directory containing the generated UCC build ("ucc_generated_build").
+    """
     # copy folder to generate build, rather than affecting the original repo checkout
     gat.debug("Preparing temporary build directory")
     if os.path.exists("ucc_build_dir"):

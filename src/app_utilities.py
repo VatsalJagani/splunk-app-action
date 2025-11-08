@@ -8,12 +8,28 @@ from utilities.whats_inside_app import WhatsInsideTheAppUtility
 
 
 class SplunkAppUtilities:
+    """
+    Manage and apply various utilities to Splunk Apps and Add-ons.
+
+    This class processes user-configured utilities and applies them to the app,
+    including features like logging, Python SDK integration, JavaScript utilities,
+    and more. Each utility can modify the app structure or add additional files.
+    """
+
     def __init__(
         self,
         app_read_dir: str,
         app_write_dir: str,
         is_test: bool = False,
     ) -> None:
+        """
+        Initialize the SplunkAppUtilities manager.
+
+        Args:
+            app_read_dir: Directory to read the original app files from.
+            app_write_dir: Directory to write modified app files to.
+            is_test: Flag indicating if running in test mode. Defaults to False.
+        """
         self.app_read_dir: str = app_read_dir
         self.app_write_dir: str = app_write_dir
         self.is_test: bool = is_test
@@ -29,6 +45,16 @@ class SplunkAppUtilities:
         self.add_utilities(app_utilities_list)
 
     def add_utilities(self, app_utilities: list[str]) -> None:
+        """
+        Add and configure utilities for the Splunk app.
+
+        Processes the list of utility names and applies each one to the app.
+        Supported utilities include whats_in_the_app, logger, splunk_python_sdk,
+        common_js_utilities, and ucc_additional_packaging.
+
+        Args:
+            app_utilities: List of utility names to add to the app.
+        """
         if not app_utilities:
             gat.info("🛠️ No utilities specified - skipping")
             return

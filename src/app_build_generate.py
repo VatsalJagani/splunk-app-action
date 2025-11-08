@@ -62,7 +62,14 @@ def file_folder_permission_changes() -> None:
         gat.debug("File permission changes disabled - skipping")
 
 
-def run_custom_user_defined_commands():
+def run_custom_user_defined_commands() -> None:
+    """
+    Execute custom user-defined commands from environment variables.
+
+    Looks for commands in environment variables named `SPLUNK_APP_ACTION_1` through
+    `SPLUNK_APP_ACTION_100` and executes them sequentially. Logs warnings for any
+    commands that fail but continues execution.
+    """
     gat.info("⚙️ Executing custom user-defined commands")
     commands_executed = 0
     for no in range(1, 100):
@@ -84,6 +91,21 @@ def run_custom_user_defined_commands():
 
 
 def generate_build(saved_paths: SavedPaths, app_info: AppInfo, app_build_dir_name: str) -> str:
+    """
+    Generate the final Splunk app build package as a tarball.
+
+    Renames the build directory to the package ID, performs cleanup operations,
+    executes custom commands, adjusts file permissions if needed, and creates
+    a compressed tarball of the app package.
+
+    Args:
+        saved_paths: Container for directory paths used during the build process.
+        app_info: Application metadata including package ID, version, and build number.
+        app_build_dir_name: Name of the directory containing the build files.
+
+    Returns:
+        Full path to the generated tarball (.tgz) file.
+    """
     with gat.group("🏗️ Generating app build package"):
         gat.debug(
             f"Build parameters - package_id: {app_info.package_id}, version: {app_info.version_number_encoded}, build: {app_info.build_number_encoded}"

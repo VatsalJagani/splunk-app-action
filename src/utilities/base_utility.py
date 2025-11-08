@@ -7,11 +7,33 @@ from helpers.file_manager import get_file_hash, get_folder_hash, get_multi_files
 
 
 class BaseUtility:
+    """
+    Base class for Splunk app utilities that can be applied to apps.
+
+    Provides common functionality for applying utilities to Splunk apps,
+    including automatic PR creation when changes are detected. Child classes
+    must implement the `implement_utility` method to define specific utility behavior.
+    """
+
     def __init__(self, app_read_dir: str, app_write_dir: str) -> None:
+        """
+        Initialize the base utility with read and write directories.
+
+        Args:
+            app_read_dir: Directory to read the original app files from.
+            app_write_dir: Directory to write modified app files to.
+        """
         self.app_read_dir: str = app_read_dir
         self.app_write_dir: str = app_write_dir
 
     def add(self) -> None:
+        """
+        Apply the utility to the app and create a PR if changes are detected.
+
+        Executes the utility implementation, calculates file hashes to detect changes,
+        and automatically creates a pull request if files were modified. Handles
+        different return types from the utility implementation (bool, str, Sequence).
+        """
         with gat.group(f"🛠️ Applying Utility: {type(self).__name__}"):
             try:
                 with gat.Repo(path=self.app_write_dir, cleanup=True) as github:
@@ -53,6 +75,20 @@ class BaseUtility:
                 gat.error(f"Error in utility {type(self).__name__}: {e}")
 
     def implement_utility(self) -> str | Sequence[str] | bool | None:
+        """
+        Implement the specific utility functionality.
+
+        Must be overridden by child classes to provide the actual utility implementation.
+
+        Returns:
+            - str: Path to a modified file or directory
+            - Sequence[str]: List of paths to modified files
+            - bool: True if changes were made, False otherwise
+            - None: No changes were made
+
+        Raises:
+            NotImplementedError: If not implemented in child class.
+        """
         raise NotImplementedError(
             "The implement_utility function must be implemented in the child class."
         )
