@@ -11,6 +11,8 @@ import github_action_toolkit as gat
 import requests
 from requests.auth import HTTPBasicAuth
 
+import check_run_publisher
+import sarif_converter
 from helpers.saved_values import AppInfo, SavedPaths
 
 TIMEOUT_MAX = 240
@@ -599,6 +601,14 @@ class SplunkLocalAppInspect:
             gat.set_output("cloud_inspect_status", self.app_inspect_result[1])
             gat.set_output("ssai_inspect_status", self.app_inspect_result[2])
 
+            # Generate SARIF reports if enabled
+            publish_sarif = gat.get_user_input_as("publish_sarif", bool, False)
+            if publish_sarif:
+                self._generate_sarif_reports()
+
+            # Publish check runs
+            self._publish_check_runs()
+
             if all(i == "Passed" for i in self.app_inspect_result):
                 gat.info(
                     "All local Splunk app inspect checks completed successfully - all checks passed"
@@ -607,3 +617,73 @@ class SplunkLocalAppInspect:
                 msg = f"Local Splunk app inspect checks failed - results: [app-inspect: {self.app_inspect_result[0]}, cloud-checks: {self.app_inspect_result[1]}, ssai-checks: {self.app_inspect_result[2]}]"
                 gat.error(msg)
                 raise Exception(msg)
+
+    def _generate_sarif_reports(self) -> None:
+        """Generate SARIF reports from JSON AppInspect results."""
+        try:
+            gat.info("Generating SARIF reports from AppInspect results...")
+
+            sarif_files = []
+
+            # Convert app-inspect report
+            app_json = os.path.join(
+                self.app_inspect_report_dir, f"{self.report_name_prefix}_app_inspect_check.json"
+            )
+            if os.path.exists(app_json):
+                app_sarif = os.path.join(
+                    self.app_inspect_report_dir,
+                    f"{self.report_name_prefix}_app_inspect_check.sarif",
+                )
+                sarif_converter.convert_appinspect_to_sarif(app_json, app_sarif, "app-inspect")
+                sarif_files.append(app_sarif)
+
+            # Convert cloud-inspect report
+            cloud_json = os.path.join(
+                self.app_inspect_report_dir,
+                f"{self.report_name_prefix}_cloud_inspect_check.json",
+            )
+            if os.path.exists(cloud_json):
+                cloud_sarif = os.path.join(
+                    self.app_inspect_report_dir,
+                    f"{self.report_name_prefix}_cloud_inspect_check.sarif",
+                )
+                sarif_converter.convert_appinspect_to_sarif(
+                    cloud_json, cloud_sarif, "cloud-inspect"
+                )
+                sarif_files.append(cloud_sarif)
+
+            # Convert SSAI-inspect report
+            ssai_json = os.path.join(
+                self.app_inspect_report_dir, f"{self.report_name_prefix}_ssai_inspect_check.json"
+            )
+            if os.path.exists(ssai_json):
+                ssai_sarif = os.path.join(
+                    self.app_inspect_report_dir,
+                    f"{self.report_name_prefix}_ssai_inspect_check.sarif",
+                )
+                sarif_converter.convert_appinspect_to_sarif(ssai_json, ssai_sarif, "ssai-inspect")
+                sarif_files.append(ssai_sarif)
+
+            # Merge all SARIF reports into one
+            if sarif_files:
+                merged_sarif = os.path.join(self.app_inspect_report_dir, "appinspect.sarif")
+                sarif_converter.merge_sarif_reports(sarif_files, merged_sarif)
+                gat.info(f"SARIF reports generated and merged: {merged_sarif}")
+
+        except Exception as e:
+            gat.warning(f"Failed to generate SARIF reports: {e}")
+            # Don't fail the whole run if SARIF generation fails
+
+    def _publish_check_runs(self) -> None:
+        """Publish GitHub Check Runs for AppInspect results."""
+        try:
+            gat.info("Publishing GitHub Check Runs for AppInspect results...")
+            check_run_publisher.publish_appinspect_check_runs(
+                app_inspect_status=self.app_inspect_result[0],
+                cloud_inspect_status=self.app_inspect_result[1],
+                ssai_inspect_status=self.app_inspect_result[2],
+                report_dir=self.app_inspect_report_dir,
+            )
+        except Exception as e:
+            gat.warning(f"Failed to publish check runs: {e}")
+            # Don't fail the whole run if check run publishing fails
