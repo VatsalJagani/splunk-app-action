@@ -44,6 +44,16 @@ inputs:
     required: false
     default: false
 
+  app_inspect_comment_on_pr:
+    description: "Post app-inspect errors and failures as PR comments/annotations using GitHub Actions file annotations. When enabled, errors and failures will be commented on specific lines when file details are available."
+    required: false
+    default: true
+
+  app_inspect_comment_for_warnings:
+    description: "Include warnings in PR comments/annotations along with errors and failures. Only applies when app_inspect_comment_on_pr is enabled."
+    required: false
+    default: false
+
   app_utilities:
     description: "Add comma separated list of utilities to use. You need to enable read and write permission for workflow to create Pull Requests. Valid options: whats_in_the_app, logger, splunk_python_sdk, common_js_utilities, ucc_additional_packaging"
     required: false
@@ -138,6 +148,8 @@ runs:
         INPUT_SPLUNKBASE_USERNAME: ${{inputs.splunkbase_username}}
         INPUT_SPLUNKBASE_PASSWORD: ${{inputs.splunkbase_password}}
         INPUT_LOCAL_APP_INSPECT: ${{inputs.local_app_inspect}}
+        INPUT_APP_INSPECT_COMMENT_ON_PR: ${{inputs.app_inspect_comment_on_pr}}
+        INPUT_APP_INSPECT_COMMENT_FOR_WARNINGS: ${{inputs.app_inspect_comment_for_warnings}}
         INPUT_APP_UTILITIES: ${{inputs.app_utilities}}
         GITHUB_TOKEN: ${{inputs.my_github_token}}
         INPUT_CURRENT_BRANCH_NAME: ${{steps.extract_branch.outputs.branch}}

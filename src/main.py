@@ -204,6 +204,34 @@ def main() -> None:
                 # Store the exception to re-raise after writing summary
                 inspect_exception = e
 
+            # Post app inspect comments/annotations if enabled
+            app_inspect_comment_on_pr = gat.get_user_input_as(
+                "app_inspect_comment_on_pr", bool, True
+            )
+            if app_inspect_comment_on_pr:
+                with gat.group("💬 Posting App Inspect Comments"):
+                    try:
+                        from helpers.app_inspect_report_commenter import AppInspectReportCommenter
+
+                        app_inspect_comment_for_warnings = gat.get_user_input_as(
+                            "app_inspect_comment_for_warnings", bool, False
+                        )
+
+                        # Determine the report directory
+                        report_name_prefix = f"{app_info.package_id}_{app_info.version_number_encoded}_{app_info.build_number_encoded}"
+                        report_dir = f"{report_name_prefix}_reports"
+
+                        # Create commenter and post comments
+                        commenter = AppInspectReportCommenter(
+                            report_dir=report_dir,
+                            app_dir=saved_paths.app_dir_path,
+                            include_warnings=app_inspect_comment_for_warnings,
+                        )
+                        commenter.post_comments()
+
+                    except Exception as e:
+                        gat.warning(f"Failed to post app inspect comments: {e}")
+
             # Get the statuses from outputs (they were set by the inspect classes)
             # If not set, they'll remain as default values
             try:
