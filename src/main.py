@@ -200,6 +200,10 @@ def main() -> None:
         if is_app_inspect_check:
             local_app_inspect = gat.get_user_input_as("local_app_inspect", bool, False)
 
+            # Initialize inspect objects to None
+            inspect_obj_local: SplunkLocalAppInspect | None = None
+            inspect_obj: SplunkAppInspect | None = None
+
             try:
                 if local_app_inspect:
                     # Use local app inspect with splunk-appinspect library
@@ -244,11 +248,11 @@ def main() -> None:
                 # Inspect checks set their status outputs before failing
                 # Try to get statuses from the exception context if they were set
                 # If we created an inspect object, get statuses from it
-                if local_app_inspect and "inspect_obj_local" in locals():
+                if inspect_obj_local is not None:
                     app_inspect_status = inspect_obj_local.app_inspect_result[0]
                     cloud_inspect_status = inspect_obj_local.app_inspect_result[1]
                     ssai_inspect_status = inspect_obj_local.app_inspect_result[2]
-                elif "inspect_obj" in locals():
+                elif inspect_obj is not None:
                     app_inspect_status = inspect_obj.app_inspect_result[0]
                     cloud_inspect_status = inspect_obj.app_inspect_result[1]
                     ssai_inspect_status = inspect_obj.app_inspect_result[2]

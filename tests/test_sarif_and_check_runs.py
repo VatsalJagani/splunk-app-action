@@ -16,8 +16,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from check_run_publisher import _create_check_summary, _extract_failed_checks
-from helpers.sarif_converter import (
+from helpers.check_run_publisher import (  # pyright: ignore[reportMissingImports]
+    _create_check_summary,
+    _extract_failed_checks,
+)
+from helpers.sarif_converter import (  # pyright: ignore[reportMissingImports]
     _create_result,
     _create_rule,
     convert_appinspect_to_sarif,

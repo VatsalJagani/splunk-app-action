@@ -197,26 +197,18 @@ def _create_result(report: dict[str, Any], rule_id: str) -> list[dict[str, Any]]
         file_path = msg.get("message_filename")
         line_number = msg.get("message_line")
         if file_path:
-            location = {
-                "physicalLocation": {
-                    "artifactLocation": {"uri": file_path}
-                }
-            }
+            location = {"physicalLocation": {"artifactLocation": {"uri": file_path}}}
             if line_number:
-                location["physicalLocation"]["region"] = {
-                    "startLine": line_number
-                }
+                location["physicalLocation"]["region"] = {"startLine": line_number}
             result["locations"] = [location]
 
         results.append(result)
 
     # If no messages, create a single result
     if not results:
-        results.append({
-            "ruleId": rule_id,
-            "level": level,
-            "message": {"text": "AppInspect check failed"}
-        })
+        results.append(
+            {"ruleId": rule_id, "level": level, "message": {"text": "AppInspect check failed"}}
+        )
 
     return results
 

@@ -11,7 +11,7 @@ import github_action_toolkit as gat
 import requests
 from requests.auth import HTTPBasicAuth
 
-import check_run_publisher
+import helpers.check_run_publisher as check_run_publisher
 import helpers.sarif_converter as sarif_converter
 from helpers.saved_values import AppInfo, SavedPaths
 
