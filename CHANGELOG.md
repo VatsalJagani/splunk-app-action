@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Pre-commit Hooks** - Added pre-commit configuration for automated code quality checks
+  - Configured to run ruff (linter and formatter), codespell, and basedpyright
+  - Runs automatically on git commits when installed with `uv run pre-commit install`
+  - Can be run manually with `uv run pre-commit run --all-files`
+  - Helps maintain code quality and catch issues before they're committed
+  - Documentation added to `devtools/development.md` for contributors
+
 - **SARIF Code Scanning Support** - Publish AppInspect results for GitHub Code Scanning
   - New `publish_sarif` input to enable SARIF report generation from AppInspect JSON results
   - Converts AppInspect failures, errors, and warnings to SARIF 2.1.0 format

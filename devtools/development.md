@@ -37,6 +37,13 @@ make lint
 # Run tests:
 make test
 
+# Pre-commit hooks (recommended):
+# Install pre-commit hooks to run linting automatically before each commit
+uv run pre-commit install
+
+# Run pre-commit on all files manually:
+uv run pre-commit run --all-files
+
 # Delete all the build artifacts:
 make clean
 
