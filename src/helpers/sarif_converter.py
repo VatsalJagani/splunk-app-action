@@ -1,3 +1,6 @@
+# pyright: reportUnknownVariableType=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportUnknownMemberType=false
 """Convert AppInspect JSON results to SARIF format for GitHub Code Scanning."""
 
 from __future__ import annotations
@@ -147,10 +150,8 @@ def _create_rule(report: dict[str, Any], rule_id: str, check_type: str) -> dict[
         },
     }
 
-    # Add documentation URL if available
-    doc_url = _get_check_documentation_url(check_name)
-    if doc_url:
-        rule["helpUri"] = doc_url
+    # Add documentation URL
+    rule["helpUri"] = _get_check_documentation_url()
 
     return rule
 
@@ -213,45 +214,9 @@ def _create_result(report: dict[str, Any], rule_id: str) -> list[dict[str, Any]]
     return results
 
 
-def _extract_file_path(messages: list[dict[str, Any]]) -> str | None:
+def _get_check_documentation_url() -> str:
     """
-    Extract file path from AppInspect message.
-
-    AppInspect messages may contain file paths in various formats.
-    This attempts to extract them heuristically.
-    """
-    for msg in messages:
-        if not isinstance(msg, dict):
-            continue
-
-        # Check if there's a file_path field
-        if "file_path" in msg:
-            return str(msg["file_path"])
-
-        # Check message text for common file path patterns
-        msg_text = msg.get("message", "")
-        if isinstance(msg_text, str):
-            # Look for patterns like "in file: path/to/file" or "File: path/to/file"
-            import re
-
-            # Pattern for "in <file>" or "file: <path>"
-            patterns = [
-                r"(?:in|file:?)\s+([^\s,]+\.\w+)",
-                r"`([^`]+\.\w+)`",
-                r'"([^"]+\.\w+)"',
-            ]
-
-            for pattern in patterns:
-                match = re.search(pattern, msg_text, re.IGNORECASE)
-                if match:
-                    return match.group(1)
-
-    return None
-
-
-def _get_check_documentation_url(check_name: str) -> str | None:
-    """
-    Get documentation URL for a specific AppInspect check.
+    Get documentation URL for AppInspect checks.
 
     Returns the general AppInspect documentation URL as we don't have
     check-specific URLs readily available.

@@ -1,3 +1,5 @@
+# pyright: reportUnknownArgumentType=false
+# pyright: reportUnknownMemberType=false
 import json
 import os
 import shutil

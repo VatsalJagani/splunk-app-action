@@ -15,6 +15,7 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
+from typing import override
 
 from helpers.check_run_publisher import (  # pyright: ignore[reportMissingImports]
     _create_check_summary,
@@ -29,6 +30,7 @@ from helpers.sarif_converter import (  # pyright: ignore[reportMissingImports]
 
 
 class TestSarifConverter(unittest.TestCase):
+    @override
     def setUp(self):
         self.temp_dir = tempfile.mkdtemp()
 
@@ -212,6 +214,7 @@ class TestSarifConverter(unittest.TestCase):
 
 
 class TestCheckRunPublisher(unittest.TestCase):
+    @override
     def setUp(self):
         self.temp_dir = tempfile.mkdtemp()
 

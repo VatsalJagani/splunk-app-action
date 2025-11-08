@@ -1,3 +1,6 @@
+# pyright: reportUnknownVariableType=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportUnknownMemberType=false
 """Publish AppInspect results as GitHub Check Runs."""
 
 from __future__ import annotations
