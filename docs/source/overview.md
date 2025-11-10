@@ -2,7 +2,7 @@
 
 Welcome to **splunk-app-action**!
 
-This documentation covers the usage, capabilities, and development of the custom GitHub Action for Splunk Apps and Add-ons. It is designed for ReadTheDocs and uses MyST/Markdown formatting.
+This documentation covers the usage, capabilities, and development of the custom GitHub Action for Splunk Apps and Add-ons.
 
 ## What is splunk-app-action?
 
@@ -11,10 +11,9 @@ This documentation covers the usage, capabilities, and development of the custom
 - **Automated Build Generation** - Creates production-ready `.tgz` packages from your source code
 - **Quality Validation** - Runs Splunk AppInspect checks to ensure your app meets Splunk's quality standards
 - **Cloud Compatibility** - Validates apps for Splunk Cloud deployment
-- **UCC Support** - Seamlessly integrates with the Splunk Add-on UCC Framework for building modern add-ons
+- **UCC Support** - Seamlessly integrates with the Splunk Add-on UCC Framework for building modern add-ons, and generates Add-on build dynamically without putting 3rd part library code into the Add-on Repo.
 - **Python Dependency Management** - Automatically installs Python dependencies at build time
 - **Utility Integration** - Adds common utilities like logging, Python SDK, and JavaScript helpers
-- **Security Scanning** - Integrates with GitHub Code Scanning for security analysis
 
 ## Key Features
 
@@ -80,10 +79,6 @@ The action provides several output variables that can be used in subsequent work
 - `cloud_inspect_status` - Status of cloud-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)
 - `ssai_inspect_status` - Status of SSAI-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)
 
-#### Other
-- `stdout` - Program stdout
-- `stderr` - Program stderr
-- `error` - A string of 'true' or 'false' indicating if there were errors
 
 ### Using Outputs in Workflows
 
