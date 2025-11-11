@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Integration Test for UCC + SARIF** - Added integration test to verify SARIF file paths for UCC-based apps
   - Validates that SARIF file paths correctly include `app_dir/package/` prefix for UCC apps
   - Ensures GitHub Code Scanning annotations work correctly for UCC add-ons in subdirectories
+- **SARIF Permissions Documentation** - Enhanced documentation for SARIF upload requirements
+  - Added comprehensive troubleshooting guide for "Resource not accessible" errors
+  - Clarified permission requirements in README Quick Start section
+  - Explained difference between SARIF Code Scanning alerts and PR comments
+  - Added examples showing required `security-events: write` permission in workflows
 
 ### Fixed
 

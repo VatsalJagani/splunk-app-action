@@ -186,6 +186,62 @@ Error: Multiple build features detected: UCC-Gen, Python-Dependency-Management
 
 ### SARIF Publishing Issues
 
+#### Resource Not Accessible - Missing Permissions
+```
+Error: Resource not accessible by integration
+Warning: Caught an exception while gathering information for telemetry: HttpError: Resource not accessible by integration
+```
+
+**Root Cause:** The GitHub token doesn't have the required `security-events: write` permission to upload SARIF files to GitHub Code Scanning.
+
+**Solution:** Add explicit permissions to your workflow file:
+
+```yaml
+name: Build with AppInspect
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read          # Required to checkout code
+      security-events: write  # Required for SARIF upload
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          local_app_inspect: true
+          # publish_sarif is enabled by default
+```
+
+**Alternative:** If you don't need SARIF reports, disable them:
+```yaml
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    local_app_inspect: true
+    publish_sarif: false  # Disable SARIF upload
+```
+
+**Understanding SARIF vs PR Comments:**
+- SARIF reports create **Code Scanning alerts** in the Security tab, NOT pull request comments
+- To view results: Go to repository → Security → Code scanning alerts
+- Results appear in PR checks as "Code scanning results / Splunk AppInspect"
+- For PR comments, check the "App-Inspect Check" in the Checks tab instead
+
+#### Git Repository Not Detected
+```
+git call failed. Continuing with commit SHA from user input or environment. 
+Error: The checkout path provided to the action does not appear to be a git repository.
+```
+
+**Root Cause:** This warning appears when SARIF upload runs after artifact download, which doesn't preserve git metadata.
+
+**Impact:** This is a **warning, not an error**. SARIF upload will continue using the commit SHA from the environment. No action needed.
+
+**To eliminate the warning:** Ensure the SARIF upload happens before any artifact downloads that change directories.
+
 #### Code Scanning Not Enabled
 ```
 Failed to upload SARIF: Code scanning is not enabled for this repository

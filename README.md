@@ -26,11 +26,34 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
 # Build with SARIF code scanning for inline PR feedback
 # (SARIF is enabled by default when app-inspect is enabled)
 # (To disable SARIF, set publish_sarif: false)
+# Requires: Add permissions to your workflow (see below)
 - uses: VatsalJagani/splunk-app-action@v4
   with:
     app_dir: "my_app"
     local_app_inspect: true
     fail_on: "errors"  # Options: errors, warnings, none
+```
+
+### Required Permissions for SARIF Upload
+
+If you're using app-inspect with SARIF reports (default), add these permissions to your workflow:
+
+```yaml
+name: Build Splunk App
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read          # Required to checkout code
+      security-events: write  # Required for SARIF upload
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          local_app_inspect: true
 
 # UCC Add-on build
 - uses: VatsalJagani/splunk-app-action@v4
