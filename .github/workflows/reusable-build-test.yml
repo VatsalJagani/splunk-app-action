@@ -1,0 +1,115 @@
+name: Reusable Build Test
+
+on:
+  workflow_call:
+    inputs:
+      test-name:
+        required: true
+        type: string
+        description: 'Name of the test'
+      app-dir:
+        required: true
+        type: string
+        description: 'Path to the app directory'
+      expected-app-id:
+        required: true
+        type: string
+        description: 'Expected app package ID'
+      expected-version:
+        required: true
+        type: string
+        description: 'Expected app version'
+      expected-build-number:
+        required: false
+        type: string
+        default: '1'
+        description: 'Expected build number'
+      use-ucc-gen:
+        required: false
+        type: boolean
+        default: false
+        description: 'Use UCC generator'
+      python-requirements-file:
+        required: false
+        type: string
+        default: ''
+        description: 'Python requirements file path'
+      to-make-permission-changes:
+        required: false
+        type: boolean
+        default: false
+        description: 'Apply permission changes'
+      is-app-inspect-check:
+        required: false
+        type: boolean
+        default: false
+        description: 'Run app inspect'
+      local-app-inspect:
+        required: false
+        type: boolean
+        default: false
+        description: 'Use local app inspect'
+      fail-on:
+        required: false
+        type: string
+        default: 'errors'
+        description: 'When to fail: errors, warnings, none'
+      validate-cleanup:
+        required: false
+        type: boolean
+        default: false
+        description: 'Validate .pyc and __pycache__ cleanup'
+      strict-cleanup:
+        required: false
+        type: boolean
+        default: false
+        description: 'Fail if cleanup validation finds issues'
+
+jobs:
+  test:
+    name: ${{ inputs.test-name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Run splunk-app-action
+        id: build
+        uses: VatsalJagani/splunk-app-action@integration_tests
+        with:
+          app_dir: ${{ inputs.app-dir }}
+          use_ucc_gen: ${{ inputs.use-ucc-gen }}
+          python_requirements_file: ${{ inputs.python-requirements-file }}
+          to_make_permission_changes: ${{ inputs.to-make-permission-changes }}
+          is_app_inspect_check: ${{ inputs.is-app-inspect-check }}
+          local_app_inspect: ${{ inputs.local-app-inspect }}
+          fail_on: ${{ inputs.fail-on }}
+      
+      - name: Validate outputs
+        run: |
+          echo "## ${{ inputs.test-name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          .github/scripts/validate-build-outputs.sh \
+            "${{ inputs.expected-app-id }}" \
+            "${{ inputs.expected-version }}" \
+            "${{ inputs.expected-build-number }}" \
+            "${{ steps.build.outputs.artifact_name }}" \
+            "${{ steps.build.outputs.app_package_id }}" \
+            "${{ steps.build.outputs.app_version }}" \
+            "${{ steps.build.outputs.app_build_number }}"
+      
+      - name: Validate cleanup (if requested)
+        if: ${{ inputs.validate-cleanup }}
+        run: |
+          ARTIFACT_FILE="${{ inputs.expected-app-id }}_${{ inputs.expected-version }}_${{ inputs.expected-build-number }}.tgz"
+          ARTIFACT_FILE=$(echo "$ARTIFACT_FILE" | tr '.' '_')
+          
+          if [ -f "${ARTIFACT_FILE}.tgz" ]; then
+            EXTRACTED_PATH=$(.github/scripts/extract-tarball.sh "${ARTIFACT_FILE}.tgz")
+            
+            STRICT_MODE="${{ inputs.strict-cleanup }}"
+            .github/scripts/validate-cleanup.sh "$EXTRACTED_PATH" "$STRICT_MODE"
+          else
+            echo "⚠️ Artifact not found for cleanup validation"
+          fi

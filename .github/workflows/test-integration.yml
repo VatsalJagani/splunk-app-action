@@ -14,423 +14,46 @@ permissions:
 
 
 jobs:
-  # Test 1: Basic build with valid app
+  # Test 1: Basic build with valid app (using reusable workflow)
   test-basic-build:
-    name: Test Basic Build (Valid App)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Run splunk-app-action on valid app
-        id: build_valid
-        uses: VatsalJagani/splunk-app-action@integration_tests
-        with:
-          app_dir: "tests/integration_test_apps/valid_app"
-          is_app_inspect_check: false
-      
-      - name: Verify build succeeded and outputs
-        run: |
-          echo "## Basic Build Validation" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Debug: Print all outputs as JSON
-          echo "### Debug: All Step Outputs (JSON)"
-          echo '${{ toJson(steps.build_valid.outputs) }}'
-          
-          # Check outputs
-          echo "### Action Outputs:" >> $GITHUB_STEP_SUMMARY
-          echo "- build_path: \`${{ steps.build_valid.outputs.build_path }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- artifact_name: \`${{ steps.build_valid.outputs.artifact_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_package_id: \`${{ steps.build_valid.outputs.app_package_id }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_version: \`${{ steps.build_valid.outputs.app_version }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_build_number: \`${{ steps.build_valid.outputs.app_build_number }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_inspect_status: \`${{ steps.build_valid.outputs.app_inspect_status }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Validate expected outputs
-          VALIDATION_PASSED=true
-          
-          # Check artifact_name
-          if [ -z "${{ steps.build_valid.outputs.artifact_name }}" ]; then
-            echo "⚠️ artifact_name is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ artifact_name: ${{ steps.build_valid.outputs.artifact_name }}"
-          fi
-          
-          # Check app_package_id
-          if [ -z "${{ steps.build_valid.outputs.app_package_id }}" ]; then
-            echo "⚠️ app_package_id is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          elif [ "${{ steps.build_valid.outputs.app_package_id }}" != "valid_test_app" ]; then
-            echo "❌ Expected app_package_id 'valid_test_app', got '${{ steps.build_valid.outputs.app_package_id }}'"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ app_package_id: ${{ steps.build_valid.outputs.app_package_id }}"
-          fi
-          
-          # Check app_version
-          if [ -z "${{ steps.build_valid.outputs.app_version }}" ]; then
-            echo "⚠️ app_version is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          elif [ "${{ steps.build_valid.outputs.app_version }}" != "1.0.0" ]; then
-            echo "❌ Expected app_version '1.0.0', got '${{ steps.build_valid.outputs.app_version }}'"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ app_version: ${{ steps.build_valid.outputs.app_version }}"
-          fi
-          
-          # Check app_build_number
-          if [ -z "${{ steps.build_valid.outputs.app_build_number }}" ]; then
-            echo "⚠️ app_build_number is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          elif [ "${{ steps.build_valid.outputs.app_build_number }}" != "1" ]; then
-            echo "❌ Expected app_build_number '1', got '${{ steps.build_valid.outputs.app_build_number }}'"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ app_build_number: ${{ steps.build_valid.outputs.app_build_number }}"
-          fi
-          
-          # Check app_inspect_status (should be "Not Run" or "Skipped")
-          if [ -z "${{ steps.build_valid.outputs.app_inspect_status }}" ]; then
-            echo "⚠️ app_inspect_status is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ app_inspect_status: ${{ steps.build_valid.outputs.app_inspect_status }}"
-          fi
-          
-          # Verify the build artifact was created
-          if [ -f "valid_test_app_1_0_0_1.tgz" ]; then
-            echo "✅ Build artifact created: valid_test_app_1_0_0_1.tgz"
-          else
-            echo "⚠️ Build artifact not found in workspace (may have been uploaded)"
-          fi
-          
-          if [ "$VALIDATION_PASSED" = false ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "⚠️ **Warning**: Some outputs are missing due to composite action limitations" >> $GITHUB_STEP_SUMMARY
-            echo "Build succeeded but output validation incomplete" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "✅ All outputs validated successfully!" >> $GITHUB_STEP_SUMMARY
-          fi
+    uses: ./.github/workflows/reusable-build-test.yml
+    with:
+      test-name: "Basic Build (Valid App)"
+      app-dir: "tests/integration_test_apps/valid_app"
+      expected-app-id: "valid_test_app"
+      expected-version: "1.0.0"
+      expected-build-number: "1"
+      is-app-inspect-check: false
+      validate-cleanup: false
 
 
-  # Test 2: UCC Add-on build
+  # Test 2: UCC Add-on build (using reusable workflow)
   test-ucc-build:
-    name: Test UCC Add-on Build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Run splunk-app-action with UCC
-        id: build_ucc
-        uses: VatsalJagani/splunk-app-action@integration_tests
-        with:
-          app_dir: "tests/integration_test_apps/ucc_addon"
-          use_ucc_gen: true
-          is_app_inspect_check: false
-      
-      - name: Verify UCC build succeeded and outputs
-        run: |
-          echo "## UCC Add-on Build Validation" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Check outputs
-          echo "### Action Outputs:" >> $GITHUB_STEP_SUMMARY
-          echo "- build_path: \`${{ steps.build_ucc.outputs.build_path }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- artifact_name: \`${{ steps.build_ucc.outputs.artifact_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_package_id: \`${{ steps.build_ucc.outputs.app_package_id }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_version: \`${{ steps.build_ucc.outputs.app_version }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          VALIDATION_PASSED=true
-          
-          # Validate outputs
-          if [ -z "${{ steps.build_ucc.outputs.artifact_name }}" ]; then
-            echo "⚠️ artifact_name is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ artifact_name: ${{ steps.build_ucc.outputs.artifact_name }}"
-          fi
-          
-          if [ -z "${{ steps.build_ucc.outputs.app_package_id }}" ]; then
-            echo "⚠️ app_package_id is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          elif [ "${{ steps.build_ucc.outputs.app_package_id }}" != "TA_test_ucc_addon" ]; then
-            echo "❌ Expected app_package_id 'TA_test_ucc_addon', got '${{ steps.build_ucc.outputs.app_package_id }}'"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ app_package_id: ${{ steps.build_ucc.outputs.app_package_id }}"
-          fi
-          
-          if [ -z "${{ steps.build_ucc.outputs.app_version }}" ]; then
-            echo "⚠️ app_version is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          elif [ "${{ steps.build_ucc.outputs.app_version }}" != "1.0.0" ]; then
-            echo "❌ Expected app_version '1.0.0', got '${{ steps.build_ucc.outputs.app_version }}'"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ app_version: ${{ steps.build_ucc.outputs.app_version }}"
-          fi
-          
-          # Verify the build artifact was created
-          if [ -f "TA_test_ucc_addon_1_0_0_1.tgz" ]; then
-            echo "✅ Build artifact created: TA_test_ucc_addon_1_0_0_1.tgz"
-            
-            # Extract and verify UCC build structure
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### UCC Build Structure Validation:" >> $GITHUB_STEP_SUMMARY
-            
-            mkdir -p /tmp/ucc_build_test
-            tar -xzf TA_test_ucc_addon_1_0_0_1.tgz -C /tmp/ucc_build_test
-            
-            echo ""
-            echo "📋 Extracted UCC addon structure:"
-            ls -la /tmp/ucc_build_test/TA_test_ucc_addon/
-            
-            # Check that 'package' directory does NOT exist (UCC should build it into final structure)
-            if [ -d "/tmp/ucc_build_test/TA_test_ucc_addon/package" ]; then
-              echo "❌ ERROR: 'package' directory should NOT exist in UCC build output!" >> $GITHUB_STEP_SUMMARY
-              echo "❌ UCC should transform the 'package' directory into proper Splunk app structure" >> $GITHUB_STEP_SUMMARY
-              echo "Found: package directory exists (should not)"
-              VALIDATION_PASSED=false
-            else
-              echo "✅ 'package' directory correctly NOT present (UCC transformed it)" >> $GITHUB_STEP_SUMMARY
-              echo "✅ Verified: No 'package' directory in build output"
-            fi
-            
-            # Check that 'default' directory DOES exist (UCC should create it)
-            if [ -d "/tmp/ucc_build_test/TA_test_ucc_addon/default" ]; then
-              echo "✅ 'default' directory correctly present (UCC generated it)" >> $GITHUB_STEP_SUMMARY
-              echo "✅ Verified: 'default' directory exists"
-              
-              # List contents of default directory
-              echo ""
-              echo "📋 Contents of default/ directory:"
-              ls -la /tmp/ucc_build_test/TA_test_ucc_addon/default/
-            else
-              echo "❌ ERROR: 'default' directory should exist in UCC build output!" >> $GITHUB_STEP_SUMMARY
-              echo "❌ UCC should generate default/ with app.conf and other configs" >> $GITHUB_STEP_SUMMARY
-              echo "Missing: default directory (should exist)"
-              VALIDATION_PASSED=false
-            fi
-            
-            # Check for other expected UCC-generated directories
-            if [ -d "/tmp/ucc_build_test/TA_test_ucc_addon/bin" ]; then
-              echo "✅ 'bin' directory present" >> $GITHUB_STEP_SUMMARY
-            fi
-            
-            if [ -d "/tmp/ucc_build_test/TA_test_ucc_addon/appserver" ]; then
-              echo "✅ 'appserver' directory present (UCC generated)" >> $GITHUB_STEP_SUMMARY
-            fi
-            
-            # Verify .pyc files are cleaned up in UCC build
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Cleanup Validation:" >> $GITHUB_STEP_SUMMARY
-            PYC_COUNT=$(find /tmp/ucc_build_test/TA_test_ucc_addon -name "*.pyc" | wc -l | tr -d ' ')
-            if [ "$PYC_COUNT" -eq 0 ]; then
-              echo "✅ No .pyc files found (cleanup successful)" >> $GITHUB_STEP_SUMMARY
-              echo "✅ Verified: No .pyc files in UCC build"
-            else
-              echo "❌ Found $PYC_COUNT .pyc files (cleanup should occur)" >> $GITHUB_STEP_SUMMARY
-              echo "⚠️ WARNING: Found $PYC_COUNT .pyc files in UCC build"
-              # Note: Not failing on this as UCC may generate some .pyc files
-            fi
-            
-            # Verify __pycache__ directories are cleaned up
-            PYCACHE_COUNT=$(find /tmp/ucc_build_test/TA_test_ucc_addon -type d -name "__pycache__" | wc -l | tr -d ' ')
-            if [ "$PYCACHE_COUNT" -eq 0 ]; then
-              echo "✅ No __pycache__ directories found (cleanup successful)" >> $GITHUB_STEP_SUMMARY
-              echo "✅ Verified: No __pycache__ directories in UCC build"
-            else
-              echo "❌ Found $PYCACHE_COUNT __pycache__ directories (cleanup should occur)" >> $GITHUB_STEP_SUMMARY
-              echo "⚠️ WARNING: Found $PYCACHE_COUNT __pycache__ directories in UCC build"
-              # Note: Not failing on this as UCC may generate some cache
-            fi
-            
-          else
-            echo "⚠️ Build artifact not found in workspace (may have been uploaded)"
-          fi
-          
-          if [ "$VALIDATION_PASSED" = false ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "⚠️ **Warning**: Some outputs are missing due to composite action limitations" >> $GITHUB_STEP_SUMMARY
-            exit 1
-          else
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "✅ All outputs validated successfully!" >> $GITHUB_STEP_SUMMARY
-            echo "✅ UCC build structure verified correctly!" >> $GITHUB_STEP_SUMMARY
-          fi
+    uses: ./.github/workflows/reusable-build-test.yml
+    with:
+      test-name: "UCC Add-on Build"
+      app-dir: "tests/integration_test_apps/ucc_addon"
+      expected-app-id: "TA_test_ucc_addon"
+      expected-version: "1.0.0"
+      expected-build-number: "1"
+      use-ucc-gen: true
+      is-app-inspect-check: false
+      validate-cleanup: false  # UCC may generate some cache files
 
 
-  # Test 3: Python dependency management
+  # Test 3: Python dependency management (using reusable workflow)
   test-python-deps:
-    name: Test Python Dependencies
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Run splunk-app-action with Python dependencies
-        id: build_deps
-        uses: VatsalJagani/splunk-app-action@integration_tests
-        with:
-          app_dir: "tests/integration_test_apps/python_deps_app"
-          python_requirements_file: "lib/requirements.txt"
-          is_app_inspect_check: false
-      
-      - name: Verify build succeeded and outputs
-        run: |
-          echo "## Python Dependencies Build Validation" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Check outputs
-          echo "### Action Outputs:" >> $GITHUB_STEP_SUMMARY
-          echo "- build_path: \`${{ steps.build_deps.outputs.build_path }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- artifact_name: \`${{ steps.build_deps.outputs.artifact_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_package_id: \`${{ steps.build_deps.outputs.app_package_id }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_version: \`${{ steps.build_deps.outputs.app_version }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          VALIDATION_PASSED=true
-          
-          # Validate outputs
-          if [ -z "${{ steps.build_deps.outputs.artifact_name }}" ]; then
-            echo "⚠️ artifact_name is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ artifact_name: ${{ steps.build_deps.outputs.artifact_name }}"
-          fi
-          
-          if [ -z "${{ steps.build_deps.outputs.app_package_id }}" ]; then
-            echo "⚠️ app_package_id is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          elif [ "${{ steps.build_deps.outputs.app_package_id }}" != "python_deps_test_app" ]; then
-            echo "❌ Expected app_package_id 'python_deps_test_app', got '${{ steps.build_deps.outputs.app_package_id }}'"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ app_package_id: ${{ steps.build_deps.outputs.app_package_id }}"
-          fi
-          
-          # Verify the build artifact was created
-          if [ -f "python_deps_test_app_1_0_0_1.tgz" ]; then
-            echo "✅ Build artifact created: python_deps_test_app_1_0_0_1.tgz"
-            
-            # Check artifact size to ensure dependencies were included
-            size=$(stat -f%z "python_deps_test_app_1_0_0_1.tgz" 2>/dev/null || stat -c%s "python_deps_test_app_1_0_0_1.tgz" 2>/dev/null)
-            echo "📦 Artifact size: $size bytes"
-            if [ "$size" -gt 10000 ]; then
-              echo "✅ Artifact size indicates dependencies were included"
-            fi
-            
-            # Extract and verify Python dependencies structure
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Python Dependencies Structure Validation:" >> $GITHUB_STEP_SUMMARY
-            
-            mkdir -p /tmp/python_deps_test
-            tar -xzf python_deps_test_app_1_0_0_1.tgz -C /tmp/python_deps_test
-            
-            echo ""
-            echo "📋 Extracted app structure:"
-            ls -la /tmp/python_deps_test/python_deps_test_app/
-            
-            # Check that 'lib' directory exists
-            if [ -d "/tmp/python_deps_test/python_deps_test_app/lib" ]; then
-              echo "✅ 'lib' directory present" >> $GITHUB_STEP_SUMMARY
-              echo "✅ Verified: 'lib' directory exists"
-              
-              # List contents of lib directory
-              echo ""
-              echo "📋 Contents of lib/ directory:"
-              ls -la /tmp/python_deps_test/python_deps_test_app/lib/
-              
-              # Check that requirements.txt does NOT exist in lib (should be excluded from build)
-              if [ -f "/tmp/python_deps_test/python_deps_test_app/lib/requirements.txt" ]; then
-                echo "❌ ERROR: 'requirements.txt' should NOT be in lib/ directory!" >> $GITHUB_STEP_SUMMARY
-                echo "❌ The requirements.txt file should be used to install dependencies, not included in build" >> $GITHUB_STEP_SUMMARY
-                echo "Found: lib/requirements.txt exists (should not)"
-                VALIDATION_PASSED=false
-              else
-                echo "✅ 'requirements.txt' correctly NOT present in lib/ (excluded from build)" >> $GITHUB_STEP_SUMMARY
-                echo "✅ Verified: No requirements.txt in lib/ directory"
-              fi
-              
-              # Check that actual Python dependencies ARE present in lib
-              # Count Python packages/directories in lib (excluding __pycache__)
-              dep_count=$(find /tmp/python_deps_test/python_deps_test_app/lib -maxdepth 1 -type d ! -name lib ! -name __pycache__ | wc -l | tr -d ' ')
-              
-              echo ""
-              echo "📦 Python dependencies found in lib/: $dep_count directories"
-              
-              if [ "$dep_count" -gt 0 ]; then
-                echo "✅ Python dependencies correctly installed in lib/ directory" >> $GITHUB_STEP_SUMMARY
-                echo "✅ Found $dep_count dependency packages in lib/"
-                
-                # List the installed dependencies
-                echo ""
-                echo "📋 Installed dependencies:"
-                find /tmp/python_deps_test/python_deps_test_app/lib -maxdepth 1 -type d ! -name lib ! -name __pycache__ -exec basename {} \; | head -10
-              else
-                echo "❌ ERROR: No Python dependencies found in lib/ directory!" >> $GITHUB_STEP_SUMMARY
-                echo "❌ Dependencies should be installed from requirements.txt" >> $GITHUB_STEP_SUMMARY
-                echo "Missing: Python packages in lib/"
-                VALIDATION_PASSED=false
-              fi
-              
-              # Also check for .dist-info or .egg-info directories (package metadata)
-              metadata_count=$(find /tmp/python_deps_test/python_deps_test_app/lib -maxdepth 1 -type d \( -name "*.dist-info" -o -name "*.egg-info" \) | wc -l | tr -d ' ')
-              
-              if [ "$metadata_count" -gt 0 ]; then
-                echo "✅ Found $metadata_count package metadata directories (.dist-info/.egg-info)" >> $GITHUB_STEP_SUMMARY
-              fi
-              
-              # Verify .pyc files are cleaned up
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "### Cleanup Validation:" >> $GITHUB_STEP_SUMMARY
-              PYC_COUNT=$(find /tmp/python_deps_test/python_deps_test_app/lib -name "*.pyc" | wc -l | tr -d ' ')
-              if [ "$PYC_COUNT" -eq 0 ]; then
-                echo "✅ No .pyc files found (cleanup successful)" >> $GITHUB_STEP_SUMMARY
-                echo "✅ Verified: No .pyc files in lib/"
-              else
-                echo "❌ Found $PYC_COUNT .pyc files (cleanup failed)" >> $GITHUB_STEP_SUMMARY
-                echo "❌ ERROR: Found $PYC_COUNT .pyc files (should be cleaned up)"
-                VALIDATION_PASSED=false
-              fi
-              
-              # Verify __pycache__ directories are cleaned up
-              PYCACHE_COUNT=$(find /tmp/python_deps_test/python_deps_test_app/lib -type d -name "__pycache__" | wc -l | tr -d ' ')
-              if [ "$PYCACHE_COUNT" -eq 0 ]; then
-                echo "✅ No __pycache__ directories found (cleanup successful)" >> $GITHUB_STEP_SUMMARY
-                echo "✅ Verified: No __pycache__ directories in lib/"
-              else
-                echo "❌ Found $PYCACHE_COUNT __pycache__ directories (cleanup failed)" >> $GITHUB_STEP_SUMMARY
-                echo "❌ ERROR: Found $PYCACHE_COUNT __pycache__ directories (should be cleaned up)"
-                VALIDATION_PASSED=false
-              fi
-              
-            else
-              echo "❌ ERROR: 'lib' directory should exist!" >> $GITHUB_STEP_SUMMARY
-              echo "❌ Dependencies should be installed in lib/ directory" >> $GITHUB_STEP_SUMMARY
-              echo "Missing: lib directory (should exist)"
-              VALIDATION_PASSED=false
-            fi
-            
-          else
-            echo "⚠️ Build artifact not found in workspace (may have been uploaded)"
-          fi
-          
-          if [ "$VALIDATION_PASSED" = false ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "⚠️ **Warning**: Some outputs are missing due to composite action limitations" >> $GITHUB_STEP_SUMMARY
-            exit 1
-          else
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "✅ All outputs validated successfully!" >> $GITHUB_STEP_SUMMARY
-            echo "✅ Python dependencies structure verified correctly!" >> $GITHUB_STEP_SUMMARY
-          fi
+    uses: ./.github/workflows/reusable-build-test.yml
+    with:
+      test-name: "Python Dependencies Build"
+      app-dir: "tests/integration_test_apps/python_deps_app"
+      expected-app-id: "python_deps_test_app"
+      expected-version: "1.0.0"
+      expected-build-number: "1"
+      python-requirements-file: "lib/requirements.txt"
+      is-app-inspect-check: false
+      validate-cleanup: true
+      strict-cleanup: true
 
 
   # Test 4: File permission changes (without fix - should have wrong permissions)
@@ -466,75 +89,45 @@ jobs:
           to_make_permission_changes: false
           is_app_inspect_check: false
       
-      - name: Verify permissions were NOT fixed in artifact
+      - name: Verify permissions were NOT fixed in artifact (using helper scripts)
         run: |
           echo "## Permission Test - Without Fix" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Check outputs
-          echo "### Action Outputs:" >> $GITHUB_STEP_SUMMARY
-          echo "- build_path: \`${{ steps.build_no_perms.outputs.build_path }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- artifact_name: \`${{ steps.build_no_perms.outputs.artifact_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_package_id: \`${{ steps.build_no_perms.outputs.app_package_id }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          # Use helper script for output validation
+          .github/scripts/validate-build-outputs.sh \
+            "valid_test_app_permissions_no_fix" \
+            "1.0.0" \
+            "1" \
+            "${{ steps.build_no_perms.outputs.artifact_name }}" \
+            "${{ steps.build_no_perms.outputs.app_package_id }}" \
+            "${{ steps.build_no_perms.outputs.app_version }}" \
+            "${{ steps.build_no_perms.outputs.app_build_number }}"
           
-          VALIDATION_PASSED=true
-          
-          # Validate outputs
-          if [ -z "${{ steps.build_no_perms.outputs.artifact_name }}" ]; then
-            echo "⚠️ artifact_name is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ artifact_name: ${{ steps.build_no_perms.outputs.artifact_name }}"
-          fi
-          
-          if [ -z "${{ steps.build_no_perms.outputs.app_package_id }}" ]; then
-            echo "⚠️ app_package_id is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          elif [ "${{ steps.build_no_perms.outputs.app_package_id }}" != "valid_test_app_permissions_no_fix" ]; then
-            echo "❌ Expected app_package_id 'valid_test_app_permissions_no_fix', got '${{ steps.build_no_perms.outputs.app_package_id }}'"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ app_package_id: ${{ steps.build_no_perms.outputs.app_package_id }}"
-          fi
-          
-          # Extract and verify permissions in the artifact (should still be wrong)
-          if [ -f "valid_test_app_permissions_no_fix_1_0_0_1.tgz" ]; then
-            echo "✅ Build artifact created: valid_test_app_permissions_no_fix_1_0_0_1.tgz"
+          # Custom permission validation
+          TARBALL="valid_test_app_permissions_no_fix_1_0_0_1.tgz"
+          if [ -f "$TARBALL" ]; then
+            EXTRACTED_PATH=$(.github/scripts/extract-tarball.sh "$TARBALL" "/tmp/perm_test_no_fix")
             
-            mkdir -p /tmp/perm_test_no_fix
-            tar -xzf valid_test_app_permissions_no_fix_1_0_0_1.tgz -C /tmp/perm_test_no_fix
-            
-            echo ""
-            echo "📋 Permissions in artifact (WITHOUT fix):"
-            ls -la /tmp/perm_test_no_fix/valid_test_app_permissions_no_fix/default/ | head -5
-            ls -la /tmp/perm_test_no_fix/valid_test_app_permissions_no_fix/default/app.conf
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Permission Validation:" >> $GITHUB_STEP_SUMMARY
             
             # Verify permissions are still WRONG (as expected)
-            # Use ls -ld to get permissions in a consistent format across macOS and Linux
-            default_dir_perms=$(ls -ld /tmp/perm_test_no_fix/valid_test_app_permissions_no_fix/default | awk '{print $1}')
-            app_conf_perms=$(ls -ld /tmp/perm_test_no_fix/valid_test_app_permissions_no_fix/default/app.conf | awk '{print $1}')
+            default_dir_perms=$(ls -ld "$EXTRACTED_PATH/default" | awk '{print $1}')
+            app_conf_perms=$(ls -ld "$EXTRACTED_PATH/default/app.conf" | awk '{print $1}')
             
-            echo "default/ permissions: $default_dir_perms (should be wrong: drwxrwxrwx)"
-            echo "app.conf permissions: $app_conf_perms (should be wrong: -rw-------)"
+            echo "- default/ permissions: $default_dir_perms (expected wrong: drwxrwxrwx)" >> $GITHUB_STEP_SUMMARY
+            echo "- app.conf permissions: $app_conf_perms (expected wrong: -rw-------)" >> $GITHUB_STEP_SUMMARY
             
-            # Verify permissions were NOT changed (should still be wrong)
             if [ "$default_dir_perms" == "drwxrwxrwx" ] && [ "$app_conf_perms" == "-rw-------" ]; then
-              echo "✅ Permissions correctly remain WRONG (no fix was applied)"
+              echo "✅ Permissions correctly remain WRONG (no fix applied)" >> $GITHUB_STEP_SUMMARY
             else
-              echo "⚠️ Warning: Permissions may have been modified unexpectedly"
-              echo "   Expected default/=drwxrwxrwx and app.conf=-rw-------"
-              echo "   Got default/=$default_dir_perms and app.conf=$app_conf_perms"
+              echo "⚠️ WARNING: Permissions may have been modified unexpectedly" >> $GITHUB_STEP_SUMMARY
             fi
-          else
-            echo "⚠️ Build artifact not found in workspace (may have been uploaded)"
           fi
           
-          if [ "$VALIDATION_PASSED" = false ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "⚠️ **Warning**: Some outputs are missing due to composite action limitations" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Permission test (no fix) completed successfully!" >> $GITHUB_STEP_SUMMARY
             echo "✅ All outputs validated successfully!" >> $GITHUB_STEP_SUMMARY
             echo "✅ Permissions correctly remained unfixed (as expected)!" >> $GITHUB_STEP_SUMMARY
           fi
@@ -572,79 +165,48 @@ jobs:
           to_make_permission_changes: true
           is_app_inspect_check: false
 
-      - name: Verify permissions were fixed in artifact
+      - name: Verify permissions were fixed in artifact (using helper scripts)
         run: |
           echo "## Permission Test - With Fix" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Check outputs
-          echo "### Action Outputs:" >> $GITHUB_STEP_SUMMARY
-          echo "- build_path: \`${{ steps.build_perms.outputs.build_path }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- artifact_name: \`${{ steps.build_perms.outputs.artifact_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_package_id: \`${{ steps.build_perms.outputs.app_package_id }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          # Use helper script for output validation
+          .github/scripts/validate-build-outputs.sh \
+            "valid_test_app_permissions" \
+            "1.0.0" \
+            "1" \
+            "${{ steps.build_perms.outputs.artifact_name }}" \
+            "${{ steps.build_perms.outputs.app_package_id }}" \
+            "${{ steps.build_perms.outputs.app_version }}" \
+            "${{ steps.build_perms.outputs.app_build_number }}"
           
-          VALIDATION_PASSED=true
-          
-          # Validate outputs
-          if [ -z "${{ steps.build_perms.outputs.artifact_name }}" ]; then
-            echo "⚠️ artifact_name is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ artifact_name: ${{ steps.build_perms.outputs.artifact_name }}"
-          fi
-          
-          if [ -z "${{ steps.build_perms.outputs.app_package_id }}" ]; then
-            echo "⚠️ app_package_id is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          elif [ "${{ steps.build_perms.outputs.app_package_id }}" != "valid_test_app_permissions" ]; then
-            echo "❌ Expected app_package_id 'valid_test_app_permissions', got '${{ steps.build_perms.outputs.app_package_id }}'"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ app_package_id: ${{ steps.build_perms.outputs.app_package_id }}"
-          fi
-          
-          # Extract and verify permissions in the artifact (should be fixed)
-          if [ -f "valid_test_app_permissions_1_0_0_1.tgz" ]; then
-            echo "✅ Build artifact created: valid_test_app_permissions_1_0_0_1.tgz"
+          # Custom permission validation
+          TARBALL="valid_test_app_permissions_1_0_0_1.tgz"
+          if [ -f "$TARBALL" ]; then
+            EXTRACTED_PATH=$(.github/scripts/extract-tarball.sh "$TARBALL" "/tmp/perm_test_with_fix")
             
-            mkdir -p /tmp/perm_test_with_fix
-            tar -xzf valid_test_app_permissions_1_0_0_1.tgz -C /tmp/perm_test_with_fix
-            
-            echo ""
-            echo "📋 Permissions in artifact (WITH fix):"
-            ls -la /tmp/perm_test_with_fix/valid_test_app_permissions/default/ | head -5
-            ls -la /tmp/perm_test_with_fix/valid_test_app_permissions/default/app.conf
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Permission Validation:" >> $GITHUB_STEP_SUMMARY
             
             # Verify permissions are CORRECT (as expected)
-            # Use ls -ld to get permissions in a consistent format across macOS and Linux
-            default_dir_perms=$(ls -ld /tmp/perm_test_with_fix/valid_test_app_permissions/default | awk '{print $1}')
-            app_conf_perms=$(ls -ld /tmp/perm_test_with_fix/valid_test_app_permissions/default/app.conf | awk '{print $1}')
+            default_dir_perms=$(ls -ld "$EXTRACTED_PATH/default" | awk '{print $1}')
+            app_conf_perms=$(ls -ld "$EXTRACTED_PATH/default/app.conf" | awk '{print $1}')
             
-            echo "default/ permissions: $default_dir_perms (expected: drwxr-xr-x)"
-            echo "app.conf permissions: $app_conf_perms (expected: -rw-r--r--)"
+            echo "- default/ permissions: $default_dir_perms (expected correct: drwxr-xr-x)" >> $GITHUB_STEP_SUMMARY
+            echo "- app.conf permissions: $app_conf_perms (expected correct: -rw-r--r--)" >> $GITHUB_STEP_SUMMARY
             
-            # Verify permissions were FIXED (755 = drwxr-xr-x, 644 = -rw-r--r--)
             if [ "$default_dir_perms" == "drwxr-xr-x" ] && [ "$app_conf_perms" == "-rw-r--r--" ]; then
-              echo "✅ Permissions correctly FIXED to proper values!"
+              echo "✅ Permissions correctly FIXED to proper values!" >> $GITHUB_STEP_SUMMARY
             else
-              echo "❌ ERROR: Permissions were NOT fixed correctly!"
-              echo "   Expected default/=drwxr-xr-x (755) and app.conf=-rw-r--r-- (644)"
-              echo "   Got default/=$default_dir_perms and app.conf=$app_conf_perms"
+              echo "❌ ERROR: Permissions were NOT fixed correctly!" >> $GITHUB_STEP_SUMMARY
+              echo "   Expected default/=drwxr-xr-x (755) and app.conf=-rw-r--r-- (644)" >> $GITHUB_STEP_SUMMARY
+              echo "   Got default/=$default_dir_perms and app.conf=$app_conf_perms" >> $GITHUB_STEP_SUMMARY
               exit 1
             fi
-          else
-            echo "⚠️ Build artifact not found in workspace (may have been uploaded)"
           fi
           
-          if [ "$VALIDATION_PASSED" = false ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "⚠️ **Warning**: Some outputs are missing due to composite action limitations" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "✅ All outputs validated successfully!" >> $GITHUB_STEP_SUMMARY
-            echo "✅ Permission changes were applied and verified!" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Permission changes were applied and verified!" >> $GITHUB_STEP_SUMMARY
 
 
   # Test 6: User-defined commands
@@ -665,102 +227,58 @@ jobs:
           app_dir: "tests/integration_test_apps/valid_app_commands"
           is_app_inspect_check: false
       
-      - name: Verify build succeeded and outputs
+      - name: Verify build succeeded and outputs (using helper scripts)
         run: |
           echo "## User Commands Build Validation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Check outputs
-          echo "### Action Outputs:" >> $GITHUB_STEP_SUMMARY
-          echo "- build_path: \`${{ steps.build_commands.outputs.build_path }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- artifact_name: \`${{ steps.build_commands.outputs.artifact_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_package_id: \`${{ steps.build_commands.outputs.app_package_id }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          # Use helper script for output validation
+          .github/scripts/validate-build-outputs.sh \
+            "valid_test_app_commands" \
+            "1.0.0" \
+            "1" \
+            "${{ steps.build_commands.outputs.artifact_name }}" \
+            "${{ steps.build_commands.outputs.app_package_id }}" \
+            "${{ steps.build_commands.outputs.app_version }}" \
+            "${{ steps.build_commands.outputs.app_build_number }}"
           
-          VALIDATION_PASSED=true
-          
-          # Validate outputs
-          if [ -z "${{ steps.build_commands.outputs.artifact_name }}" ]; then
-            echo "⚠️ artifact_name is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ artifact_name: ${{ steps.build_commands.outputs.artifact_name }}"
-          fi
-          
-          if [ -z "${{ steps.build_commands.outputs.app_package_id }}" ]; then
-            echo "⚠️ app_package_id is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          elif [ "${{ steps.build_commands.outputs.app_package_id }}" != "valid_test_app_commands" ]; then
-            echo "❌ Expected app_package_id 'valid_test_app_commands', got '${{ steps.build_commands.outputs.app_package_id }}'"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ app_package_id: ${{ steps.build_commands.outputs.app_package_id }}"
-          fi
-          
-          # Extract and verify user commands were executed
-          if [ -f "valid_test_app_commands_1_0_0_1.tgz" ]; then
-            echo "✅ Build artifact created: valid_test_app_commands_1_0_0_1.tgz"
+          # Custom user command validation
+          TARBALL="valid_test_app_commands_1_0_0_1.tgz"
+          if [ -f "$TARBALL" ]; then
+            EXTRACTED_PATH=$(.github/scripts/extract-tarball.sh "$TARBALL" "/tmp/user_commands_test")
             
-            # Extract and verify user-defined command effects
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### User Commands Validation:" >> $GITHUB_STEP_SUMMARY
             
-            mkdir -p /tmp/user_commands_test
-            tar -xzf valid_test_app_commands_1_0_0_1.tgz -C /tmp/user_commands_test
-            
-            echo ""
-            echo "📋 Extracted app structure:"
-            ls -la /tmp/user_commands_test/valid_test_app_commands/default/
-            
             # Check that the file created by user commands exists
-            if [ -f "/tmp/user_commands_test/valid_test_app_commands/default/my.conf" ]; then
+            MY_CONF="$EXTRACTED_PATH/default/my.conf"
+            if [ -f "$MY_CONF" ]; then
               echo "✅ User command successfully created 'default/my.conf'" >> $GITHUB_STEP_SUMMARY
-              echo "✅ Verified: my.conf exists in default/ directory"
-              
-              # Read and verify content
-              echo ""
-              echo "📄 Contents of my.conf:"
-              cat /tmp/user_commands_test/valid_test_app_commands/default/my.conf
               
               # Verify the expected content from both commands
-              if grep -q "Custom command 1 executed" /tmp/user_commands_test/valid_test_app_commands/default/my.conf; then
+              if grep -q "Custom command 1 executed" "$MY_CONF"; then
                 echo "✅ SPLUNK_APP_ACTION_1 executed correctly (found expected content)" >> $GITHUB_STEP_SUMMARY
-                echo "✅ Verified: Content from command 1 present"
               else
                 echo "❌ ERROR: Expected content from SPLUNK_APP_ACTION_1 not found!" >> $GITHUB_STEP_SUMMARY
-                echo "❌ Missing content from command 1"
-                VALIDATION_PASSED=false
+                exit 1
               fi
               
-              if grep -q "Additional content from command 2" /tmp/user_commands_test/valid_test_app_commands/default/my.conf; then
+              if grep -q "Additional content from command 2" "$MY_CONF"; then
                 echo "✅ SPLUNK_APP_ACTION_2 executed correctly (found expected content)" >> $GITHUB_STEP_SUMMARY
-                echo "✅ Verified: Content from command 2 present"
               else
                 echo "❌ ERROR: Expected content from SPLUNK_APP_ACTION_2 not found!" >> $GITHUB_STEP_SUMMARY
-                echo "❌ Missing content from command 2"
-                VALIDATION_PASSED=false
+                exit 1
               fi
               
             else
               echo "❌ ERROR: File 'default/my.conf' not found in build!" >> $GITHUB_STEP_SUMMARY
               echo "❌ User-defined commands did not execute correctly" >> $GITHUB_STEP_SUMMARY
-              echo "Missing: default/my.conf (should be created by user commands)"
-              VALIDATION_PASSED=false
+              exit 1
             fi
-            
-          else
-            echo "⚠️ Build artifact not found in workspace (may have been uploaded)"
           fi
           
-          if [ "$VALIDATION_PASSED" = false ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "⚠️ **Warning**: Some outputs are missing due to composite action limitations" >> $GITHUB_STEP_SUMMARY
-            exit 1
-          else
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "✅ All outputs validated successfully!" >> $GITHUB_STEP_SUMMARY
-            echo "✅ User-defined commands executed and verified!" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ User-defined commands executed and verified!" >> $GITHUB_STEP_SUMMARY
 
 
   # Test 7: Multiple apps in same workflow
@@ -790,139 +308,37 @@ jobs:
           python_requirements_file: ${{ matrix.python_reqs }}
           is_app_inspect_check: false
 
-      - name: Verify build succeeded and outputs
+      - name: Verify build succeeded and outputs (using helper script)
         run: |
           echo "## Multi-App Build Validation (${{ matrix.app }})" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Check outputs
-          echo "### Action Outputs:" >> $GITHUB_STEP_SUMMARY
-          echo "- build_path: \`${{ steps.build_multi.outputs.build_path }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- artifact_name: \`${{ steps.build_multi.outputs.artifact_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_package_id: \`${{ steps.build_multi.outputs.app_package_id }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_version: \`${{ steps.build_multi.outputs.app_version }}\`" >> $GITHUB_STEP_SUMMARY
+          # Use helper script for validation
+          .github/scripts/validate-build-outputs.sh \
+            "${{ matrix.expected_id }}" \
+            "${{ matrix.expected_version }}" \
+            "1" \
+            "${{ steps.build_multi.outputs.artifact_name }}" \
+            "${{ steps.build_multi.outputs.app_package_id }}" \
+            "${{ steps.build_multi.outputs.app_version }}" \
+            "${{ steps.build_multi.outputs.app_build_number }}"
+          
           echo "" >> $GITHUB_STEP_SUMMARY
-          
-          VALIDATION_PASSED=true
-          
-          # Validate outputs
-          if [ -z "${{ steps.build_multi.outputs.artifact_name }}" ]; then
-            echo "⚠️ artifact_name is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ artifact_name: ${{ steps.build_multi.outputs.artifact_name }}"
-          fi
-          
-          if [ -z "${{ steps.build_multi.outputs.app_package_id }}" ]; then
-            echo "⚠️ app_package_id is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          elif [ "${{ steps.build_multi.outputs.app_package_id }}" != "${{ matrix.expected_id }}" ]; then
-            echo "❌ Expected app_package_id '${{ matrix.expected_id }}', got '${{ steps.build_multi.outputs.app_package_id }}'"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ app_package_id: ${{ steps.build_multi.outputs.app_package_id }}"
-          fi
-          
-          if [ -z "${{ steps.build_multi.outputs.app_version }}" ]; then
-            echo "⚠️ app_version is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          elif [ "${{ steps.build_multi.outputs.app_version }}" != "${{ matrix.expected_version }}" ]; then
-            echo "❌ Expected app_version '${{ matrix.expected_version }}', got '${{ steps.build_multi.outputs.app_version }}'"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ app_version: ${{ steps.build_multi.outputs.app_version }}"
-          fi
-          
-          if [ "$VALIDATION_PASSED" = false ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "⚠️ **Warning**: Some outputs are missing due to composite action limitations" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "✅ All outputs validated successfully for ${{ matrix.app }}!" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "✅ All outputs validated successfully for ${{ matrix.app }}!" >> $GITHUB_STEP_SUMMARY
 
 
-  # Test 8: Local app-inspect with valid app (should pass)
+
+  # Test 8: Local app-inspect with valid app (using reusable workflow)
   test-local-appinspect-pass:
-    name: Test Local App-Inspect (Pass)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Run splunk-app-action with local app-inspect
-        id: inspect_valid
-        uses: VatsalJagani/splunk-app-action@integration_tests
-        with:
-          app_dir: "tests/integration_test_apps/app_inspect_pass"
-          local_app_inspect: true
-
-      - name: Verify app-inspect passed and outputs
-        run: |
-          echo "## Local App-Inspect Validation" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Debug: Print all outputs as JSON
-          echo "### Debug: All Step Outputs (JSON)"
-          echo '${{ toJson(steps.inspect_valid.outputs) }}'
-          
-          # Check outputs
-          echo "### Action Outputs:" >> $GITHUB_STEP_SUMMARY
-          echo "- build_path: \`${{ steps.inspect_valid.outputs.build_path }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- artifact_name: \`${{ steps.inspect_valid.outputs.artifact_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_package_id: \`${{ steps.inspect_valid.outputs.app_package_id }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_version: \`${{ steps.inspect_valid.outputs.app_version }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_inspect_status: \`${{ steps.inspect_valid.outputs.app_inspect_status }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- cloud_inspect_status: \`${{ steps.inspect_valid.outputs.cloud_inspect_status }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- ssai_inspect_status: \`${{ steps.inspect_valid.outputs.ssai_inspect_status }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          VALIDATION_PASSED=true
-          
-          # Validate app_inspect_status
-          if [ -z "${{ steps.inspect_valid.outputs.app_inspect_status }}" ]; then
-            echo "⚠️ app_inspect_status is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          elif [ "${{ steps.inspect_valid.outputs.app_inspect_status }}" != "Passed" ]; then
-            echo "❌ Expected app_inspect_status 'Passed', got '${{ steps.inspect_valid.outputs.app_inspect_status }}'"
-            exit 1
-          else
-            echo "✅ app_inspect_status: ${{ steps.inspect_valid.outputs.app_inspect_status }}"
-          fi
-          
-          # Validate artifact outputs
-          if [ -z "${{ steps.inspect_valid.outputs.artifact_name }}" ]; then
-            echo "⚠️ artifact_name is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ artifact_name: ${{ steps.inspect_valid.outputs.artifact_name }}"
-          fi
-          
-          if [ -z "${{ steps.inspect_valid.outputs.app_package_id }}" ]; then
-            echo "⚠️ app_package_id is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          elif [ "${{ steps.inspect_valid.outputs.app_package_id }}" != "valid_test_app_inspect" ]; then
-            echo "❌ Expected app_package_id 'valid_test_app_inspect', got '${{ steps.inspect_valid.outputs.app_package_id }}'"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ app_package_id: ${{ steps.inspect_valid.outputs.app_package_id }}"
-          fi
-          
-          # Check if inspect report exists
-          if [ -d "valid_test_app_inspect_1_0_0_1_reports" ]; then
-            echo "✅ App-inspect reports generated"
-            ls -la valid_test_app_inspect_1_0_0_1_reports/
-          else
-            echo "⚠️ App-inspect reports not found in workspace"
-          fi
-          
-          if [ "$VALIDATION_PASSED" = false ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "⚠️ **Warning**: Some outputs are missing due to composite action limitations" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "✅ All outputs validated successfully!" >> $GITHUB_STEP_SUMMARY
-          fi
+    uses: ./.github/workflows/reusable-build-test.yml
+    with:
+      test-name: "Local App-Inspect (Pass)"
+      app-dir: "tests/integration_test_apps/app_inspect_pass"
+      expected-app-id: "valid_test_app_inspect"
+      expected-version: "1.0.0"
+      expected-build-number: "1"
+      local-app-inspect: true
+      validate-cleanup: false
 
 
   # Test 9: Local app-inspect with failing app (should fail but not crash)
@@ -942,65 +358,40 @@ jobs:
           app_dir: "tests/integration_test_apps/app_inspect_fail"
           local_app_inspect: true
       
-      - name: Verify app-inspect failed as expected and check outputs
+      - name: Verify app-inspect failed as expected and check outputs (using helper scripts)
         run: |
           echo "## Local App-Inspect Failure Validation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Check outputs
-          echo "### Action Outputs:" >> $GITHUB_STEP_SUMMARY
-          echo "- build_path: \`${{ steps.inspect_fail.outputs.build_path }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- artifact_name: \`${{ steps.inspect_fail.outputs.artifact_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_package_id: \`${{ steps.inspect_fail.outputs.app_package_id }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- app_inspect_status: \`${{ steps.inspect_fail.outputs.app_inspect_status }}\`" >> $GITHUB_STEP_SUMMARY
+          # Use helper script for basic output validation
+          .github/scripts/validate-build-outputs.sh \
+            "failing_test_app" \
+            "1.0.0" \
+            "1" \
+            "${{ steps.inspect_fail.outputs.artifact_name }}" \
+            "${{ steps.inspect_fail.outputs.app_package_id }}" \
+            "${{ steps.inspect_fail.outputs.app_version }}" \
+            "${{ steps.inspect_fail.outputs.app_build_number }}"
+          
+          # Custom app-inspect status validation
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### App-Inspect Status Validation:" >> $GITHUB_STEP_SUMMARY
           
-          VALIDATION_PASSED=true
-          
-          # Validate app_inspect_status is NOT "Passed"
-          if [ -z "${{ steps.inspect_fail.outputs.app_inspect_status }}" ]; then
-            echo "⚠️ app_inspect_status is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          elif [ "${{ steps.inspect_fail.outputs.app_inspect_status }}" == "Passed" ]; then
-            echo "❌ Expected app_inspect_status to be 'Failure' or 'Error', but got 'Passed'"
-            echo "This failing app should NOT pass inspection!"
+          if [ "${{ steps.inspect_fail.outputs.app_inspect_status }}" == "Passed" ]; then
+            echo "❌ Expected app_inspect_status to be 'Failure' or 'Error', but got 'Passed'" >> $GITHUB_STEP_SUMMARY
+            echo "This failing app should NOT pass inspection!" >> $GITHUB_STEP_SUMMARY
             exit 1
           else
-            echo "✅ app_inspect_status correctly indicates failure: ${{ steps.inspect_fail.outputs.app_inspect_status }}"
-          fi
-          
-          # Validate artifact outputs
-          if [ -z "${{ steps.inspect_fail.outputs.artifact_name }}" ]; then
-            echo "⚠️ artifact_name is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ artifact_name: ${{ steps.inspect_fail.outputs.artifact_name }}"
-          fi
-          
-          if [ -z "${{ steps.inspect_fail.outputs.app_package_id }}" ]; then
-            echo "⚠️ app_package_id is empty (composite action output issue)"
-            VALIDATION_PASSED=false
-          elif [ "${{ steps.inspect_fail.outputs.app_package_id }}" != "failing_test_app" ]; then
-            echo "❌ Expected app_package_id 'failing_test_app', got '${{ steps.inspect_fail.outputs.app_package_id }}'"
-            VALIDATION_PASSED=false
-          else
-            echo "✅ app_package_id: ${{ steps.inspect_fail.outputs.app_package_id }}"
+            echo "✅ app_inspect_status correctly indicates failure: ${{ steps.inspect_fail.outputs.app_inspect_status }}" >> $GITHUB_STEP_SUMMARY
           fi
           
           # Check if inspect report exists (even for failed inspections)
           if [ -d "failing_test_app_1_0_0_1_reports" ]; then
-            echo "✅ App-inspect reports generated for failing app"
-          else
-            echo "⚠️ App-inspect reports not found"
+            echo "✅ App-inspect reports generated for failing app" >> $GITHUB_STEP_SUMMARY
           fi
           
-          if [ "$VALIDATION_PASSED" = false ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "⚠️ **Warning**: Some outputs are missing due to composite action limitations" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "✅ Failure correctly detected and outputs validated!" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Failure correctly detected and outputs validated!" >> $GITHUB_STEP_SUMMARY
 
 
   # Test 10: App-inspect with fail_on parameter (none mode)
@@ -1019,22 +410,27 @@ jobs:
           local_app_inspect: true
           fail_on: "none"
       
-      - name: Verify build succeeded despite app-inspect failures
+      - name: Verify build succeeded despite app-inspect failures (using helper scripts)
         run: |
           echo "## App-Inspect fail_on=none Validation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Check outputs
-          echo "### Action Outputs:" >> $GITHUB_STEP_SUMMARY
-          echo "- app_inspect_status: \`${{ steps.inspect_fail_on_none.outputs.app_inspect_status }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          # Use helper script for output validation
+          .github/scripts/validate-build-outputs.sh \
+            "failing_test_app1" \
+            "1.0.0" \
+            "1" \
+            "${{ steps.inspect_fail_on_none.outputs.artifact_name }}" \
+            "${{ steps.inspect_fail_on_none.outputs.app_package_id }}" \
+            "${{ steps.inspect_fail_on_none.outputs.app_version }}" \
+            "${{ steps.inspect_fail_on_none.outputs.app_build_number }}"
           
           # With fail_on=none, the action should NOT fail even if app-inspect fails
-          # But we should still see the inspect status
+          echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ Workflow did not fail despite app-inspect issues (fail_on=none)" >> $GITHUB_STEP_SUMMARY
           
           # Verify inspect report was still generated
-          if [ -d "failing_test_app_1_0_0_1_reports" ]; then
+          if [ -d "failing_test_app1_1_0_0_1_reports" ]; then
             echo "✅ App-inspect reports generated (informational mode)" >> $GITHUB_STEP_SUMMARY
           fi
           
