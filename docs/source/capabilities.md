@@ -300,13 +300,22 @@ AppInspect results can be published as SARIF reports for GitHub Code Scanning an
 - Enables inline code annotations in Pull Requests
 - Integrates with GitHub Security tab for vulnerability tracking
 - Supports merge protection based on code scanning results
+- **Enabled by default** - SARIF reports are automatically generated and uploaded
 
 ```yaml
+# SARIF is enabled by default, this is just for clarity
 - uses: VatsalJagani/splunk-app-action@v4
   with:
     app_dir: "my_app"
     local_app_inspect: true
-    publish_sarif: "true"
+    # publish_sarif: "true"  # Default is true, can be omitted
+
+# To disable SARIF publishing
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_dir: "my_app"
+    local_app_inspect: true
+    publish_sarif: "false"  # Explicitly disable
 ```
 
 ```{note}
