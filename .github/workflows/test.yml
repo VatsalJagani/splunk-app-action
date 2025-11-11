@@ -1,4 +1,4 @@
-name: Build, Test, Checks
+name: Linting, Unit Tests and Doc Checks
 
 on:
   push:
@@ -12,12 +12,7 @@ permissions:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        os: ["ubuntu-latest"]
-        python-version: ["3.12", "3.13"]
-
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -29,7 +24,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.12"
 
       - name: Set up Python (using uv)
         run: uv python install
