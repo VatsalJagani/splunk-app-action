@@ -1,0 +1,128 @@
+{
+  "meta": {
+    "name": "TA_test_ucc_addon",
+    "displayName": "Test UCC Add-on",
+    "version": "1.0.0",
+    "restRoot": "ta_test_ucc_addon",
+    "schemaVersion": "0.0.3"
+  },
+  "pages": {
+    "configuration": {
+      "title": "Configuration",
+      "description": "Set up your add-on",
+      "tabs": [
+        {
+          "name": "account",
+          "title": "Account",
+          "table": {
+            "header": [
+              {
+                "field": "name",
+                "label": "Account Name"
+              }
+            ],
+            "actions": ["edit", "delete", "clone"]
+          },
+          "entity": [
+            {
+              "field": "name",
+              "label": "Account Name",
+              "type": "text",
+              "required": true,
+              "help": "Enter a unique name for this account."
+            },
+            {
+              "field": "username",
+              "label": "Username",
+              "type": "text",
+              "required": true
+            },
+            {
+              "field": "password",
+              "label": "Password",
+              "type": "text",
+              "encrypted": true,
+              "required": true
+            }
+          ]
+        }
+      ]
+    },
+    "inputs": {
+      "title": "Inputs",
+      "description": "Manage your data inputs",
+      "table": {
+        "header": [
+          {
+            "field": "name",
+            "label": "Name"
+          },
+          {
+            "field": "interval",
+            "label": "Interval"
+          },
+          {
+            "field": "index",
+            "label": "Index"
+          },
+          {
+            "field": "disabled",
+            "label": "Status"
+          }
+        ],
+        "moreInfo": [
+          {
+            "field": "name",
+            "label": "Name"
+          },
+          {
+            "field": "interval",
+            "label": "Interval"
+          },
+          {
+            "field": "index",
+            "label": "Index"
+          },
+          {
+            "field": "disabled",
+            "label": "Status"
+          }
+        ],
+        "actions": ["edit", "enable", "delete", "clone"]
+      },
+      "services": [
+        {
+          "name": "test_input",
+          "title": "Test Input",
+          "entity": [
+            {
+              "field": "name",
+              "label": "Name",
+              "type": "text",
+              "required": true
+            },
+            {
+              "field": "interval",
+              "label": "Interval",
+              "type": "text",
+              "required": true,
+              "defaultValue": "300"
+            },
+            {
+              "field": "index",
+              "label": "Index",
+              "type": "singleSelect",
+              "defaultValue": "default",
+              "options": {
+                "endpointUrl": "data/indexes",
+                "createSearchChoice": true,
+                "denyList": "^_.*$"
+              },
+              "required": true
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
