@@ -93,7 +93,7 @@ jobs:
       - name: Run splunk-app-action
         id: build
         continue-on-error: true
-        uses: VatsalJagani/splunk-app-action@integration_tests
+        uses: VatsalJagani/splunk-app-action@develop
         with:
           app_dir: ${{ inputs.app-dir }}
           use_ucc_gen: ${{ inputs.use-ucc-gen }}
