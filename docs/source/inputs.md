@@ -65,7 +65,7 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 - **Required:** false
 - **Default:** true
 - **Note:** Only applicable when `is_app_inspect_check` is enabled. Requires GitHub Code Scanning to be enabled. SARIF reports are automatically generated from AppInspect JSON results and uploaded. Can be disabled by setting to `false`.
-- **Example:** `"true"`
+- **Example:** `true` or `false`
 
 ### `fail_on`
 - **Description:** Control when the action should fail based on AppInspect results.

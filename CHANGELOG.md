@@ -28,6 +28,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Input Type Consistency** - `publish_sarif` now uses boolean type across the repository
+  - Changed from string values `"true"`/`"false"` to boolean values `true`/`false`
+  - Provides better type safety and consistency with other boolean inputs
+  - Examples in documentation updated to use `publish_sarif: true` or `publish_sarif: false`
+  - No behavior change, only syntax improvement
+
 - **AppInspect Architecture** - Unified behavior between API-based and local AppInspect
   - Introduced `BaseAppInspect` abstract class for common functionality
   - Both API and local inspection now support SARIF report generation

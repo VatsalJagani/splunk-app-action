@@ -308,14 +308,14 @@ AppInspect results can be published as SARIF reports for GitHub Code Scanning an
   with:
     app_dir: "my_app"
     local_app_inspect: true
-    # publish_sarif: "true"  # Default is true, can be omitted
+    # publish_sarif: true  # Default is true, can be omitted
 
 # To disable SARIF publishing
 - uses: VatsalJagani/splunk-app-action@v4
   with:
     app_dir: "my_app"
     local_app_inspect: true
-    publish_sarif: "false"  # Explicitly disable
+    publish_sarif: false  # Explicitly disable
 ```
 
 ```{note}

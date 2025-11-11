@@ -25,7 +25,7 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
 
 # Build with SARIF code scanning for inline PR feedback
 # (SARIF is enabled by default when app-inspect is enabled)
-# (To disable SARIF, set publish_sarif: "false")
+# (To disable SARIF, set publish_sarif: false)
 - uses: VatsalJagani/splunk-app-action@v4
   with:
     app_dir: "my_app"

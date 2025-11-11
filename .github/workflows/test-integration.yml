@@ -466,7 +466,7 @@ jobs:
         with:
           app_dir: "tests/integration_test_apps/app_inspect_fail4"
           local_app_inspect: true
-          publish_sarif: "true"
+          publish_sarif: true
       
       - name: Verify SARIF file was generated (using helper scripts)
         if: always()
@@ -554,7 +554,7 @@ jobs:
           app_dir: "tests/integration_test_apps/ucc_addon2"
           use_ucc_gen: true
           local_app_inspect: true
-          publish_sarif: "true"
+          publish_sarif: true
       
       - name: Verify SARIF file and file paths
         if: always()
