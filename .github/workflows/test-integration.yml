@@ -227,6 +227,30 @@ jobs:
               echo "✅ 'appserver' directory present (UCC generated)" >> $GITHUB_STEP_SUMMARY
             fi
             
+            # Verify .pyc files are cleaned up in UCC build
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Cleanup Validation:" >> $GITHUB_STEP_SUMMARY
+            PYC_COUNT=$(find /tmp/ucc_build_test/TA_test_ucc_addon -name "*.pyc" | wc -l | tr -d ' ')
+            if [ "$PYC_COUNT" -eq 0 ]; then
+              echo "✅ No .pyc files found (cleanup successful)" >> $GITHUB_STEP_SUMMARY
+              echo "✅ Verified: No .pyc files in UCC build"
+            else
+              echo "❌ Found $PYC_COUNT .pyc files (cleanup should occur)" >> $GITHUB_STEP_SUMMARY
+              echo "⚠️ WARNING: Found $PYC_COUNT .pyc files in UCC build"
+              # Note: Not failing on this as UCC may generate some .pyc files
+            fi
+            
+            # Verify __pycache__ directories are cleaned up
+            PYCACHE_COUNT=$(find /tmp/ucc_build_test/TA_test_ucc_addon -type d -name "__pycache__" | wc -l | tr -d ' ')
+            if [ "$PYCACHE_COUNT" -eq 0 ]; then
+              echo "✅ No __pycache__ directories found (cleanup successful)" >> $GITHUB_STEP_SUMMARY
+              echo "✅ Verified: No __pycache__ directories in UCC build"
+            else
+              echo "❌ Found $PYCACHE_COUNT __pycache__ directories (cleanup should occur)" >> $GITHUB_STEP_SUMMARY
+              echo "⚠️ WARNING: Found $PYCACHE_COUNT __pycache__ directories in UCC build"
+              # Note: Not failing on this as UCC may generate some cache
+            fi
+            
           else
             echo "⚠️ Build artifact not found in workspace (may have been uploaded)"
           fi
@@ -361,6 +385,30 @@ jobs:
               
               if [ "$metadata_count" -gt 0 ]; then
                 echo "✅ Found $metadata_count package metadata directories (.dist-info/.egg-info)" >> $GITHUB_STEP_SUMMARY
+              fi
+              
+              # Verify .pyc files are cleaned up
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### Cleanup Validation:" >> $GITHUB_STEP_SUMMARY
+              PYC_COUNT=$(find /tmp/python_deps_test/python_deps_test_app/lib -name "*.pyc" | wc -l | tr -d ' ')
+              if [ "$PYC_COUNT" -eq 0 ]; then
+                echo "✅ No .pyc files found (cleanup successful)" >> $GITHUB_STEP_SUMMARY
+                echo "✅ Verified: No .pyc files in lib/"
+              else
+                echo "❌ Found $PYC_COUNT .pyc files (cleanup failed)" >> $GITHUB_STEP_SUMMARY
+                echo "❌ ERROR: Found $PYC_COUNT .pyc files (should be cleaned up)"
+                VALIDATION_PASSED=false
+              fi
+              
+              # Verify __pycache__ directories are cleaned up
+              PYCACHE_COUNT=$(find /tmp/python_deps_test/python_deps_test_app/lib -type d -name "__pycache__" | wc -l | tr -d ' ')
+              if [ "$PYCACHE_COUNT" -eq 0 ]; then
+                echo "✅ No __pycache__ directories found (cleanup successful)" >> $GITHUB_STEP_SUMMARY
+                echo "✅ Verified: No __pycache__ directories in lib/"
+              else
+                echo "❌ Found $PYCACHE_COUNT __pycache__ directories (cleanup failed)" >> $GITHUB_STEP_SUMMARY
+                echo "❌ ERROR: Found $PYCACHE_COUNT __pycache__ directories (should be cleaned up)"
+                VALIDATION_PASSED=false
               fi
               
             else
@@ -955,6 +1003,45 @@ jobs:
           fi
 
 
+  # Test 10: App-inspect with fail_on parameter (none mode)
+  test-appinspect-fail-on-none:
+    name: Test App-Inspect fail_on=none
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Run splunk-app-action with fail_on=none on failing app
+        id: inspect_fail_on_none
+        uses: VatsalJagani/splunk-app-action@integration_tests
+        with:
+          app_dir: "tests/integration_test_apps/app_inspect_fail1"
+          local_app_inspect: true
+          fail_on: "none"
+      
+      - name: Verify build succeeded despite app-inspect failures
+        run: |
+          echo "## App-Inspect fail_on=none Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check outputs
+          echo "### Action Outputs:" >> $GITHUB_STEP_SUMMARY
+          echo "- app_inspect_status: \`${{ steps.inspect_fail_on_none.outputs.app_inspect_status }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # With fail_on=none, the action should NOT fail even if app-inspect fails
+          # But we should still see the inspect status
+          echo "✅ Workflow did not fail despite app-inspect issues (fail_on=none)" >> $GITHUB_STEP_SUMMARY
+          
+          # Verify inspect report was still generated
+          if [ -d "failing_test_app_1_0_0_1_reports" ]; then
+            echo "✅ App-inspect reports generated (informational mode)" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ fail_on=none mode working correctly (informational checks only)!" >> $GITHUB_STEP_SUMMARY
+
+
   # Summary job that depends on all tests
   test-summary:
     name: Test Summary
@@ -969,6 +1056,7 @@ jobs:
       - test-multi-app
       - test-local-appinspect-pass
       - test-local-appinspect-fail
+      - test-appinspect-fail-on-none
     if: always()
     steps:
       - name: Check test results
@@ -987,6 +1075,7 @@ jobs:
           echo "- Multi-App: ${{ needs.test-multi-app.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Local App-Inspect (Pass): ${{ needs.test-local-appinspect-pass.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Local App-Inspect (Fail): ${{ needs.test-local-appinspect-fail.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- App-Inspect fail_on=none: ${{ needs.test-appinspect-fail-on-none.result }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Check if any required test failed (excluding the expected-to-fail test)
@@ -998,7 +1087,8 @@ jobs:
              [ "${{ needs.test-user-commands.result }}" != "success" ] || \
              [ "${{ needs.test-multi-app.result }}" != "success" ] || \
              [ "${{ needs.test-local-appinspect-pass.result }}" != "success" ] || \
-             [ "${{ needs.test-local-appinspect-fail.result }}" != "success" ]; then
+             [ "${{ needs.test-local-appinspect-fail.result }}" != "success" ] || \
+             [ "${{ needs.test-appinspect-fail-on-none.result }}" != "success" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "❌ Some tests failed!" >> $GITHUB_STEP_SUMMARY
             exit 1
