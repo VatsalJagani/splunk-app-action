@@ -202,8 +202,11 @@ def _create_result(report: dict[str, Any], rule_id: str) -> list[dict[str, Any]]
             if line_number:
                 # Convert line_number to int (it might be a string in the JSON)
                 try:
-                    line_number = line_number.strip().strip('"')
-                    line_num_int = int(line_number)
+                    if isinstance(line_number, int):
+                        line_num_int = line_number
+                    else:
+                        line_number = line_number.strip().strip('"')
+                        line_num_int = int(line_number)
                     location["physicalLocation"]["region"] = {"startLine": line_num_int}
                 except (ValueError, TypeError):
                     # If conversion fails, skip adding the region
