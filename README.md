@@ -28,7 +28,7 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
   with:
     app_dir: "my_app"
     local_app_inspect: true
-    publish_sarif: true
+    publish_sarif: "true"
     fail_on: "errors"  # Options: errors, warnings, none
 
 # UCC Add-on build

@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- **AppInspect Report Generation** - Standardized on JSON-first approach for both API and local inspection
+  - Both API-based and local AppInspect now generate JSON reports first, then convert to HTML
+  - Uses centralized HTML converter module for consistent formatting across inspection modes
+  - Ensures JSON is the canonical report format, making it easier to process and validate results
+  - Eliminates duplicate HTML generation code (~100 lines removed)
+
+- **SARIF Publishing** - Now enabled by default
+  - Changed `publish_sarif` default value from `false` to `true`
+  - SARIF reports will automatically be generated and uploaded to GitHub Code Scanning
+  - Provides inline code annotations in Pull Requests without additional configuration
+  - Can be disabled by setting `publish_sarif: false` if not desired
+
 ### Added
 
 - **SARIF Code Scanning Support** - Publish AppInspect results for GitHub Code Scanning

@@ -545,7 +545,7 @@ class SplunkLocalAppInspect:
             gat.set_output("ssai_inspect_status", self.app_inspect_result[2])
 
             # Generate SARIF reports if enabled
-            publish_sarif = gat.get_user_input_as("publish_sarif", bool, False)
+            publish_sarif = gat.get_user_input_as("publish_sarif", bool, True)
             if publish_sarif:
                 self._generate_sarif_reports()
 

@@ -465,7 +465,7 @@ jobs:
         with:
           app_dir: "tests/integration_test_apps/app_inspect_fail4"
           local_app_inspect: true
-          publish_sarif: true
+          publish_sarif: "true"
       
       - name: Verify SARIF file was generated (using helper scripts)
         if: always()

@@ -306,7 +306,7 @@ AppInspect results can be published as SARIF reports for GitHub Code Scanning an
   with:
     app_dir: "my_app"
     local_app_inspect: true
-    publish_sarif: true
+    publish_sarif: "true"
 ```
 
 ```{note}

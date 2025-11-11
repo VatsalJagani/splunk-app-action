@@ -77,7 +77,7 @@ jobs:
         with:
           app_dir: "my_app"
           local_app_inspect: true
-          publish_sarif: true
+          publish_sarif: "true"
 ```
 
 ### Informational AppInspect (Never Fail)
@@ -97,7 +97,7 @@ jobs:
           app_dir: "my_app"
           local_app_inspect: true
           fail_on: "none"  # Never fail based on AppInspect results
-          publish_sarif: true
+          publish_sarif: "true"
 ```
 
 ### Fail on Warnings
