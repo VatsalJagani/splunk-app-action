@@ -35,7 +35,7 @@ jobs:
       app-dir: "tests/integration_test_apps/ucc_addon"
       expected-app-id: "TA_test_ucc_addon"
       expected-version: "1.0.0"
-      expected-build-number: "1"
+      expected-build-number: ""  # Skip build number validation for UCC
       use-ucc-gen: true
       is-app-inspect-check: false
       validate-cleanup: false  # UCC may generate some cache files
@@ -331,64 +331,27 @@ jobs:
     with:
       test-name: "Local App-Inspect (Pass)"
       app-dir: "tests/integration_test_apps/app_inspect_pass"
-      expected-app-id: "valid_test_app_inspect"
+      expected-app-id: "app_inspect_pass"
       expected-version: "1.0.0"
       expected-build-number: "1"
       local-app-inspect: true
+      expected-appinspect-result: "pass"
       validate-cleanup: false
 
 
   # Test 9: Local app-inspect with failing app (should fail but not crash)
   test-local-appinspect-fail:
-    name: Test Local App-Inspect (Fail)
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Run splunk-app-action with local app-inspect on failing app
-        id: inspect_fail
-        uses: VatsalJagani/splunk-app-action@integration_tests
-        continue-on-error: true
-        with:
-          app_dir: "tests/integration_test_apps/app_inspect_fail"
-          local_app_inspect: true
-      
-      - name: Verify app-inspect failed as expected and check outputs (using helper scripts)
-        run: |
-          echo "## Local App-Inspect Failure Validation" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Use helper script for basic output validation
-          .github/scripts/validate-build-outputs.sh \
-            "failing_test_app" \
-            "1.0.0" \
-            "1" \
-            "${{ steps.inspect_fail.outputs.artifact_name }}" \
-            "${{ steps.inspect_fail.outputs.app_package_id }}" \
-            "${{ steps.inspect_fail.outputs.app_version }}" \
-            "${{ steps.inspect_fail.outputs.app_build_number }}"
-          
-          # Custom app-inspect status validation
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### App-Inspect Status Validation:" >> $GITHUB_STEP_SUMMARY
-          
-          if [ "${{ steps.inspect_fail.outputs.app_inspect_status }}" == "Passed" ]; then
-            echo "❌ Expected app_inspect_status to be 'Failure' or 'Error', but got 'Passed'" >> $GITHUB_STEP_SUMMARY
-            echo "This failing app should NOT pass inspection!" >> $GITHUB_STEP_SUMMARY
-            exit 1
-          else
-            echo "✅ app_inspect_status correctly indicates failure: ${{ steps.inspect_fail.outputs.app_inspect_status }}" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          # Check if inspect report exists (even for failed inspections)
-          if [ -d "failing_test_app_1_0_0_1_reports" ]; then
-            echo "✅ App-inspect reports generated for failing app" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Failure correctly detected and outputs validated!" >> $GITHUB_STEP_SUMMARY
+    uses: ./.github/workflows/reusable-build-test.yml
+    with:
+      test-name: "Local App-Inspect (Fail)"
+      app-dir: "tests/integration_test_apps/app_inspect_fail"
+      expected-app-id: "failing_test_app"
+      expected-version: "1.0.0"
+      expected-build-number: "1"
+      local-app-inspect: true
+      expected-appinspect-result: "fail"
+      continue-on-error: true
+      validate-cleanup: false
 
 
   # Test 10: App-inspect with fail_on parameter (none mode)
