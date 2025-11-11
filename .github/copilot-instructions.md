@@ -280,17 +280,62 @@ Whenever a change is user-facing, update docs and README in the same pull reques
 
 ## Changelog updates (Keep a Changelog)
 
-- Always update `CHANGELOG.md` whenever a change is user-facing. This includes, but isn’t limited to:
+- Always update `CHANGELOG.md` whenever a change is user-facing. This includes, but isn't limited to:
   - Source code behavior changes (inputs/outputs, defaults, errors, messages, CLI/entry points, public APIs)
   - Configuration/schema or environment variable changes
   - Inputs changes
   - Behavioral changes
   - Logging format or content that users see
   - Documentation changes that affect how users use or understand the project (guides, examples, reference, navigation)
+  
 - Add entries under the Unreleased section using concise bullets. Prefer the standard categories:
-  - Added, Changed, Fixed, Deprecated, Removed, Security
-  - If a docs-only change is clearly user-facing, include it under Added/Changed (don’t hide it under internal changes).
-- Keep entries short, specific, and actionable. Use imperative mood and avoid implementation detail.
+  - **Upgrade Notes** - Breaking changes, migration guidance, and what's new summary
+  - **Changed** - Modifications to existing user-facing behavior
+  - **Added** - New user-facing features, capabilities, or outputs
+  - **Removed** - Removed user-facing features or inputs
+  - **Fixed** - Bug fixes that impact users
+  - **Deprecated** - User-facing features marked for future removal
+  - **Security** - Security-related changes
+  - **Developer & Internal Changes** - Implementation details, internal refactoring, tooling, dependency updates, code quality improvements
+
+- **FORMATTING GUIDELINES:**
+  - **Feature titles:** Use this format: `**Feature Name** - Brief one-line description`
+    - Example: `**App Inspect Inline Annotations** - AppInspect results now appear as inline annotations in the Files Changed tab - no configuration needed!`
+  - **Sub-bullets:** Indent with 2 spaces, provide user-benefit details and specifics
+  - **Keep feature names short and descriptive** - Focus on user-facing capability, not implementation
+  - **Use "Github" not "GitHub" in feature titles** for consistency with existing entries
+  - **Developer section must be extremely concise** - Single-line summaries with key metrics (e.g., "~200 lines eliminated")
+  
+- **CRITICAL GUIDANCE ON WHAT TO INCLUDE:**
+  - **Primary sections (Changed, Added, Removed, Fixed, Deprecated, Security):**
+    - ONLY include user-centric behavioral changes that directly affect how end users interact with the GitHub Action
+    - Focus on inputs, outputs, features, error messages, workflow configuration, permissions, and user-visible behavior
+    - Keep entries focused on "what changed for the user" not "how it was implemented"
+    - Avoid implementation details like class names, internal architecture, or code structure
+    - Example of GOOD entry: `**App Inspect Inline Annotations** - AppInspect results now appear as inline annotations`
+    - Example of BAD entry: "Introduced BaseAppInspect abstract class for common functionality"
+  
+  - **Upgrade Notes section:**
+    - Include ALL breaking changes (removed inputs, changed behaviors, permission changes)
+    - Provide recommended migration actions
+    - Summarize major new features that users should know about
+    - Use bullet format: `**Migration/Change** - Brief explanation`
+  
+  - **Developer & Internal Changes section:**
+    - KEEP EXTREMELY CONCISE - Single-line summaries only
+    - Format: `**Category** - Brief summary with key metrics if applicable`
+    - Include dependency version updates (all library upgrades go here)
+    - Include code quality improvements (linting, type-checking, formatting)
+    - Include test implementation details, workflow changes, and tooling updates
+    - Include internal documentation that doesn't affect end-user behavior
+    - DO NOT include detailed migration steps (e.g., "Created X module, removed Y module") - too verbose
+    - Focus on the outcome/impact, not the implementation steps
+    - Example of GOOD: `**AppInspect Architecture** - Introduced BaseAppInspect abstract class, eliminating ~200 lines of code duplication`
+    - Example of BAD: Multiple bullets listing each file created/removed/modified
+  
+  - **If a docs-only change is clearly user-facing**, include it under Added/Changed (don't hide it under internal changes)
+  
+- Keep entries short, specific, and actionable. Use imperative mood and avoid implementation detail in user-facing sections.
 
 
 

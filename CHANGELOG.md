@@ -7,88 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-### Changed
+### Upgrade Notes
 
-- **GitHub Annotations Instead of SARIF** - Replaced SARIF report generation with direct GitHub annotations
-  - AppInspect failures and errors now appear as inline annotations on PR files
-  - Warnings appear as warning annotations directly in the Files Changed tab
-  - No longer requires `security-events: write` permission
-  - Simpler, more immediate feedback without uploading artifacts
-  - Removed `publish_sarif` input parameter (no longer needed)
-  - Removed SARIF file generation and upload step from action.yml
-  - Created new `annotation_publisher` helper module to publish annotations
-  - Annotations work automatically with no additional configuration required
+- **Migrate from `splunk_python_sdk` utility** - Consider migrating to the new `python_requirements_file` feature for better dependency management.
 
-### Removed
+### Deprecated
 
-- **SARIF Support** - Removed SARIF (Static Analysis Results Interchange Format) generation and upload
-  - Removed `publish_sarif` input parameter
-  - Removed `sarif_converter` helper module
-  - Removed SARIF upload step using `github/codeql-action/upload-sarif`
-  - Removed `test_sarif_and_check_runs.py` test file
-  - Removed SARIF environment variable from action.yml
-  - Updated integration tests to remove SARIF-specific test jobs
-  - Removed requirement for `security-events: write` permission
-  - GitHub annotations provide equivalent functionality with better UX
+- **Splunk Python SDK Utility (`splunk_python_sdk`)** - Deprecated and will be removed in v6
+  - Users should migrate to the new Python Dependency Manager feature
+  - Allows installing splunklib and other libraries without copying them into the repository
+  - Deprecation warning is now displayed when using this utility
 
 ### Added
 
-- **Annotation Publisher Tests** - Comprehensive test suite for annotation publisher
-  - Tests for publishing errors, warnings, and mixed results
-  - Tests for file path handling with different `app_dir` values
-  - Tests for line number parsing and error handling
-  - 9 new tests ensuring reliable annotation publishing
+- **App Inspect Inline Annotations** - AppInspect results now appear as inline annotations in the Files Changed tab - no configuration needed!
+  - AppInspect failures and errors now appear as inline annotations on PR as comments, so you can act very fast.
+  - Annotations work automatically with no additional configuration required.
 
-### Fixed
-
-- **AppInspect Artifact Upload** - Upload conditions now properly check if app-inspect is enabled
-  - App-inspect reports artifact only uploads when `is_app_inspect_check` is true
-  - Prevents unnecessary upload attempts when app-inspect is disabled
-
-### Changed
-
-- **AppInspect Architecture** - Unified behavior between API-based and local AppInspect
-  - Introduced `BaseAppInspect` abstract class for common functionality
-  - Both API and local inspection now support GitHub annotations
-  - Both API and local inspection publish GitHub Check Runs
-  - Eliminates code duplication (~200 lines) while ensuring consistent behavior
-  - Both API and local inspection now publish GitHub Check Runs
-  - Eliminates code duplication (~200 lines) while ensuring consistent behavior
-  - Both modes generate JSON → HTML → SARIF reports and publish check runs
-
-### Changed
-
-- **AppInspect Architecture** - Unified behavior between API-based and local AppInspect
-  - Introduced `BaseAppInspect` abstract class for common functionality
-  - Both API and local inspection now support SARIF report generation
-  - Both API and local inspection now publish GitHub Check Runs
-  - Eliminates code duplication (~200 lines) while ensuring consistent behavior
-  - Both modes generate JSON → HTML → SARIF reports and publish check runs
-
-- **AppInspect Report Generation** - Standardized on JSON-first approach for both API and local inspection
-  - Both API-based and local AppInspect now generate JSON reports first, then convert to HTML
-  - Uses centralized HTML converter module for consistent formatting across inspection modes
-  - Ensures JSON is the canonical report format, making it easier to process and validate results
-  - Eliminates duplicate HTML generation code (~100 lines removed)
-
-- **SARIF Publishing** - Now enabled by default
-  - Changed `publish_sarif` default value from `false` to `true`
-  - SARIF reports will automatically be generated and uploaded to GitHub Code Scanning
-  - Provides inline code annotations in Pull Requests without additional configuration
-  - Can be disabled by setting `publish_sarif: false` if not desired
-
-### Added
-
-- **SARIF Code Scanning Support** - Publish AppInspect results for GitHub Code Scanning
-  - New `publish_sarif` input to enable SARIF report generation from AppInspect JSON results
-  - Converts AppInspect failures, errors, and warnings to SARIF 2.1.0 format
-  - Enables inline code annotations in Pull Requests for quality issues
-  - Automatically uploaded to GitHub Code Scanning via CodeQL action
-  - Supports all three inspect types (app-inspect, cloud-inspect, ssai-inspect)
-  - Merged into single SARIF file for unified reporting
-
-- **GitHub Check Runs** - Display AppInspect status with summaries
-  - Publishes check run summaries with error/warning counts
+- **Github Checks for App Inspect** - Publishes check run summaries with error/warning counts
   - Shows detailed breakdown of success, failure, error, warning, manual check, skipped, and not applicable counts
   - Lists up to 5 failed checks with option to view full report
   - Includes direct links to AppInspect artifacts
@@ -103,6 +39,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Allows gradual adoption of AppInspect checks without breaking builds
   - Useful for collecting metrics while fixing existing issues
 
+- **Local App-Inspect Support** - New input parameter `local_app_inspect`
+  - Enables local Splunk App Inspect validation using the splunk-appinspect Python library
+  - Provides faster validation without requiring Splunkbase credentials
+  - May not be as up-to-date as the Splunkbase API
+  - Default is `false`
+
+- **Github Action Summaries** - Comprehensive build summary displayed in GitHub Actions UI
+  - Automatically generates a job summary with build metadata and AppInspect results
+  - Displays build information table with app package ID, version, build number, and artifact paths
+  - Shows AppInspect results table with status indicators and emoji for easy visualization (✅ Passed, ❌ Failure, ⏭️ Skipped, etc.)
+  - Includes direct link to download workflow artifacts
+  - Written to `$GITHUB_STEP_SUMMARY` for visibility in GitHub Actions interface.
+
 - **Enhanced Action Outputs** - New output variables for better workflow integration
   - `build_path` - Full path to the generated build artifact (.tgz file)
   - `artifact_name` - Name of the generated build artifact (e.g., my_app_1.0.0_1.tgz)
@@ -114,28 +63,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `ssai_inspect_status` - Status of SSAI-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)
   - These outputs can be used in subsequent workflow steps for custom processing, release automation, or artifact management
 
-- **GitHub Job Summary** - Comprehensive build summary displayed in GitHub Actions UI
-  - Automatically generates a job summary with build metadata and AppInspect results
-  - Displays build information table with app package ID, version, build number, and artifact paths
-  - Shows AppInspect results table with status indicators and emoji for easy visualization (✅ Passed, ❌ Failure, ⏭️ Skipped, etc.)
-  - Includes direct link to download workflow artifacts
-  - Written to `$GITHUB_STEP_SUMMARY` for visibility in GitHub Actions interface
-
-- **Operating System Support Documentation** - Explicit documentation about supported platforms
-  - Action is tested and supported on ubuntu-latest, ubuntu-22.04, and ubuntu-20.04
-  - Windows and macOS runners are not supported due to Linux-specific dependencies
-  - Clear guidance on required `runs-on` configuration
-
-- **Artifact Naming Documentation** - Comprehensive documentation of artifact naming patterns
-  - Build artifacts follow the pattern: `{app_package_id}_{version_encoded}_{build_number_encoded}.tgz`
-  - GitHub artifact uploads use: `App-Build-{app_package_id}_{version_encoded}_{build_number_encoded}`
-  - Inspect reports use: `App-Inspect-Reports-{app_package_id}_{version_encoded}_{build_number_encoded}`
-  - All special characters are encoded to underscores for filesystem and URL safety
-
 - **Python Dependency Manager** - New feature for managing Python dependencies from requirements.txt
   - New input parameter `python_requirements_file` to specify the path to requirements.txt file (relative to app_dir)
   - Dependencies are installed in the same directory as the requirements file (e.g., `lib/requirements.txt` → installs to `lib/`)
-  - If requirements file is in app root, automatically creates and uses `lib/` subdirectory.
+  - If requirements file is in app root, automatically creates and uses `lib/` subdirectory
   - Cleans the target directory before installation to ensure clean state
   - Removes requirements.txt file from the final build package
   - Enables use of GitHub Dependabot for automatic dependency updates
@@ -144,112 +75,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Mutually exclusive with UCC-Gen and Splunk-Python-SDK utility to prevent conflicts
   - Can replicate splunk-python-sdk installation functionality by using `splunk-sdk` in requirements.txt
 
-- **Comprehensive Code Documentation** - Added docstrings throughout the codebase
-  - Added comprehensive docstrings to all previously undocumented classes and functions
-  - Core modules: `app_build_generate.py`, `ucc_gen.py`, `app_utilities.py`
-  - Helper modules: `file_manager.py` (all handler classes), `saved_values.py` (AppInfo, SavedPaths)
-  - All utility classes: `BaseUtility`, `LoggerUtility`, `SplunkPythonSDKUtility`, `WhatsInsideTheAppUtility`, `UCCAdditionalPackagingUtility`, `CommonJSUtilitiesFile`
-  - All docstrings follow consistent style with parameter descriptions, return value documentation, and behavioral context
-
-- **Enhanced Documentation Pages** - Improved documentation completeness and consistency
+- **Enhanced Documentation**
+  - Moved comprehensive documentation from README to dedicated Read the Docs site
   - Enhanced `overview.md` with comprehensive introduction explaining action purpose, key features, and capabilities
-  - Significantly expanded `troubleshooting.md` with 10+ additional issue scenarios including Python dependency failures, build errors, AppInspect timeouts, feature conflicts, and SARIF publishing issues
+  - Significantly expanded `troubleshooting.md` with 10+ additional issue scenarios
   - Rewrote `CONTRIBUTING.md` with detailed contribution workflow, development setup steps, coding standards, and testing guidelines
-
-- New Documentation
-  - Moved comprehensive documentation from README to dedicated Read the Docs site.
-  - Enhanced documentation with dedicated troubleshooting section and debugging steps.
-
-- New input parameter `local_app_inspect` to enable local Splunk App Inspect validation using the splunk-appinspect Python library instead of the Splunkbase API. This provides faster validation but may not be as up-to-date as the Splunkbase API. Default is `false`.
+  - Added explicit OS support documentation (ubuntu-latest, ubuntu-22.04, ubuntu-20.04)
+  - Added comprehensive artifact naming documentation.
 
 
 ### Changed
 
-- **Dependency Updates** - Upgraded dependencies to latest stable versions
-  - `basedpyright`: 1.31.7 → 1.33.0 (improved type checking)
-  - `coverage`: 7.11.0 → 7.11.1 (test coverage improvements)
-  - `github-action-toolkit`: 0.7.0 → 0.8.0 (GitHub Actions integration)
-  - `lxml`: 3.9 → 3.10 (XML processing)
-  - `pip`: 25.2 → 25.3 (package installer)
-  - `pydantic`: 2.12.3 → 2.12.4 (data validation)
-  - `requests`: 2.41.4 → 2.41.5 (HTTP library)
-  - `rich`: 8.4.2 → 9.0.0 (terminal formatting)
-  - `ruff`: 0.14.1 → 0.14.4 (linter and formatter)
-  - `splunk-appinspect`: 4.0.2 → 4.1.0 (AppInspect validation)
-  - `starlette`: 0.48.0 → 0.50.0 (web framework)
-  - `termcolor`: 3.1.0 → 3.2.0 (colored terminal output)
+- **Logging Improvements**
+  - GitHub action now generates more readable logs
+  - Log groups allow expanding/collapsing details as needed
+  - Emojis used in important logs for easy distinction
 
 - **Build Feature Validation** - Added validation to ensure only one build feature is used at a time
   - Users can now only use ONE of: UCC-Gen, Python-Dependency-Management, or Splunk-Python-SDK utility
   - Workflow will fail with clear error message if multiple features are enabled
   - Prevents conflicting dependency management approaches
 
-- Logging Improvements
-  - GitHub action now generates more readable logs.
-  - GitHub action now also creates log groups, so not every single logs is visible at a time, user can expand the group and check more details if needed.
-  - Emojis are used in important logs to easily distinguish logs.
-
-- `logger_manager.py` file (from Logger Utility) is now following better code formatting and type-checking.
-
-- `additional_packaging.py` file (from UCC Additional Packaging Utility) is now following better code formatting and type-checking.
-
-- Enhanced working directory management for more consistent builds across different environments.
-
-- Improved app build dependency handling for more reliable builds.
-
-### Deprecated
-
-- **Splunk Python SDK Utility (`splunk_python_sdk`)** is now deprecated and will be removed in v6. Users should plan to migrate to the new dynamic library installation feature in v5, which allows installing splunklib and other libraries without copying them into the repository. A deprecation warning is now displayed when using this utility.
-
 ### Fixed
 
-- Adding Utility Errors are now handled gracefully. So if one utility fails, rest of the utility continues to operate normal.
+- **AppInspect Artifact Upload** - Upload conditions now properly check if app-inspect is enabled
+  - App-inspect reports artifact only uploads when `is_app_inspect_check` is true
+  - Prevents unnecessary upload attempts when app-inspect is disabled and showing warnings
 
-- Fixed various app build process issues and file handling problems.
+- **Utility Error Handling** - Adding Utility Errors are now handled gracefully
+  - If one utility fails, rest of the utilities continue to operate normally
 
-- Splunk Python SDK Utility now properly cleans up old package metadata files (`.dist-info` and `.egg-info` directories) after upgrading splunklib to a new version, preventing accumulation of outdated files. This also includes cleanup of old versions of splunk-sdk's dependencies (e.g., `deprecation`, `packaging`).
+- **Splunk Python SDK Cleanup** - Properly cleans up old package metadata files
+  - Removes `.dist-info` and `.egg-info` directories after upgrading splunklib to a new version
+  - Prevents accumulation of outdated files
+  - Includes cleanup of old versions of splunk-sdk's dependencies (e.g., `deprecation`, `packaging`)
+
+- **Various Build Process Fixes** - Fixed app build process issues and file handling problems
 
 ### Developer & Internal Changes
 
-- AI Agent's instruction files are added for AI Agents (Claude or GitHub Copilot) to generate good code and perform checks without explicit instructions all the time.
+- **AppInspect Architecture** - Introduced `BaseAppInspect` abstract class, eliminating ~200 lines of code duplication and standardizing JSON-first approach with centralized HTML conversion
 
-- Improved GitHub workflows for better CI/CD and release management.
-  - `changelog_check.yml` - Validating changelogs.
-  - `test.yml` - Linting checks, Type-checking, testing, and docs validation.
-  - `release.yml` - For creating release on GitHub.
-  - (Removed) `py_unit_tests.yml` - Old test workflow.
+- **Dependency Updates** - Upgraded 12 dependencies including `basedpyright` (1.31.7→1.33.0), `github-action-toolkit` (0.7.0→0.8.0), `rich` (8.4.2→9.0.0), `ruff` (0.14.1→0.14.4), `splunk-appinspect` (4.0.2→4.1.0)
 
-- Added `CONTRIBUTING.md` and `pull_request_template.md` files.
-- Added GitHub issue templates.
-- Added Dependabot configuration.
-- Added `development.md` and `release.md` files for developer notes.
-- Removed `DEV.md` file.
+- **Code Quality** - Added comprehensive docstrings, improved formatting/type-checking across codebase, enhanced working directory and dependency handling
 
-- Added developer tools and helper files for easy development workflow
-  - create_tag.sh
-  - lint.py
-  - prepare_changelog.py
-  - release_notes.py
-  - Makefile
-  - pyproject.toml
+- **Project Infrastructure** - Added AI agent instructions, improved CI/CD workflows (`changelog_check.yml`, `test.yml`, `release.yml`), added `CONTRIBUTING.md`, issue templates, Dependabot, and developer tools (`lint.py`, `prepare_changelog.py`, etc.)
 
-- Overall Coding Improvements
-  - Full codebase code is now properly formatted.
-  - Full codebase is now properly linted and type-checked.
-
-- Source code changes:
-  - file and folder hash related functions moved to file_manager.py
-  - Removed git_manager.py (using `github-action-toolkit` lib instead.)
-  - Removed github_action_utils.py (using `github-action-toolkit` lib instead.)
-  - Replaced usage of `GlobalVariables` with standard classes (SavedPaths and AppInfo) for better code.
-  - version.py file added.
-
-- Test code changes:
-  - Improved `setup_action_yml` contextmanager to handle all the different scenarios and possible issues.
-  - Test-cases are now executed in a separate folder that works both locally and on GitHub workflow in the same way.
-  - Removed redundant test cases and cleaned up unused files.
-  - Changed temp file generation strategy for more reliable test cases.
-  - Full codebase is now properly formatted and type-checked.
+- **Refactoring** - Migrated to `github-action-toolkit` (removed `git_manager.py`, `github_action_utils.py`), replaced `GlobalVariables` with `SavedPaths`/`AppInfo` classes, reorganized file/folder hash functions, improved test infrastructure
 
 
 ## [v4.1](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v4.1) - 2024-04-09
