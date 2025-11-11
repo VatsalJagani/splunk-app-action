@@ -68,6 +68,7 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
 - ✅ **Local App-Inspect** - Fast local validation with splunk-appinspect library (no credentials needed)
 - ✅ **GitHub Annotations** - AppInspect results appear as inline annotations in Files Changed tab
 - ✅ **GitHub Check Runs** - Display AppInspect status with summaries and artifact links
+- ✅ **GitHub Job Summary** - Comprehensive build summary with metadata and results in Actions UI
 - ✅ **Flexible Failure Modes** - Control workflow failure based on errors, warnings, or never fail
 - ✅ **UCC Add-on Support** - Full integration with UCC Generator framework
 - ✅ **Python Dependency Manager** - Manage dependencies via requirements.txt with Dependabot support
