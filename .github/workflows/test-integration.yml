@@ -128,9 +128,6 @@ jobs:
           
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ Permission test (no fix) completed successfully!" >> $GITHUB_STEP_SUMMARY
-            echo "✅ All outputs validated successfully!" >> $GITHUB_STEP_SUMMARY
-            echo "✅ Permissions correctly remained unfixed (as expected)!" >> $GITHUB_STEP_SUMMARY
-          fi
 
 
   # Test 5: File permission changes (with fix - should have correct permissions)
