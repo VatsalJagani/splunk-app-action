@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **AppInspect Artifact Upload** - Upload conditions now properly check if app-inspect is enabled
+  - App-inspect reports artifact only uploads when `is_app_inspect_check` is true
+  - SARIF upload only occurs when both `is_app_inspect_check` is true and `publish_sarif` is true
+  - Prevents unnecessary upload attempts when app-inspect is disabled
 - **SARIF File Paths** - Corrected file paths in SARIF reports for both regular and UCC-based apps
   - SARIF file paths now correctly prepend `app_dir` to make them relative to repository root
   - For UCC-based apps, file paths correctly point to `app_dir/package/` where source files reside

@@ -64,7 +64,7 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 - **Description:** Publish AppInspect results as SARIF (Static Analysis Results Interchange Format) for GitHub Code Scanning. Enables inline code annotations and security insights in Pull Requests.
 - **Required:** false
 - **Default:** true
-- **Note:** Requires GitHub Code Scanning to be enabled. SARIF reports are automatically generated from AppInspect JSON results and uploaded. Can be disabled by setting to `false`.
+- **Note:** Only applicable when `is_app_inspect_check` is enabled. Requires GitHub Code Scanning to be enabled. SARIF reports are automatically generated from AppInspect JSON results and uploaded. Can be disabled by setting to `false`.
 - **Example:** `"true"`
 
 ### `fail_on`

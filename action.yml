@@ -147,14 +147,14 @@ runs:
 
     - name: "Upload the app-inspect reports as artifact"
       uses: actions/upload-artifact@v5
-      if: always()
+      if: always() && inputs.is_app_inspect_check == true
       with:
         name: "App-Inspect-Reports-${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}"
         path: ${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}_reports
 
     - name: "Upload SARIF results to GitHub Code Scanning"
       uses: github/codeql-action/upload-sarif@v4
-      if: always() && inputs.publish_sarif == 'true'
+      if: always() && inputs.is_app_inspect_check == true && inputs.publish_sarif == 'true'
       with:
         sarif_file: ${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}_reports/appinspect.sarif
         category: splunk-appinspect
