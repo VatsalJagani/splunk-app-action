@@ -176,7 +176,6 @@ from bs4 import BeautifulSoup
 # Or use Splunk SDK
 import splunklib.client as client
 ```
-```
 
 ---
 
@@ -213,6 +212,8 @@ find my_app -type f -name '*.msi' -exec chmod 755 '{}' \;
 find my_app -type f -name '*.cmd' -exec chmod 755 '{}' \;
 find my_app -type d -exec chmod 755 '{}' \;
 ```
+
+---
 
 ## Running User Defined Commands
 
@@ -314,7 +315,6 @@ SARIF upload requires `security-events: write` permission. Add this to your work
 permissions:
   security-events: write
   contents: read
-```
 ```
 
 #### GitHub Check Runs
