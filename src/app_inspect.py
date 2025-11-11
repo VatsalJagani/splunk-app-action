@@ -5,9 +5,10 @@ import os
 import shutil
 import subprocess
 import traceback
+from abc import ABC, abstractmethod
 from threading import Thread
 from time import sleep
-from typing import Any, cast
+from typing import Any, cast, override
 
 import github_action_toolkit as gat
 import requests
@@ -20,7 +21,223 @@ from helpers.saved_values import AppInfo, SavedPaths
 TIMEOUT_MAX = 240
 
 
-class SplunkAppInspect:
+class BaseAppInspect(ABC):
+    """Base class for app inspect functionality with common post-processing methods."""
+
+    def __init__(
+        self,
+        saved_paths: SavedPaths,
+        app_info: AppInfo,
+        app_build_path: str,
+        use_ucc_gen: bool = False,
+    ) -> None:
+        self.saved_paths: SavedPaths = saved_paths
+        self.use_ucc_gen: bool = use_ucc_gen
+        self.app_build_path: str = app_build_path
+
+        self.report_name_prefix: str = f"{app_info.package_id}_{app_info.version_number_encoded}_{app_info.build_number_encoded}"
+
+        self.app_build_filename: str = os.path.basename(app_build_path)
+        self.app_inspect_report_dir: str = f"{self.report_name_prefix}_reports"
+
+        try:
+            shutil.rmtree(self.app_inspect_report_dir)
+        except Exception as e:
+            # nothing to delete if folder not exist
+            gat.debug(f"No folder present nothing to be done. {e}")
+        os.mkdir(self.app_inspect_report_dir)
+
+        self.app_inspect_result: list[str] = ["Running", "Running", "Running"]
+        # For Above  ->  app_inspect_result, cloud_inspect_result, ssai_inspect_result
+
+        os.chdir(saved_paths.root_dir_path)
+
+    @abstractmethod
+    def _perform_checks(self, check_type: str = "APP_INSPECT") -> str:
+        """Perform the actual app-inspect checks. Must be implemented by subclasses."""
+        pass
+
+    def _perform_app_inspect_check(self) -> None:
+        """Wrapper for app-inspect check with error handling."""
+        gat.info("Starting app-inspect checks...")
+        status = "Error"
+        try:
+            status = self._perform_checks()
+            gat.debug(f"App-inspect check completed with status: {status}")
+            gat.info("App-inspect checks completed successfully")
+        except Exception as e:
+            gat.error(f"App-inspect check failed: {e}")
+            gat.error(traceback.format_exc())
+            raise e
+        self.app_inspect_result[0] = status
+
+    def _perform_cloud_inspect_check(self) -> None:
+        """Wrapper for cloud-inspect check with error handling."""
+        gat.info("Starting cloud-inspect checks...")
+        status = "Error"
+        try:
+            status = self._perform_checks(check_type="CLOUD_INSPECT")
+            gat.debug(f"Cloud-inspect check completed with status: {status}")
+            gat.info("Cloud-inspect checks completed successfully")
+        except Exception as e:
+            gat.error(f"Cloud-inspect check failed: {e}")
+            gat.error(traceback.format_exc())
+            raise e
+        self.app_inspect_result[1] = status
+
+    def _perform_ssai_inspect_check(self) -> None:
+        """Wrapper for SSAI-inspect check with error handling."""
+        gat.info("Starting SSAI-inspect checks...")
+        status = "Error"
+        try:
+            status = self._perform_checks(check_type="SSAI_INSPECT")
+            gat.debug(f"SSAI-inspect check completed with status: {status}")
+            gat.info("SSAI-inspect checks completed successfully")
+        except Exception as e:
+            gat.error(f"SSAI-inspect check failed: {e}")
+            gat.error(traceback.format_exc())
+            raise e
+        self.app_inspect_result[2] = status
+
+    def _generate_sarif_reports(self) -> None:
+        """Generate SARIF reports from JSON AppInspect results."""
+        try:
+            gat.info("Generating SARIF reports from AppInspect results...")
+
+            sarif_files = []
+            # For UCC apps, files are in app_dir/package/
+            # For regular apps, files are in app_dir/
+            if self.use_ucc_gen:
+                if self.saved_paths.app_dir_name == ".":
+                    source_path = "package"
+                else:
+                    source_path = f"{self.saved_paths.app_dir_name}/package"
+            else:
+                source_path = self.saved_paths.app_dir_name
+
+            # Convert app-inspect report
+            app_json = os.path.join(
+                self.app_inspect_report_dir, f"{self.report_name_prefix}_app_inspect_check.json"
+            )
+            if os.path.exists(app_json):
+                app_sarif = os.path.join(
+                    self.app_inspect_report_dir,
+                    f"{self.report_name_prefix}_app_inspect_check.sarif",
+                )
+                sarif_converter.convert_appinspect_to_sarif(
+                    app_json, app_sarif, "app-inspect", source_path
+                )
+                sarif_files.append(app_sarif)
+
+            # Convert cloud-inspect report
+            cloud_json = os.path.join(
+                self.app_inspect_report_dir,
+                f"{self.report_name_prefix}_cloud_inspect_check.json",
+            )
+            if os.path.exists(cloud_json):
+                cloud_sarif = os.path.join(
+                    self.app_inspect_report_dir,
+                    f"{self.report_name_prefix}_cloud_inspect_check.sarif",
+                )
+                sarif_converter.convert_appinspect_to_sarif(
+                    cloud_json, cloud_sarif, "cloud-inspect", source_path
+                )
+                sarif_files.append(cloud_sarif)
+
+            # Convert SSAI-inspect report
+            ssai_json = os.path.join(
+                self.app_inspect_report_dir, f"{self.report_name_prefix}_ssai_inspect_check.json"
+            )
+            if os.path.exists(ssai_json):
+                ssai_sarif = os.path.join(
+                    self.app_inspect_report_dir,
+                    f"{self.report_name_prefix}_ssai_inspect_check.sarif",
+                )
+                sarif_converter.convert_appinspect_to_sarif(
+                    ssai_json, ssai_sarif, "ssai-inspect", source_path
+                )
+                sarif_files.append(ssai_sarif)
+
+            # Merge all SARIF reports into one
+            if sarif_files:
+                merged_sarif = os.path.join(self.app_inspect_report_dir, "appinspect.sarif")
+                sarif_converter.merge_sarif_reports(sarif_files, merged_sarif)
+                gat.info(f"SARIF reports generated and merged: {merged_sarif}")
+
+        except Exception as e:
+            gat.warning(f"Failed to generate SARIF reports: {e}")
+            gat.debug(traceback.format_exc())
+            # Don't fail the whole run if SARIF generation fails
+
+    def _publish_check_runs(self) -> None:
+        """Publish GitHub Check Runs for AppInspect results."""
+        try:
+            gat.info("Publishing GitHub Check Runs for AppInspect results...")
+            check_run_publisher.publish_appinspect_check_runs(
+                app_inspect_status=self.app_inspect_result[0],
+                cloud_inspect_status=self.app_inspect_result[1],
+                ssai_inspect_status=self.app_inspect_result[2],
+                report_dir=self.app_inspect_report_dir,
+            )
+        except Exception as e:
+            gat.warning(f"Failed to publish check runs: {e}")
+            gat.debug(traceback.format_exc())
+            # Don't fail the whole run if check run publishing fails
+
+    def run_all_checks(self) -> None:
+        """Run all app-inspect checks in parallel and handle post-processing."""
+        inspect_type = self.__class__.__name__.replace("Splunk", "").replace("AppInspect", "")
+        with gat.group(f"✅ Running {inspect_type} Splunk app inspect checks"):
+            gat.debug(
+                f"Launching {inspect_type} Splunk app-inspect, cloud-inspect, and SSAI-inspect checks in parallel."
+            )
+
+            thread_app_inspect = Thread(target=self._perform_app_inspect_check)
+            thread_app_inspect.start()
+
+            thread_cloud_inspect = Thread(target=self._perform_cloud_inspect_check)
+            thread_cloud_inspect.start()
+
+            thread_ssai_inspect = Thread(target=self._perform_ssai_inspect_check)
+            thread_ssai_inspect.start()
+
+            # wait for all threads to complete
+            gat.debug(f"Waiting for all {inspect_type} inspect check threads to complete...")
+            thread_app_inspect.join()
+            thread_cloud_inspect.join()
+            thread_ssai_inspect.join()
+
+            # Evaluate results
+            gat.debug(
+                f"{inspect_type} inspect results - app:{self.app_inspect_result[0]}, cloud:{self.app_inspect_result[1]}, ssai:{self.app_inspect_result[2]}"
+            )
+
+            # Set output variables for inspect statuses
+            gat.set_output("app_inspect_status", self.app_inspect_result[0])
+            gat.set_output("cloud_inspect_status", self.app_inspect_result[1])
+            gat.set_output("ssai_inspect_status", self.app_inspect_result[2])
+
+            # Generate SARIF reports if enabled
+            publish_sarif = gat.get_user_input_as("publish_sarif", bool, True)
+            if publish_sarif:
+                self._generate_sarif_reports()
+
+            # Publish check runs
+            self._publish_check_runs()
+
+            if all(i == "Passed" for i in self.app_inspect_result):
+                gat.info(
+                    f"All {inspect_type} Splunk app inspect checks completed successfully - all checks passed"
+                )
+            else:
+                msg = f"{inspect_type} Splunk app inspect checks failed - results: [app-inspect: {self.app_inspect_result[0]}, cloud-checks: {self.app_inspect_result[1]}, ssai-checks: {self.app_inspect_result[2]}]"
+                gat.error(msg)
+                raise Exception(msg)
+
+
+class SplunkAppInspect(BaseAppInspect):
+    """API-based app inspect using Splunkbase API."""
+
     LOGIN_URL: str = "https://api.splunk.com/2.0/rest/login/splunk"
     BASE_URL: str = "https://appinspect.splunk.com/v1/app"
     SUBMIT_URL: str = f"{BASE_URL}/validate"
@@ -37,8 +254,8 @@ class SplunkAppInspect:
         splunkbase_password: str,
         use_ucc_gen: bool = False,
     ) -> None:
-        self.saved_paths: SavedPaths = saved_paths
-        self.use_ucc_gen: bool = use_ucc_gen
+        super().__init__(saved_paths, app_info, app_build_path, use_ucc_gen)
+
         self.splunkbase_username: str = splunkbase_username
         self.splunkbase_password: str = splunkbase_password
 
@@ -52,28 +269,10 @@ class SplunkAppInspect:
             gat.error(msg)
             raise Exception(msg)
 
-        self.app_build_path: str = app_build_path
-
-        self.report_name_prefix: str = f"{app_info.package_id}_{app_info.version_number_encoded}_{app_info.build_number_encoded}"
-
-        self.app_build_filename: str = os.path.basename(app_build_path)
-        self.app_inspect_report_dir: str = f"{self.report_name_prefix}_reports"
-
-        try:
-            shutil.rmtree(self.app_inspect_report_dir)
-        except Exception as e:
-            # nothing to delete if folder not exist
-            gat.debug(f"No folder present nothing to be done. {e}")
-        os.mkdir(self.app_inspect_report_dir)
-
         self.headers: dict[str, str] | None = None
         self.headers_report: dict[str, str] | None = None
-        self.app_inspect_result: list[str] = ["Running", "Running", "Running"]
-        # For Above  ->  app_inspect_result, cloud_inspect_result, ssai_inspect_result
 
         self._api_login()
-
-        os.chdir(saved_paths.root_dir_path)
 
     def _api_login(self):
         gat.info("Starting Splunkbase API authentication...")
@@ -106,6 +305,7 @@ class SplunkAppInspect:
             "Content-Type": "text/html",
         }
 
+    @override
     def _perform_checks(self, check_type: str = "APP_INSPECT") -> str:
         payload: dict[str, str] = {}
         json_report_file_name: str
@@ -254,85 +454,8 @@ class SplunkAppInspect:
 
         return status
 
-    def _perform_app_inspect_check(self) -> None:
-        gat.info("Starting app-inspect checks...")
-        status = "Error"
-        try:
-            status = self._perform_checks()
-            gat.debug(f"App-inspect check completed with status: {status}")
-            gat.info("App-inspect checks completed successfully")
-        except Exception as e:
-            gat.error(f"App-inspect check failed: {e}")
-            gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[0] = status
 
-    def _perform_cloud_inspect_check(self) -> None:
-        gat.info("Starting cloud-inspect checks...")
-        status = "Error"
-        try:
-            status = self._perform_checks(check_type="CLOUD_INSPECT")
-            gat.debug(f"Cloud-inspect check completed with status: {status}")
-            gat.info("Cloud-inspect checks completed successfully")
-        except Exception as e:
-            gat.error(f"Cloud-inspect check failed: {e}")
-            gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[1] = status
-
-    def _perform_ssai_inspect_check(self) -> None:
-        gat.info("Starting SSAI-inspect checks...")
-        status = "Error"
-        try:
-            status = self._perform_checks(check_type="SSAI_INSPECT")
-            gat.debug(f"SSAI-inspect check completed with status: {status}")
-            gat.info("SSAI-inspect checks completed successfully")
-        except Exception as e:
-            gat.error(f"SSAI-inspect check failed: {e}")
-            gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[2] = status
-
-    def run_all_checks(self) -> None:
-        with gat.group("✅ Running Splunk app inspect checks"):
-            gat.debug(
-                "Launching Splunk app-inspect, cloud-inspect, and SSAI-inspect checks in parallel."
-            )
-
-            thread_app_inspect = Thread(target=self._perform_app_inspect_check)
-            thread_app_inspect.start()
-
-            thread_cloud_inspect = Thread(target=self._perform_cloud_inspect_check)
-            thread_cloud_inspect.start()
-
-            thread_ssai_inspect = Thread(target=self._perform_ssai_inspect_check)
-            thread_ssai_inspect.start()
-
-            # wait for all threads to complete
-            gat.debug("Waiting for all inspect check threads to complete...")
-            thread_app_inspect.join()
-            thread_cloud_inspect.join()
-            thread_ssai_inspect.join()
-
-            # Evaluate results
-            gat.debug(
-                f"Inspect results - app:{self.app_inspect_result[0]}, cloud:{self.app_inspect_result[1]}, ssai:{self.app_inspect_result[2]}"
-            )
-
-            # Set output variables for inspect statuses
-            gat.set_output("app_inspect_status", self.app_inspect_result[0])
-            gat.set_output("cloud_inspect_status", self.app_inspect_result[1])
-            gat.set_output("ssai_inspect_status", self.app_inspect_result[2])
-
-            if all(i == "Passed" for i in self.app_inspect_result):
-                gat.info("All Splunk app inspect checks completed successfully - all checks passed")
-            else:
-                msg = f"Splunk app inspect checks failed - results: [app-inspect: {self.app_inspect_result[0]}, cloud-checks: {self.app_inspect_result[1]}, ssai-checks: {self.app_inspect_result[2]}]"
-                gat.error(msg)
-                raise Exception(msg)
-
-
-class SplunkLocalAppInspect:
+class SplunkLocalAppInspect(BaseAppInspect):
     """Local app inspect using the splunk-appinspect Python library"""
 
     def __init__(
@@ -342,28 +465,10 @@ class SplunkLocalAppInspect:
         app_build_path: str,
         use_ucc_gen: bool = False,
     ) -> None:
-        self.saved_paths: SavedPaths = saved_paths
-        self.use_ucc_gen: bool = use_ucc_gen
-        self.app_build_path: str = app_build_path
+        super().__init__(saved_paths, app_info, app_build_path, use_ucc_gen)
 
-        self.report_name_prefix: str = f"{app_info.package_id}_{app_info.version_number_encoded}_{app_info.build_number_encoded}"
-
-        self.app_build_filename: str = os.path.basename(app_build_path)
-        self.app_inspect_report_dir: str = f"{self.report_name_prefix}_reports"
-
-        try:
-            shutil.rmtree(self.app_inspect_report_dir)
-        except Exception as e:
-            # nothing to delete if folder not exist
-            gat.debug(f"No folder present nothing to be done. {e}")
-        os.mkdir(self.app_inspect_report_dir)
-
-        self.app_inspect_result: list[str] = ["Running", "Running", "Running"]
-        # For Above  ->  app_inspect_result, cloud_inspect_result, ssai_inspect_result
-
-        os.chdir(saved_paths.root_dir_path)
-
-    def _run_local_inspect(self, check_type: str = "APP_INSPECT") -> str:
+    @override
+    def _perform_checks(self, check_type: str = "APP_INSPECT") -> str:
         """Run local app inspect using splunk-appinspect CLI"""
         gat.info(f"Running local app inspect check (check_type={check_type})")
 
@@ -479,173 +584,3 @@ class SplunkLocalAppInspect:
             gat.error(f"Error running local app inspect: {e}")
             gat.error(traceback.format_exc())
             return "Exception"
-
-    def _perform_app_inspect_check(self) -> None:
-        gat.info("Starting local app-inspect checks...")
-        status = "Error"
-        try:
-            status = self._run_local_inspect()
-            gat.debug(f"Local app-inspect check completed with status: {status}")
-            gat.info("Local app-inspect checks completed successfully")
-        except Exception as e:
-            gat.error(f"Local app-inspect check failed: {e}")
-            gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[0] = status
-
-    def _perform_cloud_inspect_check(self) -> None:
-        gat.info("Starting local cloud-inspect checks...")
-        status = "Error"
-        try:
-            status = self._run_local_inspect(check_type="CLOUD_INSPECT")
-            gat.debug(f"Local cloud-inspect check completed with status: {status}")
-            gat.info("Local cloud-inspect checks completed successfully")
-        except Exception as e:
-            gat.error(f"Local cloud-inspect check failed: {e}")
-            gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[1] = status
-
-    def _perform_ssai_inspect_check(self) -> None:
-        gat.info("Starting local SSAI-inspect checks...")
-        status = "Error"
-        try:
-            status = self._run_local_inspect(check_type="SSAI_INSPECT")
-            gat.debug(f"Local SSAI-inspect check completed with status: {status}")
-            gat.info("Local SSAI-inspect checks completed successfully")
-        except Exception as e:
-            gat.error(f"Local SSAI-inspect check failed: {e}")
-            gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[2] = status
-
-    def run_all_checks(self) -> None:
-        with gat.group("✅ Running local Splunk app inspect checks"):
-            gat.debug(
-                "Launching local Splunk app-inspect, cloud-inspect, and SSAI-inspect checks in parallel."
-            )
-
-            thread_app_inspect = Thread(target=self._perform_app_inspect_check)
-            thread_app_inspect.start()
-
-            thread_cloud_inspect = Thread(target=self._perform_cloud_inspect_check)
-            thread_cloud_inspect.start()
-
-            thread_ssai_inspect = Thread(target=self._perform_ssai_inspect_check)
-            thread_ssai_inspect.start()
-
-            # wait for all threads to complete
-            gat.debug("Waiting for all local inspect check threads to complete...")
-            thread_app_inspect.join()
-            thread_cloud_inspect.join()
-            thread_ssai_inspect.join()
-
-            # Evaluate results
-            gat.debug(
-                f"Local inspect results - app:{self.app_inspect_result[0]}, cloud:{self.app_inspect_result[1]}, ssai:{self.app_inspect_result[2]}"
-            )
-
-            # Set output variables for inspect statuses
-            gat.set_output("app_inspect_status", self.app_inspect_result[0])
-            gat.set_output("cloud_inspect_status", self.app_inspect_result[1])
-            gat.set_output("ssai_inspect_status", self.app_inspect_result[2])
-
-            # Generate SARIF reports if enabled
-            publish_sarif = gat.get_user_input_as("publish_sarif", bool, True)
-            if publish_sarif:
-                self._generate_sarif_reports()
-
-            # Publish check runs
-            self._publish_check_runs()
-
-            if all(i == "Passed" for i in self.app_inspect_result):
-                gat.info(
-                    "All local Splunk app inspect checks completed successfully - all checks passed"
-                )
-            else:
-                msg = f"Local Splunk app inspect checks failed - results: [app-inspect: {self.app_inspect_result[0]}, cloud-checks: {self.app_inspect_result[1]}, ssai-checks: {self.app_inspect_result[2]}]"
-                gat.error(msg)
-                raise Exception(msg)
-
-    def _generate_sarif_reports(self) -> None:
-        """Generate SARIF reports from JSON AppInspect results."""
-        try:
-            gat.info("Generating SARIF reports from AppInspect results...")
-
-            sarif_files = []
-            # For UCC apps, files are in app_dir/package/
-            # For regular apps, files are in app_dir/
-            if self.use_ucc_gen:
-                if self.saved_paths.app_dir_name == ".":
-                    source_path = "package"
-                else:
-                    source_path = f"{self.saved_paths.app_dir_name}/package"
-            else:
-                source_path = self.saved_paths.app_dir_name
-
-            # Convert app-inspect report
-            app_json = os.path.join(
-                self.app_inspect_report_dir, f"{self.report_name_prefix}_app_inspect_check.json"
-            )
-            if os.path.exists(app_json):
-                app_sarif = os.path.join(
-                    self.app_inspect_report_dir,
-                    f"{self.report_name_prefix}_app_inspect_check.sarif",
-                )
-                sarif_converter.convert_appinspect_to_sarif(
-                    app_json, app_sarif, "app-inspect", source_path
-                )
-                sarif_files.append(app_sarif)
-
-            # Convert cloud-inspect report
-            cloud_json = os.path.join(
-                self.app_inspect_report_dir,
-                f"{self.report_name_prefix}_cloud_inspect_check.json",
-            )
-            if os.path.exists(cloud_json):
-                cloud_sarif = os.path.join(
-                    self.app_inspect_report_dir,
-                    f"{self.report_name_prefix}_cloud_inspect_check.sarif",
-                )
-                sarif_converter.convert_appinspect_to_sarif(
-                    cloud_json, cloud_sarif, "cloud-inspect", source_path
-                )
-                sarif_files.append(cloud_sarif)
-
-            # Convert SSAI-inspect report
-            ssai_json = os.path.join(
-                self.app_inspect_report_dir, f"{self.report_name_prefix}_ssai_inspect_check.json"
-            )
-            if os.path.exists(ssai_json):
-                ssai_sarif = os.path.join(
-                    self.app_inspect_report_dir,
-                    f"{self.report_name_prefix}_ssai_inspect_check.sarif",
-                )
-                sarif_converter.convert_appinspect_to_sarif(
-                    ssai_json, ssai_sarif, "ssai-inspect", source_path
-                )
-                sarif_files.append(ssai_sarif)
-
-            # Merge all SARIF reports into one
-            if sarif_files:
-                merged_sarif = os.path.join(self.app_inspect_report_dir, "appinspect.sarif")
-                sarif_converter.merge_sarif_reports(sarif_files, merged_sarif)
-                gat.info(f"SARIF reports generated and merged: {merged_sarif}")
-
-        except Exception as e:
-            gat.warning(f"Failed to generate SARIF reports: {e}")
-            # Don't fail the whole run if SARIF generation fails
-
-    def _publish_check_runs(self) -> None:
-        """Publish GitHub Check Runs for AppInspect results."""
-        try:
-            gat.info("Publishing GitHub Check Runs for AppInspect results...")
-            check_run_publisher.publish_appinspect_check_runs(
-                app_inspect_status=self.app_inspect_result[0],
-                cloud_inspect_status=self.app_inspect_result[1],
-                ssai_inspect_status=self.app_inspect_result[2],
-                report_dir=self.app_inspect_report_dir,
-            )
-        except Exception as e:
-            gat.warning(f"Failed to publish check runs: {e}")
-            # Don't fail the whole run if check run publishing fails

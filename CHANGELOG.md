@@ -28,6 +28,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **AppInspect Architecture** - Unified behavior between API-based and local AppInspect
+  - Introduced `BaseAppInspect` abstract class for common functionality
+  - Both API and local inspection now support SARIF report generation
+  - Both API and local inspection now publish GitHub Check Runs
+  - Eliminates code duplication (~200 lines) while ensuring consistent behavior
+  - Both modes generate JSON → HTML → SARIF reports and publish check runs
+
+### Changed
+
+- **AppInspect Architecture** - Unified behavior between API-based and local AppInspect
+  - Introduced `BaseAppInspect` abstract class for common functionality
+  - Both API and local inspection now support SARIF report generation
+  - Both API and local inspection now publish GitHub Check Runs
+  - Eliminates code duplication (~200 lines) while ensuring consistent behavior
+  - Both modes generate JSON → HTML → SARIF reports and publish check runs
+
 - **AppInspect Report Generation** - Standardized on JSON-first approach for both API and local inspection
   - Both API-based and local AppInspect now generate JSON reports first, then convert to HTML
   - Uses centralized HTML converter module for consistent formatting across inspection modes

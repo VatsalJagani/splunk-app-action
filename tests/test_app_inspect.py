@@ -83,13 +83,13 @@ class TestAppInspect(unittest.TestCase):
             main()
 
     def test_local_app_inspect_success_integration(self):
-        # Mock the local App Inspect related function _run_local_inspect
-        patcher_local_app_inspect = patch("app_inspect.SplunkLocalAppInspect._run_local_inspect")
+        # Mock the local App Inspect related function _perform_checks
+        patcher_local_app_inspect = patch("app_inspect.SplunkLocalAppInspect._perform_checks")
         mock_local_app_inspect = patcher_local_app_inspect.start()
 
         def mock_local_app_inspect_fn(check_type: str = "APP_INSPECT") -> str:
             print(
-                f"Mocked app_inspect.SplunkLocalAppInspect._run_local_inspect called with args: check_type={check_type}"
+                f"Mocked app_inspect.SplunkLocalAppInspect._perform_checks called with args: check_type={check_type}"
             )
             return "Passed"
 
@@ -106,13 +106,13 @@ class TestAppInspect(unittest.TestCase):
             main()
 
     def test_local_app_inspect_failure_integration(self):
-        # Mock the local App Inspect related function _run_local_inspect
-        patcher_local_app_inspect = patch("app_inspect.SplunkLocalAppInspect._run_local_inspect")
+        # Mock the local App Inspect related function _perform_checks
+        patcher_local_app_inspect = patch("app_inspect.SplunkLocalAppInspect._perform_checks")
         mock_local_app_inspect = patcher_local_app_inspect.start()
 
         def mock_local_app_inspect_fn(check_type: str = "APP_INSPECT") -> str:
             print(
-                f"Mocked app_inspect.SplunkLocalAppInspect._run_local_inspect called with args: check_type={check_type}"
+                f"Mocked app_inspect.SplunkLocalAppInspect._perform_checks called with args: check_type={check_type}"
             )
             return "Failure"
 
