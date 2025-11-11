@@ -161,7 +161,12 @@ python_functions = ["test_*"]
 testpaths = [
     "tests"
 ]
-norecursedirs = []
+norecursedirs = [
+    "tests/integration_test_apps",
+    "tests/test_app_repos",
+    "tests/dummy_utility_files",
+    "tests/splunk_config_files"
+]
 filterwarnings = []
 # Disable pytest-sugar plugin to avoid FileNotFoundError issues
 addopts = ["-p", "no:sugar"]
