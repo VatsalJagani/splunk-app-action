@@ -42,7 +42,7 @@ on:
       is-app-inspect-check:
         required: false
         type: boolean
-        default: false
+        default: true
         description: 'Run app inspect'
       local-app-inspect:
         required: false
