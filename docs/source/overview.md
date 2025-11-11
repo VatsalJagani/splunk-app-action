@@ -28,7 +28,7 @@ This documentation covers the usage, capabilities, and development of the custom
 - **Cloud-Inspect** - Splunk Cloud compatibility checks
 - **SSAI-Inspect** - Self-Service App Installation validation
 - Configurable failure thresholds (errors, warnings, or never fail)
-- SARIF report generation for GitHub Code Scanning
+- GitHub annotations for inline code feedback on AppInspect findings
 
 ### Developer Productivity
 - Automatic PR creation when using app utilities

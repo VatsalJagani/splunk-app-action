@@ -44,11 +44,6 @@ inputs:
     required: false
     default: false
 
-  publish_sarif:
-    description: "Publish AppInspect results as SARIF (Static Analysis Results Interchange Format) for GitHub Code Scanning. Enables inline code annotations and security insights."
-    required: false
-    default: true
-
   fail_on:
     description: "Control when the action should fail based on AppInspect results. Options: 'errors' (fail on errors only), 'warnings' (fail on warnings or errors), 'none' (never fail based on results)."
     required: false
@@ -125,7 +120,6 @@ runs:
         INPUT_SPLUNKBASE_USERNAME: ${{inputs.splunkbase_username}}
         INPUT_SPLUNKBASE_PASSWORD: ${{inputs.splunkbase_password}}
         INPUT_LOCAL_APP_INSPECT: ${{inputs.local_app_inspect}}
-        INPUT_PUBLISH_SARIF: ${{inputs.publish_sarif}}
         INPUT_FAIL_ON: ${{inputs.fail_on}}
         INPUT_APP_UTILITIES: ${{inputs.app_utilities}}
         GITHUB_TOKEN: ${{inputs.my_github_token}}
@@ -151,13 +145,6 @@ runs:
       with:
         name: "App-Inspect-Reports-${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}"
         path: ${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}_reports
-
-    - name: "Upload SARIF results to GitHub Code Scanning"
-      uses: github/codeql-action/upload-sarif@v4
-      if: always() && inputs.is_app_inspect_check == 'true' && inputs.publish_sarif == 'true'
-      with:
-        sarif_file: ${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}_reports/appinspect.sarif
-        category: splunk-appinspect
 
 
 outputs:

@@ -291,46 +291,24 @@ Set environment variables `SPLUNK_APP_ACTION_<n>` to run commands before build g
 
 The action runs comprehensive app-inspect checks using either the **Splunkbase API** (recommended) or **local validation** with the splunk-appinspect Python library.
 
-### SARIF Code Scanning & GitHub Check Runs
+### GitHub Annotations & Check Runs
 
-AppInspect results can be published as SARIF reports for GitHub Code Scanning and as GitHub Check Runs for inline feedback in Pull Requests.
+AppInspect results are published as inline GitHub annotations and Check Runs for immediate feedback in Pull Requests.
 
-#### SARIF Code Scanning
-- Converts AppInspect failures, errors, and warnings to SARIF 2.1.0 format
-- Enables inline code annotations in Pull Requests
-- Integrates with GitHub Security tab for vulnerability tracking
-- Supports merge protection based on code scanning results
-- **Enabled by default** - SARIF reports are automatically generated and uploaded
-
-```yaml
-# SARIF is enabled by default, this is just for clarity
-- uses: VatsalJagani/splunk-app-action@v4
-  with:
-    app_dir: "my_app"
-    local_app_inspect: true
-    # publish_sarif: true  # Default is true, can be omitted
-
-# To disable SARIF publishing
-- uses: VatsalJagani/splunk-app-action@v4
-  with:
-    app_dir: "my_app"
-    local_app_inspect: true
-    publish_sarif: false  # Explicitly disable
-```
-
-```{note}
-SARIF upload requires `security-events: write` permission. Add this to your workflow:
-```yaml
-permissions:
-  security-events: write
-  contents: read
-```
+#### GitHub Annotations
+- AppInspect failures and errors appear as inline annotations on PR files
+- Warnings appear as warning annotations
+- No special permissions required - annotations work out of the box
+- Click on annotations to see file location, line number, and detailed error messages
+- Automatically published for all AppInspect runs (app-inspect, cloud-inspect, SSAI-inspect)
 
 #### GitHub Check Runs
 - Displays AppInspect status with detailed summaries
 - Shows error/warning counts and links to artifacts
 - Visible in PR checks UI for quick feedback
 - Automatically published for all AppInspect runs
+
+````
 
 #### Failure Control
 Control when the workflow fails based on AppInspect results:

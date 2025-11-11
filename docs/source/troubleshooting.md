@@ -184,83 +184,32 @@ Error: Multiple build features detected: UCC-Gen, Python-Dependency-Management
   - Splunk Python SDK utility (`app_utilities: splunk_python_sdk`)
 - Remove or disable the conflicting features from your workflow
 
-### SARIF Publishing Issues
+### AppInspect Annotations
 
-#### Resource Not Accessible - Missing Permissions
+#### Annotations Not Appearing
 ```
-Error: Resource not accessible by integration
-Warning: Caught an exception while gathering information for telemetry: HttpError: Resource not accessible by integration
+AppInspect completed but no annotations visible in PR
 ```
 
-**Root Cause:** The GitHub token doesn't have the required `security-events: write` permission to upload SARIF files to GitHub Code Scanning.
+**Root Cause:** Annotations only appear for files that changed in the PR, or when running on push/pull_request events.
 
-**Solution:** Add explicit permissions to your workflow file:
-
+**Solution:**
+- Annotations only show up for **files modified in the current PR or push**
+- They won't appear on files that haven't changed
+- Make sure the workflow runs on `pull_request` or `push` events:
 ```yaml
-name: Build with AppInspect
 on: [push, pull_request]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read          # Required to checkout code
-      security-events: write  # Required for SARIF upload
-    steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
-        with:
-          app_dir: "my_app"
-          local_app_inspect: true
-          # publish_sarif is enabled by default
 ```
+- Check the "Files changed" tab in your PR to see if annotations appear on modified files
+- Review the workflow logs to confirm annotations were published
+- Check the "Checks" tab for the "App-Inspect Check" summary
 
-**Alternative:** If you don't need SARIF reports, disable them:
-```yaml
-- uses: VatsalJagani/splunk-app-action@v4
-  with:
-    app_dir: "my_app"
-    local_app_inspect: true
-    publish_sarif: false  # Disable SARIF upload
-```
+#### Understanding Annotation vs Check Runs
+AppInspect results appear in two places:
+1. **GitHub Annotations** - Inline comments on changed files showing errors/warnings at specific lines
+2. **Check Runs** - Summary view in the PR "Checks" tab with overall status and error counts
 
-**Understanding SARIF vs PR Comments:**
-- SARIF reports create **Code Scanning alerts** in the Security tab, NOT pull request comments
-- To view results: Go to repository → Security → Code scanning alerts
-- Results appear in PR checks as "Code scanning results / Splunk AppInspect"
-- For PR comments, check the "App-Inspect Check" in the Checks tab instead
-
-#### Git Repository Not Detected
-```
-git call failed. Continuing with commit SHA from user input or environment. 
-Error: The checkout path provided to the action does not appear to be a git repository.
-```
-
-**Root Cause:** This warning appears when SARIF upload runs after artifact download, which doesn't preserve git metadata.
-
-**Impact:** This is a **warning, not an error**. SARIF upload will continue using the commit SHA from the environment. No action needed.
-
-**To eliminate the warning:** Ensure the SARIF upload happens before any artifact downloads that change directories.
-
-#### Code Scanning Not Enabled
-```
-Failed to upload SARIF: Code scanning is not enabled for this repository
-```
-
-**Solution:**
-1. Go to repository `Settings` > `Security` > `Code security and analysis`
-2. Enable "Code scanning"
-3. Or ensure you have a CodeQL workflow configured
-
-#### Invalid SARIF Format
-```
-SARIF upload failed: Invalid SARIF file format
-```
-
-**Solution:**
-- This is usually an internal issue with SARIF generation
-- Report the issue on the GitHub repository with your workflow logs
-- As a workaround, disable SARIF publishing: `publish_sarif: false`
+Both are automatically published when AppInspect runs. Annotations require file locations in the AppInspect report to appear inline.
 
 ## Getting Help
 

@@ -7,41 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- **GitHub Annotations Instead of SARIF** - Replaced SARIF report generation with direct GitHub annotations
+  - AppInspect failures and errors now appear as inline annotations on PR files
+  - Warnings appear as warning annotations directly in the Files Changed tab
+  - No longer requires `security-events: write` permission
+  - Simpler, more immediate feedback without uploading artifacts
+  - Removed `publish_sarif` input parameter (no longer needed)
+  - Removed SARIF file generation and upload step from action.yml
+  - Created new `annotation_publisher` helper module to publish annotations
+  - Annotations work automatically with no additional configuration required
+
+### Removed
+
+- **SARIF Support** - Removed SARIF (Static Analysis Results Interchange Format) generation and upload
+  - Removed `publish_sarif` input parameter
+  - Removed `sarif_converter` helper module
+  - Removed SARIF upload step using `github/codeql-action/upload-sarif`
+  - Removed `test_sarif_and_check_runs.py` test file
+  - Removed SARIF environment variable from action.yml
+  - Updated integration tests to remove SARIF-specific test jobs
+  - Removed requirement for `security-events: write` permission
+  - GitHub annotations provide equivalent functionality with better UX
+
 ### Added
 
-- **Integration Test for UCC + SARIF** - Added integration test to verify SARIF file paths for UCC-based apps
-  - Validates that SARIF file paths correctly include `app_dir/package/` prefix for UCC apps
-  - Ensures GitHub Code Scanning annotations work correctly for UCC add-ons in subdirectories
-- **SARIF Permissions Documentation** - Enhanced documentation for SARIF upload requirements
-  - Added comprehensive troubleshooting guide for "Resource not accessible" errors
-  - Clarified permission requirements in README Quick Start section
-  - Explained difference between SARIF Code Scanning alerts and PR comments
-  - Added examples showing required `security-events: write` permission in workflows
+- **Annotation Publisher Tests** - Comprehensive test suite for annotation publisher
+  - Tests for publishing errors, warnings, and mixed results
+  - Tests for file path handling with different `app_dir` values
+  - Tests for line number parsing and error handling
+  - 9 new tests ensuring reliable annotation publishing
 
 ### Fixed
 
 - **AppInspect Artifact Upload** - Upload conditions now properly check if app-inspect is enabled
   - App-inspect reports artifact only uploads when `is_app_inspect_check` is true
-  - SARIF upload only occurs when both `is_app_inspect_check` is true and `publish_sarif` is true
   - Prevents unnecessary upload attempts when app-inspect is disabled
-- **SARIF File Paths** - Corrected file paths in SARIF reports for both regular and UCC-based apps
-  - SARIF file paths now correctly prepend `app_dir` to make them relative to repository root
-  - For UCC-based apps, file paths correctly point to `app_dir/package/` where source files reside
-  - For regular apps, file paths point to `app_dir/` directory
-  - Ensures GitHub Code Scanning annotations appear on correct files when app is in subdirectory
-  - When `app_dir` is "." (repository root), appropriate paths are used (no prefix for regular, `package/` for UCC)
 
 ### Changed
 
-- **Input Type Consistency** - `publish_sarif` now uses boolean type across the repository
-  - Changed from string values `"true"`/`"false"` to boolean values `true`/`false`
-  - Provides better type safety and consistency with other boolean inputs
-  - Examples in documentation updated to use `publish_sarif: true` or `publish_sarif: false`
-  - No behavior change, only syntax improvement
-
 - **AppInspect Architecture** - Unified behavior between API-based and local AppInspect
   - Introduced `BaseAppInspect` abstract class for common functionality
-  - Both API and local inspection now support SARIF report generation
+  - Both API and local inspection now support GitHub annotations
+  - Both API and local inspection publish GitHub Check Runs
+  - Eliminates code duplication (~200 lines) while ensuring consistent behavior
   - Both API and local inspection now publish GitHub Check Runs
   - Eliminates code duplication (~200 lines) while ensuring consistent behavior
   - Both modes generate JSON → HTML → SARIF reports and publish check runs

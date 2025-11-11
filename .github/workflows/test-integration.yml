@@ -10,8 +10,6 @@ name: Integration Tests
 # ✅ Splunkbase API App-Inspect (splunkbase_username/password)
 # ✅ App-Inspect fail_on modes (errors, warnings, none)
 # ✅ Multiple apps in one workflow
-# ✅ SARIF Publishing (publish_sarif) - Regular apps
-# ✅ SARIF Publishing (publish_sarif) - UCC apps with correct file paths
 #
 # ⚠️ Not Tested (create PRs or require special access):
 # - App Utilities (whats_in_the_app, logger, splunk_python_sdk, etc.) - creates PRs
@@ -28,6 +26,7 @@ permissions:
   contents: write
   pull-requests: write
   issues: write
+  checks: write
 
 
 jobs:
@@ -448,184 +447,6 @@ jobs:
           echo "✅ fail_on=none mode working correctly (informational checks only)!" >> $GITHUB_STEP_SUMMARY
 
 
-# Test 13: SARIF Publishing (app-inspect with SARIF output)
-  test-sarif-publishing:
-    name: Test SARIF Publishing
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Run splunk-app-action with SARIF publishing
-        id: build_sarif
-        continue-on-error: true
-        uses: VatsalJagani/splunk-app-action@integration_tests
-        with:
-          app_dir: "tests/integration_test_apps/app_inspect_fail4"
-          local_app_inspect: true
-          publish_sarif: true
-      
-      - name: Verify SARIF file was generated (using helper scripts)
-        if: always()
-        run: |
-          echo "## SARIF Publishing Validation" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Use helper script for output validation
-          .github/scripts/validate-build-outputs.sh \
-            "app_inspect_fail4" \
-            "1.0.0" \
-            "1" \
-            "${{ steps.build_sarif.outputs.artifact_name }}" \
-            "${{ steps.build_sarif.outputs.app_package_id }}" \
-            "${{ steps.build_sarif.outputs.app_version }}" \
-            "${{ steps.build_sarif.outputs.app_build_number }}"
-          
-          # Use helper script for app-inspect validation
-          .github/scripts/validate-appinspect.sh \
-            "${{ steps.build_sarif.outputs.app_inspect_status }}" \
-            "fail" \
-            "app_inspect_fail4" \
-            "1.0.0" \
-            "1"
-          
-          # Verify SARIF file exists
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### SARIF File Validation:" >> $GITHUB_STEP_SUMMARY
-          
-          SARIF_FILE="app_inspect_fail4_1_0_0_1_reports/appinspect.sarif"
-          if [ -f "$SARIF_FILE" ]; then
-            echo "✅ SARIF file generated: $SARIF_FILE" >> $GITHUB_STEP_SUMMARY
-            
-            # Verify it's valid JSON
-            if jq empty "$SARIF_FILE" 2>/dev/null; then
-              echo "✅ SARIF file is valid JSON" >> $GITHUB_STEP_SUMMARY
-              
-              # Check for SARIF 2.1.0 format
-              VERSION=$(jq -r '.version' "$SARIF_FILE" 2>/dev/null || echo "")
-              if [ "$VERSION" == "2.1.0" ]; then
-                echo "✅ SARIF version 2.1.0 confirmed" >> $GITHUB_STEP_SUMMARY
-              else
-                echo "⚠️ SARIF version: $VERSION (expected 2.1.0)" >> $GITHUB_STEP_SUMMARY
-              fi
-              
-              # Check that it has runs (merged content from all checks)
-              RUNS_COUNT=$(jq '.runs | length' "$SARIF_FILE" 2>/dev/null || echo "0")
-              if [ "$RUNS_COUNT" -gt 0 ]; then
-                echo "✅ SARIF contains $RUNS_COUNT run(s)" >> $GITHUB_STEP_SUMMARY
-              else
-                echo "❌ SARIF file has no runs!" >> $GITHUB_STEP_SUMMARY
-                exit 1
-              fi
-            else
-              echo "❌ SARIF file is not valid JSON" >> $GITHUB_STEP_SUMMARY
-              exit 1
-            fi
-          else
-            echo "❌ SARIF file not found: $SARIF_FILE" >> $GITHUB_STEP_SUMMARY
-            echo "Files in reports directory:" >> $GITHUB_STEP_SUMMARY
-            ls -la app_inspect_fail4_1_0_0_1_reports/ >> $GITHUB_STEP_SUMMARY 2>&1 || echo "Reports directory not found" >> $GITHUB_STEP_SUMMARY
-            exit 1
-          fi
-          
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ SARIF publishing feature validated successfully!" >> $GITHUB_STEP_SUMMARY
-
-
-  # Test 14: SARIF Publishing for UCC Apps (verify file paths point to package/)
-  test-sarif-ucc-app:
-    name: Test SARIF Publishing (UCC App)
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Run splunk-app-action with UCC + SARIF publishing
-        id: build_ucc_sarif
-        continue-on-error: true
-        uses: VatsalJagani/splunk-app-action@integration_tests
-        with:
-          app_dir: "tests/integration_test_apps/ucc_addon2"
-          use_ucc_gen: true
-          local_app_inspect: true
-          publish_sarif: true
-      
-      - name: Verify SARIF file and file paths
-        if: always()
-        run: |
-          echo "## UCC SARIF Publishing Validation" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Use helper script for output validation
-          .github/scripts/validate-build-outputs.sh \
-            "TA_test_ucc_addon2" \
-            "1.0.0" \
-            "" \
-            "${{ steps.build_ucc_sarif.outputs.artifact_name }}" \
-            "${{ steps.build_ucc_sarif.outputs.app_package_id }}" \
-            "${{ steps.build_ucc_sarif.outputs.app_version }}" \
-            ""
-          
-          # Verify SARIF file exists
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### SARIF File Validation (UCC App):" >> $GITHUB_STEP_SUMMARY
-          
-          # Find the SARIF file (UCC apps don't have build numbers in the same way)
-          SARIF_FILE=$(find . -name "appinspect.sarif" -type f | head -1)
-          
-          if [ -n "$SARIF_FILE" ] && [ -f "$SARIF_FILE" ]; then
-            echo "✅ SARIF file found: $SARIF_FILE" >> $GITHUB_STEP_SUMMARY
-            
-            # Verify it's valid JSON
-            if jq empty "$SARIF_FILE" 2>/dev/null; then
-              echo "✅ SARIF file is valid JSON" >> $GITHUB_STEP_SUMMARY
-              
-              # Check for file paths with UCC structure (should include "package/")
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "### File Path Validation:" >> $GITHUB_STEP_SUMMARY
-              
-              # Extract file URIs from SARIF
-              FILE_URIS=$(jq -r '.runs[0].results[]?.locations[]?.physicalLocation?.artifactLocation?.uri // empty' "$SARIF_FILE" 2>/dev/null || echo "")
-              
-              if [ -n "$FILE_URIS" ]; then
-                echo "Found file URIs in SARIF:" >> $GITHUB_STEP_SUMMARY
-                echo '```' >> $GITHUB_STEP_SUMMARY
-                echo "$FILE_URIS" >> $GITHUB_STEP_SUMMARY
-                echo '```' >> $GITHUB_STEP_SUMMARY
-                
-                # Verify that file paths include "package/" for UCC app in subdirectory
-                # Expected format: tests/integration_test_apps/ucc_addon2/package/...
-                if echo "$FILE_URIS" | grep -q "ucc_addon2/package/"; then
-                  echo "✅ File paths correctly include 'ucc_addon2/package/' prefix" >> $GITHUB_STEP_SUMMARY
-                elif echo "$FILE_URIS" | grep -q "package/"; then
-                  # If app_dir is ".", it would be just "package/"
-                  echo "✅ File paths correctly include 'package/' prefix" >> $GITHUB_STEP_SUMMARY
-                else
-                  echo "⚠️ Warning: File paths may not include expected UCC package structure" >> $GITHUB_STEP_SUMMARY
-                  echo "This is expected if there are no location-specific failures in the report" >> $GITHUB_STEP_SUMMARY
-                fi
-              else
-                echo "ℹ️ No file-specific locations found in SARIF (this is normal if all checks passed or had no file-specific issues)" >> $GITHUB_STEP_SUMMARY
-              fi
-            else
-              echo "❌ SARIF file is not valid JSON" >> $GITHUB_STEP_SUMMARY
-              exit 1
-            fi
-          else
-            echo "⚠️ SARIF file not found - this may be expected if app-inspect passed without warnings/errors" >> $GITHUB_STEP_SUMMARY
-            echo "SARIF is only generated when publish_sarif is true AND there are inspect results" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ UCC SARIF publishing feature validated successfully!" >> $GITHUB_STEP_SUMMARY
-
-
   # Summary job that depends on all tests
   test-summary:
     name: Test Summary
@@ -643,8 +464,6 @@ jobs:
       - test-splunkbase-appinspect-fail
       - test-local-appinspect-fail
       - test-appinspect-fail-on-none
-      - test-sarif-publishing
-      - test-sarif-ucc-app
     if: always()
     steps:
       - name: Check test results
@@ -662,8 +481,6 @@ jobs:
           echo "- User Commands: ${{ needs.test-user-commands.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Multi-App: ${{ needs.test-multi-app.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Local App-Inspect (Pass): ${{ needs.test-local-appinspect-pass.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- SARIF Publishing: ${{ needs.test-sarif-publishing.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- SARIF Publishing (UCC): ${{ needs.test-sarif-ucc-app.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Splunkbase App-Inspect (Pass): ${{ needs.test-splunkbase-appinspect-pass.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Splunkbase App-Inspect (Fail): ${{ needs.test-splunkbase-appinspect-fail.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Local App-Inspect (Fail): ${{ needs.test-local-appinspect-fail.result }}" >> $GITHUB_STEP_SUMMARY
@@ -679,8 +496,6 @@ jobs:
              [ "${{ needs.test-user-commands.result }}" != "success" ] || \
              [ "${{ needs.test-multi-app.result }}" != "success" ] || \
              [ "${{ needs.test-local-appinspect-pass.result }}" != "success" ] || \
-             [ "${{ needs.test-sarif-publishing.result }}" != "success" ] || \
-             [ "${{ needs.test-sarif-ucc-app.result }}" != "success" ] || \
              [ "${{ needs.test-splunkbase-appinspect-pass.result }}" != "success" ] || \
              [ "${{ needs.test-splunkbase-appinspect-fail.result }}" != "success" ] || \
              [ "${{ needs.test-local-appinspect-fail.result }}" != "success" ] || \

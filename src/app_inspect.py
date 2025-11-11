@@ -4,7 +4,6 @@ import shutil
 import subprocess
 import traceback
 from abc import ABC, abstractmethod
-from pathlib import Path
 from threading import Thread
 from time import sleep
 from typing import Any, cast, override
@@ -13,8 +12,8 @@ import github_action_toolkit as gat
 import requests
 from requests.auth import HTTPBasicAuth
 
+import helpers.annotation_publisher as annotation_publisher
 import helpers.check_run_publisher as check_run_publisher
-import helpers.sarif_converter as sarif_converter
 from helpers.saved_values import AppInfo, SavedPaths
 
 TIMEOUT_MAX = 240
@@ -98,12 +97,11 @@ class BaseAppInspect(ABC):
             raise e
         self.app_inspect_result[2] = status
 
-    def _generate_sarif_reports(self) -> None:
-        """Generate SARIF reports from JSON AppInspect results."""
+    def _publish_annotations(self) -> None:
+        """Publish AppInspect results as GitHub annotations."""
         try:
-            gat.info("Generating SARIF reports from AppInspect results...")
+            gat.info("Publishing GitHub annotations from AppInspect results...")
 
-            sarif_files: list[str | Path] = []
             # For UCC apps, files are in app_dir/package/
             # For regular apps, files are in app_dir/
             if self.use_ucc_gen:
@@ -114,59 +112,38 @@ class BaseAppInspect(ABC):
             else:
                 source_path = self.saved_paths.app_dir_name
 
-            # Convert app-inspect report
+            # Publish app-inspect annotations
             app_json = os.path.join(
                 self.app_inspect_report_dir, f"{self.report_name_prefix}_app_inspect_check.json"
             )
             if os.path.exists(app_json):
-                app_sarif = os.path.join(
-                    self.app_inspect_report_dir,
-                    f"{self.report_name_prefix}_app_inspect_check.sarif",
+                annotation_publisher.publish_appinspect_annotations(
+                    app_json, "app-inspect", source_path
                 )
-                sarif_converter.convert_appinspect_to_sarif(
-                    app_json, app_sarif, "app-inspect", source_path
-                )
-                sarif_files.append(app_sarif)
 
-            # Convert cloud-inspect report
+            # Publish cloud-inspect annotations
             cloud_json = os.path.join(
                 self.app_inspect_report_dir,
                 f"{self.report_name_prefix}_cloud_inspect_check.json",
             )
             if os.path.exists(cloud_json):
-                cloud_sarif = os.path.join(
-                    self.app_inspect_report_dir,
-                    f"{self.report_name_prefix}_cloud_inspect_check.sarif",
+                annotation_publisher.publish_appinspect_annotations(
+                    cloud_json, "cloud-inspect", source_path
                 )
-                sarif_converter.convert_appinspect_to_sarif(
-                    cloud_json, cloud_sarif, "cloud-inspect", source_path
-                )
-                sarif_files.append(cloud_sarif)
 
-            # Convert SSAI-inspect report
+            # Publish SSAI-inspect annotations
             ssai_json = os.path.join(
                 self.app_inspect_report_dir, f"{self.report_name_prefix}_ssai_inspect_check.json"
             )
             if os.path.exists(ssai_json):
-                ssai_sarif = os.path.join(
-                    self.app_inspect_report_dir,
-                    f"{self.report_name_prefix}_ssai_inspect_check.sarif",
+                annotation_publisher.publish_appinspect_annotations(
+                    ssai_json, "ssai-inspect", source_path
                 )
-                sarif_converter.convert_appinspect_to_sarif(
-                    ssai_json, ssai_sarif, "ssai-inspect", source_path
-                )
-                sarif_files.append(ssai_sarif)
-
-            # Merge all SARIF reports into one
-            if sarif_files:
-                merged_sarif = os.path.join(self.app_inspect_report_dir, "appinspect.sarif")
-                sarif_converter.merge_sarif_reports(sarif_files, merged_sarif)
-                gat.info(f"SARIF reports generated and merged: {merged_sarif}")
 
         except Exception as e:
-            gat.warning(f"Failed to generate SARIF reports: {e}")
+            gat.warning(f"Failed to publish annotations: {e}")
             gat.debug(traceback.format_exc())
-            # Don't fail the whole run if SARIF generation fails
+            # Don't fail the whole run if annotation publishing fails
 
     def _publish_check_runs(self) -> None:
         """Publish GitHub Check Runs for AppInspect results."""
@@ -216,10 +193,8 @@ class BaseAppInspect(ABC):
             gat.set_output("cloud_inspect_status", self.app_inspect_result[1])
             gat.set_output("ssai_inspect_status", self.app_inspect_result[2])
 
-            # Generate SARIF reports if enabled
-            publish_sarif = gat.get_user_input_as("publish_sarif", bool, True)
-            if publish_sarif:
-                self._generate_sarif_reports()
+            # Publish annotations from AppInspect results
+            self._publish_annotations()
 
             # Publish check runs
             self._publish_check_runs()

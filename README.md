@@ -23,37 +23,13 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
     app_dir: "my_app"
     local_app_inspect: true
 
-# Build with SARIF code scanning for inline PR feedback
-# (SARIF is enabled by default when app-inspect is enabled)
-# (To disable SARIF, set publish_sarif: false)
-# Requires: Add permissions to your workflow (see below)
+# Build with inline code annotations for PR feedback
 - uses: VatsalJagani/splunk-app-action@v4
   with:
     app_dir: "my_app"
     local_app_inspect: true
     fail_on: "errors"  # Options: errors, warnings, none
 ```
-
-### Required Permissions for SARIF Upload
-
-If you're using app-inspect with SARIF reports (default), add these permissions to your workflow:
-
-```yaml
-name: Build Splunk App
-on: [push, pull_request]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read          # Required to checkout code
-      security-events: write  # Required for SARIF upload
-    steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
-        with:
-          app_dir: "my_app"
-          local_app_inspect: true
 
 # UCC Add-on build
 - uses: VatsalJagani/splunk-app-action@v4
@@ -90,7 +66,7 @@ jobs:
 - ✅ **Action Outputs** - Provides build path, artifact name, and app metadata for workflow integration
 - ✅ **Splunkbase App-Inspect** - Runs official app-inspect, cloud-inspect, and SSAI checks  
 - ✅ **Local App-Inspect** - Fast local validation with splunk-appinspect library (no credentials needed)
-- ✅ **SARIF Code Scanning** - Publish AppInspect results as SARIF for inline PR annotations
+- ✅ **GitHub Annotations** - AppInspect results appear as inline annotations in Files Changed tab
 - ✅ **GitHub Check Runs** - Display AppInspect status with summaries and artifact links
 - ✅ **Flexible Failure Modes** - Control workflow failure based on errors, warnings, or never fail
 - ✅ **UCC Add-on Support** - Full integration with UCC Generator framework
