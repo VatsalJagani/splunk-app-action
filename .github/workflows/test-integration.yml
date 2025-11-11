@@ -460,6 +460,7 @@ jobs:
       
       - name: Run splunk-app-action with SARIF publishing
         id: build_sarif
+        continue-on-error: true
         uses: VatsalJagani/splunk-app-action@integration_tests
         with:
           app_dir: "tests/integration_test_apps/app_inspect_fail4"
@@ -467,6 +468,7 @@ jobs:
           publish_sarif: true
       
       - name: Verify SARIF file was generated (using helper scripts)
+        if: always()
         run: |
           echo "## SARIF Publishing Validation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
