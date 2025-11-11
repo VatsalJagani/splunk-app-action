@@ -340,7 +340,6 @@ jobs:
           echo "✅ All outputs validated successfully for ${{ matrix.app }}!" >> $GITHUB_STEP_SUMMARY
 
 
-
   # Test 8: Local app-inspect with valid app (using reusable workflow)
   test-local-appinspect-pass:
     uses: ./.github/workflows/reusable-integration-test.yml
@@ -355,7 +354,102 @@ jobs:
       validate-cleanup: false
 
 
-  # Test 9: SARIF Publishing (app-inspect with SARIF output)
+  # Test 9: Splunkbase API App-Inspect (Pass)
+  test-splunkbase-appinspect-pass:
+    name: Test Splunkbase API App-Inspect (Pass)
+    uses: ./.github/workflows/reusable-integration-test.yml
+    secrets:
+      splunkbase-username: ${{ secrets.SPLUNKBASE_USERNAME }}
+      splunkbase-password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+    with:
+      test-name: "Splunkbase API App-Inspect (Pass)"
+      app-dir: "tests/integration_test_apps/app_inspect_pass2"
+      expected-app-id: "app_inspect_pass2"
+      expected-version: "1.0.0"
+      expected-build-number: "1"
+      is-app-inspect-check: true
+      expected-appinspect-result: "pass"
+
+
+  # Test 10: Local app-inspect (Fail)
+  test-local-appinspect-fail:
+    name: Test Local App-Inspect Fail
+    uses: ./.github/workflows/reusable-integration-test.yml
+    with:
+      test-name: "Local App-Inspect Fail"
+      app-dir: "tests/integration_test_apps/app_inspect_fail"
+      expected-app-id: "app_inspect_fail"
+      expected-version: "1.0.0"
+      expected-build-number: "1"
+      expected-appinspect-result: "fail"
+      continue-on-error: true
+      local-app-inspect: true
+      is-app-inspect-check: true
+
+
+  # Test 11: Splunkbase API App-Inspect (Fail)
+  test-splunkbase-appinspect-fail:
+    name: Test Splunkbase API App-Inspect (Fail)
+    uses: ./.github/workflows/reusable-integration-test.yml
+    secrets:
+      splunkbase-username: ${{ secrets.SPLUNKBASE_USERNAME }}
+      splunkbase-password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+    with:
+      test-name: "Splunkbase API App-Inspect (Fail)"
+      app-dir: "tests/integration_test_apps/app_inspect_fail2"
+      expected-app-id: "app_inspect_fail2"
+      expected-version: "1.0.0"
+      expected-build-number: "1"
+      is-app-inspect-check: true
+      expected-appinspect-result: "fail"
+      continue-on-error: true
+
+
+  # Test 12: App-inspect with fail_on parameter (none mode)
+  test-appinspect-fail-on-none:
+    name: Test App-Inspect fail_on=none
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Run splunk-app-action with fail_on=none on failing app
+        id: inspect_fail_on_none
+        uses: VatsalJagani/splunk-app-action@integration_tests
+        with:
+          app_dir: "tests/integration_test_apps/app_inspect_fail3"
+          local_app_inspect: true
+          fail_on: "none"
+      
+      - name: Verify build succeeded despite app-inspect failures (using helper scripts)
+        run: |
+          echo "## App-Inspect fail_on=none Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Use helper script for output validation
+          .github/scripts/validate-build-outputs.sh \
+            "app_inspect_fail3" \
+            "1.0.0" \
+            "1" \
+            "${{ steps.inspect_fail_on_none.outputs.artifact_name }}" \
+            "${{ steps.inspect_fail_on_none.outputs.app_package_id }}" \
+            "${{ steps.inspect_fail_on_none.outputs.app_version }}" \
+            "${{ steps.inspect_fail_on_none.outputs.app_build_number }}"
+          
+          # With fail_on=none, the action should NOT fail even if app-inspect fails
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Workflow did not fail despite app-inspect issues (fail_on=none)" >> $GITHUB_STEP_SUMMARY
+          
+          # Verify inspect report was still generated
+          if [ -d "app_inspect_fail3_1_0_0_1_reports" ]; then
+            echo "✅ App-inspect reports generated (informational mode)" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ fail_on=none mode working correctly (informational checks only)!" >> $GITHUB_STEP_SUMMARY
+
+
+# Test 13: SARIF Publishing (app-inspect with SARIF output)
   test-sarif-publishing:
     name: Test SARIF Publishing
     runs-on: ubuntu-latest
@@ -370,7 +464,7 @@ jobs:
         id: build_sarif
         uses: VatsalJagani/splunk-app-action@integration_tests
         with:
-          app_dir: "tests/integration_test_apps/app_inspect_fail2"
+          app_dir: "tests/integration_test_apps/app_inspect_fail4"
           local_app_inspect: true
           publish_sarif: true
       
@@ -381,7 +475,7 @@ jobs:
           
           # Use helper script for output validation
           .github/scripts/validate-build-outputs.sh \
-            "app_inspect_fail2" \
+            "app_inspect_fail4" \
             "1.0.0" \
             "1" \
             "${{ steps.build_sarif.outputs.artifact_name }}" \
@@ -393,7 +487,7 @@ jobs:
           .github/scripts/validate-appinspect.sh \
             "${{ steps.build_sarif.outputs.app_inspect_status }}" \
             "fail" \
-            "app_inspect_fail2" \
+            "app_inspect_fail4" \
             "1.0.0" \
             "1"
           
@@ -401,7 +495,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### SARIF File Validation:" >> $GITHUB_STEP_SUMMARY
           
-          SARIF_FILE="app_inspect_fail2_1_0_0_1_appinspect.sarif"
+          SARIF_FILE="app_inspect_fail4_1_0_0_1_appinspect.sarif"
           if [ -f "$SARIF_FILE" ]; then
             echo "✅ SARIF file generated: $SARIF_FILE" >> $GITHUB_STEP_SUMMARY
             
@@ -429,104 +523,6 @@ jobs:
           echo "✅ SARIF publishing feature validated successfully!" >> $GITHUB_STEP_SUMMARY
 
 
-  # Test 10: Splunkbase API App-Inspect (Pass)
-  test-splunkbase-appinspect-pass:
-    name: Test Splunkbase API App-Inspect (Pass)
-    uses: ./.github/workflows/reusable-integration-test.yml
-    secrets:
-      splunkbase-username: ${{ secrets.SPLUNKBASE_USERNAME }}
-      splunkbase-password: ${{ secrets.SPLUNKBASE_PASSWORD }}
-    with:
-      test-name: "Splunkbase API App-Inspect (Pass)"
-      app-dir: "tests/integration_test_apps/app_inspect_pass"
-      expected-app-id: "app_inspect_pass"
-      expected-version: "1.0.0"
-      expected-build-number: "1"
-      is-app-inspect-check: true
-      expected-appinspect-result: "pass"
-
-
-  # Test 11: Splunkbase API App-Inspect (Fail)
-  test-splunkbase-appinspect-fail:
-    name: Test Splunkbase API App-Inspect (Fail)
-    uses: ./.github/workflows/reusable-integration-test.yml
-    secrets:
-      splunkbase-username: ${{ secrets.SPLUNKBASE_USERNAME }}
-      splunkbase-password: ${{ secrets.SPLUNKBASE_PASSWORD }}
-    with:
-      test-name: "Splunkbase API App-Inspect (Fail)"
-      app-dir: "tests/integration_test_apps/app_inspect_fail"
-      expected-app-id: "failing_test_app"
-      expected-version: "1.0.0"
-      expected-build-number: "1"
-      is-app-inspect-check: true
-      expected-appinspect-result: "fail"
-      continue-on-error: true
-
-
-  # Test 13: Local app-inspect with failing app (should fail but not crash)
-  test-local-appinspect-fail:
-    name: Test Local App-Inspect Fail
-    uses: ./.github/workflows/reusable-integration-test.yml
-    with:
-      test-name: "Local App-Inspect Fail"
-      app-dir: "tests/integration_test_apps/app_inspect_fail1"
-      expected-app-id: "failing_test_app_1"
-      expected-version: "1.0.0"
-      expected-build-number: "1"
-      expected-appinspect-result: "fail"
-      continue-on-error: true
-      local-app-inspect: true
-      is-app-inspect-check: true
-
-
-  # Test 14: App-Inspect with fail_on=none (should pass even with failures)
-
-
-  # Test 11: App-inspect with fail_on parameter (none mode)
-  test-appinspect-fail-on-none:
-    name: Test App-Inspect fail_on=none
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Run splunk-app-action with fail_on=none on failing app
-        id: inspect_fail_on_none
-        uses: VatsalJagani/splunk-app-action@integration_tests
-        with:
-          app_dir: "tests/integration_test_apps/app_inspect_fail1"
-          local_app_inspect: true
-          fail_on: "none"
-      
-      - name: Verify build succeeded despite app-inspect failures (using helper scripts)
-        run: |
-          echo "## App-Inspect fail_on=none Validation" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Use helper script for output validation
-          .github/scripts/validate-build-outputs.sh \
-            "failing_test_app1" \
-            "1.0.0" \
-            "1" \
-            "${{ steps.inspect_fail_on_none.outputs.artifact_name }}" \
-            "${{ steps.inspect_fail_on_none.outputs.app_package_id }}" \
-            "${{ steps.inspect_fail_on_none.outputs.app_version }}" \
-            "${{ steps.inspect_fail_on_none.outputs.app_build_number }}"
-          
-          # With fail_on=none, the action should NOT fail even if app-inspect fails
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Workflow did not fail despite app-inspect issues (fail_on=none)" >> $GITHUB_STEP_SUMMARY
-          
-          # Verify inspect report was still generated
-          if [ -d "failing_test_app1_1_0_0_1_reports" ]; then
-            echo "✅ App-inspect reports generated (informational mode)" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ fail_on=none mode working correctly (informational checks only)!" >> $GITHUB_STEP_SUMMARY
-
-
   # Summary job that depends on all tests
   test-summary:
     name: Test Summary
@@ -540,11 +536,11 @@ jobs:
       - test-user-commands
       - test-multi-app
       - test-local-appinspect-pass
-      - test-sarif-publishing
       - test-splunkbase-appinspect-pass
       - test-splunkbase-appinspect-fail
       - test-local-appinspect-fail
       - test-appinspect-fail-on-none
+      - test-sarif-publishing
     if: always()
     steps:
       - name: Check test results
