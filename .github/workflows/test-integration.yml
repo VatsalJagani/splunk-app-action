@@ -382,7 +382,6 @@ jobs:
       expected-version: "1.0.0"
       expected-build-number: "1"
       expected-appinspect-result: "fail"
-      continue-on-error: true
       local-app-inspect: true
       is-app-inspect-check: true
 
@@ -402,7 +401,6 @@ jobs:
       expected-build-number: "1"
       is-app-inspect-check: true
       expected-appinspect-result: "fail"
-      continue-on-error: true
 
 
   # Test 12: App-inspect with fail_on parameter (none mode)

@@ -86,14 +86,13 @@ jobs:
   test:
     name: ${{ inputs.test-name }}
     runs-on: ubuntu-latest
-    continue-on-error: ${{ inputs.continue-on-error }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       
       - name: Run splunk-app-action
         id: build
-        continue-on-error: ${{ inputs.continue-on-error }}
+        continue-on-error: true
         uses: VatsalJagani/splunk-app-action@integration_tests
         with:
           app_dir: ${{ inputs.app-dir }}
@@ -106,7 +105,20 @@ jobs:
           splunkbase_username: ${{ secrets.splunkbase-username }}
           splunkbase_password: ${{ secrets.splunkbase-password }}
       
+      - name: Check if step should have failed
+        if: ${{ inputs.expected-appinspect-result == 'fail' && steps.build.outcome == 'success' }}
+        run: |
+          echo "❌ ERROR: Action succeeded but was expected to fail!" >> $GITHUB_STEP_SUMMARY
+          exit 1
+      
+      - name: Check if step should have succeeded
+        if: ${{ inputs.expected-appinspect-result == 'pass' && steps.build.outcome != 'success' }}
+        run: |
+          echo "❌ ERROR: Action failed but was expected to succeed!" >> $GITHUB_STEP_SUMMARY
+          exit 1
+      
       - name: Validate outputs
+        if: always()
         run: |
           echo "## ${{ inputs.test-name }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -121,7 +133,7 @@ jobs:
             "${{ steps.build.outputs.app_build_number }}"
       
       - name: Validate cleanup (if requested)
-        if: ${{ inputs.validate-cleanup }}
+        if: ${{ always() && inputs.validate-cleanup }}
         run: |
           ARTIFACT_FILE="${{ inputs.expected-app-id }}_${{ inputs.expected-version }}_${{ inputs.expected-build-number }}.tgz"
           ARTIFACT_FILE=$(echo "$ARTIFACT_FILE" | tr '.' '_')
@@ -136,7 +148,7 @@ jobs:
           fi
       
       - name: Validate app-inspect (if app-inspect enabled)
-        if: ${{ inputs.is-app-inspect-check || inputs.local-app-inspect }}
+        if: ${{ always() && (inputs.is-app-inspect-check || inputs.local-app-inspect) }}
         run: |
           EXPECTED_RESULT="${{ inputs.expected-appinspect-result }}"
 
