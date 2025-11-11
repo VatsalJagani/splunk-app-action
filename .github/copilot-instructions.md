@@ -351,6 +351,51 @@ Whenever a change is user-facing, update docs and README in the same pull reques
 - Ensure the full test suite passes before considering a task complete. Use targeted runs for speed during development, but finish with the standard test task.
 
 
+## Integration Tests for GitHub Actions
+
+This project includes comprehensive integration tests in `.github/workflows/test-integration.yml` that validate the GitHub Action's behavior end-to-end.
+
+### When to Add/Update Integration Tests
+
+- **ALWAYS** add or update integration tests when changing user-facing behavior of the GitHub Action.
+
+### How to Write Integration Tests
+
+- **Prefer using the reusable workflow** (`.github/workflows/reusable-integration-test.yml`) for standard build/inspect tests rather than writing custom test jobs. This keeps tests DRY and maintainable.
+- **Use helper scripts** (`.github/scripts/validate-*.sh`) for common validation patterns instead of duplicating validation logic.
+- Only write custom test jobs when the test scenario requires unique setup or validation that doesn't fit the reusable workflow pattern.
+- Keep validation logic in helper scripts so it can be shared across multiple tests.
+
+### Test App Naming and Artifact Conflicts
+
+- **CRITICAL**: Do NOT reuse the same app name across different integration tests. GitHub Actions artifacts are stored at the workflow run level, and using the same app name will cause artifact conflicts and test failures.
+- When you need a test app similar to an existing one:
+  1. Clone the existing test app directory (e.g., `cp -r tests/integration_test_apps/basic_app tests/integration_test_apps/basic_app_v2`)
+  2. Rename the app by updating the `id` field in `app.conf`: `[id]` section (e.g., change `basic_app` to `basic_app_v2`)
+  3. Optionally update `[launcher]` section's `version` and `description` to reflect the new purpose
+- Each test app MUST have a unique package ID to avoid artifact conflicts on GitHub Actions.
+
+### Reusable Workflow Parameters
+
+The reusable workflow (`.github/workflows/reusable-integration-test.yml`) supports:
+- Standard inputs: `test-name`, `app-dir`, `expected-app-id`, `expected-version`, `expected-build-number`
+- Feature flags: `use-ucc-gen`, `is-app-inspect-check`, `local-app-inspect`, `use-splunkbase-credentials`
+- Validation: `validate-cleanup`, `strict-cleanup`, `expected-appinspect-result`
+- Error handling: `continue-on-error`, `fail-on`
+- Secrets: `splunkbase-username`, `splunkbase-password` (only when `use-splunkbase-credentials: true`)
+
+### Helper Scripts
+
+Located in `.github/scripts/`:
+- `validate-build-outputs.sh`: Validates artifact name, package ID, version, build number
+- `validate-appinspect.sh`: Validates app-inspect status and report generation
+- `validate-cleanup.sh`: Validates .pyc and __pycache__ cleanup
+- `extract-tarball.sh`: Safely extracts tarballs and returns the extracted path
+
+Use these scripts in custom tests to maintain consistency with the reusable workflow.
+
+
+
 ## Types and Type Annotations
 
 - Use modern union syntax: `str | None` instead of `Optional[str]`, `dict[str]` instead

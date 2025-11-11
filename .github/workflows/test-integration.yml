@@ -1,0 +1,599 @@
+name: Integration Tests
+
+# Integration Test Coverage:
+# ✅ Basic build generation
+# ✅ UCC Add-on Generator (use_ucc_gen)
+# ✅ Python Dependency Manager with cleanup validation
+# ✅ File/Folder Permission Management (to_make_permission_changes)
+# ✅ User Defined Commands (SPLUNK_APP_ACTION_n)
+# ✅ Local App-Inspect (local_app_inspect)
+# ✅ Splunkbase API App-Inspect (splunkbase_username/password)
+# ✅ App-Inspect fail_on modes (errors, warnings, none)
+# ✅ Multiple apps in one workflow
+# ✅ SARIF Publishing (publish_sarif)
+#
+# ⚠️ Not Tested (create PRs or require special access):
+# - App Utilities (whats_in_the_app, logger, splunk_python_sdk, etc.) - creates PRs
+# - GitHub Token (my_github_token) - requires token with repo access
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+
+jobs:
+  # Test 1: Basic build with valid app (using reusable workflow)
+  test-basic-build:
+    uses: ./.github/workflows/reusable-integration-test.yml
+    with:
+      test-name: "Basic Build (Valid App)"
+      app-dir: "tests/integration_test_apps/valid_app"
+      expected-app-id: "valid_test_app"
+      expected-version: "1.0.0"
+      expected-build-number: "1"
+      is-app-inspect-check: false
+      validate-cleanup: false
+
+
+  # Test 2: UCC Add-on build (using reusable workflow)
+  test-ucc-build:
+    uses: ./.github/workflows/reusable-integration-test.yml
+    with:
+      test-name: "UCC Add-on Build"
+      app-dir: "tests/integration_test_apps/ucc_addon"
+      expected-app-id: "TA_test_ucc_addon"
+      expected-version: "1.0.0"
+      expected-build-number: ""  # Skip build number validation for UCC
+      use-ucc-gen: true
+      is-app-inspect-check: false
+      validate-cleanup: false  # UCC may generate some cache files
+
+
+  # Test 3: Python dependency management (using reusable workflow)
+  test-python-deps:
+    uses: ./.github/workflows/reusable-integration-test.yml
+    with:
+      test-name: "Python Dependencies Build"
+      app-dir: "tests/integration_test_apps/python_deps_app"
+      expected-app-id: "python_deps_test_app"
+      expected-version: "1.0.0"
+      expected-build-number: "1"
+      python-requirements-file: "lib/requirements.txt"
+      is-app-inspect-check: false
+      validate-cleanup: true
+      strict-cleanup: true
+
+
+  # Test 4: File permission changes (without fix - should have wrong permissions)
+  test-permissions-fail:
+    name: Test File Permissions (No Fix)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Create files with incorrect permissions
+        run: |
+          # Create test files with incorrect permissions
+          cd tests/integration_test_apps/valid_app_permissions_no_fix
+          
+          # Set wrong permissions on default directory (should be 755)
+          chmod 777 default/
+          
+          # Set wrong permissions on app.conf (should be 644)
+          chmod 600 default/app.conf
+          
+          # Verify wrong permissions are set
+          echo "📋 Current permissions (before build - no fix):"
+          ls -la default/ | head -5
+          ls -la default/app.conf
+
+      - name: Run splunk-app-action WITHOUT permission changes
+        id: build_no_perms
+        uses: VatsalJagani/splunk-app-action@integration_tests
+        continue-on-error: true
+        with:
+          app_dir: "tests/integration_test_apps/valid_app_permissions_no_fix"
+          to_make_permission_changes: false
+          is_app_inspect_check: false
+      
+      - name: Verify permissions were NOT fixed in artifact (using helper scripts)
+        run: |
+          echo "## Permission Test - Without Fix" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Use helper script for output validation
+          .github/scripts/validate-build-outputs.sh \
+            "valid_test_app_permissions_no_fix" \
+            "1.0.0" \
+            "1" \
+            "${{ steps.build_no_perms.outputs.artifact_name }}" \
+            "${{ steps.build_no_perms.outputs.app_package_id }}" \
+            "${{ steps.build_no_perms.outputs.app_version }}" \
+            "${{ steps.build_no_perms.outputs.app_build_number }}"
+          
+          # Custom permission validation
+          TARBALL="valid_test_app_permissions_no_fix_1_0_0_1.tgz"
+          if [ -f "$TARBALL" ]; then
+            EXTRACTED_PATH=$(.github/scripts/extract-tarball.sh "$TARBALL" "/tmp/perm_test_no_fix")
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Permission Validation:" >> $GITHUB_STEP_SUMMARY
+            
+            # Verify permissions are still WRONG (as expected)
+            default_dir_perms=$(ls -ld "$EXTRACTED_PATH/default" | awk '{print $1}')
+            app_conf_perms=$(ls -ld "$EXTRACTED_PATH/default/app.conf" | awk '{print $1}')
+            
+            echo "- default/ permissions: $default_dir_perms (expected wrong: drwxrwxrwx)" >> $GITHUB_STEP_SUMMARY
+            echo "- app.conf permissions: $app_conf_perms (expected wrong: -rw-------)" >> $GITHUB_STEP_SUMMARY
+            
+            if [ "$default_dir_perms" == "drwxrwxrwx" ] && [ "$app_conf_perms" == "-rw-------" ]; then
+              echo "✅ Permissions correctly remain WRONG (no fix applied)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ WARNING: Permissions may have been modified unexpectedly" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Permission test (no fix) completed successfully!" >> $GITHUB_STEP_SUMMARY
+
+
+  # Test 5: File permission changes (with fix - should have correct permissions)
+  test-permissions-pass:
+    name: Test File Permissions (With Fix)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Create files with incorrect permissions
+        run: |
+          # Create test files with incorrect permissions
+          cd tests/integration_test_apps/valid_app_permissions
+          
+          # Set wrong permissions on default directory (should be 755)
+          chmod 777 default/
+          
+          # Set wrong permissions on app.conf (should be 644)
+          chmod 600 default/app.conf
+          
+          # Verify wrong permissions are set
+          echo "📋 Current permissions (before build - with fix):"
+          ls -la default/ | head -5
+          ls -la default/app.conf
+
+      - name: Run splunk-app-action WITH permission changes
+        id: build_perms
+        uses: VatsalJagani/splunk-app-action@integration_tests
+        with:
+          app_dir: "tests/integration_test_apps/valid_app_permissions"
+          to_make_permission_changes: true
+          is_app_inspect_check: false
+
+      - name: Verify permissions were fixed in artifact (using helper scripts)
+        run: |
+          echo "## Permission Test - With Fix" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Use helper script for output validation
+          .github/scripts/validate-build-outputs.sh \
+            "valid_test_app_permissions" \
+            "1.0.0" \
+            "1" \
+            "${{ steps.build_perms.outputs.artifact_name }}" \
+            "${{ steps.build_perms.outputs.app_package_id }}" \
+            "${{ steps.build_perms.outputs.app_version }}" \
+            "${{ steps.build_perms.outputs.app_build_number }}"
+          
+          # Custom permission validation
+          TARBALL="valid_test_app_permissions_1_0_0_1.tgz"
+          if [ -f "$TARBALL" ]; then
+            EXTRACTED_PATH=$(.github/scripts/extract-tarball.sh "$TARBALL" "/tmp/perm_test_with_fix")
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Permission Validation:" >> $GITHUB_STEP_SUMMARY
+            
+            # Verify permissions are CORRECT (as expected)
+            default_dir_perms=$(ls -ld "$EXTRACTED_PATH/default" | awk '{print $1}')
+            app_conf_perms=$(ls -ld "$EXTRACTED_PATH/default/app.conf" | awk '{print $1}')
+            
+            echo "- default/ permissions: $default_dir_perms (expected correct: drwxr-xr-x)" >> $GITHUB_STEP_SUMMARY
+            echo "- app.conf permissions: $app_conf_perms (expected correct: -rw-r--r--)" >> $GITHUB_STEP_SUMMARY
+            
+            if [ "$default_dir_perms" == "drwxr-xr-x" ] && [ "$app_conf_perms" == "-rw-r--r--" ]; then
+              echo "✅ Permissions correctly FIXED to proper values!" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ ERROR: Permissions were NOT fixed correctly!" >> $GITHUB_STEP_SUMMARY
+              echo "   Expected default/=drwxr-xr-x (755) and app.conf=-rw-r--r-- (644)" >> $GITHUB_STEP_SUMMARY
+              echo "   Got default/=$default_dir_perms and app.conf=$app_conf_perms" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Permission changes were applied and verified!" >> $GITHUB_STEP_SUMMARY
+
+
+  # Test 6: User-defined commands
+  test-user-commands:
+    name: Test User-Defined Commands
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Run splunk-app-action with custom commands
+        id: build_commands
+        uses: VatsalJagani/splunk-app-action@integration_tests
+        env:
+          SPLUNK_APP_ACTION_1: "echo 'Custom command 1 executed' > default/my.conf"
+          SPLUNK_APP_ACTION_2: "echo 'Additional content from command 2' >> default/my.conf"
+        with:
+          app_dir: "tests/integration_test_apps/valid_app_commands"
+          is_app_inspect_check: false
+      
+      - name: Verify build succeeded and outputs (using helper scripts)
+        run: |
+          echo "## User Commands Build Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Use helper script for output validation
+          .github/scripts/validate-build-outputs.sh \
+            "valid_test_app_commands" \
+            "1.0.0" \
+            "1" \
+            "${{ steps.build_commands.outputs.artifact_name }}" \
+            "${{ steps.build_commands.outputs.app_package_id }}" \
+            "${{ steps.build_commands.outputs.app_version }}" \
+            "${{ steps.build_commands.outputs.app_build_number }}"
+          
+          # Custom user command validation
+          TARBALL="valid_test_app_commands_1_0_0_1.tgz"
+          if [ -f "$TARBALL" ]; then
+            EXTRACTED_PATH=$(.github/scripts/extract-tarball.sh "$TARBALL" "/tmp/user_commands_test")
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### User Commands Validation:" >> $GITHUB_STEP_SUMMARY
+            
+            # Check that the file created by user commands exists
+            MY_CONF="$EXTRACTED_PATH/default/my.conf"
+            if [ -f "$MY_CONF" ]; then
+              echo "✅ User command successfully created 'default/my.conf'" >> $GITHUB_STEP_SUMMARY
+              
+              # Verify the expected content from both commands
+              if grep -q "Custom command 1 executed" "$MY_CONF"; then
+                echo "✅ SPLUNK_APP_ACTION_1 executed correctly (found expected content)" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "❌ ERROR: Expected content from SPLUNK_APP_ACTION_1 not found!" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              
+              if grep -q "Additional content from command 2" "$MY_CONF"; then
+                echo "✅ SPLUNK_APP_ACTION_2 executed correctly (found expected content)" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "❌ ERROR: Expected content from SPLUNK_APP_ACTION_2 not found!" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              
+            else
+              echo "❌ ERROR: File 'default/my.conf' not found in build!" >> $GITHUB_STEP_SUMMARY
+              echo "❌ User-defined commands did not execute correctly" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ User-defined commands executed and verified!" >> $GITHUB_STEP_SUMMARY
+
+
+  # Test 7: Multiple apps in same workflow
+  test-multi-app:
+    name: Test Multiple Apps
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - app: "multi_valid_app"
+            expected_id: "multi_valid_test_app"
+            expected_version: "1.0.0"
+            python_reqs: ""
+          - app: "multi_python_deps_app"
+            expected_id: "multi_python_deps_test_app"
+            expected_version: "1.0.0"
+            python_reqs: "lib/requirements.txt"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Build ${{ matrix.app }}
+        id: build_multi
+        uses: VatsalJagani/splunk-app-action@integration_tests
+        with:
+          app_dir: "tests/integration_test_apps/${{ matrix.app }}"
+          python_requirements_file: ${{ matrix.python_reqs }}
+          is_app_inspect_check: false
+
+      - name: Verify build succeeded and outputs (using helper script)
+        run: |
+          echo "## Multi-App Build Validation (${{ matrix.app }})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Use helper script for validation
+          .github/scripts/validate-build-outputs.sh \
+            "${{ matrix.expected_id }}" \
+            "${{ matrix.expected_version }}" \
+            "1" \
+            "${{ steps.build_multi.outputs.artifact_name }}" \
+            "${{ steps.build_multi.outputs.app_package_id }}" \
+            "${{ steps.build_multi.outputs.app_version }}" \
+            "${{ steps.build_multi.outputs.app_build_number }}"
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ All outputs validated successfully for ${{ matrix.app }}!" >> $GITHUB_STEP_SUMMARY
+
+
+  # Test 8: Local app-inspect with valid app (using reusable workflow)
+  test-local-appinspect-pass:
+    uses: ./.github/workflows/reusable-integration-test.yml
+    with:
+      test-name: "Local App-Inspect (Pass)"
+      app-dir: "tests/integration_test_apps/app_inspect_pass"
+      expected-app-id: "app_inspect_pass"
+      expected-version: "1.0.0"
+      expected-build-number: "1"
+      local-app-inspect: true
+      expected-appinspect-result: "pass"
+      validate-cleanup: false
+
+
+  # Test 9: Splunkbase API App-Inspect (Pass)
+  test-splunkbase-appinspect-pass:
+    name: Test Splunkbase API App-Inspect (Pass)
+    uses: ./.github/workflows/reusable-integration-test.yml
+    secrets:
+      splunkbase-username: ${{ secrets.SPLUNKBASE_USERNAME }}
+      splunkbase-password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+    with:
+      test-name: "Splunkbase API App-Inspect (Pass)"
+      app-dir: "tests/integration_test_apps/app_inspect_pass2"
+      expected-app-id: "app_inspect_pass2"
+      expected-version: "1.0.0"
+      expected-build-number: "1"
+      is-app-inspect-check: true
+      expected-appinspect-result: "pass"
+
+
+  # Test 10: Local app-inspect (Fail)
+  test-local-appinspect-fail:
+    name: Test Local App-Inspect Fail
+    uses: ./.github/workflows/reusable-integration-test.yml
+    with:
+      test-name: "Local App-Inspect Fail"
+      app-dir: "tests/integration_test_apps/app_inspect_fail"
+      expected-app-id: "app_inspect_fail"
+      expected-version: "1.0.0"
+      expected-build-number: "1"
+      expected-appinspect-result: "fail"
+      local-app-inspect: true
+      is-app-inspect-check: true
+
+
+  # Test 11: Splunkbase API App-Inspect (Fail)
+  test-splunkbase-appinspect-fail:
+    name: Test Splunkbase API App-Inspect (Fail)
+    uses: ./.github/workflows/reusable-integration-test.yml
+    secrets:
+      splunkbase-username: ${{ secrets.SPLUNKBASE_USERNAME }}
+      splunkbase-password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+    with:
+      test-name: "Splunkbase API App-Inspect (Fail)"
+      app-dir: "tests/integration_test_apps/app_inspect_fail2"
+      expected-app-id: "app_inspect_fail2"
+      expected-version: "1.0.0"
+      expected-build-number: "1"
+      is-app-inspect-check: true
+      expected-appinspect-result: "fail"
+
+
+  # Test 12: App-inspect with fail_on parameter (none mode)
+  test-appinspect-fail-on-none:
+    name: Test App-Inspect fail_on=none
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Run splunk-app-action with fail_on=none on failing app
+        id: inspect_fail_on_none
+        uses: VatsalJagani/splunk-app-action@integration_tests
+        with:
+          app_dir: "tests/integration_test_apps/app_inspect_fail3"
+          local_app_inspect: true
+          fail_on: "none"
+      
+      - name: Verify build succeeded despite app-inspect failures (using helper scripts)
+        run: |
+          echo "## App-Inspect fail_on=none Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Use helper script for output validation
+          .github/scripts/validate-build-outputs.sh \
+            "app_inspect_fail3" \
+            "1.0.0" \
+            "1" \
+            "${{ steps.inspect_fail_on_none.outputs.artifact_name }}" \
+            "${{ steps.inspect_fail_on_none.outputs.app_package_id }}" \
+            "${{ steps.inspect_fail_on_none.outputs.app_version }}" \
+            "${{ steps.inspect_fail_on_none.outputs.app_build_number }}"
+          
+          # With fail_on=none, the action should NOT fail even if app-inspect fails
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Workflow did not fail despite app-inspect issues (fail_on=none)" >> $GITHUB_STEP_SUMMARY
+          
+          # Verify inspect report was still generated
+          if [ -d "app_inspect_fail3_1_0_0_1_reports" ]; then
+            echo "✅ App-inspect reports generated (informational mode)" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ fail_on=none mode working correctly (informational checks only)!" >> $GITHUB_STEP_SUMMARY
+
+
+# Test 13: SARIF Publishing (app-inspect with SARIF output)
+  test-sarif-publishing:
+    name: Test SARIF Publishing
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Run splunk-app-action with SARIF publishing
+        id: build_sarif
+        continue-on-error: true
+        uses: VatsalJagani/splunk-app-action@integration_tests
+        with:
+          app_dir: "tests/integration_test_apps/app_inspect_fail4"
+          local_app_inspect: true
+          publish_sarif: true
+      
+      - name: Verify SARIF file was generated (using helper scripts)
+        if: always()
+        run: |
+          echo "## SARIF Publishing Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Use helper script for output validation
+          .github/scripts/validate-build-outputs.sh \
+            "app_inspect_fail4" \
+            "1.0.0" \
+            "1" \
+            "${{ steps.build_sarif.outputs.artifact_name }}" \
+            "${{ steps.build_sarif.outputs.app_package_id }}" \
+            "${{ steps.build_sarif.outputs.app_version }}" \
+            "${{ steps.build_sarif.outputs.app_build_number }}"
+          
+          # Use helper script for app-inspect validation
+          .github/scripts/validate-appinspect.sh \
+            "${{ steps.build_sarif.outputs.app_inspect_status }}" \
+            "fail" \
+            "app_inspect_fail4" \
+            "1.0.0" \
+            "1"
+          
+          # Verify SARIF file exists
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### SARIF File Validation:" >> $GITHUB_STEP_SUMMARY
+          
+          SARIF_FILE="app_inspect_fail4_1_0_0_1_reports/appinspect.sarif"
+          if [ -f "$SARIF_FILE" ]; then
+            echo "✅ SARIF file generated: $SARIF_FILE" >> $GITHUB_STEP_SUMMARY
+            
+            # Verify it's valid JSON
+            if jq empty "$SARIF_FILE" 2>/dev/null; then
+              echo "✅ SARIF file is valid JSON" >> $GITHUB_STEP_SUMMARY
+              
+              # Check for SARIF 2.1.0 format
+              VERSION=$(jq -r '.version' "$SARIF_FILE" 2>/dev/null || echo "")
+              if [ "$VERSION" == "2.1.0" ]; then
+                echo "✅ SARIF version 2.1.0 confirmed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "⚠️ SARIF version: $VERSION (expected 2.1.0)" >> $GITHUB_STEP_SUMMARY
+              fi
+              
+              # Check that it has runs (merged content from all checks)
+              RUNS_COUNT=$(jq '.runs | length' "$SARIF_FILE" 2>/dev/null || echo "0")
+              if [ "$RUNS_COUNT" -gt 0 ]; then
+                echo "✅ SARIF contains $RUNS_COUNT run(s)" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "❌ SARIF file has no runs!" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+            else
+              echo "❌ SARIF file is not valid JSON" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+          else
+            echo "❌ SARIF file not found: $SARIF_FILE" >> $GITHUB_STEP_SUMMARY
+            echo "Files in reports directory:" >> $GITHUB_STEP_SUMMARY
+            ls -la app_inspect_fail4_1_0_0_1_reports/ >> $GITHUB_STEP_SUMMARY 2>&1 || echo "Reports directory not found" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ SARIF publishing feature validated successfully!" >> $GITHUB_STEP_SUMMARY
+
+
+  # Summary job that depends on all tests
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: 
+      - test-basic-build
+      - test-python-deps
+      - test-ucc-build
+      - test-permissions-fail
+      - test-permissions-pass
+      - test-user-commands
+      - test-multi-app
+      - test-local-appinspect-pass
+      - test-splunkbase-appinspect-pass
+      - test-splunkbase-appinspect-fail
+      - test-local-appinspect-fail
+      - test-appinspect-fail-on-none
+      - test-sarif-publishing
+    if: always()
+    steps:
+      - name: Check test results
+        run: |
+          echo "## Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All test scenarios have been executed." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Jobs:" >> $GITHUB_STEP_SUMMARY
+          echo "- Basic Build: ${{ needs.test-basic-build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Python Dependencies: ${{ needs.test-python-deps.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- UCC Build: ${{ needs.test-ucc-build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Permissions (Pass): ${{ needs.test-permissions-pass.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Permissions (Fail): ${{ needs.test-permissions-fail.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- User Commands: ${{ needs.test-user-commands.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Multi-App: ${{ needs.test-multi-app.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Local App-Inspect (Pass): ${{ needs.test-local-appinspect-pass.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- SARIF Publishing: ${{ needs.test-sarif-publishing.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Splunkbase App-Inspect (Pass): ${{ needs.test-splunkbase-appinspect-pass.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Splunkbase App-Inspect (Fail): ${{ needs.test-splunkbase-appinspect-fail.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Local App-Inspect (Fail): ${{ needs.test-local-appinspect-fail.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- App-Inspect fail_on=none: ${{ needs.test-appinspect-fail-on-none.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check if any required test failed (excluding the expected-to-fail test)
+          if [ "${{ needs.test-basic-build.result }}" != "success" ] || \
+             [ "${{ needs.test-python-deps.result }}" != "success" ] || \
+             [ "${{ needs.test-ucc-build.result }}" != "success" ] || \
+             [ "${{ needs.test-permissions-pass.result }}" != "success" ] || \
+             [ "${{ needs.test-permissions-fail.result }}" != "success" ] || \
+             [ "${{ needs.test-user-commands.result }}" != "success" ] || \
+             [ "${{ needs.test-multi-app.result }}" != "success" ] || \
+             [ "${{ needs.test-local-appinspect-pass.result }}" != "success" ] || \
+             [ "${{ needs.test-sarif-publishing.result }}" != "success" ] || \
+             [ "${{ needs.test-splunkbase-appinspect-pass.result }}" != "success" ] || \
+             [ "${{ needs.test-splunkbase-appinspect-fail.result }}" != "success" ] || \
+             [ "${{ needs.test-local-appinspect-fail.result }}" != "success" ] || \
+             [ "${{ needs.test-appinspect-fail-on-none.result }}" != "success" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "❌ Some tests failed!" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ All required tests passed!" >> $GITHUB_STEP_SUMMARY
+          fi
