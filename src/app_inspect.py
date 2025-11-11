@@ -25,6 +25,7 @@ class SplunkAppInspect:
     BASE_URL: str = "https://appinspect.splunk.com/v1/app"
     SUBMIT_URL: str = f"{BASE_URL}/validate"
     STATUS_CHECK_URL: str = f"{BASE_URL}/validate/status"
+    JSON_RESPONSE_URL: str = f"{BASE_URL}/report"
     HTML_RESPONSE_URL: str = f"{BASE_URL}/report"
 
     def __init__(
@@ -104,22 +105,27 @@ class SplunkAppInspect:
 
     def _perform_checks(self, check_type: str = "APP_INSPECT") -> str:
         payload: dict[str, str] = {}
-        report_file_name: str
+        json_report_file_name: str
+        html_report_file_name: str
 
         if check_type == "APP_INSPECT":
             payload = {}
-            report_file_name = f"{self.report_name_prefix}_app_inspect_check.html"
+            json_report_file_name = f"{self.report_name_prefix}_app_inspect_check.json"
+            html_report_file_name = f"{self.report_name_prefix}_app_inspect_check.html"
 
         elif check_type == "CLOUD_INSPECT":
             payload = {"included_tags": "cloud"}
-            report_file_name = f"{self.report_name_prefix}_cloud_inspect_check.html"
+            json_report_file_name = f"{self.report_name_prefix}_cloud_inspect_check.json"
+            html_report_file_name = f"{self.report_name_prefix}_cloud_inspect_check.html"
 
         elif check_type == "SSAI_INSPECT":
             payload = {"included_tags": "self-service"}
-            report_file_name = f"{self.report_name_prefix}_ssai_inspect_check.html"
+            json_report_file_name = f"{self.report_name_prefix}_ssai_inspect_check.json"
+            html_report_file_name = f"{self.report_name_prefix}_ssai_inspect_check.html"
 
         else:
-            report_file_name = f"{self.report_name_prefix}_default_check.html"
+            json_report_file_name = f"{self.report_name_prefix}_default_check.json"
+            html_report_file_name = f"{self.report_name_prefix}_default_check.html"
 
         app_build_f = open(self.app_build_path, "rb")
         app_build_f.seek(0)
@@ -202,26 +208,46 @@ class SplunkAppInspect:
         else:
             return "Timed-out"
 
-        # HTML Report retrieve
-        gat.info(f"Html report generating for check_type={check_type}")
-        response = requests.request(
+        # First, fetch JSON Report
+        gat.info(f"Fetching JSON report for check_type={check_type}")
+
+        # Prepare headers for JSON request
+        json_headers = dict(self.headers_report) if self.headers_report else {}
+        json_headers["Content-Type"] = "application/json"
+
+        json_response = requests.request(
             "GET",
-            f"{self.HTML_RESPONSE_URL}/{request_id}",
-            headers=self.headers_report,
+            f"{self.JSON_RESPONSE_URL}/{request_id}",
+            headers=json_headers,
             data={},
             timeout=TIMEOUT_MAX,
         )
-        if response.status_code != 200:
+        if json_response.status_code != 200:
             gat.error(
-                f"Error while requesting for app-inspect check report. check_type={check_type}, status_code={response.status_code}"
+                f"Error while requesting JSON report for app-inspect check. check_type={check_type}, status_code={json_response.status_code}"
             )
             return "Exception"
 
-        # write results into a file
-        report_file = os.path.join(self.app_inspect_report_dir, report_file_name)
-        with open(report_file, "w+") as f:
-            gat.info(f"Writing the App-inspect report in file={report_file}")
-            f.write(response.text)
+        # Save JSON report to file
+        json_report_file = os.path.join(self.app_inspect_report_dir, json_report_file_name)
+        with open(json_report_file, "w+") as f:
+            gat.info(f"Writing the App-inspect JSON report in file={json_report_file}")
+            f.write(json_response.text)
+
+        # Convert JSON to HTML using the converter module
+        gat.info(f"Converting JSON report to HTML for check_type={check_type}")
+        html_report_file = os.path.join(self.app_inspect_report_dir, html_report_file_name)
+
+        try:
+            from helpers.splunk_app_inspect_report_json_to_html_converter import (
+                convert_json_file_to_html_file,
+            )
+
+            convert_json_file_to_html_file(json_report_file, html_report_file)
+            gat.info(f"HTML report generated successfully: {html_report_file}")
+        except Exception as e:
+            gat.warning(f"Could not convert JSON report to HTML: {e}")
+            gat.debug(traceback.format_exc())
 
         return status
 
@@ -406,10 +432,20 @@ class SplunkLocalAppInspect:
                 # Narrow dynamic JSON to a typed mapping for downstream usage
                 report_data: dict[str, Any] = cast(dict[str, Any], report_data_raw)
 
-            # Generate HTML report from JSON for consistency with API-based approach
+            # Generate HTML report from JSON using the converter module
             html_report_name = report_file_name.replace(".json", ".html")
             html_report_path = os.path.join(self.app_inspect_report_dir, html_report_name)
-            self._generate_html_report(report_data, html_report_path, check_type)
+
+            try:
+                from helpers.splunk_app_inspect_report_json_to_html_converter import (
+                    convert_json_file_to_html_file,
+                )
+
+                convert_json_file_to_html_file(report_file_path, html_report_path)
+                gat.info(f"HTML report generated successfully: {html_report_path}")
+            except Exception as e:
+                gat.warning(f"Could not convert JSON report to HTML: {e}")
+                gat.debug(traceback.format_exc())
 
             # Determine status based on report summary
             summary_val = report_data.get("summary")
@@ -437,101 +473,6 @@ class SplunkLocalAppInspect:
             gat.error(f"Error running local app inspect: {e}")
             gat.error(traceback.format_exc())
             return "Exception"
-
-    def _generate_html_report(
-        self, report_data: dict[str, Any], html_path: str, check_type: str
-    ) -> None:
-        """Generate a simple HTML report from JSON data"""
-        try:
-            # Helpers to coerce dynamic JSON values to typed structures
-            def _as_dict_any(val: Any) -> dict[str, Any]:
-                return cast(dict[str, Any], val) if isinstance(val, dict) else dict[str, Any]()
-
-            def _as_list_of_dict_any(val: Any) -> list[dict[str, Any]]:
-                if isinstance(val, list):
-                    return [
-                        cast(dict[str, Any], v) for v in cast(list[Any], val) if isinstance(v, dict)
-                    ]
-                return []
-
-            summary = _as_dict_any(report_data.get("summary"))
-            reports = _as_list_of_dict_any(report_data.get("reports"))
-
-            html_content = f"""
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Splunk App Inspect Report - {check_type}</title>
-    <style>
-        body {{ font-family: Arial, sans-serif; margin: 20px; }}
-        h1 {{ color: #333; }}
-        .summary {{ background-color: #f0f0f0; padding: 15px; margin: 20px 0; border-radius: 5px; }}
-        .passed {{ color: green; }}
-        .failure {{ color: red; }}
-        .error {{ color: orange; }}
-        .warning {{ color: #ff8c00; }}
-        .manual {{ color: #666; }}
-        .not_applicable {{ color: #999; }}
-        .skipped {{ color: #ccc; }}
-        table {{ border-collapse: collapse; width: 100%; margin-top: 20px; }}
-        th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
-        th {{ background-color: #4CAF50; color: white; }}
-        tr:nth-child(even) {{ background-color: #f2f2f2; }}
-    </style>
-</head>
-<body>
-    <h1>Splunk App Inspect Report - {check_type}</h1>
-    <div class="summary">
-        <h2>Summary</h2>
-    <p><strong>Success:</strong> <span class="passed">{summary.get("success", 0)}</span></p>
-    <p><strong>Failure:</strong> <span class="failure">{summary.get("failure", 0)}</span></p>
-    <p><strong>Error:</strong> <span class="error">{summary.get("error", 0)}</span></p>
-    <p><strong>Warning:</strong> <span class="warning">{summary.get("warning", 0)}</span></p>
-    <p><strong>Manual Check:</strong> <span class="manual">{summary.get("manual_check", 0)}</span></p>
-    <p><strong>Not Applicable:</strong> <span class="not_applicable">{summary.get("not_applicable", 0)}</span></p>
-    <p><strong>Skipped:</strong> <span class="skipped">{summary.get("skipped", 0)}</span></p>
-    </div>
-"""
-
-            # Add detailed results if there are failures or errors
-            failures_and_errors = [r for r in reports if r.get("result") in ["failure", "error"]]
-            if failures_and_errors:
-                html_content += """
-    <h2>Failures and Errors</h2>
-    <table>
-        <tr>
-            <th>Check</th>
-            <th>Result</th>
-            <th>Message</th>
-        </tr>
-"""
-                for report in failures_and_errors:
-                    check_name = str(report.get("name", "Unknown"))
-                    result = str(report.get("result", "unknown"))
-                    messages = _as_list_of_dict_any(report.get("messages"))
-                    message_text = "<br>".join([str(m.get("message", "")) for m in messages])
-
-                    html_content += f"""
-        <tr>
-            <td>{check_name}</td>
-            <td class="{result}">{result.upper()}</td>
-            <td>{message_text}</td>
-        </tr>
-"""
-                html_content += "    </table>\n"
-
-            html_content += """
-</body>
-</html>
-"""
-
-            with open(html_path, "w") as f:
-                f.write(html_content)
-
-            gat.debug(f"HTML report generated: {html_path}")
-
-        except Exception as e:
-            gat.warning(f"Could not generate HTML report: {e}")
 
     def _perform_app_inspect_check(self) -> None:
         gat.info("Starting local app-inspect checks...")

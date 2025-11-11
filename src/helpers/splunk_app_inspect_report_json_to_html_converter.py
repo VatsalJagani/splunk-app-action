@@ -1,0 +1,551 @@
+"""
+JSON to HTML Converter for Splunk App-Inspect Reports
+This module converts app-inspect JSON reports to HTML format.
+"""
+
+# pyright: reportMissingTypeArgument=false, reportUnknownParameterType=false
+# pyright: reportUnknownVariableType=false, reportUnknownMemberType=false
+# pyright: reportUnknownArgumentType=false
+
+import json
+from datetime import datetime
+from typing import Any
+
+
+def escape_html(text: str | None) -> str:
+    """Escape special HTML characters."""
+    if text is None:
+        return ""
+    return (
+        str(text)
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+        .replace("'", "&#39;")
+    )
+
+
+def get_status_icon(status: str) -> str:
+    """Get SVG icon for status."""
+    icons = {
+        "success": """<svg class="check_success" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+          </svg>""",
+        "failure": """<svg class="check_failure" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>""",
+        "error": """<svg class="check_error" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+          </svg>""",
+        "warning": """<svg class="check_warning" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+          </svg>""",
+        "not_applicable": """<svg class="check_not_applicable" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+          </svg>""",
+        "skipped": """<svg class="check_skipped" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+          </svg>""",
+    }
+    return icons.get(status, "")
+
+
+def generate_css() -> str:
+    """Generate CSS styles for the HTML report."""
+    return """<style type="text/css">
+      :root {
+        --background-dark: #111215;
+        --background-cards: #1a1c20;
+        --text_color: #B5B5B5;
+        --success-color: #85F415;
+        --failure-color: #FF4242;
+        --error-color: #FF4242;
+        --warning-color: #f49106;
+        --not_applicable-color: #868585;
+      }
+
+      body {
+        background-color: var(--background-dark);
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        margin: 0;
+      }
+
+      .logo {
+        margin-top: 10px;
+      }
+
+      .container {
+        width: clamp(50vw, 60em, 100vw);
+        margin: 0 auto;
+      }
+
+      .divider {
+        border: 1px solid #43454b;
+        margin-bottom: 8px;
+      }
+
+      table {
+        position: relative;
+        border-collapse: collapse;
+        border-spacing: 0;
+        min-width: 100%;
+      }
+
+      thead {
+        min-width: 0;
+        table-layout: fixed;
+      }
+
+      tr {
+        background-color: #ffffff00;
+      }
+
+      tr:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+
+      th {
+        background-color: #272a2f;
+        box-sizing: content-box;
+        text-align: left;
+        vertical-align: middle;
+        border-left: 1px solid #111215;
+        height: 35px;
+        padding: 0 10px;
+      }
+
+      td {
+        padding: 6px 10px;
+        border-left: 0 solid transparent;
+        border-right: 0 solid transparent;
+        word-wrap: break-word;
+        vertical-align: top;
+        text-align: left;
+      }
+
+      td > div {
+        display: flex;
+        gap: 4px;
+      }
+
+      .card {
+        width: 100%;
+        box-sizing: border-box;
+        color: var(--text_color);
+        display: inline-flex;
+        font-size: 14px;
+        line-height: 20px;
+        flex-direction: column;
+        -webkit-box-align: stretch;
+        align-items: stretch;
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 1px 5px,
+          rgba(0, 0, 0, 0.35) 0px 0px 1px;
+        background: var(--background-cards);
+        margin: 0px;
+        margin-bottom: 25px;
+        padding: 10px 20px 20px 20px;
+        white-space: normal;
+        border-width: 1px;
+        border-radius: 4px;
+      }
+
+      .heading {
+        padding: 0px;
+        color: var(--text_color);
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 24px;
+        margin: 1em 0px 0.4em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .heading.h1 {
+        font-size: 36px;
+      }
+
+      .heading.h2 {
+        font-size: 24px;
+      }
+
+      .heading.h3 {
+        font-size: 20px;
+      }
+
+      .heading.h4 {
+        font-size: 16px;
+      }
+
+      .heading.h5 {
+        font-size: 14px;
+      }
+
+      .heading.skip-bottom-margin {
+        margin-bottom: 0;
+      }
+
+      .header-cont {
+        display: flex;
+        align-items: start;
+        gap: 4px;
+      }
+
+      .check_cont {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .check_success {
+        color: var(--success-color);
+        fill: var(--success-color);
+      }
+
+      .check_failure {
+        color: var(--failure-color);
+        fill: var(--failure-color);
+      }
+
+      .check_error {
+        color: var(--error-color);
+        fill: var(--error-color);
+      }
+      
+      .check_warning {
+        color: var(--warning-color);
+        fill: var(--warning-color);
+      }
+
+      .check_not_applicable {
+        color: var(--not_applicable-color);
+        fill: var(--not_applicable-color);
+      }
+
+      .check_skipped {
+        color: var(--not_applicable-color);
+        fill: var(--not_applicable-color);
+      }
+
+      /* CODE SNIPPET STYLES */
+
+      .code-snippet {
+        border: 1px solid #333;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        margin-left: 25px;
+      }
+
+      .code-header {
+        background-color: #333;
+        padding: 5px 10px;
+        border-bottom: 1px solid #444;
+      }
+
+      .file-name {
+        color: #ccc;
+      }
+
+      .code-block {
+        margin: 0;
+        white-space: pre;
+        padding: 5px 0 5px 5px;
+        text-wrap: wrap;
+        word-break: keep-all;
+      }
+
+      .code-block code {
+        display: flex;
+      }
+
+      .line-number {
+        display: block;
+        width: 50px;
+        color: #555;
+        margin-right: 5px;
+      }
+    </style>"""
+
+
+def generate_splunk_logo() -> str:
+    """Generate Splunk logo SVG."""
+    return """<svg xmlns="http://www.w3.org/2000/svg" class="logo" width="122" height="36" viewBox="0 0 122 36">
+          <path d="M12.9281 21.8019C12.9281 22.6038 12.7585 23.3491 12.4193 24.0377C12.0801 24.717 11.5995 25.3019 10.9964 25.7736C10.3839 26.2547 9.65838 26.6226 8.81975 26.8868C7.98112 27.1509 7.05769 27.283 6.05887 27.283C4.86218 27.283 3.78798 27.1226 2.8457 26.7925C1.90342 26.4717 0.951704 25.9245 0 25.1698L1.57362 22.6132C2.32744 23.2453 3.00588 23.7076 3.61836 24C4.22142 24.2925 4.84333 24.434 5.48408 24.434C6.26618 24.434 6.88808 24.2358 7.36865 23.8302C7.84921 23.4245 8.07536 22.8868 8.07536 22.1981C8.07536 21.9057 8.02824 21.6321 7.94344 21.3774C7.85863 21.1226 7.69844 20.8585 7.4723 20.5849C7.24615 20.3208 6.92578 20.0189 6.52059 19.7076C6.12484 19.3962 5.60658 19 4.96583 18.5377C4.48527 18.1981 4.00469 17.8396 3.54298 17.4811C3.08126 17.1132 2.66666 16.7264 2.28033 16.3113C1.90342 15.8962 1.60188 15.434 1.36631 14.9151C1.14016 14.4057 1.01767 13.8113 1.01767 13.1604C1.01767 12.4057 1.17786 11.7075 1.48881 11.0849C1.79976 10.4623 2.23321 9.93396 2.77973 9.49056C3.32625 9.04717 3.97643 8.70754 4.7491 8.46226C5.51235 8.21698 6.34156 8.09435 7.24615 8.09435C8.19785 8.09435 9.11186 8.21699 9.9976 8.4717C10.8833 8.72642 11.7031 9.09434 12.4664 9.5849L11.0435 11.8868C10.073 11.2075 9.0459 10.8585 7.9717 10.8585C7.32152 10.8585 6.77501 11.0283 6.35098 11.3679C5.92695 11.7075 5.71022 12.1321 5.71022 12.6509C5.71022 13.1415 5.89868 13.5849 6.27559 13.9717C6.6525 14.3679 7.30269 14.9057 8.22612 15.6226C9.15898 16.3019 9.93165 16.9057 10.5347 17.4151C11.1472 17.9245 11.6278 18.4151 11.9858 18.8679C12.3439 19.3208 12.5795 19.7736 12.7208 20.2453C12.8621 20.7264 12.9281 21.2358 12.9281 21.8019ZM29.0882 17.4906C29.0882 18.1981 29.0128 18.9623 28.8621 19.783C28.7207 20.6038 28.4663 21.3585 28.1083 22.0566C27.7502 22.7547 27.2885 23.3302 26.7137 23.7736C26.1389 24.2264 25.4039 24.4528 24.5276 24.4528C23.0576 24.4528 21.8986 23.8679 21.0506 22.6887C20.2025 21.5189 19.7785 19.9057 19.7785 17.8585C19.7785 15.7547 20.2025 14.0943 21.0694 12.8585C21.9269 11.6226 23.0953 11.0094 24.5653 11.0094C25.9599 11.0094 27.0623 11.5943 27.8727 12.7453C28.6831 13.9057 29.0882 15.4906 29.0882 17.4906ZM34.1954 17.3113C34.1954 15.9434 33.9975 14.6981 33.6112 13.5849C33.2154 12.4623 32.6689 11.5 31.9433 10.6887C31.2178 9.87736 30.3697 9.25472 29.3803 8.80189C28.3909 8.34906 27.2979 8.12264 26.1012 8.12264C24.782 8.12264 23.623 8.37736 22.6242 8.86793C21.6254 9.36793 20.6925 10.1509 19.8444 11.2264L19.8162 8.5566H15.1142V36H19.8068V24.4057C20.2685 24.9434 20.7113 25.3962 21.1448 25.7642C21.5688 26.1321 22.0023 26.434 22.4452 26.6604C22.888 26.8868 23.3497 27.0566 23.8397 27.151C24.3297 27.2453 24.8574 27.2925 25.4133 27.2925C26.6571 27.2925 27.8256 27.0377 28.8998 26.5472C29.974 26.0472 30.9068 25.3491 31.6889 24.4434C32.471 23.5377 33.0835 22.4811 33.5264 21.283C33.9787 20.0755 34.1954 18.7453 34.1954 17.3113ZM36.2873 26.8491H41.1117V0H36.2873V26.8491ZM61.6912 26.8585V8.53774H56.8667V18.3962C56.8667 19.2736 56.829 19.9528 56.7536 20.434C56.6782 20.9151 56.5557 21.3396 56.3861 21.7359C55.7077 23.2453 54.4544 24.0094 52.6358 24.0094C51.213 24.0094 50.2236 23.5 49.6582 22.4717C49.4321 22.0849 49.2813 21.6415 49.1965 21.1509C49.1117 20.6604 49.0646 19.9528 49.0646 19.0189V8.53774H44.2401V18.9434C44.2401 19.6509 44.2495 20.2547 44.259 20.7359C44.2684 21.217 44.3061 21.6604 44.3532 22.0377C44.4003 22.4151 44.4568 22.7547 44.5228 23.0472C44.5793 23.3396 44.6736 23.6226 44.7961 23.8868C45.2389 25.0094 45.9456 25.8585 46.935 26.434C47.9244 27.0094 49.14 27.2925 50.5723 27.2925C51.8632 27.2925 53.0033 27.066 53.9833 26.6132C54.9633 26.1604 55.915 25.4245 56.8384 24.3962L56.8478 26.8491L61.6912 26.8585ZM82.4779 26.8491V16.4623C82.4779 15.7547 82.4685 15.1509 82.459 14.6509C82.4496 14.1509 82.4214 13.717 82.3648 13.3491C82.3177 12.9811 82.2518 12.6604 82.1858 12.3868C82.1104 12.1038 82.0256 11.8302 81.9314 11.566C81.4885 10.4717 80.7818 9.62264 79.7924 9.0283C78.803 8.43396 77.5874 8.13207 76.1458 8.13207C74.8548 8.13207 73.7147 8.35849 72.7347 8.81132C71.7547 9.26415 70.803 10.0094 69.8796 11.0283L69.8702 8.57547H65.0174V26.8585H69.8796V16.9906C69.8796 16.1415 69.9079 15.4717 69.9738 15C70.0303 14.5283 70.1529 14.0849 70.3225 13.6604C70.6334 12.9245 71.1234 12.3774 71.7736 12C72.4238 11.6226 73.1964 11.434 74.101 11.434C75.5239 11.434 76.5133 11.9434 77.0786 12.9717C77.2954 13.3585 77.4461 13.8019 77.5309 14.283C77.6157 14.7642 77.6628 15.4811 77.6628 16.4057V26.8396L82.4779 26.8491ZM102.435 25.6415L95.0856 16.5L101.295 9.83963L97.6392 8.26415L91.1751 15.7641H90.6663V0H85.8041V26.8491H90.6663V17.1226L97.9407 27.217L102.435 25.6415ZM121.225 19.0755V16.0849L106.61 8.74528V12.0377L117.936 17.5566L106.61 23.1509V26.3679L121.225 19.0755ZM108.023 4C107.128 4 106.402 4.73585 106.402 5.64151C106.402 6.56604 107.128 7.29246 108.023 7.29246C108.928 7.29246 109.644 6.56604 109.644 5.64151C109.644 4.72642 108.928 4 108.023 4ZM108.033 4.25471C108.758 4.25471 109.342 4.87736 109.342 5.65095C109.342 6.42453 108.758 7.04717 108.033 7.03773C107.298 7.03773 106.713 6.42453 106.713 5.64151C106.713 4.87736 107.298 4.25471 108.033 4.25471ZM107.722 5.81132H107.919C108.155 5.81132 108.268 5.89623 108.315 6.13208C108.353 6.37736 108.4 6.53774 108.438 6.59434H108.749C108.72 6.53774 108.673 6.42453 108.636 6.14151C108.598 5.86792 108.494 5.72642 108.325 5.69812V5.67924C108.523 5.62264 108.683 5.4717 108.683 5.23585C108.683 5.06604 108.626 4.93396 108.513 4.85849C108.4 4.77359 108.221 4.71698 107.948 4.71698C107.731 4.71698 107.58 4.73585 107.43 4.76415V6.59434H107.722V5.81132ZM107.722 4.96226C107.769 4.95283 107.835 4.9434 107.929 4.9434C108.259 4.9434 108.372 5.10378 108.372 5.26416C108.372 5.49057 108.164 5.57547 107.929 5.57547H107.722V4.96226Z" fill="#B5B5B5"/>
+        </svg>"""
+
+
+def generate_check_messages_html(messages: list[dict]) -> str:
+    """Generate HTML for check messages."""
+    if not messages:
+        return ""
+
+    html_parts = []
+    for msg in messages:
+        message_text = escape_html(msg.get("message", ""))
+        filename = msg.get("message_filename", "None")
+        line = msg.get("message_line")
+
+        if filename != "None" and line:
+            html_parts.append('<div class="code-snippet">')
+            html_parts.append('  <div class="code-header">')
+            html_parts.append(f'    <span class="file-name">{escape_html(filename)}:{line}</span>')
+            html_parts.append("  </div>")
+            html_parts.append(f'  <pre class="code-block"><code>{message_text}</code></pre>')
+            html_parts.append("</div>")
+        else:
+            html_parts.append(f"<p>{message_text}</p>")
+
+    return "\n".join(html_parts)
+
+
+def generate_checks_table_html(checks: list[dict]) -> str:
+    """Generate HTML table for checks."""
+    html_parts = []
+    html_parts.append("<table>")
+    html_parts.append("  <thead>")
+    html_parts.append("    <tr>")
+    html_parts.append("      <th>Check Name</th>")
+    html_parts.append("      <th>Result</th>")
+    html_parts.append("    </tr>")
+    html_parts.append("  </thead>")
+    html_parts.append("  <tbody>")
+
+    for check in checks:
+        name = escape_html(check.get("name", ""))
+        description = escape_html(check.get("description", ""))
+        result = check.get("result", "")
+        messages = check.get("messages", [])
+
+        icon = get_status_icon(result)
+
+        html_parts.append("    <tr>")
+        html_parts.append("      <td>")
+        html_parts.append('        <div class="header-cont">')
+        html_parts.append(f'          <h5 class="heading h5 skip-bottom-margin">{name}</h5>')
+        html_parts.append("        </div>")
+        html_parts.append(f"        <p>{description}</p>")
+
+        if messages:
+            html_parts.append(generate_check_messages_html(messages))
+
+        html_parts.append("      </td>")
+        html_parts.append("      <td>")
+        html_parts.append(f'        <div class="check_cont check_{result}">')
+        html_parts.append(f"          {icon}")
+        html_parts.append(f"          <span>{result}</span>")
+        html_parts.append("        </div>")
+        html_parts.append("      </td>")
+        html_parts.append("    </tr>")
+
+    html_parts.append("  </tbody>")
+    html_parts.append("</table>")
+
+    return "\n".join(html_parts)
+
+
+def convert_json_to_html(json_data: dict[str, Any]) -> str:
+    """
+    Convert Splunk app-inspect JSON report to HTML format.
+
+    Args:
+        json_data: Dictionary containing the app-inspect report data
+
+    Returns:
+        HTML string representation of the report
+    """
+    if not json_data.get("reports"):
+        raise ValueError("Invalid JSON data: missing 'reports' field")
+
+    report = json_data["reports"][0]
+
+    # Extract report metadata
+    app_name = escape_html(report.get("app_name", ""))
+    app_description = escape_html(report.get("app_description", ""))
+    app_author = escape_html(report.get("app_author", ""))
+    app_version = escape_html(report.get("app_version", ""))
+    app_hash = escape_html(report.get("app_hash", ""))
+    request_id = escape_html(json_data.get("request_id") or "N/A")
+
+    # Extract run parameters
+    run_params = report.get("run_parameters", {})
+    appinspect_version = escape_html(run_params.get("appinspect_version", ""))
+
+    # Extract metrics
+    metrics = report.get("metrics", {})
+    execution_time = int(float(metrics.get("execution_time", 0)))
+    run_time = datetime.now().isoformat()
+
+    # Extract summary
+    summary = report.get("summary", {})
+
+    # Build HTML
+    html_parts = []
+    html_parts.append("<!DOCTYPE html>")
+    html_parts.append('<html lang="en">')
+    html_parts.append("  <head>")
+    html_parts.append('    <meta charset="utf-8" />')
+    html_parts.append(generate_css())
+    html_parts.append(f"    <title>App Validation Report - {app_name}</title>")
+    html_parts.append("  </head>")
+    html_parts.append("  <body>")
+    html_parts.append('    <div class="container">')
+
+    # Logo
+    html_parts.append('      <nav class="card">')
+    html_parts.append("        " + generate_splunk_logo())
+    html_parts.append("      </nav>")
+
+    # App Info Card
+    html_parts.append('      <div class="card">')
+    html_parts.append(f'        <h1 class="heading h1">{app_name}</h1>')
+    html_parts.append(f'        <h2 class="heading h2">{app_description}</h2>')
+    html_parts.append('        <div class="divider"></div>')
+    html_parts.append("        <table>")
+    html_parts.append("          <tr>")
+    html_parts.append("            <th>Author</th>")
+    html_parts.append(f"            <td>{app_author}</td>")
+    html_parts.append("          </tr>")
+
+    # Get all unique tags from groups
+    all_tags = set()
+    for group in report.get("groups", []):
+        for check in group.get("checks", []):
+            all_tags.update(check.get("tags", []))
+
+    if all_tags:
+        html_parts.append("          <tr>")
+        html_parts.append("            <th>Tags</th>")
+        html_parts.append(f"            <td>{', '.join(sorted(all_tags))}</td>")
+        html_parts.append("          </tr>")
+
+    html_parts.append("          <tr>")
+    html_parts.append("            <th>Version</th>")
+    html_parts.append(f"            <td>{app_version}</td>")
+    html_parts.append("          </tr>")
+    html_parts.append("          <tr>")
+    html_parts.append("            <th>Hash</th>")
+    html_parts.append(f"            <td>{app_hash}</td>")
+    html_parts.append("          </tr>")
+    html_parts.append("          <tr>")
+    html_parts.append("            <th>AppInspect Request ID</th>")
+    html_parts.append(f"            <td>{request_id}</td>")
+    html_parts.append("          </tr>")
+    html_parts.append("          <tr>")
+    html_parts.append("            <th>Run Time</th>")
+    html_parts.append(f"            <td>{run_time}</td>")
+    html_parts.append("          </tr>")
+    html_parts.append("          <tr>")
+    html_parts.append("            <th>Execution Time</th>")
+    html_parts.append(f"            <td>{execution_time}</td>")
+    html_parts.append("          </tr>")
+    html_parts.append("        </table>")
+    html_parts.append("      </div>")
+
+    # Run Parameters Card
+    html_parts.append('      <div class="card">')
+    html_parts.append('        <h2 class="heading h2">Run parameters:</h2>')
+    html_parts.append('        <div class="divider"></div>')
+    html_parts.append('        <table class="table">')
+    html_parts.append("          <thead>")
+    html_parts.append("            <tr>")
+    html_parts.append("              <th>Field</th>")
+    html_parts.append("              <th>Value</th>")
+    html_parts.append("            </tr>")
+    html_parts.append("          </thead>")
+    html_parts.append("          <tbody>")
+    html_parts.append("            <tr>")
+    html_parts.append("              <td>AppInspect Version</td>")
+    html_parts.append(f"              <td>{appinspect_version}</td>")
+    html_parts.append("            </tr>")
+    html_parts.append("          </tbody>")
+    html_parts.append("        </table>")
+    html_parts.append("      </div>")
+
+    # Summary Card
+    html_parts.append('      <div class="card">')
+    html_parts.append('        <h2 class="heading h2">Summary:</h2>')
+    html_parts.append('        <div class="divider"></div>')
+    html_parts.append('        <table class="table">')
+    html_parts.append("          <thead>")
+    html_parts.append("            <tr>")
+    html_parts.append("              <th>Result</th>")
+    html_parts.append("              <th>Count</th>")
+    html_parts.append("            </tr>")
+    html_parts.append("          </thead>")
+    html_parts.append("          <tbody>")
+
+    for status in ["success", "failure", "error", "warning", "not_applicable", "skipped"]:
+        count = summary.get(status, 0)
+        icon = get_status_icon(status)
+        html_parts.append("            <tr>")
+        html_parts.append("              <td>")
+        html_parts.append(f'                <div class="check_cont check_{status}">')
+        html_parts.append(f"                  {icon}")
+        html_parts.append(f"                  <span>{status}</span>")
+        html_parts.append("                </div>")
+        html_parts.append("              </td>")
+        html_parts.append(f"              <td>{count}</td>")
+        html_parts.append("            </tr>")
+
+    html_parts.append("          </tbody>")
+    html_parts.append("        </table>")
+    html_parts.append("      </div>")
+
+    # Groups and Checks
+    for group in report.get("groups", []):
+        group_name = escape_html(group.get("name", ""))
+        group_description = escape_html(group.get("description", ""))
+        checks = group.get("checks", [])
+
+        html_parts.append('      <div class="card">')
+        html_parts.append(f'        <h3 class="heading h3">{group_name}</h3>')
+        html_parts.append(f"        <p>{group_description}</p>")
+        html_parts.append('        <div class="divider"></div>')
+        html_parts.append(generate_checks_table_html(checks))
+        html_parts.append("      </div>")
+
+    html_parts.append("    </div>")
+    html_parts.append("  </body>")
+    html_parts.append("</html>")
+
+    return "\n".join(html_parts)
+
+
+def convert_json_file_to_html_file(json_file_path: str, html_file_path: str) -> None:
+    """
+    Convert a JSON app-inspect report file to an HTML file.
+
+    Args:
+        json_file_path: Path to the input JSON file
+        html_file_path: Path to the output HTML file
+    """
+    # Read JSON file
+    with open(json_file_path, encoding="utf-8") as f:
+        json_data = json.load(f)
+
+    # Convert to HTML
+    html_content = convert_json_to_html(json_data)
+
+    # Write HTML file
+    with open(html_file_path, "w", encoding="utf-8") as f:
+        f.write(html_content)
+
+
+if __name__ == "__main__":
+    # Example usage
+    import sys
+
+    if len(sys.argv) != 3:
+        print("Usage: python json_to_html_converter.py <input_json_file> <output_html_file>")
+        sys.exit(1)
+
+    input_file = sys.argv[1]
+    output_file = sys.argv[2]
+
+    try:
+        convert_json_file_to_html_file(input_file, output_file)
+        print(f"Successfully converted {input_file} to {output_file}")
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)
