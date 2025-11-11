@@ -184,27 +184,32 @@ Error: Multiple build features detected: UCC-Gen, Python-Dependency-Management
   - Splunk Python SDK utility (`app_utilities: splunk_python_sdk`)
 - Remove or disable the conflicting features from your workflow
 
-### SARIF Publishing Issues
+### AppInspect Annotations
 
-#### Code Scanning Not Enabled
+#### Annotations Not Appearing
 ```
-Failed to upload SARIF: Code scanning is not enabled for this repository
+AppInspect completed but no annotations visible in PR
 ```
 
-**Solution:**
-1. Go to repository `Settings` > `Security` > `Code security and analysis`
-2. Enable "Code scanning"
-3. Or ensure you have a CodeQL workflow configured
-
-#### Invalid SARIF Format
-```
-SARIF upload failed: Invalid SARIF file format
-```
+**Root Cause:** Annotations only appear for files that changed in the PR, or when running on push/pull_request events.
 
 **Solution:**
-- This is usually an internal issue with SARIF generation
-- Report the issue on the GitHub repository with your workflow logs
-- As a workaround, disable SARIF publishing: `publish_sarif: false`
+- Annotations only show up for **files modified in the current PR or push**
+- They won't appear on files that haven't changed
+- Make sure the workflow runs on `pull_request` or `push` events:
+```yaml
+on: [push, pull_request]
+```
+- Check the "Files changed" tab in your PR to see if annotations appear on modified files
+- Review the workflow logs to confirm annotations were published
+- Check the "Checks" tab for the "App-Inspect Check" summary
+
+#### Understanding Annotation vs Check Runs
+AppInspect results appear in two places:
+1. **GitHub Annotations** - Inline comments on changed files showing errors/warnings at specific lines
+2. **Check Runs** - Summary view in the PR "Checks" tab with overall status and error counts
+
+Both are automatically published when AppInspect runs. Annotations require file locations in the AppInspect report to appear inline.
 
 ## Getting Help
 

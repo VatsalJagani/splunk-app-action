@@ -60,13 +60,6 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 - **Default:** false
 - **Note:** While local validation is faster, the Splunkbase API is recommended for production use as it reflects the most current validation rules used when submitting to Splunkbase.
 
-### `publish_sarif`
-- **Description:** Publish AppInspect results as SARIF (Static Analysis Results Interchange Format) for GitHub Code Scanning. Enables inline code annotations and security insights in Pull Requests.
-- **Required:** false
-- **Default:** false
-- **Note:** Requires GitHub Code Scanning to be enabled. SARIF reports are generated from AppInspect JSON results and uploaded automatically.
-- **Example:** `true`
-
 ### `fail_on`
 - **Description:** Control when the action should fail based on AppInspect results.
 - **Required:** false

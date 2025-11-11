@@ -208,7 +208,9 @@ def main() -> None:
                 if local_app_inspect:
                     # Use local app inspect with splunk-appinspect library
                     gat.info("Using local Splunk app inspect validation")
-                    inspect_obj_local = SplunkLocalAppInspect(saved_paths, app_info, build_path)
+                    inspect_obj_local = SplunkLocalAppInspect(
+                        saved_paths, app_info, build_path, use_ucc_gen
+                    )
                     inspect_obj_local.run_all_checks()
                     # Get statuses from the object
                     app_inspect_status = inspect_obj_local.app_inspect_result[0]
@@ -238,6 +240,7 @@ def main() -> None:
                             build_path,
                             splunkbase_username,
                             splunkbase_password,
+                            use_ucc_gen,
                         )
                         inspect_obj.run_all_checks()
                         # Get statuses from the object

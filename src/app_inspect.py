@@ -1,53 +1,36 @@
-# pyright: reportUnknownArgumentType=false
-# pyright: reportUnknownMemberType=false
 import json
 import os
 import shutil
 import subprocess
 import traceback
+from abc import ABC, abstractmethod
 from threading import Thread
 from time import sleep
-from typing import Any, cast
+from typing import Any, cast, override
 
 import github_action_toolkit as gat
 import requests
 from requests.auth import HTTPBasicAuth
 
+import helpers.annotation_publisher as annotation_publisher
 import helpers.check_run_publisher as check_run_publisher
-import helpers.sarif_converter as sarif_converter
 from helpers.saved_values import AppInfo, SavedPaths
 
 TIMEOUT_MAX = 240
 
 
-class SplunkAppInspect:
-    LOGIN_URL: str = "https://api.splunk.com/2.0/rest/login/splunk"
-    BASE_URL: str = "https://appinspect.splunk.com/v1/app"
-    SUBMIT_URL: str = f"{BASE_URL}/validate"
-    STATUS_CHECK_URL: str = f"{BASE_URL}/validate/status"
-    HTML_RESPONSE_URL: str = f"{BASE_URL}/report"
+class BaseAppInspect(ABC):
+    """Base class for app inspect functionality with common post-processing methods."""
 
     def __init__(
         self,
         saved_paths: SavedPaths,
         app_info: AppInfo,
         app_build_path: str,
-        splunkbase_username: str,
-        splunkbase_password: str,
+        use_ucc_gen: bool = False,
     ) -> None:
-        self.splunkbase_username: str = splunkbase_username
-        self.splunkbase_password: str = splunkbase_password
-
-        if not self.splunkbase_username:
-            msg = "splunkbase_username input is not provided."
-            gat.error(msg)
-            raise Exception(msg)
-
-        if not self.splunkbase_password:
-            msg = "splunkbase_password input is not provided."
-            gat.error(msg)
-            raise Exception(msg)
-
+        self.saved_paths: SavedPaths = saved_paths
+        self.use_ucc_gen: bool = use_ucc_gen
         self.app_build_path: str = app_build_path
 
         self.report_name_prefix: str = f"{app_info.package_id}_{app_info.version_number_encoded}_{app_info.build_number_encoded}"
@@ -62,14 +45,208 @@ class SplunkAppInspect:
             gat.debug(f"No folder present nothing to be done. {e}")
         os.mkdir(self.app_inspect_report_dir)
 
-        self.headers: dict[str, str] | None = None
-        self.headers_report: dict[str, str] | None = None
         self.app_inspect_result: list[str] = ["Running", "Running", "Running"]
         # For Above  ->  app_inspect_result, cloud_inspect_result, ssai_inspect_result
 
-        self._api_login()
-
         os.chdir(saved_paths.root_dir_path)
+
+    @abstractmethod
+    def _perform_checks(self, check_type: str = "APP_INSPECT") -> str:
+        """Perform the actual app-inspect checks. Must be implemented by subclasses."""
+        pass
+
+    def _perform_app_inspect_check(self) -> None:
+        """Wrapper for app-inspect check with error handling."""
+        gat.info("Starting app-inspect checks...")
+        status = "Error"
+        try:
+            status = self._perform_checks()
+            gat.debug(f"App-inspect check completed with status: {status}")
+            gat.info("App-inspect checks completed successfully")
+        except Exception as e:
+            gat.error(f"App-inspect check failed: {e}")
+            gat.error(traceback.format_exc())
+            raise e
+        self.app_inspect_result[0] = status
+
+    def _perform_cloud_inspect_check(self) -> None:
+        """Wrapper for cloud-inspect check with error handling."""
+        gat.info("Starting cloud-inspect checks...")
+        status = "Error"
+        try:
+            status = self._perform_checks(check_type="CLOUD_INSPECT")
+            gat.debug(f"Cloud-inspect check completed with status: {status}")
+            gat.info("Cloud-inspect checks completed successfully")
+        except Exception as e:
+            gat.error(f"Cloud-inspect check failed: {e}")
+            gat.error(traceback.format_exc())
+            raise e
+        self.app_inspect_result[1] = status
+
+    def _perform_ssai_inspect_check(self) -> None:
+        """Wrapper for SSAI-inspect check with error handling."""
+        gat.info("Starting SSAI-inspect checks...")
+        status = "Error"
+        try:
+            status = self._perform_checks(check_type="SSAI_INSPECT")
+            gat.debug(f"SSAI-inspect check completed with status: {status}")
+            gat.info("SSAI-inspect checks completed successfully")
+        except Exception as e:
+            gat.error(f"SSAI-inspect check failed: {e}")
+            gat.error(traceback.format_exc())
+            raise e
+        self.app_inspect_result[2] = status
+
+    def _publish_annotations(self) -> None:
+        """Publish AppInspect results as GitHub annotations."""
+        try:
+            gat.info("Publishing GitHub annotations from AppInspect results...")
+
+            # For UCC apps, files are in app_dir/package/
+            # For regular apps, files are in app_dir/
+            if self.use_ucc_gen:
+                if self.saved_paths.app_dir_name == ".":
+                    source_path = "package"
+                else:
+                    source_path = f"{self.saved_paths.app_dir_name}/package"
+            else:
+                source_path = self.saved_paths.app_dir_name
+
+            # Publish app-inspect annotations
+            app_json = os.path.join(
+                self.app_inspect_report_dir, f"{self.report_name_prefix}_app_inspect_check.json"
+            )
+            if os.path.exists(app_json):
+                annotation_publisher.publish_appinspect_annotations(
+                    app_json, "app-inspect", source_path
+                )
+
+            # Publish cloud-inspect annotations
+            cloud_json = os.path.join(
+                self.app_inspect_report_dir,
+                f"{self.report_name_prefix}_cloud_inspect_check.json",
+            )
+            if os.path.exists(cloud_json):
+                annotation_publisher.publish_appinspect_annotations(
+                    cloud_json, "cloud-inspect", source_path
+                )
+
+            # Publish SSAI-inspect annotations
+            ssai_json = os.path.join(
+                self.app_inspect_report_dir, f"{self.report_name_prefix}_ssai_inspect_check.json"
+            )
+            if os.path.exists(ssai_json):
+                annotation_publisher.publish_appinspect_annotations(
+                    ssai_json, "ssai-inspect", source_path
+                )
+
+        except Exception as e:
+            gat.warning(f"Failed to publish annotations: {e}")
+            gat.debug(traceback.format_exc())
+            # Don't fail the whole run if annotation publishing fails
+
+    def _publish_check_runs(self) -> None:
+        """Publish GitHub Check Runs for AppInspect results."""
+        try:
+            gat.info("Publishing GitHub Check Runs for AppInspect results...")
+            check_run_publisher.publish_appinspect_check_runs(
+                app_inspect_status=self.app_inspect_result[0],
+                cloud_inspect_status=self.app_inspect_result[1],
+                ssai_inspect_status=self.app_inspect_result[2],
+                report_dir=self.app_inspect_report_dir,
+            )
+        except Exception as e:
+            gat.warning(f"Failed to publish check runs: {e}")
+            gat.debug(traceback.format_exc())
+            # Don't fail the whole run if check run publishing fails
+
+    def run_all_checks(self) -> None:
+        """Run all app-inspect checks in parallel and handle post-processing."""
+        inspect_type = self.__class__.__name__.replace("Splunk", "").replace("AppInspect", "")
+        with gat.group(f"✅ Running {inspect_type} Splunk app inspect checks"):
+            gat.debug(
+                f"Launching {inspect_type} Splunk app-inspect, cloud-inspect, and SSAI-inspect checks in parallel."
+            )
+
+            thread_app_inspect = Thread(target=self._perform_app_inspect_check)
+            thread_app_inspect.start()
+
+            thread_cloud_inspect = Thread(target=self._perform_cloud_inspect_check)
+            thread_cloud_inspect.start()
+
+            thread_ssai_inspect = Thread(target=self._perform_ssai_inspect_check)
+            thread_ssai_inspect.start()
+
+            # wait for all threads to complete
+            gat.debug(f"Waiting for all {inspect_type} inspect check threads to complete...")
+            thread_app_inspect.join()
+            thread_cloud_inspect.join()
+            thread_ssai_inspect.join()
+
+            # Evaluate results
+            gat.debug(
+                f"{inspect_type} inspect results - app:{self.app_inspect_result[0]}, cloud:{self.app_inspect_result[1]}, ssai:{self.app_inspect_result[2]}"
+            )
+
+            # Set output variables for inspect statuses
+            gat.set_output("app_inspect_status", self.app_inspect_result[0])
+            gat.set_output("cloud_inspect_status", self.app_inspect_result[1])
+            gat.set_output("ssai_inspect_status", self.app_inspect_result[2])
+
+            # Publish annotations from AppInspect results
+            self._publish_annotations()
+
+            # Publish check runs
+            self._publish_check_runs()
+
+            if all(i == "Passed" for i in self.app_inspect_result):
+                gat.info(
+                    f"All {inspect_type} Splunk app inspect checks completed successfully - all checks passed"
+                )
+            else:
+                msg = f"{inspect_type} Splunk app inspect checks failed - results: [app-inspect: {self.app_inspect_result[0]}, cloud-checks: {self.app_inspect_result[1]}, ssai-checks: {self.app_inspect_result[2]}]"
+                gat.error(msg)
+                raise Exception(msg)
+
+
+class SplunkAppInspect(BaseAppInspect):
+    """API-based app inspect using Splunkbase API."""
+
+    LOGIN_URL: str = "https://api.splunk.com/2.0/rest/login/splunk"
+    BASE_URL: str = "https://appinspect.splunk.com/v1/app"
+    SUBMIT_URL: str = f"{BASE_URL}/validate"
+    STATUS_CHECK_URL: str = f"{BASE_URL}/validate/status"
+    JSON_RESPONSE_URL: str = f"{BASE_URL}/report"
+    HTML_RESPONSE_URL: str = f"{BASE_URL}/report"
+
+    def __init__(
+        self,
+        saved_paths: SavedPaths,
+        app_info: AppInfo,
+        app_build_path: str,
+        splunkbase_username: str,
+        splunkbase_password: str,
+        use_ucc_gen: bool = False,
+    ) -> None:
+        super().__init__(saved_paths, app_info, app_build_path, use_ucc_gen)
+
+        self.splunkbase_username: str = splunkbase_username
+        self.splunkbase_password: str = splunkbase_password
+
+        if not self.splunkbase_username:
+            msg = "splunkbase_username input is not provided."
+            gat.error(msg)
+            raise Exception(msg)
+
+        if not self.splunkbase_password:
+            msg = "splunkbase_password input is not provided."
+            gat.error(msg)
+            raise Exception(msg)
+
+        self.headers: dict[str, str] | None = None
+        self.headers_report: dict[str, str] | None = None
+
+        self._api_login()
 
     def _api_login(self):
         gat.info("Starting Splunkbase API authentication...")
@@ -102,24 +279,30 @@ class SplunkAppInspect:
             "Content-Type": "text/html",
         }
 
+    @override
     def _perform_checks(self, check_type: str = "APP_INSPECT") -> str:
         payload: dict[str, str] = {}
-        report_file_name: str
+        json_report_file_name: str
+        html_report_file_name: str
 
         if check_type == "APP_INSPECT":
             payload = {}
-            report_file_name = f"{self.report_name_prefix}_app_inspect_check.html"
+            json_report_file_name = f"{self.report_name_prefix}_app_inspect_check.json"
+            html_report_file_name = f"{self.report_name_prefix}_app_inspect_check.html"
 
         elif check_type == "CLOUD_INSPECT":
             payload = {"included_tags": "cloud"}
-            report_file_name = f"{self.report_name_prefix}_cloud_inspect_check.html"
+            json_report_file_name = f"{self.report_name_prefix}_cloud_inspect_check.json"
+            html_report_file_name = f"{self.report_name_prefix}_cloud_inspect_check.html"
 
         elif check_type == "SSAI_INSPECT":
             payload = {"included_tags": "self-service"}
-            report_file_name = f"{self.report_name_prefix}_ssai_inspect_check.html"
+            json_report_file_name = f"{self.report_name_prefix}_ssai_inspect_check.json"
+            html_report_file_name = f"{self.report_name_prefix}_ssai_inspect_check.html"
 
         else:
-            report_file_name = f"{self.report_name_prefix}_default_check.html"
+            json_report_file_name = f"{self.report_name_prefix}_default_check.json"
+            html_report_file_name = f"{self.report_name_prefix}_default_check.html"
 
         app_build_f = open(self.app_build_path, "rb")
         app_build_f.seek(0)
@@ -202,108 +385,51 @@ class SplunkAppInspect:
         else:
             return "Timed-out"
 
-        # HTML Report retrieve
-        gat.info(f"Html report generating for check_type={check_type}")
-        response = requests.request(
+        # First, fetch JSON Report
+        gat.info(f"Fetching JSON report for check_type={check_type}")
+
+        # Prepare headers for JSON request
+        json_headers = dict(self.headers_report) if self.headers_report else {}
+        json_headers["Content-Type"] = "application/json"
+
+        json_response = requests.request(
             "GET",
-            f"{self.HTML_RESPONSE_URL}/{request_id}",
-            headers=self.headers_report,
+            f"{self.JSON_RESPONSE_URL}/{request_id}",
+            headers=json_headers,
             data={},
             timeout=TIMEOUT_MAX,
         )
-        if response.status_code != 200:
+        if json_response.status_code != 200:
             gat.error(
-                f"Error while requesting for app-inspect check report. check_type={check_type}, status_code={response.status_code}"
+                f"Error while requesting JSON report for app-inspect check. check_type={check_type}, status_code={json_response.status_code}"
             )
             return "Exception"
 
-        # write results into a file
-        report_file = os.path.join(self.app_inspect_report_dir, report_file_name)
-        with open(report_file, "w+") as f:
-            gat.info(f"Writing the App-inspect report in file={report_file}")
-            f.write(response.text)
+        # Save JSON report to file
+        json_report_file = os.path.join(self.app_inspect_report_dir, json_report_file_name)
+        with open(json_report_file, "w+") as f:
+            gat.info(f"Writing the App-inspect JSON report in file={json_report_file}")
+            f.write(json_response.text)
+
+        # Convert JSON to HTML using the converter module
+        gat.info(f"Converting JSON report to HTML for check_type={check_type}")
+        html_report_file = os.path.join(self.app_inspect_report_dir, html_report_file_name)
+
+        try:
+            from helpers.splunk_app_inspect_report_json_to_html_converter import (
+                convert_json_file_to_html_file,
+            )
+
+            convert_json_file_to_html_file(json_report_file, html_report_file)
+            gat.info(f"HTML report generated successfully: {html_report_file}")
+        except Exception as e:
+            gat.warning(f"Could not convert JSON report to HTML: {e}")
+            gat.debug(traceback.format_exc())
 
         return status
 
-    def _perform_app_inspect_check(self) -> None:
-        gat.info("Starting app-inspect checks...")
-        status = "Error"
-        try:
-            status = self._perform_checks()
-            gat.debug(f"App-inspect check completed with status: {status}")
-            gat.info("App-inspect checks completed successfully")
-        except Exception as e:
-            gat.error(f"App-inspect check failed: {e}")
-            gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[0] = status
 
-    def _perform_cloud_inspect_check(self) -> None:
-        gat.info("Starting cloud-inspect checks...")
-        status = "Error"
-        try:
-            status = self._perform_checks(check_type="CLOUD_INSPECT")
-            gat.debug(f"Cloud-inspect check completed with status: {status}")
-            gat.info("Cloud-inspect checks completed successfully")
-        except Exception as e:
-            gat.error(f"Cloud-inspect check failed: {e}")
-            gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[1] = status
-
-    def _perform_ssai_inspect_check(self) -> None:
-        gat.info("Starting SSAI-inspect checks...")
-        status = "Error"
-        try:
-            status = self._perform_checks(check_type="SSAI_INSPECT")
-            gat.debug(f"SSAI-inspect check completed with status: {status}")
-            gat.info("SSAI-inspect checks completed successfully")
-        except Exception as e:
-            gat.error(f"SSAI-inspect check failed: {e}")
-            gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[2] = status
-
-    def run_all_checks(self) -> None:
-        with gat.group("✅ Running Splunk app inspect checks"):
-            gat.debug(
-                "Launching Splunk app-inspect, cloud-inspect, and SSAI-inspect checks in parallel."
-            )
-
-            thread_app_inspect = Thread(target=self._perform_app_inspect_check)
-            thread_app_inspect.start()
-
-            thread_cloud_inspect = Thread(target=self._perform_cloud_inspect_check)
-            thread_cloud_inspect.start()
-
-            thread_ssai_inspect = Thread(target=self._perform_ssai_inspect_check)
-            thread_ssai_inspect.start()
-
-            # wait for all threads to complete
-            gat.debug("Waiting for all inspect check threads to complete...")
-            thread_app_inspect.join()
-            thread_cloud_inspect.join()
-            thread_ssai_inspect.join()
-
-            # Evaluate results
-            gat.debug(
-                f"Inspect results - app:{self.app_inspect_result[0]}, cloud:{self.app_inspect_result[1]}, ssai:{self.app_inspect_result[2]}"
-            )
-
-            # Set output variables for inspect statuses
-            gat.set_output("app_inspect_status", self.app_inspect_result[0])
-            gat.set_output("cloud_inspect_status", self.app_inspect_result[1])
-            gat.set_output("ssai_inspect_status", self.app_inspect_result[2])
-
-            if all(i == "Passed" for i in self.app_inspect_result):
-                gat.info("All Splunk app inspect checks completed successfully - all checks passed")
-            else:
-                msg = f"Splunk app inspect checks failed - results: [app-inspect: {self.app_inspect_result[0]}, cloud-checks: {self.app_inspect_result[1]}, ssai-checks: {self.app_inspect_result[2]}]"
-                gat.error(msg)
-                raise Exception(msg)
-
-
-class SplunkLocalAppInspect:
+class SplunkLocalAppInspect(BaseAppInspect):
     """Local app inspect using the splunk-appinspect Python library"""
 
     def __init__(
@@ -311,27 +437,12 @@ class SplunkLocalAppInspect:
         saved_paths: SavedPaths,
         app_info: AppInfo,
         app_build_path: str,
+        use_ucc_gen: bool = False,
     ) -> None:
-        self.app_build_path: str = app_build_path
+        super().__init__(saved_paths, app_info, app_build_path, use_ucc_gen)
 
-        self.report_name_prefix: str = f"{app_info.package_id}_{app_info.version_number_encoded}_{app_info.build_number_encoded}"
-
-        self.app_build_filename: str = os.path.basename(app_build_path)
-        self.app_inspect_report_dir: str = f"{self.report_name_prefix}_reports"
-
-        try:
-            shutil.rmtree(self.app_inspect_report_dir)
-        except Exception as e:
-            # nothing to delete if folder not exist
-            gat.debug(f"No folder present nothing to be done. {e}")
-        os.mkdir(self.app_inspect_report_dir)
-
-        self.app_inspect_result: list[str] = ["Running", "Running", "Running"]
-        # For Above  ->  app_inspect_result, cloud_inspect_result, ssai_inspect_result
-
-        os.chdir(saved_paths.root_dir_path)
-
-    def _run_local_inspect(self, check_type: str = "APP_INSPECT") -> str:
+    @override
+    def _perform_checks(self, check_type: str = "APP_INSPECT") -> str:
         """Run local app inspect using splunk-appinspect CLI"""
         gat.info(f"Running local app inspect check (check_type={check_type})")
 
@@ -406,10 +517,20 @@ class SplunkLocalAppInspect:
                 # Narrow dynamic JSON to a typed mapping for downstream usage
                 report_data: dict[str, Any] = cast(dict[str, Any], report_data_raw)
 
-            # Generate HTML report from JSON for consistency with API-based approach
+            # Generate HTML report from JSON using the converter module
             html_report_name = report_file_name.replace(".json", ".html")
             html_report_path = os.path.join(self.app_inspect_report_dir, html_report_name)
-            self._generate_html_report(report_data, html_report_path, check_type)
+
+            try:
+                from helpers.splunk_app_inspect_report_json_to_html_converter import (
+                    convert_json_file_to_html_file,
+                )
+
+                convert_json_file_to_html_file(report_file_path, html_report_path)
+                gat.info(f"HTML report generated successfully: {html_report_path}")
+            except Exception as e:
+                gat.warning(f"Could not convert JSON report to HTML: {e}")
+                gat.debug(traceback.format_exc())
 
             # Determine status based on report summary
             summary_val = report_data.get("summary")
@@ -437,255 +558,3 @@ class SplunkLocalAppInspect:
             gat.error(f"Error running local app inspect: {e}")
             gat.error(traceback.format_exc())
             return "Exception"
-
-    def _generate_html_report(
-        self, report_data: dict[str, Any], html_path: str, check_type: str
-    ) -> None:
-        """Generate a simple HTML report from JSON data"""
-        try:
-            # Helpers to coerce dynamic JSON values to typed structures
-            def _as_dict_any(val: Any) -> dict[str, Any]:
-                return cast(dict[str, Any], val) if isinstance(val, dict) else dict[str, Any]()
-
-            def _as_list_of_dict_any(val: Any) -> list[dict[str, Any]]:
-                if isinstance(val, list):
-                    return [
-                        cast(dict[str, Any], v) for v in cast(list[Any], val) if isinstance(v, dict)
-                    ]
-                return []
-
-            summary = _as_dict_any(report_data.get("summary"))
-            reports = _as_list_of_dict_any(report_data.get("reports"))
-
-            html_content = f"""
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Splunk App Inspect Report - {check_type}</title>
-    <style>
-        body {{ font-family: Arial, sans-serif; margin: 20px; }}
-        h1 {{ color: #333; }}
-        .summary {{ background-color: #f0f0f0; padding: 15px; margin: 20px 0; border-radius: 5px; }}
-        .passed {{ color: green; }}
-        .failure {{ color: red; }}
-        .error {{ color: orange; }}
-        .warning {{ color: #ff8c00; }}
-        .manual {{ color: #666; }}
-        .not_applicable {{ color: #999; }}
-        .skipped {{ color: #ccc; }}
-        table {{ border-collapse: collapse; width: 100%; margin-top: 20px; }}
-        th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
-        th {{ background-color: #4CAF50; color: white; }}
-        tr:nth-child(even) {{ background-color: #f2f2f2; }}
-    </style>
-</head>
-<body>
-    <h1>Splunk App Inspect Report - {check_type}</h1>
-    <div class="summary">
-        <h2>Summary</h2>
-    <p><strong>Success:</strong> <span class="passed">{summary.get("success", 0)}</span></p>
-    <p><strong>Failure:</strong> <span class="failure">{summary.get("failure", 0)}</span></p>
-    <p><strong>Error:</strong> <span class="error">{summary.get("error", 0)}</span></p>
-    <p><strong>Warning:</strong> <span class="warning">{summary.get("warning", 0)}</span></p>
-    <p><strong>Manual Check:</strong> <span class="manual">{summary.get("manual_check", 0)}</span></p>
-    <p><strong>Not Applicable:</strong> <span class="not_applicable">{summary.get("not_applicable", 0)}</span></p>
-    <p><strong>Skipped:</strong> <span class="skipped">{summary.get("skipped", 0)}</span></p>
-    </div>
-"""
-
-            # Add detailed results if there are failures or errors
-            failures_and_errors = [r for r in reports if r.get("result") in ["failure", "error"]]
-            if failures_and_errors:
-                html_content += """
-    <h2>Failures and Errors</h2>
-    <table>
-        <tr>
-            <th>Check</th>
-            <th>Result</th>
-            <th>Message</th>
-        </tr>
-"""
-                for report in failures_and_errors:
-                    check_name = str(report.get("name", "Unknown"))
-                    result = str(report.get("result", "unknown"))
-                    messages = _as_list_of_dict_any(report.get("messages"))
-                    message_text = "<br>".join([str(m.get("message", "")) for m in messages])
-
-                    html_content += f"""
-        <tr>
-            <td>{check_name}</td>
-            <td class="{result}">{result.upper()}</td>
-            <td>{message_text}</td>
-        </tr>
-"""
-                html_content += "    </table>\n"
-
-            html_content += """
-</body>
-</html>
-"""
-
-            with open(html_path, "w") as f:
-                f.write(html_content)
-
-            gat.debug(f"HTML report generated: {html_path}")
-
-        except Exception as e:
-            gat.warning(f"Could not generate HTML report: {e}")
-
-    def _perform_app_inspect_check(self) -> None:
-        gat.info("Starting local app-inspect checks...")
-        status = "Error"
-        try:
-            status = self._run_local_inspect()
-            gat.debug(f"Local app-inspect check completed with status: {status}")
-            gat.info("Local app-inspect checks completed successfully")
-        except Exception as e:
-            gat.error(f"Local app-inspect check failed: {e}")
-            gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[0] = status
-
-    def _perform_cloud_inspect_check(self) -> None:
-        gat.info("Starting local cloud-inspect checks...")
-        status = "Error"
-        try:
-            status = self._run_local_inspect(check_type="CLOUD_INSPECT")
-            gat.debug(f"Local cloud-inspect check completed with status: {status}")
-            gat.info("Local cloud-inspect checks completed successfully")
-        except Exception as e:
-            gat.error(f"Local cloud-inspect check failed: {e}")
-            gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[1] = status
-
-    def _perform_ssai_inspect_check(self) -> None:
-        gat.info("Starting local SSAI-inspect checks...")
-        status = "Error"
-        try:
-            status = self._run_local_inspect(check_type="SSAI_INSPECT")
-            gat.debug(f"Local SSAI-inspect check completed with status: {status}")
-            gat.info("Local SSAI-inspect checks completed successfully")
-        except Exception as e:
-            gat.error(f"Local SSAI-inspect check failed: {e}")
-            gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[2] = status
-
-    def run_all_checks(self) -> None:
-        with gat.group("✅ Running local Splunk app inspect checks"):
-            gat.debug(
-                "Launching local Splunk app-inspect, cloud-inspect, and SSAI-inspect checks in parallel."
-            )
-
-            thread_app_inspect = Thread(target=self._perform_app_inspect_check)
-            thread_app_inspect.start()
-
-            thread_cloud_inspect = Thread(target=self._perform_cloud_inspect_check)
-            thread_cloud_inspect.start()
-
-            thread_ssai_inspect = Thread(target=self._perform_ssai_inspect_check)
-            thread_ssai_inspect.start()
-
-            # wait for all threads to complete
-            gat.debug("Waiting for all local inspect check threads to complete...")
-            thread_app_inspect.join()
-            thread_cloud_inspect.join()
-            thread_ssai_inspect.join()
-
-            # Evaluate results
-            gat.debug(
-                f"Local inspect results - app:{self.app_inspect_result[0]}, cloud:{self.app_inspect_result[1]}, ssai:{self.app_inspect_result[2]}"
-            )
-
-            # Set output variables for inspect statuses
-            gat.set_output("app_inspect_status", self.app_inspect_result[0])
-            gat.set_output("cloud_inspect_status", self.app_inspect_result[1])
-            gat.set_output("ssai_inspect_status", self.app_inspect_result[2])
-
-            # Generate SARIF reports if enabled
-            publish_sarif = gat.get_user_input_as("publish_sarif", bool, False)
-            if publish_sarif:
-                self._generate_sarif_reports()
-
-            # Publish check runs
-            self._publish_check_runs()
-
-            if all(i == "Passed" for i in self.app_inspect_result):
-                gat.info(
-                    "All local Splunk app inspect checks completed successfully - all checks passed"
-                )
-            else:
-                msg = f"Local Splunk app inspect checks failed - results: [app-inspect: {self.app_inspect_result[0]}, cloud-checks: {self.app_inspect_result[1]}, ssai-checks: {self.app_inspect_result[2]}]"
-                gat.error(msg)
-                raise Exception(msg)
-
-    def _generate_sarif_reports(self) -> None:
-        """Generate SARIF reports from JSON AppInspect results."""
-        try:
-            gat.info("Generating SARIF reports from AppInspect results...")
-
-            sarif_files = []
-
-            # Convert app-inspect report
-            app_json = os.path.join(
-                self.app_inspect_report_dir, f"{self.report_name_prefix}_app_inspect_check.json"
-            )
-            if os.path.exists(app_json):
-                app_sarif = os.path.join(
-                    self.app_inspect_report_dir,
-                    f"{self.report_name_prefix}_app_inspect_check.sarif",
-                )
-                sarif_converter.convert_appinspect_to_sarif(app_json, app_sarif, "app-inspect")
-                sarif_files.append(app_sarif)
-
-            # Convert cloud-inspect report
-            cloud_json = os.path.join(
-                self.app_inspect_report_dir,
-                f"{self.report_name_prefix}_cloud_inspect_check.json",
-            )
-            if os.path.exists(cloud_json):
-                cloud_sarif = os.path.join(
-                    self.app_inspect_report_dir,
-                    f"{self.report_name_prefix}_cloud_inspect_check.sarif",
-                )
-                sarif_converter.convert_appinspect_to_sarif(
-                    cloud_json, cloud_sarif, "cloud-inspect"
-                )
-                sarif_files.append(cloud_sarif)
-
-            # Convert SSAI-inspect report
-            ssai_json = os.path.join(
-                self.app_inspect_report_dir, f"{self.report_name_prefix}_ssai_inspect_check.json"
-            )
-            if os.path.exists(ssai_json):
-                ssai_sarif = os.path.join(
-                    self.app_inspect_report_dir,
-                    f"{self.report_name_prefix}_ssai_inspect_check.sarif",
-                )
-                sarif_converter.convert_appinspect_to_sarif(ssai_json, ssai_sarif, "ssai-inspect")
-                sarif_files.append(ssai_sarif)
-
-            # Merge all SARIF reports into one
-            if sarif_files:
-                merged_sarif = os.path.join(self.app_inspect_report_dir, "appinspect.sarif")
-                sarif_converter.merge_sarif_reports(sarif_files, merged_sarif)
-                gat.info(f"SARIF reports generated and merged: {merged_sarif}")
-
-        except Exception as e:
-            gat.warning(f"Failed to generate SARIF reports: {e}")
-            # Don't fail the whole run if SARIF generation fails
-
-    def _publish_check_runs(self) -> None:
-        """Publish GitHub Check Runs for AppInspect results."""
-        try:
-            gat.info("Publishing GitHub Check Runs for AppInspect results...")
-            check_run_publisher.publish_appinspect_check_runs(
-                app_inspect_status=self.app_inspect_result[0],
-                cloud_inspect_status=self.app_inspect_result[1],
-                ssai_inspect_status=self.app_inspect_result[2],
-                report_dir=self.app_inspect_report_dir,
-            )
-        except Exception as e:
-            gat.warning(f"Failed to publish check runs: {e}")
-            # Don't fail the whole run if check run publishing fails

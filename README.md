@@ -23,13 +23,13 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
     app_dir: "my_app"
     local_app_inspect: true
 
-# Build with SARIF code scanning for inline PR feedback
+# Build with inline code annotations for PR feedback
 - uses: VatsalJagani/splunk-app-action@v4
   with:
     app_dir: "my_app"
     local_app_inspect: true
-    publish_sarif: true
     fail_on: "errors"  # Options: errors, warnings, none
+```
 
 # UCC Add-on build
 - uses: VatsalJagani/splunk-app-action@v4
@@ -66,7 +66,7 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
 - ✅ **Action Outputs** - Provides build path, artifact name, and app metadata for workflow integration
 - ✅ **Splunkbase App-Inspect** - Runs official app-inspect, cloud-inspect, and SSAI checks  
 - ✅ **Local App-Inspect** - Fast local validation with splunk-appinspect library (no credentials needed)
-- ✅ **SARIF Code Scanning** - Publish AppInspect results as SARIF for inline PR annotations
+- ✅ **GitHub Annotations** - AppInspect results appear as inline annotations in Files Changed tab
 - ✅ **GitHub Check Runs** - Display AppInspect status with summaries and artifact links
 - ✅ **Flexible Failure Modes** - Control workflow failure based on errors, warnings, or never fail
 - ✅ **UCC Add-on Support** - Full integration with UCC Generator framework

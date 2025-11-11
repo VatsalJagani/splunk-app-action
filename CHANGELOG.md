@@ -7,6 +7,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- **GitHub Annotations Instead of SARIF** - Replaced SARIF report generation with direct GitHub annotations
+  - AppInspect failures and errors now appear as inline annotations on PR files
+  - Warnings appear as warning annotations directly in the Files Changed tab
+  - No longer requires `security-events: write` permission
+  - Simpler, more immediate feedback without uploading artifacts
+  - Removed `publish_sarif` input parameter (no longer needed)
+  - Removed SARIF file generation and upload step from action.yml
+  - Created new `annotation_publisher` helper module to publish annotations
+  - Annotations work automatically with no additional configuration required
+
+### Removed
+
+- **SARIF Support** - Removed SARIF (Static Analysis Results Interchange Format) generation and upload
+  - Removed `publish_sarif` input parameter
+  - Removed `sarif_converter` helper module
+  - Removed SARIF upload step using `github/codeql-action/upload-sarif`
+  - Removed `test_sarif_and_check_runs.py` test file
+  - Removed SARIF environment variable from action.yml
+  - Updated integration tests to remove SARIF-specific test jobs
+  - Removed requirement for `security-events: write` permission
+  - GitHub annotations provide equivalent functionality with better UX
+
+### Added
+
+- **Annotation Publisher Tests** - Comprehensive test suite for annotation publisher
+  - Tests for publishing errors, warnings, and mixed results
+  - Tests for file path handling with different `app_dir` values
+  - Tests for line number parsing and error handling
+  - 9 new tests ensuring reliable annotation publishing
+
+### Fixed
+
+- **AppInspect Artifact Upload** - Upload conditions now properly check if app-inspect is enabled
+  - App-inspect reports artifact only uploads when `is_app_inspect_check` is true
+  - Prevents unnecessary upload attempts when app-inspect is disabled
+
+### Changed
+
+- **AppInspect Architecture** - Unified behavior between API-based and local AppInspect
+  - Introduced `BaseAppInspect` abstract class for common functionality
+  - Both API and local inspection now support GitHub annotations
+  - Both API and local inspection publish GitHub Check Runs
+  - Eliminates code duplication (~200 lines) while ensuring consistent behavior
+  - Both API and local inspection now publish GitHub Check Runs
+  - Eliminates code duplication (~200 lines) while ensuring consistent behavior
+  - Both modes generate JSON → HTML → SARIF reports and publish check runs
+
+### Changed
+
+- **AppInspect Architecture** - Unified behavior between API-based and local AppInspect
+  - Introduced `BaseAppInspect` abstract class for common functionality
+  - Both API and local inspection now support SARIF report generation
+  - Both API and local inspection now publish GitHub Check Runs
+  - Eliminates code duplication (~200 lines) while ensuring consistent behavior
+  - Both modes generate JSON → HTML → SARIF reports and publish check runs
+
+- **AppInspect Report Generation** - Standardized on JSON-first approach for both API and local inspection
+  - Both API-based and local AppInspect now generate JSON reports first, then convert to HTML
+  - Uses centralized HTML converter module for consistent formatting across inspection modes
+  - Ensures JSON is the canonical report format, making it easier to process and validate results
+  - Eliminates duplicate HTML generation code (~100 lines removed)
+
+- **SARIF Publishing** - Now enabled by default
+  - Changed `publish_sarif` default value from `false` to `true`
+  - SARIF reports will automatically be generated and uploaded to GitHub Code Scanning
+  - Provides inline code annotations in Pull Requests without additional configuration
+  - Can be disabled by setting `publish_sarif: false` if not desired
+
 ### Added
 
 - **SARIF Code Scanning Support** - Publish AppInspect results for GitHub Code Scanning

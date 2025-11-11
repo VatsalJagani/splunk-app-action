@@ -58,28 +58,6 @@ jobs:
           local_app_inspect: true
 ```
 
-### Build with SARIF Code Scanning
-Enable SARIF reports for inline code annotations and GitHub Code Scanning:
-
-```yaml
-name: Build with SARIF
-on: [push, pull_request]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write  # Required for SARIF upload
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
-        with:
-          app_dir: "my_app"
-          local_app_inspect: true
-          publish_sarif: true
-```
-
 ### Informational AppInspect (Never Fail)
 Run AppInspect checks without failing the workflow:
 
@@ -97,7 +75,6 @@ jobs:
           app_dir: "my_app"
           local_app_inspect: true
           fail_on: "none"  # Never fail based on AppInspect results
-          publish_sarif: true
 ```
 
 ### Fail on Warnings
