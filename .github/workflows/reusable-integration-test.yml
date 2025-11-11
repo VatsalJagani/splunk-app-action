@@ -74,6 +74,13 @@ on:
         type: boolean
         default: false
         description: 'Continue workflow even if action fails'
+    secrets:
+      splunkbase-username:
+        required: false
+        description: 'Splunkbase username for API app-inspect'
+      splunkbase-password:
+        required: false
+        description: 'Splunkbase password for API app-inspect'
 
 jobs:
   test:
@@ -96,6 +103,8 @@ jobs:
           is_app_inspect_check: ${{ inputs.is-app-inspect-check }}
           local_app_inspect: ${{ inputs.local-app-inspect }}
           fail_on: ${{ inputs.fail-on }}
+          splunkbase_username: ${{ secrets.splunkbase-username }}
+          splunkbase_password: ${{ secrets.splunkbase-password }}
       
       - name: Validate outputs
         run: |

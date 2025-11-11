@@ -1,5 +1,21 @@
 name: Integration Tests
 
+# Integration Test Coverage:
+# ✅ Basic build generation
+# ✅ UCC Add-on Generator (use_ucc_gen)
+# ✅ Python Dependency Manager with cleanup validation
+# ✅ File/Folder Permission Management (to_make_permission_changes)
+# ✅ User Defined Commands (SPLUNK_APP_ACTION_n)
+# ✅ Local App-Inspect (local_app_inspect)
+# ✅ Splunkbase API App-Inspect (splunkbase_username/password)
+# ✅ App-Inspect fail_on modes (errors, warnings, none)
+# ✅ Multiple apps in one workflow
+# ✅ SARIF Publishing (publish_sarif)
+#
+# ⚠️ Not Tested (create PRs or require special access):
+# - App Utilities (whats_in_the_app, logger, splunk_python_sdk, etc.) - creates PRs
+# - GitHub Token (my_github_token) - requires token with repo access
+
 on:
   push:
     branches: [main, develop, integration_tests]
@@ -339,22 +355,135 @@ jobs:
       validate-cleanup: false
 
 
-  # Test 9: Local app-inspect with failing app (should fail but not crash)
-  test-local-appinspect-fail:
+  # Test 9: SARIF Publishing (app-inspect with SARIF output)
+  test-sarif-publishing:
+    name: Test SARIF Publishing
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Run splunk-app-action with SARIF publishing
+        id: build_sarif
+        uses: VatsalJagani/splunk-app-action@integration_tests
+        with:
+          app_dir: "tests/integration_test_apps/app_inspect_fail2"
+          local_app_inspect: true
+          publish_sarif: true
+      
+      - name: Verify SARIF file was generated (using helper scripts)
+        run: |
+          echo "## SARIF Publishing Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Use helper script for output validation
+          .github/scripts/validate-build-outputs.sh \
+            "app_inspect_fail2" \
+            "1.0.0" \
+            "1" \
+            "${{ steps.build_sarif.outputs.artifact_name }}" \
+            "${{ steps.build_sarif.outputs.app_package_id }}" \
+            "${{ steps.build_sarif.outputs.app_version }}" \
+            "${{ steps.build_sarif.outputs.app_build_number }}"
+          
+          # Use helper script for app-inspect validation
+          .github/scripts/validate-appinspect.sh \
+            "${{ steps.build_sarif.outputs.app_inspect_status }}" \
+            "fail" \
+            "app_inspect_fail2" \
+            "1.0.0" \
+            "1"
+          
+          # Verify SARIF file exists
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### SARIF File Validation:" >> $GITHUB_STEP_SUMMARY
+          
+          SARIF_FILE="app_inspect_fail2_1_0_0_1_appinspect.sarif"
+          if [ -f "$SARIF_FILE" ]; then
+            echo "✅ SARIF file generated: $SARIF_FILE" >> $GITHUB_STEP_SUMMARY
+            
+            # Verify it's valid JSON
+            if jq empty "$SARIF_FILE" 2>/dev/null; then
+              echo "✅ SARIF file is valid JSON" >> $GITHUB_STEP_SUMMARY
+              
+              # Check for SARIF 2.1.0 format
+              VERSION=$(jq -r '.version' "$SARIF_FILE" 2>/dev/null || echo "")
+              if [ "$VERSION" == "2.1.0" ]; then
+                echo "✅ SARIF version 2.1.0 confirmed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "⚠️ SARIF version: $VERSION (expected 2.1.0)" >> $GITHUB_STEP_SUMMARY
+              fi
+            else
+              echo "❌ SARIF file is not valid JSON" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+          else
+            echo "❌ SARIF file not found: $SARIF_FILE" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ SARIF publishing feature validated successfully!" >> $GITHUB_STEP_SUMMARY
+
+
+  # Test 10: Splunkbase API App-Inspect (Pass)
+  test-splunkbase-appinspect-pass:
+    name: Test Splunkbase API App-Inspect (Pass)
     uses: ./.github/workflows/reusable-integration-test.yml
+    secrets:
+      splunkbase-username: ${{ secrets.SPLUNKBASE_USERNAME }}
+      splunkbase-password: ${{ secrets.SPLUNKBASE_PASSWORD }}
     with:
-      test-name: "Local App-Inspect (Fail)"
+      test-name: "Splunkbase API App-Inspect (Pass)"
+      app-dir: "tests/integration_test_apps/app_inspect_pass"
+      expected-app-id: "app_inspect_pass"
+      expected-version: "1.0.0"
+      expected-build-number: "1"
+      is-app-inspect-check: true
+      expected-appinspect-result: "pass"
+
+
+  # Test 11: Splunkbase API App-Inspect (Fail)
+  test-splunkbase-appinspect-fail:
+    name: Test Splunkbase API App-Inspect (Fail)
+    uses: ./.github/workflows/reusable-integration-test.yml
+    secrets:
+      splunkbase-username: ${{ secrets.SPLUNKBASE_USERNAME }}
+      splunkbase-password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+    with:
+      test-name: "Splunkbase API App-Inspect (Fail)"
       app-dir: "tests/integration_test_apps/app_inspect_fail"
       expected-app-id: "failing_test_app"
       expected-version: "1.0.0"
       expected-build-number: "1"
-      local-app-inspect: true
+      is-app-inspect-check: true
       expected-appinspect-result: "fail"
       continue-on-error: true
-      validate-cleanup: false
 
 
-  # Test 10: App-inspect with fail_on parameter (none mode)
+  # Test 13: Local app-inspect with failing app (should fail but not crash)
+  test-local-appinspect-fail:
+    name: Test Local App-Inspect Fail
+    uses: ./.github/workflows/reusable-integration-test.yml
+    with:
+      test-name: "Local App-Inspect Fail"
+      app-dir: "tests/integration_test_apps/app_inspect_fail1"
+      expected-app-id: "failing_test_app_1"
+      expected-version: "1.0.0"
+      expected-build-number: "1"
+      expected-appinspect-result: "fail"
+      continue-on-error: true
+      local-app-inspect: true
+      is-app-inspect-check: true
+
+
+  # Test 14: App-Inspect with fail_on=none (should pass even with failures)
+
+
+  # Test 11: App-inspect with fail_on parameter (none mode)
   test-appinspect-fail-on-none:
     name: Test App-Inspect fail_on=none
     runs-on: ubuntu-latest
@@ -411,6 +540,9 @@ jobs:
       - test-user-commands
       - test-multi-app
       - test-local-appinspect-pass
+      - test-sarif-publishing
+      - test-splunkbase-appinspect-pass
+      - test-splunkbase-appinspect-fail
       - test-local-appinspect-fail
       - test-appinspect-fail-on-none
     if: always()
@@ -430,6 +562,9 @@ jobs:
           echo "- User Commands: ${{ needs.test-user-commands.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Multi-App: ${{ needs.test-multi-app.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Local App-Inspect (Pass): ${{ needs.test-local-appinspect-pass.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- SARIF Publishing: ${{ needs.test-sarif-publishing.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Splunkbase App-Inspect (Pass): ${{ needs.test-splunkbase-appinspect-pass.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Splunkbase App-Inspect (Fail): ${{ needs.test-splunkbase-appinspect-fail.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Local App-Inspect (Fail): ${{ needs.test-local-appinspect-fail.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- App-Inspect fail_on=none: ${{ needs.test-appinspect-fail-on-none.result }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -443,6 +578,9 @@ jobs:
              [ "${{ needs.test-user-commands.result }}" != "success" ] || \
              [ "${{ needs.test-multi-app.result }}" != "success" ] || \
              [ "${{ needs.test-local-appinspect-pass.result }}" != "success" ] || \
+             [ "${{ needs.test-sarif-publishing.result }}" != "success" ] || \
+             [ "${{ needs.test-splunkbase-appinspect-pass.result }}" != "success" ] || \
+             [ "${{ needs.test-splunkbase-appinspect-fail.result }}" != "success" ] || \
              [ "${{ needs.test-local-appinspect-fail.result }}" != "success" ] || \
              [ "${{ needs.test-appinspect-fail-on-none.result }}" != "success" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY

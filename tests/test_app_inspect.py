@@ -19,12 +19,12 @@ from main import main  # pyright: ignore[reportMissingImports]
 
 from .helper_test import setup_action_yml
 
-# import os
-# SPLUNKBASE_USERNAME_FOR_TEST = os.environ["SPLUNKBASE_USERNAME_FOR_TEST"]
-# SPLUNKBASE_PASSWORD_FOR_TEST = os.environ["SPLUNKBASE_PASSWORD_FOR_TEST"]
+import os
+SPLUNKBASE_USERNAME_FOR_TEST = os.environ["SPLUNKBASE_USERNAME_FOR_TEST"]
+SPLUNKBASE_PASSWORD_FOR_TEST = os.environ["SPLUNKBASE_PASSWORD_FOR_TEST"]
 
-SPLUNKBASE_USERNAME_FOR_TEST = "sample"
-SPLUNKBASE_PASSWORD_FOR_TEST = "sample"
+# SPLUNKBASE_USERNAME_FOR_TEST = "sample"
+# SPLUNKBASE_PASSWORD_FOR_TEST = "sample"
 
 
 class TestAppInspect(unittest.TestCase):
