@@ -16,6 +16,7 @@ def convert_appinspect_to_sarif(
     json_report_path: str | Path,
     output_sarif_path: str | Path,
     check_type: str = "app-inspect",
+    app_dir: str = ".",
 ) -> None:
     """
     Convert AppInspect JSON report to SARIF format.
@@ -24,6 +25,7 @@ def convert_appinspect_to_sarif(
         json_report_path: Path to the AppInspect JSON report
         output_sarif_path: Path where SARIF file should be written
         check_type: Type of check (app-inspect, cloud-inspect, ssai-inspect)
+        app_dir: App directory path relative to repository root (e.g., "." or "my_app")
     """
     try:
         json_path = Path(json_report_path)
@@ -36,7 +38,7 @@ def convert_appinspect_to_sarif(
         with json_path.open() as f:
             appinspect_data = json.load(f)
 
-        sarif_report = _build_sarif_report(appinspect_data, check_type)
+        sarif_report = _build_sarif_report(appinspect_data, check_type, app_dir)
 
         sarif_path.parent.mkdir(parents=True, exist_ok=True)
         with sarif_path.open("w") as f:
@@ -49,7 +51,9 @@ def convert_appinspect_to_sarif(
         raise
 
 
-def _build_sarif_report(appinspect_data: dict[str, Any], check_type: str) -> dict[str, Any]:
+def _build_sarif_report(
+    appinspect_data: dict[str, Any], check_type: str, app_dir: str
+) -> dict[str, Any]:
     """Build SARIF report structure from AppInspect data."""
     rules: list[dict[str, Any]] = []
     results: list[dict[str, Any]] = []
@@ -96,7 +100,7 @@ def _build_sarif_report(appinspect_data: dict[str, Any], check_type: str) -> dic
                     rules.append(_create_rule(check, rule_id, check_type))
 
                 # Add results for this check
-                check_results = _create_result(check, rule_id)
+                check_results = _create_result(check, rule_id, app_dir)
                 results.extend(check_results)
 
     sarif_report = {
@@ -156,8 +160,15 @@ def _create_rule(report: dict[str, Any], rule_id: str, check_type: str) -> dict[
     return rule
 
 
-def _create_result(report: dict[str, Any], rule_id: str) -> list[dict[str, Any]]:
-    """Create SARIF result(s) from AppInspect check report. Returns a list of results, one per message."""
+def _create_result(report: dict[str, Any], rule_id: str, app_dir: str) -> list[dict[str, Any]]:
+    """
+    Create SARIF result(s) from AppInspect check report. Returns a list of results, one per message.
+
+    Args:
+        report: AppInspect check report data
+        rule_id: SARIF rule identifier
+        app_dir: App directory path to prepend to file paths (e.g., "." or "my_app")
+    """
     results = []
     messages = report.get("messages", [])
     if not isinstance(messages, list):
@@ -198,6 +209,10 @@ def _create_result(report: dict[str, Any], rule_id: str) -> list[dict[str, Any]]
         file_path = msg.get("message_filename")
         line_number = msg.get("message_line")
         if file_path:
+            # Prepend app_dir to file path if app_dir is not "."
+            if app_dir != ".":
+                file_path = f"{app_dir}/{file_path}"
+
             location = {"physicalLocation": {"artifactLocation": {"uri": file_path}}}
             if line_number:
                 # Convert line_number to int (it might be a string in the JSON)

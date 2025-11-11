@@ -35,7 +35,10 @@ class SplunkAppInspect:
         app_build_path: str,
         splunkbase_username: str,
         splunkbase_password: str,
+        use_ucc_gen: bool = False,
     ) -> None:
+        self.saved_paths: SavedPaths = saved_paths
+        self.use_ucc_gen: bool = use_ucc_gen
         self.splunkbase_username: str = splunkbase_username
         self.splunkbase_password: str = splunkbase_password
 
@@ -337,7 +340,10 @@ class SplunkLocalAppInspect:
         saved_paths: SavedPaths,
         app_info: AppInfo,
         app_build_path: str,
+        use_ucc_gen: bool = False,
     ) -> None:
+        self.saved_paths: SavedPaths = saved_paths
+        self.use_ucc_gen: bool = use_ucc_gen
         self.app_build_path: str = app_build_path
 
         self.report_name_prefix: str = f"{app_info.package_id}_{app_info.version_number_encoded}_{app_info.build_number_encoded}"
@@ -567,6 +573,15 @@ class SplunkLocalAppInspect:
             gat.info("Generating SARIF reports from AppInspect results...")
 
             sarif_files = []
+            # For UCC apps, files are in app_dir/package/
+            # For regular apps, files are in app_dir/
+            if self.use_ucc_gen:
+                if self.saved_paths.app_dir_name == ".":
+                    source_path = "package"
+                else:
+                    source_path = f"{self.saved_paths.app_dir_name}/package"
+            else:
+                source_path = self.saved_paths.app_dir_name
 
             # Convert app-inspect report
             app_json = os.path.join(
@@ -577,7 +592,9 @@ class SplunkLocalAppInspect:
                     self.app_inspect_report_dir,
                     f"{self.report_name_prefix}_app_inspect_check.sarif",
                 )
-                sarif_converter.convert_appinspect_to_sarif(app_json, app_sarif, "app-inspect")
+                sarif_converter.convert_appinspect_to_sarif(
+                    app_json, app_sarif, "app-inspect", source_path
+                )
                 sarif_files.append(app_sarif)
 
             # Convert cloud-inspect report
@@ -591,7 +608,7 @@ class SplunkLocalAppInspect:
                     f"{self.report_name_prefix}_cloud_inspect_check.sarif",
                 )
                 sarif_converter.convert_appinspect_to_sarif(
-                    cloud_json, cloud_sarif, "cloud-inspect"
+                    cloud_json, cloud_sarif, "cloud-inspect", source_path
                 )
                 sarif_files.append(cloud_sarif)
 
@@ -604,7 +621,9 @@ class SplunkLocalAppInspect:
                     self.app_inspect_report_dir,
                     f"{self.report_name_prefix}_ssai_inspect_check.sarif",
                 )
-                sarif_converter.convert_appinspect_to_sarif(ssai_json, ssai_sarif, "ssai-inspect")
+                sarif_converter.convert_appinspect_to_sarif(
+                    ssai_json, ssai_sarif, "ssai-inspect", source_path
+                )
                 sarif_files.append(ssai_sarif)
 
             # Merge all SARIF reports into one

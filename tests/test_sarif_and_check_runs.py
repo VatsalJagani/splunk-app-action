@@ -58,7 +58,7 @@ class TestSarifConverter(unittest.TestCase):
         }
         rule_id = "splunk-appinspect/check_test_example"
 
-        results = _create_result(report, rule_id)
+        results = _create_result(report, rule_id, ".")
 
         assert results is not None
         assert isinstance(results, list)
@@ -67,6 +67,45 @@ class TestSarifConverter(unittest.TestCase):
         assert result["ruleId"] == rule_id
         assert result["level"] == "error"
         assert "This check failed" in result["message"]["text"]
+
+    def test_create_result_with_app_dir_prepending(self):
+        """Test that app_dir is prepended to file paths when not '.'"""
+        report = {
+            "name": "check_test_example",
+            "result": "failure",
+            "messages": [
+                {
+                    "message": "This check failed",
+                    "message_filename": "default/app.conf",
+                    "message_line": 10,
+                }
+            ],
+        }
+        rule_id = "splunk-appinspect/check_test_example"
+
+        # Test with app_dir = "."
+        results_root = _create_result(report, rule_id, ".")
+        assert len(results_root) == 1
+        assert (
+            results_root[0]["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+            == "default/app.conf"
+        )
+
+        # Test with app_dir = "my_app"
+        results_subdir = _create_result(report, rule_id, "my_app")
+        assert len(results_subdir) == 1
+        assert (
+            results_subdir[0]["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+            == "my_app/default/app.conf"
+        )
+
+        # Test with app_dir = "my_app/package" (UCC-style)
+        results_ucc = _create_result(report, rule_id, "my_app/package")
+        assert len(results_ucc) == 1
+        assert (
+            results_ucc[0]["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+            == "my_app/package/default/app.conf"
+        )
 
     def test_convert_appinspect_to_sarif(self):
         # Create a sample AppInspect JSON report with the correct nested structure

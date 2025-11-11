@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fixed
+
+- **SARIF File Paths** - Corrected file paths in SARIF reports for both regular and UCC-based apps
+  - SARIF file paths now correctly prepend `app_dir` to make them relative to repository root
+  - For UCC-based apps, file paths correctly point to `app_dir/package/` where source files reside
+  - For regular apps, file paths point to `app_dir/` directory
+  - Ensures GitHub Code Scanning annotations appear on correct files when app is in subdirectory
+  - When `app_dir` is "." (repository root), appropriate paths are used (no prefix for regular, `package/` for UCC)
+
 ### Changed
 
 - **AppInspect Report Generation** - Standardized on JSON-first approach for both API and local inspection
