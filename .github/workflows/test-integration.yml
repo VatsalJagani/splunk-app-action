@@ -16,7 +16,7 @@ permissions:
 jobs:
   # Test 1: Basic build with valid app (using reusable workflow)
   test-basic-build:
-    uses: ./.github/workflows/reusable-build-test.yml
+    uses: ./.github/workflows/reusable-integration-test.yml
     with:
       test-name: "Basic Build (Valid App)"
       app-dir: "tests/integration_test_apps/valid_app"
@@ -29,7 +29,7 @@ jobs:
 
   # Test 2: UCC Add-on build (using reusable workflow)
   test-ucc-build:
-    uses: ./.github/workflows/reusable-build-test.yml
+    uses: ./.github/workflows/reusable-integration-test.yml
     with:
       test-name: "UCC Add-on Build"
       app-dir: "tests/integration_test_apps/ucc_addon"
@@ -43,7 +43,7 @@ jobs:
 
   # Test 3: Python dependency management (using reusable workflow)
   test-python-deps:
-    uses: ./.github/workflows/reusable-build-test.yml
+    uses: ./.github/workflows/reusable-integration-test.yml
     with:
       test-name: "Python Dependencies Build"
       app-dir: "tests/integration_test_apps/python_deps_app"
@@ -327,7 +327,7 @@ jobs:
 
   # Test 8: Local app-inspect with valid app (using reusable workflow)
   test-local-appinspect-pass:
-    uses: ./.github/workflows/reusable-build-test.yml
+    uses: ./.github/workflows/reusable-integration-test.yml
     with:
       test-name: "Local App-Inspect (Pass)"
       app-dir: "tests/integration_test_apps/app_inspect_pass"
@@ -341,7 +341,7 @@ jobs:
 
   # Test 9: Local app-inspect with failing app (should fail but not crash)
   test-local-appinspect-fail:
-    uses: ./.github/workflows/reusable-build-test.yml
+    uses: ./.github/workflows/reusable-integration-test.yml
     with:
       test-name: "Local App-Inspect (Fail)"
       app-dir: "tests/integration_test_apps/app_inspect_fail"
