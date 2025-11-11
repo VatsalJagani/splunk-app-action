@@ -1,11 +1,10 @@
-# pyright: reportUnknownArgumentType=false
-# pyright: reportUnknownMemberType=false
 import json
 import os
 import shutil
 import subprocess
 import traceback
 from abc import ABC, abstractmethod
+from pathlib import Path
 from threading import Thread
 from time import sleep
 from typing import Any, cast, override
@@ -104,7 +103,7 @@ class BaseAppInspect(ABC):
         try:
             gat.info("Generating SARIF reports from AppInspect results...")
 
-            sarif_files = []
+            sarif_files: list[str | Path] = []
             # For UCC apps, files are in app_dir/package/
             # For regular apps, files are in app_dir/
             if self.use_ucc_gen:
