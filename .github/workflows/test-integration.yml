@@ -495,7 +495,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### SARIF File Validation:" >> $GITHUB_STEP_SUMMARY
           
-          SARIF_FILE="app_inspect_fail4_1_0_0_1_appinspect.sarif"
+          SARIF_FILE="app_inspect_fail4_1_0_0_1_reports/appinspect.sarif"
           if [ -f "$SARIF_FILE" ]; then
             echo "✅ SARIF file generated: $SARIF_FILE" >> $GITHUB_STEP_SUMMARY
             
@@ -510,12 +510,23 @@ jobs:
               else
                 echo "⚠️ SARIF version: $VERSION (expected 2.1.0)" >> $GITHUB_STEP_SUMMARY
               fi
+              
+              # Check that it has runs (merged content from all checks)
+              RUNS_COUNT=$(jq '.runs | length' "$SARIF_FILE" 2>/dev/null || echo "0")
+              if [ "$RUNS_COUNT" -gt 0 ]; then
+                echo "✅ SARIF contains $RUNS_COUNT run(s)" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "❌ SARIF file has no runs!" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
             else
               echo "❌ SARIF file is not valid JSON" >> $GITHUB_STEP_SUMMARY
               exit 1
             fi
           else
             echo "❌ SARIF file not found: $SARIF_FILE" >> $GITHUB_STEP_SUMMARY
+            echo "Files in reports directory:" >> $GITHUB_STEP_SUMMARY
+            ls -la app_inspect_fail4_1_0_0_1_reports/ >> $GITHUB_STEP_SUMMARY 2>&1 || echo "Reports directory not found" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
           
