@@ -200,7 +200,16 @@ def _create_result(report: dict[str, Any], rule_id: str) -> list[dict[str, Any]]
         if file_path:
             location = {"physicalLocation": {"artifactLocation": {"uri": file_path}}}
             if line_number:
-                location["physicalLocation"]["region"] = {"startLine": line_number}
+                # Convert line_number to int (it might be a string in the JSON)
+                try:
+                    line_number = line_number.strip().strip('"')
+                    line_num_int = int(line_number)
+                    location["physicalLocation"]["region"] = {"startLine": line_num_int}
+                except (ValueError, TypeError):
+                    # If conversion fails, skip adding the region
+                    gat.warning(f"Line number to integer conversion failed: {line_number}")
+                    pass
+
             result["locations"] = [location]
 
         results.append(result)
