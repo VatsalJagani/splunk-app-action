@@ -202,14 +202,14 @@ on: [push, pull_request]
 ```
 - Check the "Files changed" tab in your PR to see if annotations appear on modified files
 - Review the workflow logs to confirm annotations were published
-- Check the "Checks" tab for the "App-Inspect Check" summary
+- Check the workflow run summary for the "AppInspect Results" table
 
-#### Understanding Annotation vs Check Runs
+#### Understanding Annotations vs Job Summary
 AppInspect results appear in two places:
 1. **GitHub Annotations** - Inline comments on changed files showing errors/warnings at specific lines (app-inspect only)
-2. **Check Runs** - Summary view in the PR "Checks" tab with overall status and error counts (all inspect types)
+2. **GitHub Job Summary** - Summary view in the Actions UI showing build information and all AppInspect results (app-inspect, cloud-inspect, ssai-inspect)
 
-Annotations are published for app-inspect only. Check runs are published for all AppInspect types (app-inspect, cloud-inspect, ssai-inspect).
+Annotations are published for app-inspect only. The job summary includes results from all AppInspect types.
 
 ## Getting Help
 

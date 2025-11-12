@@ -25,12 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Annotations work automatically with no additional configuration required.
   - Note: Annotations are published for app-inspect only, not for cloud-inspect or ssai-inspect.
 
-- **Github Checks for App Inspect** - Publishes check run summaries with error/warning counts
-  - Shows detailed breakdown of success, failure, error, warning, manual check, skipped, and not applicable counts
-  - Lists up to 5 failed checks with option to view full report
-  - Includes direct links to AppInspect artifacts
-  - Visible in PR checks UI for quick feedback
-
 - **Flexible Failure Modes** - Control workflow failure based on AppInspect results
   - New `fail_on` input to control failure behavior (default: "errors")
   - Options:
@@ -51,7 +45,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Displays build information table with app package ID, version, build number, and artifact paths
   - Shows AppInspect results table with status indicators and emoji for easy visualization (✅ Passed, ❌ Failure, ⏭️ Skipped, etc.)
   - Includes direct link to download workflow artifacts
-  - Written to `$GITHUB_STEP_SUMMARY` for visibility in GitHub Actions interface.
 
 - **Enhanced Action Outputs** - New output variables for better workflow integration
   - `build_path` - Full path to the generated build artifact (.tgz file)

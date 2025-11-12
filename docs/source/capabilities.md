@@ -291,22 +291,24 @@ Set environment variables `SPLUNK_APP_ACTION_<n>` to run commands before build g
 
 The action runs comprehensive app-inspect checks using either the **Splunkbase API** (recommended) or **local validation** with the splunk-appinspect Python library.
 
-### GitHub Annotations & Check Runs
+### GitHub Annotations & Job Summary
 
-AppInspect results are published as inline GitHub annotations and Check Runs for immediate feedback in Pull Requests.
+AppInspect results are published as inline GitHub annotations and comprehensive job summaries for immediate feedback in Pull Requests.
 
 #### GitHub Annotations
 - App-inspect failures and errors appear as inline annotations on PR files
 - Warnings appear as warning annotations
 - No special permissions required - annotations work out of the box
 - Click on annotations to see file location, line number, and detailed error messages
-- Automatically published for app-inspect only (not for cloud-inspect or ssai-inspect because that's usually contains same check as app-inspect or less)
+- Automatically published for app-inspect only (not for cloud-inspect or ssai-inspect)
 
-#### GitHub Check Runs
-- Displays AppInspect status with detailed summaries
-- Shows error/warning counts and links to artifacts
-- Visible in PR checks UI for quick feedback
-- Automatically published for all AppInspect runs (app-inspect, cloud-inspect, ssai-inspect)
+#### GitHub Job Summary
+- Comprehensive build summary displayed in the Actions UI
+- Shows app metadata (package ID, version, build number, artifact name, build path)
+- Displays AppInspect results for all check types (app-inspect, cloud-inspect, ssai-inspect)
+- Includes status indicators with emojis for quick visual feedback
+- Provides direct links to download artifacts
+- Automatically generated for every workflow run
 
 ````
 

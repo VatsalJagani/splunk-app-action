@@ -13,7 +13,6 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 import helpers.annotation_publisher as annotation_publisher
-import helpers.check_run_publisher as check_run_publisher
 from helpers.saved_values import AppInfo, SavedPaths
 
 TIMEOUT_MAX = 240
@@ -126,21 +125,6 @@ class BaseAppInspect(ABC):
             gat.debug(traceback.format_exc())
             # Don't fail the whole run if annotation publishing fails
 
-    def _publish_check_runs(self) -> None:
-        """Publish GitHub Check Runs for AppInspect results."""
-        try:
-            gat.info("Publishing GitHub Check Runs for AppInspect results...")
-            check_run_publisher.publish_appinspect_check_runs(
-                app_inspect_status=self.app_inspect_result[0],
-                cloud_inspect_status=self.app_inspect_result[1],
-                ssai_inspect_status=self.app_inspect_result[2],
-                report_dir=self.app_inspect_report_dir,
-            )
-        except Exception as e:
-            gat.warning(f"Failed to publish check runs: {e}")
-            gat.debug(traceback.format_exc())
-            # Don't fail the whole run if check run publishing fails
-
     def run_all_checks(self) -> None:
         """Run all app-inspect checks in parallel and handle post-processing."""
         inspect_type = self.__class__.__name__.replace("Splunk", "").replace("AppInspect", "")
@@ -176,9 +160,6 @@ class BaseAppInspect(ABC):
 
             # Publish annotations from AppInspect results
             self._publish_annotations()
-
-            # Publish check runs
-            self._publish_check_runs()
 
             if all(i == "Passed" for i in self.app_inspect_result):
                 gat.info(
