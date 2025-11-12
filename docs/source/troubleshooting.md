@@ -1,23 +1,5 @@
 # Troubleshooting
 
-### Unable to push changes into the branch
-
-```
-Unable to push changes into the branch=splunk_app_action_bbe00a4a32a796cc84b73b09abc09922
-```
-
-This error occurs when GitHub workflows don't have permission to create pull requests.
-
-**Solution:**
-1. Go to your Repository `Settings` > `Actions` > `General`
-2. Scroll down to **Workflow permissions** section
-3. Select **Read and write permissions**
-4. Make sure **Allow GitHub Actions to create and approve pull requests** is checked
-
-![Workflow Permission Settings](_static/images/workflow_permission_for_pr_1.png)
-
-![Workflow Permission Detail](_static/images/workflow_permission_for_pr_2.png)
-
 ### App-Inspect Check Failures
 
 #### Authentication Issues
@@ -68,6 +50,49 @@ SPLUNK_APP_ACTION_1 command not found or failed
 - Use proper escaping for special characters: `\\;` instead of `;`
 
 ### Utility Issues
+
+#### Branch Already Exists (Non-Fast-Forward)
+```
+Error: Error in utility LoggerUtility: Cmd('git') failed due to: exit code(1)
+  cmdline: git push origin splunk_app_action_b64953567a80c9580168688e7ebcca40
+  stderr: 'To https://github.com/***/repo
+ ! [rejected]        splunk_app_action_... -> splunk_app_action_... (non-fast-forward)
+error: failed to push some refs to 'https://github.com/***/repo'
+hint: Updates were rejected because the tip of your current branch is behind
+hint: its remote counterpart.
+```
+
+**Root Cause:** A branch with the same hash already exists from a previous run. This happens when:
+- A PR is already open for the same change (no action needed)
+- User deleted the PR but kept the branch to prevent duplicate PRs
+
+**Solution:** This is **informational only** - no action required from you. The action detected that an identical change already has a branch/PR. Either:
+- Check if a PR already exists for this change and review/merge it
+- If you intentionally deleted the PR, the branch prevents duplicate PRs from being created
+- If you want a fresh PR, manually delete the remote branch: `git push origin --delete splunk_app_action_<hash>`
+
+#### Permission Issues
+```
+Unable to push changes into the branch=splunk_app_action_bbe00a4a32a796cc84b73b09abc09922
+```
+
+OR
+
+```
+Error: Error in utility WhatsInsideTheAppUtility: Failed to create pull request: 401 {"message": "Bad credentials", "documentation_url": "https://docs.github.com/rest", "status": "401"}. Ensure the token has permissions and branches exist (head: splunk_app_action_be0f98789e5ab3fbb6cdb39366e9be6b, base: develop).
+```
+
+**Root Cause:** GitHub workflows don't have permission to create pull requests.
+
+**Solution:**
+1. Go to your Repository `Settings` > `Actions` > `General`
+2. Scroll down to **Workflow permissions** section
+3. Select **Read and write permissions**
+4. Make sure **Allow GitHub Actions to create and approve pull requests** is checked
+
+![Workflow Permission Settings](_static/images/workflow_permission_for_pr_1.png)
+
+![Workflow Permission Detail](_static/images/workflow_permission_for_pr_2.png)
 
 #### GitHub Token Problems
 ```
