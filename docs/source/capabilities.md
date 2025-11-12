@@ -300,6 +300,7 @@ AppInspect results are published as inline GitHub annotations and comprehensive 
 - Warnings appear as warning annotations
 - No special permissions required - annotations work out of the box
 - Click on annotations to see file location, line number, and detailed error messages
+- Annotation titles include check group and name for easy identification (e.g., "App-Inspect: Check Alert Actions Config : Check For Payload Format")
 - Automatically published for app-inspect only (not for cloud-inspect or ssai-inspect)
 
 #### GitHub Job Summary

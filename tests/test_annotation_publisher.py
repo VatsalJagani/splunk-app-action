@@ -23,6 +23,7 @@ def sample_appinspect_data() -> dict[str, Any]:
             {
                 "groups": [
                     {
+                        "name": "check_alert_actions_config",
                         "checks": [
                             {
                                 "name": "check_version_format",
@@ -54,7 +55,7 @@ def sample_appinspect_data() -> dict[str, Any]:
                                 "description": "This check passed",
                                 "messages": [],
                             },
-                        ]
+                        ],
                     }
                 ]
             }
@@ -86,15 +87,21 @@ def test_publish_appinspect_annotations_with_valid_data(temp_json_file: Path) ->
 
         # Verify error call
         error_call = mock_error.call_args
-        assert error_call.kwargs["title"] == "APP: Check Version Format"
-        assert "Invalid version format found" in error_call.kwargs["message"]
+        assert (
+            error_call.kwargs["title"]
+            == "App-Inspect: Check Alert Actions Config : Check Version Format"
+        )
+        assert "Version must follow semver format" in error_call.kwargs["message"]
         assert error_call.kwargs["file"] == "my_app/default/app.conf"
         assert error_call.kwargs["line"] == 10
 
         # Verify warning call
         warning_call = mock_warning.call_args
-        assert warning_call.kwargs["title"] == "APP: Check Deprecated Api"
-        assert "Deprecated method usage detected" in warning_call.kwargs["message"]
+        assert (
+            warning_call.kwargs["title"]
+            == "App-Inspect: Check Alert Actions Config : Check Deprecated Api"
+        )
+        assert "Using deprecated API" in warning_call.kwargs["message"]
         assert warning_call.kwargs["file"] == "my_app/bin/script.py"
         assert warning_call.kwargs["line"] == 25
 
@@ -128,7 +135,10 @@ def test_publish_appinspect_annotations_with_ucc_check_type(temp_json_file: Path
         )
 
         error_call = mock_error.call_args
-        assert error_call.kwargs["title"] == "CLOUD: Check Version Format"
+        assert (
+            error_call.kwargs["title"]
+            == "Cloud-Inspect: Check Alert Actions Config : Check Version Format"
+        )
 
 
 def test_publish_check_annotation_without_location() -> None:
@@ -200,7 +210,7 @@ def test_publish_check_annotation_no_messages() -> None:
         assert count == 1
         error_call = mock_error.call_args
         assert "Check failed without specific messages" in error_call.kwargs["message"]
-        assert error_call.kwargs["title"] == "SSAI: Test Check"
+        assert error_call.kwargs["title"] == "Ssai-Inspect: Test Check"
 
 
 def test_publish_annotations_from_data_empty_reports() -> None:
