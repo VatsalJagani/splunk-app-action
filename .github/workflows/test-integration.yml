@@ -13,7 +13,6 @@ name: Integration Tests
 #
 # ⚠️ Not Tested (create PRs or require special access):
 # - App Utilities (whats_in_the_app, logger, splunk_python_sdk, etc.) - creates PRs
-# - GitHub Token (my_github_token) - requires token with repo access
 
 on:
   push:

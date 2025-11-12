@@ -147,6 +147,9 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - uses: VatsalJagani/splunk-app-action@v4
@@ -154,7 +157,6 @@ jobs:
           app_dir: "."
           use_ucc_gen: true
           app_utilities: "ucc_additional_packaging"
-          my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
           splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
@@ -328,13 +330,15 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - uses: VatsalJagani/splunk-app-action@v4
         with:
           app_dir: "my_app"
           app_utilities: "whats_in_the_app,logger,splunk_python_sdk,common_js_utilities"
-          my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
           logger_log_files_prefix: "my_app"
           logger_sourcetype: "my_app:logs"
           splunk_python_sdk_install_path: "bin/lib"
@@ -348,13 +352,15 @@ on: [push]
 jobs:
   add-logger:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - uses: VatsalJagani/splunk-app-action@v4
         with:
           app_dir: "my_app"
           app_utilities: "logger"
-          my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
           logger_log_files_prefix: "my_custom_app"
           logger_sourcetype: "my_custom_app:internal"
 ```
@@ -371,13 +377,15 @@ on: [push]
 jobs:
   sdk-install:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - uses: VatsalJagani/splunk-app-action@v4
         with:
           app_dir: "my_app"
           app_utilities: "splunk_python_sdk"
-          my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
           splunk_python_sdk_install_path: "bin/lib"
           is_remove_pyc_from_splunklib_dir: true
 ```
@@ -550,6 +558,9 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     strategy:
       fail-fast: false
       matrix:
@@ -571,7 +582,6 @@ jobs:
           app_dir: ${{ matrix.app_dir }}
           use_ucc_gen: ${{ matrix.ucc }}
           app_utilities: ${{ matrix.utilities }}
-          my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
           splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
@@ -584,6 +594,9 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       
@@ -594,7 +607,6 @@ jobs:
         with:
           app_dir: "my_app"
           app_utilities: "whats_in_the_app,logger,splunk_python_sdk"
-          my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
           is_app_inspect_check: false
       
       # Main branch - full build with inspect
@@ -660,25 +672,58 @@ my-app-repo/
 
 ## Secrets Configuration
 
-### Required Secrets Setup
+### Required Secrets for App-Inspect
 1. **Repository Settings** → **Secrets and variables** → **Actions**
 2. **Add the following secrets:**
 
 ```bash
-# For App-Inspect (required)
+# For App-Inspect (required when using Splunkbase API)
 SPLUNKBASE_USERNAME = "your_splunkbase_username"
 SPLUNKBASE_PASSWORD = "your_splunkbase_password"
-
-# For Utilities (optional, needed only if using utilities)
-MY_GITHUB_TOKEN = "gha_xxxxxxxxxxxx"
 ```
 
-### GitHub Token Permissions
-When creating `MY_GITHUB_TOKEN`:
-- Go to GitHub Settings → Developer settings → Personal access tokens
-- Select **repo** permissions (Full control of private repositories)
-- Select **workflow** permissions (Update GitHub Action workflows)
+### Workflow Permissions for Utilities
 
+When using `app_utilities`, you need to grant permissions for creating branches and pull requests.
+
+**Option 1: Workflow-Level Permissions (Recommended)**
+
+Add permissions block to your workflow:
+```yaml
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_utilities: "logger"
+```
+
+**Option 2: Repository-Wide Permissions**
+
+1. Go to Repository Settings → Actions → General
+2. Scroll to "Workflow permissions"
+3. Select "Read and write permissions"
+4. Check "Allow GitHub Actions to create and approve pull requests"
+
+**Option 3: Personal Access Token (Advanced)**
+
+If you need cross-repo permissions or prefer explicit token management:
+
+1. Go to GitHub Settings → Developer settings → Personal access tokens
+2. Create token with `repo` scope
+3. Add to repository secrets as `MY_GITHUB_TOKEN`
+4. Use in workflow:
+   ```yaml
+   - uses: VatsalJagani/splunk-app-action@v4
+     with:
+       app_utilities: "logger"
+       my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+   ```
 ```{tip}
 Test your workflow on a feature branch first to ensure all secrets are correctly configured before applying to your main branch.
 ```
