@@ -13,6 +13,7 @@
 import os
 from unittest.mock import patch
 
+from helpers.saved_values import SavedPaths  # pyright: ignore[reportMissingImports]
 from utilities.splunk_sdk_python import (  # pyright: ignore[reportMissingImports]
     SplunkPythonSDKUtility,
 )
@@ -33,7 +34,9 @@ def check_no_pycache(folder_path):
 
 def test_splunk_sdk_utility_installed_new():
     with get_temp_directory() as temp_dir:
-        sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+        saved_paths = SavedPaths("test_app")
+
+        sdk_utility = SplunkPythonSDKUtility(saved_paths, "nothing", temp_dir)
         result = sdk_utility.implement_utility()
 
         # Validate the result
@@ -54,7 +57,9 @@ def test_splunk_sdk_utility_installed_new_2():
                 "INPUT_IS_REMOVE_PYC_FROM_SPLUNKLIB_DIR": "true",
             }
         ):
-            sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+            saved_paths = SavedPaths("test_app")
+
+            sdk_utility = SplunkPythonSDKUtility(saved_paths, "nothing", temp_dir)
             result = sdk_utility.implement_utility()
 
             # Validate the result
@@ -79,7 +84,9 @@ def test_splunk_sdk_utility_upgraded_existing():
             f.write('__version_info__ = "1.0.0"')
 
         # Initialize SplunkPythonSDKUtility instance
-        sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+        saved_paths = SavedPaths("test_app")
+
+        sdk_utility = SplunkPythonSDKUtility(saved_paths, "nothing", temp_dir)
 
         result = sdk_utility.implement_utility()
 
@@ -106,7 +113,9 @@ def test_splunk_sdk_utility_upgraded_existing_2():
                 f.write('__version_info__ = "1.0.0"')
 
             # Initialize SplunkPythonSDKUtility instance
-            sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+            saved_paths = SavedPaths("test_app")
+
+            sdk_utility = SplunkPythonSDKUtility(saved_paths, "nothing", temp_dir)
 
             result = sdk_utility.implement_utility()
 
@@ -129,7 +138,9 @@ def test_splunk_sdk_utility_skipped_due_to_existing_and_same_version():
 
         with patch.object(SplunkPythonSDKUtility, "_get_splunklib_version", return_value="1.2.3"):
             # Initialize SplunkPythonSDKUtility instance
-            sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+            saved_paths = SavedPaths("test_app")
+
+            sdk_utility = SplunkPythonSDKUtility(saved_paths, "nothing", temp_dir)
             # Call implement_utility function
             result = sdk_utility.implement_utility()
 
@@ -159,7 +170,9 @@ def test_splunk_sdk_utility_skipped_due_to_existing_and_same_version_2():
                 SplunkPythonSDKUtility, "_get_splunklib_version", return_value="1.2.3"
             ):
                 # Initialize SplunkPythonSDKUtility instance
-                sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+                saved_paths = SavedPaths("test_app")
+
+                sdk_utility = SplunkPythonSDKUtility(saved_paths, "nothing", temp_dir)
                 # Call implement_utility function
                 result = sdk_utility.implement_utility()
 
@@ -186,7 +199,9 @@ def test_splunk_sdk_utility_error_upgrading_existing():
                 f.write('__version_info__ = "1.0.0"')
 
             # Initialize SplunkPythonSDKUtility instance
-            sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+            saved_paths = SavedPaths("test_app")
+
+            sdk_utility = SplunkPythonSDKUtility(saved_paths, "nothing", temp_dir)
 
             # Call implement_utility function with failing upgrade
             with patch.object(
@@ -216,7 +231,9 @@ def test_splunk_sdk_utility_error_upgrading_existing_2():
                 f.write('__version_info__ = "1.0.0"')
 
             # Initialize SplunkPythonSDKUtility instance
-            sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+            saved_paths = SavedPaths("test_app")
+
+            sdk_utility = SplunkPythonSDKUtility(saved_paths, "nothing", temp_dir)
 
             # Call implement_utility function with failing upgrade
             with patch.object(
@@ -253,7 +270,9 @@ def test_cleanup_old_package_files():
             f.write("new metadata")
 
         # Initialize SplunkPythonSDKUtility and call cleanup with None (backward compat mode)
-        sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+        saved_paths = SavedPaths("test_app")
+
+        sdk_utility = SplunkPythonSDKUtility(saved_paths, "nothing", temp_dir)
         sdk_utility.cleanup_old_package_files(folder_path, None)
 
         # Verify old directories are removed (in backward compat mode)
@@ -277,7 +296,9 @@ def test_cleanup_old_package_files_no_version():
             f.write("metadata")
 
         # Initialize SplunkPythonSDKUtility and call cleanup with no version
-        sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+        saved_paths = SavedPaths("test_app")
+
+        sdk_utility = SplunkPythonSDKUtility(saved_paths, "nothing", temp_dir)
         sdk_utility.cleanup_old_package_files(folder_path, None)
 
         # Verify directory is kept when no version is provided
@@ -307,7 +328,9 @@ def test_cleanup_old_package_files_different_packages():
             f.write("new splunk metadata")
 
         # Initialize SplunkPythonSDKUtility and call cleanup with None (backward compat)
-        sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+        saved_paths = SavedPaths("test_app")
+
+        sdk_utility = SplunkPythonSDKUtility(saved_paths, "nothing", temp_dir)
         sdk_utility.cleanup_old_package_files(folder_path, None)
 
         # Verify only old splunk-sdk metadata is removed
@@ -359,7 +382,9 @@ def test_cleanup_old_package_files_integration():
             "_get_splunklib_version",
             side_effect=mock_get_version_side_effect,
         ):
-            sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+            saved_paths = SavedPaths("test_app")
+
+            sdk_utility = SplunkPythonSDKUtility(saved_paths, "nothing", temp_dir)
             result = sdk_utility.implement_utility()
 
             # Verify the upgrade happened and old metadata was cleaned up
@@ -403,7 +428,9 @@ def test_cleanup_with_dependencies():
                 f.write("metadata")
 
         # Simulate the before state
-        sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+        saved_paths = SavedPaths("test_app")
+
+        sdk_utility = SplunkPythonSDKUtility(saved_paths, "nothing", temp_dir)
         packages_before = {
             "splunk_sdk": ["1.7.0"],
             "deprecation": ["2.0.7"],
@@ -446,7 +473,9 @@ def test_cleanup_with_dependencies_partial_upgrade():
             with open(os.path.join(dir_path, "METADATA"), "w") as f:
                 f.write("metadata")
 
-        sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+        saved_paths = SavedPaths("test_app")
+
+        sdk_utility = SplunkPythonSDKUtility(saved_paths, "nothing", temp_dir)
         packages_before = {
             "splunk_sdk": ["1.7.0"],
             "deprecation": ["2.0.7"],
@@ -479,7 +508,9 @@ def test_get_installed_packages():
         os.makedirs(os.path.join(folder_path, "deprecation-2.1.0.egg-info"))
         os.makedirs(os.path.join(folder_path, "packaging-25.0.dist-info"))
 
-        sdk_utility = SplunkPythonSDKUtility("nothing", temp_dir)
+        saved_paths = SavedPaths("test_app")
+
+        sdk_utility = SplunkPythonSDKUtility(saved_paths, "nothing", temp_dir)
         packages = sdk_utility.get_installed_packages(folder_path)
 
         # Verify the packages are correctly identified

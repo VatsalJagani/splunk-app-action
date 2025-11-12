@@ -4,6 +4,7 @@ from collections.abc import Sequence
 import github_action_toolkit as gat
 
 from helpers.file_manager import get_file_hash, get_folder_hash, get_multi_files_hash
+from helpers.saved_values import SavedPaths
 
 
 class BaseUtility:
@@ -15,7 +16,7 @@ class BaseUtility:
     must implement the `implement_utility` method to define specific utility behavior.
     """
 
-    def __init__(self, app_read_dir: str, app_write_dir: str) -> None:
+    def __init__(self, saved_paths: SavedPaths, app_read_dir: str, app_write_dir: str) -> None:
         """
         Initialize the base utility with read and write directories.
 
@@ -23,8 +24,10 @@ class BaseUtility:
             app_read_dir: Directory to read the original app files from.
             app_write_dir: Directory to write modified app files to.
         """
+        self.saved_paths: SavedPaths = saved_paths
         self.app_read_dir: str = app_read_dir
         self.app_write_dir: str = app_write_dir
+        self.pr_title: str = "Added/Updated Utility via splunk-app-action"
 
     def add(self) -> None:
         """
@@ -36,45 +39,42 @@ class BaseUtility:
         """
         with gat.group(f"🛠️ Applying Utility: {type(self).__name__}"):
             try:
-                with gat.Repo(path=self.app_write_dir, cleanup=True) as github:
+                with gat.Repo(path=self.saved_paths.repo_dir_path, cleanup=True) as github:
                     files_or_folders_updated = self.implement_utility()
-                    hash = None
 
-                if not files_or_folders_updated:
-                    gat.info(f"Utility={type(self).__name__} has no change.")
-                    return
+                    if not files_or_folders_updated:
+                        gat.info(f"Utility={type(self).__name__} has no change.")
+                        return
 
-                if isinstance(files_or_folders_updated, bool):
-                    # Boolean return indicates success/failure but no specific files
                     gat.info(
-                        f"Utility={type(self).__name__} completed with status: {files_or_folders_updated}"
+                        f"Utility={type(self).__name__} made changes, generating file/folder hash from {files_or_folders_updated}"
                     )
-                    return
-                elif not isinstance(files_or_folders_updated, str):
-                    # Handle Sequence case
-                    hash = get_multi_files_hash(list(files_or_folders_updated))
-                else:
-                    # Handle str case
-                    if os.path.isfile(files_or_folders_updated):
-                        hash = get_file_hash(files_or_folders_updated)
-                    elif os.path.isdir(files_or_folders_updated):
-                        hash = get_folder_hash(files_or_folders_updated)
+                    hash = None
+                    if not isinstance(files_or_folders_updated, str):
+                        # Handle Sequence case
+                        hash = get_multi_files_hash(list(files_or_folders_updated))
                     else:
-                        gat.error("File to generate hash is invalid.")
+                        # Handle str case
+                        if os.path.isfile(files_or_folders_updated):
+                            hash = get_file_hash(files_or_folders_updated)
+                        elif os.path.isdir(files_or_folders_updated):
+                            hash = get_folder_hash(files_or_folders_updated)
+                        else:
+                            gat.error("File to generate hash is invalid.")
 
-                if hash:
-                    gat.debug("Committing and creating PR for the code change.")
-                    _msg = f"splunk_app_action_{hash}"
-                    github.create_new_branch(_msg)
-                    github.add_all_and_commit(_msg)
-                    github.push()
-                    github.create_pr()
-                else:
-                    gat.error("Unable to get hash to generate PR for app utility.")
+                    if hash:
+                        gat.info("Committing and creating PR for the code change.")
+                        _msg = f"splunk_app_action_{hash}"
+                        github.create_new_branch(_msg)
+                        github.add_all_and_commit(_msg)
+                        github.push()
+                        github.create_pr(title=self.pr_title)
+                    else:
+                        gat.error("Unable to get hash to generate PR for app utility.")
             except Exception as e:
                 gat.error(f"Error in utility {type(self).__name__}: {e}")
 
-    def implement_utility(self) -> str | Sequence[str] | bool | None:
+    def implement_utility(self) -> str | Sequence[str] | None:
         """
         Implement the specific utility functionality.
 
@@ -83,7 +83,6 @@ class BaseUtility:
         Returns:
             - str: Path to a modified file or directory
             - Sequence[str]: List of paths to modified files
-            - bool: True if changes were made, False otherwise
             - None: No changes were made
 
         Raises:

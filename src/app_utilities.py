@@ -1,5 +1,6 @@
 import github_action_toolkit as gat
 
+from helpers.saved_values import SavedPaths
 from utilities.common_splunk_js_utilities import CommonJSUtilitiesFile
 from utilities.logger import LoggerUtility
 from utilities.splunk_sdk_python import SplunkPythonSDKUtility
@@ -18,6 +19,7 @@ class SplunkAppUtilities:
 
     def __init__(
         self,
+        saved_paths: SavedPaths,
         app_read_dir: str,
         app_write_dir: str,
         is_test: bool = False,
@@ -30,6 +32,7 @@ class SplunkAppUtilities:
             app_write_dir: Directory to write modified app files to.
             is_test: Flag indicating if running in test mode. Defaults to False.
         """
+        self.saved_paths: SavedPaths = saved_paths
         self.app_read_dir: str = app_read_dir
         self.app_write_dir: str = app_write_dir
         self.is_test: bool = is_test
@@ -62,21 +65,27 @@ class SplunkAppUtilities:
         gat.info(f"🛠️ Installing app utilities - {app_utilities}")
         for utility in app_utilities:
             if utility == "whats_in_the_app":
-                WhatsInsideTheAppUtility(self.app_read_dir, self.app_write_dir)
+                WhatsInsideTheAppUtility(
+                    self.saved_paths, self.app_read_dir, self.app_write_dir
+                ).add()
 
             elif utility == "logger":
-                LoggerUtility(self.app_read_dir, self.app_write_dir).add()
+                LoggerUtility(self.saved_paths, self.app_read_dir, self.app_write_dir).add()
 
             elif utility == "splunk_python_sdk":
-                SplunkPythonSDKUtility(self.app_read_dir, self.app_write_dir).add()
+                SplunkPythonSDKUtility(
+                    self.saved_paths, self.app_read_dir, self.app_write_dir
+                ).add()
 
             elif utility == "common_js_utilities":
-                CommonJSUtilitiesFile(self.app_read_dir, self.app_write_dir).add()
+                CommonJSUtilitiesFile(self.saved_paths, self.app_read_dir, self.app_write_dir).add()
 
             elif utility == "ucc_additional_packaging":
-                UCCAdditionalPackagingUtility(self.app_read_dir, self.app_write_dir).add()
+                UCCAdditionalPackagingUtility(
+                    self.saved_paths, self.app_read_dir, self.app_write_dir
+                ).add()
 
             else:
                 gat.error(f"🛠️ Unsupported utility: {utility}")
 
-        gat.info("🛠️ App utilities installation completed successfully")
+        gat.info("🛠️ App utilities installation completed.")

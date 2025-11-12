@@ -12,6 +12,7 @@
 
 import os
 
+from helpers.saved_values import SavedPaths  # pyright: ignore[reportMissingImports]
 from utilities.common_splunk_js_utilities import (  # pyright: ignore[reportMissingImports]
     CommonJSUtilitiesFile,
 )
@@ -25,7 +26,8 @@ UTILITIES_FOLDER_PATH = os.path.join(
 
 def test_implement_utility_create_folder():
     with get_temp_directory() as temp_dir:
-        common_js_utilities_file = CommonJSUtilitiesFile("/app_read", temp_dir)
+        saved_paths = SavedPaths("test_app")
+        common_js_utilities_file = CommonJSUtilitiesFile(saved_paths, "/app_read", temp_dir)
         result = common_js_utilities_file.implement_utility()
 
         folder_path = os.path.join(temp_dir, "appserver", "static")
@@ -42,7 +44,8 @@ def test_implement_utility_folder_exists():
         folder_path = os.path.join(temp_dir, "appserver", "static")
         os.makedirs(folder_path)
 
-        common_js_utilities_file = CommonJSUtilitiesFile("/app_read", temp_dir)
+        saved_paths = SavedPaths("test_app")
+        common_js_utilities_file = CommonJSUtilitiesFile(saved_paths, "/app_read", temp_dir)
         result = common_js_utilities_file.implement_utility()
 
         expected_file_path = os.path.join(folder_path, "splunk_common_js_v_utilities.js")
@@ -60,7 +63,8 @@ def test_implement_utility_file_updated():
         with open(input_file_path, "w") as input_file:
             input_file.write("Old content")
 
-        common_js_utilities_file = CommonJSUtilitiesFile(input_file_path, temp_dir)
+        saved_paths = SavedPaths("test_app")
+        common_js_utilities_file = CommonJSUtilitiesFile(saved_paths, input_file_path, temp_dir)
         result = common_js_utilities_file.implement_utility()
 
         folder_path = os.path.join(temp_dir, "appserver", "static")
@@ -77,7 +81,8 @@ def test_implement_utility_file_updated():
 
 def test_implement_utility_file_created_new():
     with get_temp_directory() as temp_dir:
-        common_js_utilities_file = CommonJSUtilitiesFile("sample", temp_dir)
+        saved_paths = SavedPaths("test_app")
+        common_js_utilities_file = CommonJSUtilitiesFile(saved_paths, "sample", temp_dir)
         result = common_js_utilities_file.implement_utility()
 
         folder_path = os.path.join(temp_dir, "appserver", "static")
@@ -104,7 +109,8 @@ def test_implement_utility_file_not_updated():
             ) as actual_f:
                 input_file.write(actual_f.read())
 
-        common_js_utilities_file = CommonJSUtilitiesFile(input_file_path, temp_dir)
+        saved_paths = SavedPaths("test_app")
+        common_js_utilities_file = CommonJSUtilitiesFile(saved_paths, input_file_path, temp_dir)
         result = common_js_utilities_file.implement_utility()
 
         assert result is None

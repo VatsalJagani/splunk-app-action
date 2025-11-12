@@ -1,23 +1,5 @@
 # Troubleshooting
 
-### Unable to push changes into the branch
-
-```
-Unable to push changes into the branch=splunk_app_action_bbe00a4a32a796cc84b73b09abc09922
-```
-
-This error occurs when GitHub workflows don't have permission to create pull requests.
-
-**Solution:**
-1. Go to your Repository `Settings` > `Actions` > `General`
-2. Scroll down to **Workflow permissions** section
-3. Select **Read and write permissions**
-4. Make sure **Allow GitHub Actions to create and approve pull requests** is checked
-
-![Workflow Permission Settings](_static/images/workflow_permission_for_pr_1.png)
-
-![Workflow Permission Detail](_static/images/workflow_permission_for_pr_2.png)
-
 ### App-Inspect Check Failures
 
 #### Authentication Issues
@@ -69,15 +51,82 @@ SPLUNK_APP_ACTION_1 command not found or failed
 
 ### Utility Issues
 
-#### GitHub Token Problems
+#### Branch Already Exists (Non-Fast-Forward)
 ```
-Failed to create pull request - authentication failed
+Error: Error in utility LoggerUtility: Cmd('git') failed due to: exit code(1)
+  cmdline: git push origin splunk_app_action_b64953567a80c9580168688e7ebcca40
+  stderr: 'To https://github.com/***/repo
+ ! [rejected]        splunk_app_action_... -> splunk_app_action_... (non-fast-forward)
+error: failed to push some refs to 'https://github.com/***/repo'
+hint: Updates were rejected because the tip of your current branch is behind
+hint: its remote counterpart.
 ```
 
-**Solution:**
-1. Create a personal access token in GitHub Settings > Developer settings > Personal access tokens
+**Root Cause:** A branch with the same hash already exists from a previous run. This happens when:
+- A PR is already open for the same change (no action needed)
+- User deleted the PR but kept the branch to prevent duplicate PRs
+
+**Solution:** This is **informational only** - no action required from you. The action detected that an identical change already has a branch/PR. Either:
+- Check if a PR already exists for this change and review/merge it
+- If you intentionally deleted the PR, the branch prevents duplicate PRs from being created
+- If you want a fresh PR, manually delete the remote branch: `git push origin --delete splunk_app_action_<hash>`
+
+#### Permission Issues
+```
+Unable to push changes into the branch=splunk_app_action_bbe00a4a32a796cc84b73b09abc09922
+```
+
+OR
+
+```
+Error: Error in utility WhatsInsideTheAppUtility: Failed to create pull request: 401 {"message": "Bad credentials", "documentation_url": "https://docs.github.com/rest", "status": "401"}. Ensure the token has permissions and branches exist (head: splunk_app_action_be0f98789e5ab3fbb6cdb39366e9be6b, base: develop).
+```
+
+**Root Cause:** GitHub workflows don't have permission to create pull requests.
+
+**Solution (Choose ONE option):**
+
+**Option 1: Workflow-level permissions (Recommended)**
+
+Add permissions to your workflow file:
+```yaml
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_utilities: "logger"
+          # No my_github_token needed!
+```
+
+**Option 2: Repository-wide permissions**
+
+1. Go to your Repository `Settings` > `Actions` > `General`
+2. Scroll down to **Workflow permissions** section
+3. Select **Read and write permissions**
+4. Make sure **Allow GitHub Actions to create and approve pull requests** is checked
+
+![Workflow Permission Settings](_static/images/workflow_permission_for_pr_1.png)
+
+![Workflow Permission Detail](_static/images/workflow_permission_for_pr_2.png)
+
+**Option 3: Use Personal Access Token (Advanced)**
+
+If you prefer explicit token management or need cross-repo permissions:
+1. Create a Personal Access Token with `repo` scope
 2. Add it to repository secrets as `MY_GITHUB_TOKEN`
-3. Ensure the token has `repo` permissions
+3. Pass it to the action:
+```yaml
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_utilities: "logger"
+    my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+```
 
 #### Logger Utility Issues
 ```
@@ -202,14 +251,14 @@ on: [push, pull_request]
 ```
 - Check the "Files changed" tab in your PR to see if annotations appear on modified files
 - Review the workflow logs to confirm annotations were published
-- Check the "Checks" tab for the "App-Inspect Check" summary
+- Check the workflow run summary for the "AppInspect Results" table
 
-#### Understanding Annotation vs Check Runs
+#### Understanding Annotations vs Job Summary
 AppInspect results appear in two places:
-1. **GitHub Annotations** - Inline comments on changed files showing errors/warnings at specific lines
-2. **Check Runs** - Summary view in the PR "Checks" tab with overall status and error counts
+1. **GitHub Annotations** - Inline comments on changed files showing errors/warnings at specific lines (app-inspect only)
+2. **GitHub Job Summary** - Summary view in the Actions UI showing build information and all AppInspect results (app-inspect, cloud-inspect, ssai-inspect)
 
-Both are automatically published when AppInspect runs. Annotations require file locations in the AppInspect report to appear inline.
+Annotations are published for app-inspect only. The job summary includes results from all AppInspect types.
 
 ## Getting Help
 

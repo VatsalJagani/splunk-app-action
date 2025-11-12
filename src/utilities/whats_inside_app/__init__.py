@@ -43,7 +43,7 @@ class WhatsInsideTheAppUtility(BaseUtility):
         return None
 
     @override
-    def implement_utility(self) -> str | bool | None:
+    def implement_utility(self) -> str | None:
         """
         Generate or update the "What's inside the App" section in README.
 
@@ -54,6 +54,8 @@ class WhatsInsideTheAppUtility(BaseUtility):
             Path to the updated README file if changes were made, None otherwise.
         """
         gat.info("📋 Adding WhatsInsideTheAppUtility")
+        self.pr_title: str = "Added/Updated App Content inside README via splunk-app-action"
+
         start_markers = [
             "# What's in the App",
             "What's in the Add-on",

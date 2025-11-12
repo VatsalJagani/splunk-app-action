@@ -13,7 +13,6 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 import helpers.annotation_publisher as annotation_publisher
-import helpers.check_run_publisher as check_run_publisher
 from helpers.saved_values import AppInfo, SavedPaths
 
 TIMEOUT_MAX = 240
@@ -98,9 +97,9 @@ class BaseAppInspect(ABC):
         self.app_inspect_result[2] = status
 
     def _publish_annotations(self) -> None:
-        """Publish AppInspect results as GitHub annotations."""
+        """Publish AppInspect results as GitHub annotations (app-inspect only)."""
         try:
-            gat.info("Publishing GitHub annotations from AppInspect results...")
+            gat.info("Publishing GitHub annotations from app-inspect results...")
 
             # For UCC apps, files are in app_dir/package/
             # For regular apps, files are in app_dir/
@@ -112,7 +111,7 @@ class BaseAppInspect(ABC):
             else:
                 source_path = self.saved_paths.app_dir_name
 
-            # Publish app-inspect annotations
+            # Publish app-inspect annotations only (not cloud-inspect or ssai-inspect)
             app_json = os.path.join(
                 self.app_inspect_report_dir, f"{self.report_name_prefix}_app_inspect_check.json"
             )
@@ -121,44 +120,10 @@ class BaseAppInspect(ABC):
                     app_json, "app-inspect", source_path
                 )
 
-            # Publish cloud-inspect annotations
-            cloud_json = os.path.join(
-                self.app_inspect_report_dir,
-                f"{self.report_name_prefix}_cloud_inspect_check.json",
-            )
-            if os.path.exists(cloud_json):
-                annotation_publisher.publish_appinspect_annotations(
-                    cloud_json, "cloud-inspect", source_path
-                )
-
-            # Publish SSAI-inspect annotations
-            ssai_json = os.path.join(
-                self.app_inspect_report_dir, f"{self.report_name_prefix}_ssai_inspect_check.json"
-            )
-            if os.path.exists(ssai_json):
-                annotation_publisher.publish_appinspect_annotations(
-                    ssai_json, "ssai-inspect", source_path
-                )
-
         except Exception as e:
             gat.warning(f"Failed to publish annotations: {e}")
             gat.debug(traceback.format_exc())
             # Don't fail the whole run if annotation publishing fails
-
-    def _publish_check_runs(self) -> None:
-        """Publish GitHub Check Runs for AppInspect results."""
-        try:
-            gat.info("Publishing GitHub Check Runs for AppInspect results...")
-            check_run_publisher.publish_appinspect_check_runs(
-                app_inspect_status=self.app_inspect_result[0],
-                cloud_inspect_status=self.app_inspect_result[1],
-                ssai_inspect_status=self.app_inspect_result[2],
-                report_dir=self.app_inspect_report_dir,
-            )
-        except Exception as e:
-            gat.warning(f"Failed to publish check runs: {e}")
-            gat.debug(traceback.format_exc())
-            # Don't fail the whole run if check run publishing fails
 
     def run_all_checks(self) -> None:
         """Run all app-inspect checks in parallel and handle post-processing."""
@@ -195,9 +160,6 @@ class BaseAppInspect(ABC):
 
             # Publish annotations from AppInspect results
             self._publish_annotations()
-
-            # Publish check runs
-            self._publish_check_runs()
 
             if all(i == "Passed" for i in self.app_inspect_result):
                 gat.info(

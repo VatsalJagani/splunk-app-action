@@ -29,7 +29,6 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
     app_dir: "my_app"
     local_app_inspect: true
     fail_on: "errors"  # Options: errors, warnings, none
-```
 
 # UCC Add-on build
 - uses: VatsalJagani/splunk-app-action@v4
@@ -44,6 +43,17 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
     app_dir: "my_app"
     python_requirements_file: "lib/requirements.txt"
 
+# With app utilities (logger, SDK, etc.) - requires workflow permissions
+- uses: VatsalJagani/splunk-app-action@v4
+  permissions:
+    contents: write
+    pull-requests: write
+  with:
+    app_dir: "my_app"
+    app_utilities: "logger,splunk_python_sdk"
+    logger_log_files_prefix: "my_app"
+    logger_sourcetype: "my_app:logs"
+
 # Using action outputs in workflows
 - id: build_step
   uses: VatsalJagani/splunk-app-action@v4
@@ -54,6 +64,33 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
     echo "Build: ${{ steps.build_step.outputs.artifact_name }}"
     echo "Path: ${{ steps.build_step.outputs.build_path }}"
 ```
+
+## Workflow Permissions for App Utilities
+
+When using `app_utilities`, the action needs permission to create branches and pull requests. Grant permissions in one of two ways:
+
+**Option 1: Workflow-level permissions (recommended)**
+```yaml
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_utilities: "logger"
+```
+
+**Option 2: Repository-wide permissions**
+1. Go to Repository Settings → Actions → General
+2. Scroll to "Workflow permissions"
+3. Select "Read and write permissions"
+4. Check "Allow GitHub Actions to create and approve pull requests"
+
+See [Troubleshooting](https://splunk-app-action.readthedocs.io/en/latest/troubleshooting.html) for more details.
 
 ## Requirements
 
@@ -66,8 +103,7 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
 - ✅ **Action Outputs** - Provides build path, artifact name, and app metadata for workflow integration
 - ✅ **Splunkbase App-Inspect** - Runs official app-inspect, cloud-inspect, and SSAI checks  
 - ✅ **Local App-Inspect** - Fast local validation with splunk-appinspect library (no credentials needed)
-- ✅ **GitHub Annotations** - AppInspect results appear as inline annotations in Files Changed tab
-- ✅ **GitHub Check Runs** - Display AppInspect status with summaries and artifact links
+- ✅ **GitHub Annotations** - app-inspect results appear as inline annotations in Files Changed tab
 - ✅ **GitHub Job Summary** - Comprehensive build summary with metadata and results in Actions UI
 - ✅ **Flexible Failure Modes** - Control workflow failure based on errors, warnings, or never fail
 - ✅ **UCC Add-on Support** - Full integration with UCC Generator framework

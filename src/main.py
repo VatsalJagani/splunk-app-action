@@ -154,7 +154,7 @@ def main() -> None:
             app_build_dir_name = "without_ucc_build"
             os.system(f"rm -rf {app_build_dir_name}")
             shutil.copytree(saved_paths.app_dir_path, app_build_dir_name)
-            gat.info("App build preparation completed successfully")
+            gat.info("App build preparation completed.")
 
     app_build_dir_path = os.path.join(saved_paths.root_dir_path, app_build_dir_name)
 
@@ -171,7 +171,9 @@ def main() -> None:
             else saved_paths.app_dir_path
         )
         with keep_working_dir_unchanged():
-            SplunkAppUtilities(app_read_dir=app_build_dir_path, app_write_dir=app_write_dir)
+            SplunkAppUtilities(
+                saved_paths, app_read_dir=app_build_dir_path, app_write_dir=app_write_dir
+            )
     except Exception as e:
         gat.error(f"Error adding Splunk app utilities: {e}")
         gat.error(traceback.format_exc())
@@ -274,7 +276,6 @@ def main() -> None:
         with gat.group("📊 Writing job summary"):
             job_summary.write_build_summary(
                 app_info=app_info,
-                build_path=build_path,
                 artifact_name=artifact_name,
                 app_inspect_status=app_inspect_status,
                 cloud_inspect_status=cloud_inspect_status,

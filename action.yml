@@ -55,9 +55,12 @@ inputs:
     default: ""
 
   my_github_token:
-    description: "GitHub Secret Token to automatically create Pull request. (Make sure to put it in the Repo secret on GitHub as `MY_GITHUB_TOKEN` and then use it like `{{ secrets.MY_GITHUB_TOKEN }}`. Do not write it in plain text.) Only required if app_utilities is being used."
+    description: "GitHub token to create pull requests for app utilities. OPTIONAL when workflow has 'contents: write' and 'pull-requests: write' permissions - the action will automatically use the workflow's GITHUB_TOKEN. Only needed if you want to use a Personal Access Token (PAT) instead."
     required: false
-    default: "NONE"
+    # Prefer using the automatically provided secrets.GITHUB_TOKEN from the workflow.
+    # Keep this input for backward-compatibility if users want to provide a PAT.
+    # Default is empty so the composite action can fall back to the job's GITHUB_TOKEN.
+    default: ""
 
   logger_log_files_prefix:
     description: "Log files prefix. Only required for logger utility."
@@ -112,22 +115,22 @@ runs:
       working-directory: ${{ github.action_path }}
       shell: bash
       env:
-        INPUT_APP_DIR: ${{inputs.app_dir}}
-        INPUT_USE_UCC_GEN: ${{inputs.use_ucc_gen}}
-        INPUT_PYTHON_REQUIREMENTS_FILE: ${{inputs.python_requirements_file}}
-        INPUT_TO_MAKE_PERMISSION_CHANGES: ${{inputs.to_make_permission_changes}}
-        INPUT_IS_APP_INSPECT_CHECK: ${{inputs.is_app_inspect_check}}
-        INPUT_SPLUNKBASE_USERNAME: ${{inputs.splunkbase_username}}
-        INPUT_SPLUNKBASE_PASSWORD: ${{inputs.splunkbase_password}}
-        INPUT_LOCAL_APP_INSPECT: ${{inputs.local_app_inspect}}
-        INPUT_FAIL_ON: ${{inputs.fail_on}}
-        INPUT_APP_UTILITIES: ${{inputs.app_utilities}}
-        GITHUB_TOKEN: ${{inputs.my_github_token}}
-        INPUT_CURRENT_BRANCH_NAME: ${{steps.extract_branch.outputs.branch}}
-        INPUT_LOGGER_LOG_FILES_PREFIX: ${{inputs.logger_log_files_prefix}}
-        INPUT_LOGGER_SOURCETYPE: ${{inputs.logger_sourcetype}}
-        INPUT_SPLUNK_PYTHON_SDK_INSTALL_PATH: ${{inputs.splunk_python_sdk_install_path}}
-        INPUT_IS_REMOVE_PYC_FROM_SPLUNKLIB_DIR: ${{inputs.is_remove_pyc_from_splunklib_dir}}
+        INPUT_APP_DIR: ${{ inputs.app_dir }}
+        INPUT_USE_UCC_GEN: ${{ inputs.use_ucc_gen }}
+        INPUT_PYTHON_REQUIREMENTS_FILE: ${{ inputs.python_requirements_file }}
+        INPUT_TO_MAKE_PERMISSION_CHANGES: ${{ inputs.to_make_permission_changes }}
+        INPUT_IS_APP_INSPECT_CHECK: ${{ inputs.is_app_inspect_check }}
+        INPUT_SPLUNKBASE_USERNAME: ${{ inputs.splunkbase_username }}
+        INPUT_SPLUNKBASE_PASSWORD: ${{ inputs.splunkbase_password }}
+        INPUT_LOCAL_APP_INSPECT: ${{ inputs.local_app_inspect }}
+        INPUT_FAIL_ON: ${{ inputs.fail_on }}
+        INPUT_APP_UTILITIES: ${{ inputs.app_utilities }}
+        GITHUB_TOKEN: "${{ inputs.my_github_token || github.token }}"
+        INPUT_CURRENT_BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
+        INPUT_LOGGER_LOG_FILES_PREFIX: ${{ inputs.logger_log_files_prefix }}
+        INPUT_LOGGER_SOURCETYPE: ${{ inputs.logger_sourcetype }}
+        INPUT_SPLUNK_PYTHON_SDK_INSTALL_PATH: ${{ inputs.splunk_python_sdk_install_path }}
+        INPUT_IS_REMOVE_PYC_FROM_SPLUNKLIB_DIR: ${{ inputs.is_remove_pyc_from_splunklib_dir }}
         GITHUB_WORKSPACE: ${{ github.workspace }}
       run: |
         uv run python -u src/main.py

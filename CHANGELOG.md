@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Upgrade Notes
 
+- **`my_github_token` No Longer Required for App Utilities** - The action now uses the workflow's automatic `GITHUB_TOKEN` by default
+  - **Breaking Change:** The `my_github_token` input is now optional - you can omit it entirely
+  - **Required:** Grant workflow permissions for the action to create branches and pull requests:
+    ```yaml
+    permissions:
+      contents: write
+      pull-requests: write
+    ```
+  - **Alternative 1:** Set repository-wide permissions in Settings → Actions → General → Workflow permissions → "Read and write permissions"
+  - **Alternative 2:** Continue using `my_github_token` with a Personal Access Token (PAT) if you prefer explicit token management
+  - **Migration:** Remove `my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}` from your workflow and add the `permissions:` block instead
+  - See updated examples in documentation for the new simplified configuration
+
 - **Migrate from `splunk_python_sdk` utility** - Consider migrating to the new `python_requirements_file` feature for better dependency management.
 
 ### Deprecated
@@ -21,14 +34,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **App Inspect Inline Annotations** - AppInspect results now appear as inline annotations in the Files Changed tab - no configuration needed!
-  - AppInspect failures and errors now appear as inline annotations on PR as comments, so you can act very fast.
+  - App-inspect failures and errors now appear as inline annotations on PR as comments, so you can act very fast.
   - Annotations work automatically with no additional configuration required.
-
-- **Github Checks for App Inspect** - Publishes check run summaries with error/warning counts
-  - Shows detailed breakdown of success, failure, error, warning, manual check, skipped, and not applicable counts
-  - Lists up to 5 failed checks with option to view full report
-  - Includes direct links to AppInspect artifacts
-  - Visible in PR checks UI for quick feedback
+  - Note: Annotations are published for app-inspect only, not for cloud-inspect or ssai-inspect.
 
 - **Flexible Failure Modes** - Control workflow failure based on AppInspect results
   - New `fail_on` input to control failure behavior (default: "errors")
@@ -50,7 +58,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Displays build information table with app package ID, version, build number, and artifact paths
   - Shows AppInspect results table with status indicators and emoji for easy visualization (✅ Passed, ❌ Failure, ⏭️ Skipped, etc.)
   - Includes direct link to download workflow artifacts
-  - Written to `$GITHUB_STEP_SUMMARY` for visibility in GitHub Actions interface.
 
 - **Enhanced Action Outputs** - New output variables for better workflow integration
   - `build_path` - Full path to the generated build artifact (.tgz file)
@@ -85,6 +92,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ### Changed
+
+- **Simplified Authentication for App Utilities** - `my_github_token` is now optional
+  - The action automatically uses the workflow's built-in `GITHUB_TOKEN` when `my_github_token` is not provided
+  - Users must grant workflow permissions (`contents: write` and `pull-requests: write`) for automatic token usage
+  - Personal Access Tokens (PAT) via `my_github_token` are still supported for advanced use cases
+  - Simplifies workflow configuration - no need to create and manage custom GitHub tokens for basic usage
+
+- **Utility PR Title Improvement** - Automatically generated PRs now contains more human readable PR titles instead of file hash as PR title.
 
 - **Logging Improvements**
   - GitHub action now generates more readable logs

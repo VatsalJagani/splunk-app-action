@@ -10,10 +10,12 @@
 # pyright: reportUnannotatedClassAttribute=false
 # pyright: reportUninitializedInstanceVariable=false
 
+import os
 import unittest
 from typing import override
 from unittest.mock import patch
 
+from helpers.saved_values import SavedPaths  # pyright: ignore[reportMissingImports]
 from utilities.whats_inside_app import (  # pyright: ignore[reportMissingImports]
     WhatsInsideTheAppUtility,
 )
@@ -23,7 +25,14 @@ class TestWhatsInsideTheAppUtility(unittest.TestCase):
     @classmethod
     @override
     def setUpClass(cls):
-        cls.utility = WhatsInsideTheAppUtility("abc", "abc")
+        # Ensure we're in a valid directory for SavedPaths
+        cls.original_cwd = os.getcwd()
+        test_dir = os.path.dirname(__file__)
+        if os.path.exists(test_dir):
+            os.chdir(test_dir)
+        cls.saved_paths = SavedPaths("test_app")
+        cls.utility = WhatsInsideTheAppUtility(cls.saved_paths, "abc", "abc")
+        os.chdir(cls.original_cwd)
 
     @patch("os.listdir")
     def test_get_readme_file_location_found(self, mock_listdir):

@@ -16,7 +16,7 @@ class CommonJSUtilitiesFile(BaseUtility):
     """
 
     @override
-    def implement_utility(self) -> str | bool | None:
+    def implement_utility(self) -> str | None:
         """
         Add the common JavaScript utilities file to the app.
 
@@ -27,6 +27,7 @@ class CommonJSUtilitiesFile(BaseUtility):
             Path to the updated JavaScript file if changes were made, None otherwise.
         """
         gat.info("📚 Adding CommonJSUtilitiesFile")
+        self.pr_title: str = "Added/Updated Common JS Utilities File via splunk-app-action"
 
         folder_path = os.path.join(self.app_write_dir, "appserver", "static")
         file_path = os.path.join(folder_path, "splunk_common_js_v_utilities.js")

@@ -291,22 +291,24 @@ Set environment variables `SPLUNK_APP_ACTION_<n>` to run commands before build g
 
 The action runs comprehensive app-inspect checks using either the **Splunkbase API** (recommended) or **local validation** with the splunk-appinspect Python library.
 
-### GitHub Annotations & Check Runs
+### GitHub Annotations & Job Summary
 
-AppInspect results are published as inline GitHub annotations and Check Runs for immediate feedback in Pull Requests.
+AppInspect results are published as inline GitHub annotations and comprehensive job summaries for immediate feedback in Pull Requests.
 
 #### GitHub Annotations
-- AppInspect failures and errors appear as inline annotations on PR files
+- App-inspect failures and errors appear as inline annotations on PR files
 - Warnings appear as warning annotations
 - No special permissions required - annotations work out of the box
 - Click on annotations to see file location, line number, and detailed error messages
-- Automatically published for all AppInspect runs (app-inspect, cloud-inspect, SSAI-inspect)
+- Automatically published for app-inspect only (not for cloud-inspect or ssai-inspect)
 
-#### GitHub Check Runs
-- Displays AppInspect status with detailed summaries
-- Shows error/warning counts and links to artifacts
-- Visible in PR checks UI for quick feedback
-- Automatically published for all AppInspect runs
+#### GitHub Job Summary
+- Comprehensive build summary displayed in the Actions UI
+- Shows app metadata (package ID, version, build number, and artifact name)
+- Displays AppInspect results for all check types (app-inspect, cloud-inspect, ssai-inspect)
+- Includes status indicators with emojis for quick visual feedback
+- Provides direct links to download artifacts
+- Automatically generated for every workflow run
 
 ````
 
@@ -395,7 +397,18 @@ Local app inspect may not be as up-to-date as the Splunkbase API. For production
 The action provides several utilities that automatically enhance your Splunk Apps and Add-ons by adding common functionality and keeping dependencies updated.
 
 ```{important}
-**Automatic Pull Requests:** Utilities make code changes and create pull requests for you to review and merge. All utilities require `my_github_token` for creating PRs.
+**Automatic Pull Requests:** Utilities make code changes and create pull requests for you to review and merge.
+
+Each utility creates PRs with descriptive titles (e.g., "Added/Updated Logger Utility via splunk-app-action") making it easy to identify which utility made changes.
+
+**Required:** Grant workflow permissions for the action to create PRs:
+```yaml
+permissions:
+  contents: write
+  pull-requests: write
+```
+
+**Alternative:** Set repository-wide permissions in Settings → Actions → General → Workflow permissions → "Read and write permissions"
 ```
 
 ### Available Utilities:
@@ -408,11 +421,18 @@ The action provides several utilities that automatically enhance your Splunk App
 
 You can use multiple utilities at once:
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v4
-    with:
-        app_dir: "my_app"
-        app_utilities: "whats_in_the_app,logger,splunk_python_sdk"
-        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          app_utilities: "whats_in_the_app,logger,splunk_python_sdk"
 ```
 
 ### `whats_in_the_app` - Auto-Generate App Information
@@ -423,11 +443,18 @@ Automatically adds information about your app to the README.md file, including:
 - Helps users understand what's inside your app
 
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v4
-    with:
-        app_dir: "my_app"
-        app_utilities: "whats_in_the_app"
-        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          app_utilities: "whats_in_the_app"
 ```
 
 ### `logger` - Python Logger Setup
@@ -438,13 +465,20 @@ Adds a complete Python logging solution including:
 - Internal log file handling
 
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v4
-    with:
-        app_dir: "my_app"
-        app_utilities: "logger"
-        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
-        logger_log_files_prefix: "my_app"
-        logger_sourcetype: "my_app:logs"
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: VatsalJagani/splunk-app-action@v4
+        with:
+          app_dir: "my_app"
+          app_utilities: "logger"
+          logger_log_files_prefix: "my_app"
+          logger_sourcetype: "my_app:logs"
 ```
 
 **Required Parameters:**
@@ -469,14 +503,12 @@ Automatically installs and upgrades the Splunk Python SDK (splunklib):
     with:
         app_dir: "my_app"
         app_utilities: "splunk_python_sdk"
-        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 
 # Custom installation path
 - uses: VatsalJagani/splunk-app-action@v4
     with:
         app_dir: "my_app"
         app_utilities: "splunk_python_sdk"
-        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
         splunk_python_sdk_install_path: "bin/lib"
 ```
 
@@ -495,7 +527,6 @@ Adds a JavaScript file with commonly used functionality for Splunk App developme
     with:
         app_dir: "my_app"
         app_utilities: "common_js_utilities"
-        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
 
 ---
@@ -512,7 +543,6 @@ This utility adds `additional_packaging.py` for UCC-built Add-ons, helping gener
         app_dir: "."
         use_ucc_gen: true
         app_utilities: "ucc_additional_packaging"
-        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
 ```
 
 The input handler file `<Input_Name>_handler.py` will start with:

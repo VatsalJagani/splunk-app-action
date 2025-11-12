@@ -82,9 +82,16 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 - **⚠️ Note:** The `splunk_python_sdk` utility cannot be used together with `python_requirements_file` or `use_ucc_gen`.
 
 ### `my_github_token`
-- **Description:** GitHub Secret Token to automatically create Pull request. Make sure to put it in the Repo secret on GitHub as `MY_GITHUB_TOKEN` and then use it like `${{ secrets.MY_GITHUB_TOKEN }}`. Do not write it in plain text. Only required if app_utilities is being used.
-- **Required:** false (but required when using utilities)
-- **Usage:** `${{ secrets.MY_GITHUB_TOKEN }}`
+- **Description:** GitHub token to create pull requests for app utilities. **OPTIONAL** when workflow has `contents: write` and `pull-requests: write` permissions - the action will automatically use the built-in `GITHUB_TOKEN`. Only provide this if you want to use a Personal Access Token (PAT) instead.
+- **Required:** false
+- **Default:** Uses workflow's automatic `GITHUB_TOKEN`
+- **Usage (if providing PAT):** `my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}`
+- **Recommended:** Set workflow permissions instead:
+  ```yaml
+  permissions:
+    contents: write
+    pull-requests: write
+  ```
 
 ## Logger Utility Inputs
 

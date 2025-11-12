@@ -2,7 +2,7 @@
 
 set -e
 
-TAG=$(python -c 'from src.version import VERSION; print("v" + VERSION)')
+TAG=$(uv run python -c 'from src.version import VERSION; print("v" + VERSION)')
 
 read -p "Creating new tag $TAG. Do you want to continue? [Y/n] " prompt
 

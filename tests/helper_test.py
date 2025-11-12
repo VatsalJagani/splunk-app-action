@@ -31,7 +31,7 @@ def setup_action_yml(
     splunkbase_password="NONE",
     local_app_inspect="false",
     app_utilities="",
-    my_github_token="NONE",
+    my_github_token="",  # Empty string matches action.yml default
     current_branch="NONE",
     logger_log_files_prefix="NONE",
     logger_sourcetype="NONE",
@@ -116,9 +116,12 @@ def get_temp_directory():
     if not os.path.exists(temp_dir):
         os.mkdir(temp_dir)
 
+    original_cwd = os.getcwd()
+
     try:
         yield temp_dir
     finally:
+        os.chdir(original_cwd)
         if os.path.exists(temp_dir):
             shutil.rmtree(temp_dir)
 

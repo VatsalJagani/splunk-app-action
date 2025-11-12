@@ -164,8 +164,10 @@ class SplunkPythonSDKUtility(BaseUtility):
                 gat.warning(f"Failed to remove {item_path}: {e}")
 
     @override
-    def implement_utility(self) -> str | bool | None:
+    def implement_utility(self) -> str | None:
         gat.info("📚 Adding SplunkPythonSDKUtility - Installing/Updating Splunk Python SDK")
+        self.pr_title: str = "Added/Updated Splunk Python SDK via splunk-app-action"
+
         gat.warning(
             "⚠️  DEPRECATION WARNING: The splunk_python_sdk utility is deprecated and will be "
             "removed in v6. Please use the new dynamic library installation feature in v5 instead, "

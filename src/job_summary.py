@@ -9,7 +9,6 @@ from helpers.saved_values import AppInfo
 
 def write_build_summary(
     app_info: AppInfo,
-    build_path: str,
     artifact_name: str,
     app_inspect_status: str = "Not Run",
     cloud_inspect_status: str = "Not Run",
@@ -33,7 +32,6 @@ def write_build_summary(
         ["Version", app_info.version_number],
         ["Build Number", app_info.build_number],
         ["Artifact Name", artifact_name],
-        ["Build Path", build_path],
     ]
     summary.add_table(build_table_data)
     summary.add_eol()
