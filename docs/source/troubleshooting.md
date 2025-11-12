@@ -206,10 +206,10 @@ on: [push, pull_request]
 
 #### Understanding Annotation vs Check Runs
 AppInspect results appear in two places:
-1. **GitHub Annotations** - Inline comments on changed files showing errors/warnings at specific lines
-2. **Check Runs** - Summary view in the PR "Checks" tab with overall status and error counts
+1. **GitHub Annotations** - Inline comments on changed files showing errors/warnings at specific lines (app-inspect only)
+2. **Check Runs** - Summary view in the PR "Checks" tab with overall status and error counts (all inspect types)
 
-Both are automatically published when AppInspect runs. Annotations require file locations in the AppInspect report to appear inline.
+Annotations are published for app-inspect only. Check runs are published for all AppInspect types (app-inspect, cloud-inspect, ssai-inspect).
 
 ## Getting Help
 

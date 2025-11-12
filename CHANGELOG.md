@@ -21,8 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **App Inspect Inline Annotations** - AppInspect results now appear as inline annotations in the Files Changed tab - no configuration needed!
-  - AppInspect failures and errors now appear as inline annotations on PR as comments, so you can act very fast.
+  - App-inspect failures and errors now appear as inline annotations on PR as comments, so you can act very fast.
   - Annotations work automatically with no additional configuration required.
+  - Note: Annotations are published for app-inspect only, not for cloud-inspect or ssai-inspect.
 
 - **Github Checks for App Inspect** - Publishes check run summaries with error/warning counts
   - Shows detailed breakdown of success, failure, error, warning, manual check, skipped, and not applicable counts

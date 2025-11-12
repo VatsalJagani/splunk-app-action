@@ -98,9 +98,9 @@ class BaseAppInspect(ABC):
         self.app_inspect_result[2] = status
 
     def _publish_annotations(self) -> None:
-        """Publish AppInspect results as GitHub annotations."""
+        """Publish AppInspect results as GitHub annotations (app-inspect only)."""
         try:
-            gat.info("Publishing GitHub annotations from AppInspect results...")
+            gat.info("Publishing GitHub annotations from app-inspect results...")
 
             # For UCC apps, files are in app_dir/package/
             # For regular apps, files are in app_dir/
@@ -112,32 +112,13 @@ class BaseAppInspect(ABC):
             else:
                 source_path = self.saved_paths.app_dir_name
 
-            # Publish app-inspect annotations
+            # Publish app-inspect annotations only (not cloud-inspect or ssai-inspect)
             app_json = os.path.join(
                 self.app_inspect_report_dir, f"{self.report_name_prefix}_app_inspect_check.json"
             )
             if os.path.exists(app_json):
                 annotation_publisher.publish_appinspect_annotations(
                     app_json, "app-inspect", source_path
-                )
-
-            # Publish cloud-inspect annotations
-            cloud_json = os.path.join(
-                self.app_inspect_report_dir,
-                f"{self.report_name_prefix}_cloud_inspect_check.json",
-            )
-            if os.path.exists(cloud_json):
-                annotation_publisher.publish_appinspect_annotations(
-                    cloud_json, "cloud-inspect", source_path
-                )
-
-            # Publish SSAI-inspect annotations
-            ssai_json = os.path.join(
-                self.app_inspect_report_dir, f"{self.report_name_prefix}_ssai_inspect_check.json"
-            )
-            if os.path.exists(ssai_json):
-                annotation_publisher.publish_appinspect_annotations(
-                    ssai_json, "ssai-inspect", source_path
                 )
 
         except Exception as e:
