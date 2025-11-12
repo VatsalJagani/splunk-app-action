@@ -120,7 +120,7 @@ The action automatically generates a comprehensive job summary that appears in t
 
 The job summary includes:
 
-- **Build Information Table** - Displays app package ID, version, build number, artifact name, and build path
+- **Build Information Table** - Displays app package ID, version, build number, and artifact name
 - **AppInspect Results Table** - Shows the status of all three inspect checks with color-coded emoji indicators:
   - ✅ Passed
   - ❌ Failure or Error  
@@ -144,7 +144,6 @@ When you view a completed workflow run in GitHub Actions, you'll see a summary l
 | Version | 2.5.1 |
 | Build Number | 123 |
 | Artifact Name | my_splunk_app_2_5_1_123.tgz |
-| Build Path | /workspace/my_splunk_app_2_5_1_123.tgz |
 
 ### AppInspect Results
 | Check Type | Status |

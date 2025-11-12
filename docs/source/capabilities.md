@@ -304,7 +304,7 @@ AppInspect results are published as inline GitHub annotations and comprehensive 
 
 #### GitHub Job Summary
 - Comprehensive build summary displayed in the Actions UI
-- Shows app metadata (package ID, version, build number, artifact name, build path)
+- Shows app metadata (package ID, version, build number, and artifact name)
 - Displays AppInspect results for all check types (app-inspect, cloud-inspect, ssai-inspect)
 - Includes status indicators with emojis for quick visual feedback
 - Provides direct links to download artifacts

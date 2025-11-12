@@ -33,7 +33,6 @@ def write_build_summary(
         ["Version", app_info.version_number],
         ["Build Number", app_info.build_number],
         ["Artifact Name", artifact_name],
-        ["Build Path", build_path],
     ]
     summary.add_table(build_table_data)
     summary.add_eol()
