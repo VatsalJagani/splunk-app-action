@@ -31,7 +31,7 @@ class LoggerUtility(BaseUtility):
         self.words_for_replacement = {}
 
     @override
-    def implement_utility(self) -> str | list[str] | bool | None:
+    def implement_utility(self) -> str | list[str] | None:
         """
         Add logger manager and props configuration to the app.
 
@@ -63,7 +63,7 @@ class LoggerUtility(BaseUtility):
         }
 
         if not should_execute:
-            return False
+            return None
 
         update1 = self.add_logger_manager_py()
         update2 = self.add_props_content()

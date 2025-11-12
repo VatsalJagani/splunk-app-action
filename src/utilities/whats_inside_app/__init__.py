@@ -43,7 +43,7 @@ class WhatsInsideTheAppUtility(BaseUtility):
         return None
 
     @override
-    def implement_utility(self) -> str | bool | None:
+    def implement_utility(self) -> str | None:
         """
         Generate or update the "What's inside the App" section in README.
 

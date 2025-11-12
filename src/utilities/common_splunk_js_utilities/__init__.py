@@ -16,7 +16,7 @@ class CommonJSUtilitiesFile(BaseUtility):
     """
 
     @override
-    def implement_utility(self) -> str | bool | None:
+    def implement_utility(self) -> str | None:
         """
         Add the common JavaScript utilities file to the app.
 
