@@ -9,7 +9,6 @@ from helpers.saved_values import AppInfo
 
 def write_build_summary(
     app_info: AppInfo,
-    build_path: str,
     artifact_name: str,
     app_inspect_status: str = "Not Run",
     cloud_inspect_status: str = "Not Run",

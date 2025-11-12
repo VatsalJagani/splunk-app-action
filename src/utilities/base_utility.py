@@ -4,6 +4,7 @@ from collections.abc import Sequence
 import github_action_toolkit as gat
 
 from helpers.file_manager import get_file_hash, get_folder_hash, get_multi_files_hash
+from helpers.saved_values import SavedPaths
 
 
 class BaseUtility:
@@ -15,7 +16,7 @@ class BaseUtility:
     must implement the `implement_utility` method to define specific utility behavior.
     """
 
-    def __init__(self, app_read_dir: str, app_write_dir: str) -> None:
+    def __init__(self, saved_paths: SavedPaths, app_read_dir: str, app_write_dir: str) -> None:
         """
         Initialize the base utility with read and write directories.
 
@@ -23,6 +24,7 @@ class BaseUtility:
             app_read_dir: Directory to read the original app files from.
             app_write_dir: Directory to write modified app files to.
         """
+        self.saved_paths: SavedPaths = saved_paths
         self.app_read_dir: str = app_read_dir
         self.app_write_dir: str = app_write_dir
 
@@ -36,7 +38,7 @@ class BaseUtility:
         """
         with gat.group(f"🛠️ Applying Utility: {type(self).__name__}"):
             try:
-                with gat.Repo(path=self.app_write_dir, cleanup=True) as github:
+                with gat.Repo(path=self.saved_paths.repo_dir_path, cleanup=True) as github:
                     files_or_folders_updated = self.implement_utility()
                     hash = None
 

@@ -14,6 +14,7 @@ import os
 import unittest
 from typing import override
 
+from helpers.saved_values import SavedPaths  # pyright: ignore[reportMissingImports]
 from utilities.base_utility import BaseUtility  # pyright: ignore[reportMissingImports]
 
 
@@ -22,7 +23,8 @@ class TestBaseUtility(unittest.TestCase):
     def setUp(self):
         self.app_read_dir = os.path.join(os.path.dirname(__file__), "test_app_repos")
         self.app_write_dir = os.path.join(os.path.dirname(__file__), "test_app_repos")
-        self.base_utility = BaseUtility(self.app_read_dir, self.app_write_dir)
+        self.saved_paths = SavedPaths("test_app")
+        self.base_utility = BaseUtility(self.saved_paths, self.app_read_dir, self.app_write_dir)
 
     def test_implement_utility_not_implemented(self):
         with self.assertRaises(NotImplementedError):

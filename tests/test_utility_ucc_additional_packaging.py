@@ -12,6 +12,7 @@
 
 import os
 
+from helpers.saved_values import SavedPaths  # pyright: ignore[reportMissingImports]
 from utilities.ucc_additional_packaging import (  # pyright: ignore[reportMissingImports]
     UCCAdditionalPackagingUtility,
 )
@@ -30,8 +31,9 @@ def test_implement_utility_file_updated():
         with open(input_file_path, "w") as input_file:
             input_file.write("Old content")
 
+        saved_paths = SavedPaths("test_app")
         utilities_file = UCCAdditionalPackagingUtility(
-            input_file_path, os.path.join(temp_dir, "my_app")
+            saved_paths, input_file_path, os.path.join(temp_dir, "my_app")
         )
         result = utilities_file.implement_utility()
 
@@ -48,7 +50,11 @@ def test_implement_utility_file_updated():
 
 def test_implement_utility_file_created_new():
     with get_temp_directory() as temp_dir:
-        utilities_file = UCCAdditionalPackagingUtility("sample", os.path.join(temp_dir, "my_app"))
+        saved_paths = SavedPaths("test_app")
+
+        utilities_file = UCCAdditionalPackagingUtility(
+            saved_paths, "sample", os.path.join(temp_dir, "my_app")
+        )
         result = utilities_file.implement_utility()
 
         expected_file_path = os.path.join(temp_dir, "additional_packaging.py")
@@ -70,8 +76,9 @@ def test_implement_utility_file_not_updated():
             with open(os.path.join(UTILITIES_FOLDER_PATH, "additional_packaging.py")) as actual_f:
                 input_file.write(actual_f.read())
 
+        saved_paths = SavedPaths("test_app")
         utilities_file = UCCAdditionalPackagingUtility(
-            input_file_path, os.path.join(temp_dir, "my_app")
+            saved_paths, input_file_path, os.path.join(temp_dir, "my_app")
         )
         result = utilities_file.implement_utility()
 

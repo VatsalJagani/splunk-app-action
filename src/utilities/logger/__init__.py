@@ -4,6 +4,7 @@ from typing import override
 import github_action_toolkit as gat
 
 from helpers.file_manager import FullRawFileHandler, PartConfFileHandler
+from helpers.saved_values import SavedPaths
 from utilities.base_utility import BaseUtility
 
 
@@ -18,7 +19,7 @@ class LoggerUtility(BaseUtility):
 
     words_for_replacement: dict[str, str]
 
-    def __init__(self, app_read_dir: str, app_write_dir: str) -> None:
+    def __init__(self, saved_paths: SavedPaths, app_read_dir: str, app_write_dir: str) -> None:
         """
         Initialize the logger utility.
 
@@ -26,7 +27,7 @@ class LoggerUtility(BaseUtility):
             app_read_dir: Directory to read the original app files from.
             app_write_dir: Directory to write modified app files to.
         """
-        super().__init__(app_read_dir, app_write_dir)
+        super().__init__(saved_paths, app_read_dir, app_write_dir)
         self.words_for_replacement = {}
 
     @override

@@ -50,12 +50,10 @@ class TestJobSummary(unittest.TestCase):
     def test_write_build_summary_basic(self):
         """Test basic job summary writing."""
         app_info = MockAppInfo()
-        build_path = "/path/to/build/test_app_1_2_3_42.tgz"
         artifact_name = "test_app_1_2_3_42.tgz"
 
         write_build_summary(
             app_info=app_info,
-            build_path=build_path,
             artifact_name=artifact_name,
         )
 
@@ -73,12 +71,10 @@ class TestJobSummary(unittest.TestCase):
     def test_write_build_summary_with_inspect_results(self):
         """Test job summary with AppInspect results."""
         app_info = MockAppInfo()
-        build_path = "/path/to/build/test_app_1_2_3_42.tgz"
         artifact_name = "test_app_1_2_3_42.tgz"
 
         write_build_summary(
             app_info=app_info,
-            build_path=build_path,
             artifact_name=artifact_name,
             app_inspect_status="Passed",
             cloud_inspect_status="Failure",
@@ -96,12 +92,10 @@ class TestJobSummary(unittest.TestCase):
     def test_write_build_summary_with_skipped_inspect(self):
         """Test job summary when AppInspect is skipped."""
         app_info = MockAppInfo()
-        build_path = "/path/to/build/test_app_1_2_3_42.tgz"
         artifact_name = "test_app_1_2_3_42.tgz"
 
         write_build_summary(
             app_info=app_info,
-            build_path=build_path,
             artifact_name=artifact_name,
             app_inspect_status="Skipped",
             cloud_inspect_status="Skipped",
@@ -121,12 +115,10 @@ class TestJobSummary(unittest.TestCase):
         os.environ["GITHUB_RUN_ID"] = "123456789"
 
         app_info = MockAppInfo()
-        build_path = "/path/to/build/test_app_1_2_3_42.tgz"
         artifact_name = "test_app_1_2_3_42.tgz"
 
         write_build_summary(
             app_info=app_info,
-            build_path=build_path,
             artifact_name=artifact_name,
         )
 

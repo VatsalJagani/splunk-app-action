@@ -12,6 +12,7 @@
 
 import os
 
+from helpers.saved_values import SavedPaths  # pyright: ignore[reportMissingImports]
 from utilities.logger import LoggerUtility  # pyright: ignore[reportMissingImports]
 
 from .helper_test import get_temp_directory, setup_temporary_env_vars
@@ -25,7 +26,8 @@ def test_logger_utility_skipped_due_to_missing_prefix_1():
                 "INPUT_LOGGER_SOURCETYPE": "sample_logger_sourcetype",
             }
         ):
-            logger = LoggerUtility("dummy", temp_dir)
+            saved_paths = SavedPaths("test_app")
+            logger = LoggerUtility(saved_paths, "dummy", temp_dir)
 
             # Exercise: Call the function
             result = logger.implement_utility()
@@ -39,7 +41,8 @@ def test_logger_utility_skipped_due_to_missing_prefix_1():
 def test_logger_utility_skipped_due_to_missing_prefix_2():
     with get_temp_directory() as temp_dir:
         with setup_temporary_env_vars({"INPUT_LOGGER_SOURCETYPE": "sample_logger_sourcetype"}):
-            logger = LoggerUtility("dummy", temp_dir)
+            saved_paths = SavedPaths("test_app")
+            logger = LoggerUtility(saved_paths, "dummy", temp_dir)
 
             # Exercise: Call the function
             result = logger.implement_utility()
@@ -55,7 +58,8 @@ def test_logger_utility_skipped_due_to_missing_sourcetype_1():
         with setup_temporary_env_vars(
             {"INPUT_LOGGER_LOG_FILES_PREFIX": "sample_prefix", "INPUT_LOGGER_SOURCETYPE": "NONE"}
         ):
-            logger = LoggerUtility("dummy", temp_dir)
+            saved_paths = SavedPaths("test_app")
+            logger = LoggerUtility(saved_paths, "dummy", temp_dir)
 
             # Exercise: Call the function
             result = logger.implement_utility()
@@ -73,7 +77,8 @@ def test_logger_utility_skipped_due_to_missing_sourcetype_2():
                 "INPUT_LOGGER_LOG_FILES_PREFIX": "sample_prefix",
             }
         ):
-            logger = LoggerUtility("dummy", temp_dir)
+            saved_paths = SavedPaths("test_app")
+            logger = LoggerUtility(saved_paths, "dummy", temp_dir)
 
             # Exercise: Call the function
             result = logger.implement_utility()
@@ -92,7 +97,8 @@ def test_logger_utility_added():
                 "INPUT_LOGGER_SOURCETYPE": "sample_logger_sourcetype",
             }
         ):
-            logger = LoggerUtility("dumpy", temp_dir)
+            saved_paths = SavedPaths("test_app")
+            logger = LoggerUtility(saved_paths, "dumpy", temp_dir)
             result = logger.implement_utility()
 
             # Verify: Check if the utility was successfully added
@@ -113,7 +119,8 @@ def test_logger_utility_updated():
                 "INPUT_LOGGER_SOURCETYPE": "sample_logger_sourcetype",
             }
         ):
-            logger = LoggerUtility("dumpy", temp_dir)
+            saved_paths = SavedPaths("test_app")
+            logger = LoggerUtility(saved_paths, "dumpy", temp_dir)
             result = logger.implement_utility()
 
             # Verify: Check if the utility was successfully added
@@ -128,7 +135,8 @@ def test_logger_utility_updated():
                 "INPUT_LOGGER_SOURCETYPE": "logger_sourcetype_new",
             }
         ):
-            logger = LoggerUtility("dumpy", temp_dir)
+            saved_paths = SavedPaths("test_app")
+            logger = LoggerUtility(saved_paths, "dumpy", temp_dir)
             result = logger.implement_utility()
 
             # Verify: Check if the utility was successfully updated with new content
@@ -151,7 +159,8 @@ def test_logger_utility_not_updated():
                 "INPUT_LOGGER_SOURCETYPE": "sample_logger_sourcetype",
             }
         ):
-            logger = LoggerUtility("dumpy", temp_dir)
+            saved_paths = SavedPaths("test_app")
+            logger = LoggerUtility(saved_paths, "dumpy", temp_dir)
 
             # Exercise: Call the function twice to simulate no changes
             result1 = logger.implement_utility()

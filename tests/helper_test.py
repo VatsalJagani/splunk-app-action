@@ -116,9 +116,12 @@ def get_temp_directory():
     if not os.path.exists(temp_dir):
         os.mkdir(temp_dir)
 
+    original_cwd = os.getcwd()
+
     try:
         yield temp_dir
     finally:
+        os.chdir(original_cwd)
         if os.path.exists(temp_dir):
             shutil.rmtree(temp_dir)
 
