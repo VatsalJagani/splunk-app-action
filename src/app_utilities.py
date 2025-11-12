@@ -65,7 +65,9 @@ class SplunkAppUtilities:
         gat.info(f"🛠️ Installing app utilities - {app_utilities}")
         for utility in app_utilities:
             if utility == "whats_in_the_app":
-                WhatsInsideTheAppUtility(self.saved_paths, self.app_read_dir, self.app_write_dir)
+                WhatsInsideTheAppUtility(
+                    self.saved_paths, self.app_read_dir, self.app_write_dir
+                ).add()
 
             elif utility == "logger":
                 LoggerUtility(self.saved_paths, self.app_read_dir, self.app_write_dir).add()
