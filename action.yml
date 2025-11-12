@@ -55,7 +55,7 @@ inputs:
     default: ""
 
   my_github_token:
-    description: "GitHub token to create pull requests for app utilities. OPTIONAL when workflow has 'contents: write' and 'pull-requests: write' permissions - the action will use the automatic GITHUB_TOKEN. Only needed if you want to use a Personal Access Token (PAT) instead of the automatic token."
+    description: "GitHub token to create pull requests for app utilities. OPTIONAL when workflow has 'contents: write' and 'pull-requests: write' permissions - the action will automatically use the workflow's GITHUB_TOKEN. Only needed if you want to use a Personal Access Token (PAT) instead."
     required: false
     # Prefer using the automatically provided secrets.GITHUB_TOKEN from the workflow.
     # Keep this input for backward-compatibility if users want to provide a PAT.
@@ -125,8 +125,7 @@ runs:
         INPUT_LOCAL_APP_INSPECT: ${{ inputs.local_app_inspect }}
         INPUT_FAIL_ON: ${{ inputs.fail_on }}
         INPUT_APP_UTILITIES: ${{ inputs.app_utilities }}
-        # Use the user-provided input if supplied, otherwise fall back to the workflow's secrets.GITHUB_TOKEN
-        GITHUB_TOKEN: "${{ inputs.my_github_token || secrets.GITHUB_TOKEN }}"
+        GITHUB_TOKEN: "${{ inputs.my_github_token || github.token }}"
         INPUT_CURRENT_BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
         INPUT_LOGGER_LOG_FILES_PREFIX: ${{ inputs.logger_log_files_prefix }}
         INPUT_LOGGER_SOURCETYPE: ${{ inputs.logger_sourcetype }}
