@@ -37,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - App-inspect failures and errors now appear as inline annotations on PR as comments, so you can act very fast.
   - Annotations work automatically with no additional configuration required.
   - Note: Annotations are published for app-inspect only, not for cloud-inspect or ssai-inspect.
+  - Annotation titles now include group name: `"App-Inspect: <Group Name> : <Check Name>"`
+  - Example: `"App-Inspect: Check Alert Actions Config : Check For Payload Format"`
 
 - **Flexible Failure Modes** - Control workflow failure based on AppInspect results
   - New `fail_on` input to control failure behavior (default: "errors")

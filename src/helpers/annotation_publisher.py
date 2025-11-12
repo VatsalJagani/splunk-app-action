@@ -67,6 +67,8 @@ def _publish_annotations_from_data(
             if not isinstance(group, dict):
                 continue
 
+            group_name = group.get("name", "")
+
             checks = group.get("checks", [])
             if not isinstance(checks, list):
                 continue
@@ -80,7 +82,9 @@ def _publish_annotations_from_data(
                 if result_status not in ["failure", "error", "warning"]:
                     continue
 
-                annotation_count += _publish_check_annotation(check, check_type, app_dir)
+                annotation_count += _publish_check_annotation(
+                    check, check_type, app_dir, group_name
+                )
 
     if annotation_count > 0:
         gat.info(f"Published {annotation_count} {check_type} annotations")
@@ -88,7 +92,9 @@ def _publish_annotations_from_data(
         gat.debug(f"No {check_type} annotations to publish")
 
 
-def _publish_check_annotation(check: dict[str, Any], check_type: str, app_dir: str) -> int:
+def _publish_check_annotation(
+    check: dict[str, Any], check_type: str, app_dir: str, group_name: str = ""
+) -> int:
     """
     Publish a single check as GitHub annotation(s). Returns count of annotations published.
 
@@ -96,6 +102,7 @@ def _publish_check_annotation(check: dict[str, Any], check_type: str, app_dir: s
         check: AppInspect check data
         check_type: Type of check (app-inspect, cloud-inspect, ssai-inspect)
         app_dir: App directory path to prepend to file paths
+        group_name: Group name from the check data
     """
     count = 0
     check_name = check.get("name", "unknown-check")
@@ -106,9 +113,18 @@ def _publish_check_annotation(check: dict[str, Any], check_type: str, app_dir: s
     if not isinstance(messages, list):
         messages = []
 
-    # Determine title based on check type
-    title_prefix = check_type.replace("-inspect", "").upper()
-    title = f"{title_prefix}: {check_name.replace('_', ' ').title()}"
+    # Format title: "App-Inspect: <group-name> : <check-name>"
+    title_prefix = check_type.replace("-inspect", "").capitalize() + "-Inspect"
+    formatted_group = group_name.replace("_", " ").title() if group_name else ""
+    formatted_check = check_name.replace("_", " ").title()
+
+    if formatted_group:
+        title = f"{title_prefix}: {formatted_group} : {formatted_check}"
+    else:
+        title = f"{title_prefix}: {formatted_check}"
+
+    # Format description: replace newlines with spaces
+    formatted_description = description.replace("\n", " ").strip() if description else ""
 
     # Publish annotation for each message
     for msg in messages:
@@ -119,8 +135,8 @@ def _publish_check_annotation(check: dict[str, Any], check_type: str, app_dir: s
         if not msg_text:
             continue
 
-        # Combine description and message text
-        combined_message = description + "\n" + msg_text if description else msg_text
+        # Use formatted description as the message
+        combined_message = formatted_description if formatted_description else msg_text
 
         # Get file location
         file_path = msg.get("message_filename")
@@ -160,7 +176,9 @@ def _publish_check_annotation(check: dict[str, Any], check_type: str, app_dir: s
 
     # If no messages, publish a single annotation without location
     if count == 0:
-        combined_message = description if description else "AppInspect check failed"
+        combined_message = (
+            formatted_description if formatted_description else "AppInspect check failed"
+        )
         if result_status in ["failure", "error"]:
             gat.error(message=combined_message, title=title)
         else:
