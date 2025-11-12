@@ -399,6 +399,8 @@ The action provides several utilities that automatically enhance your Splunk App
 ```{important}
 **Automatic Pull Requests:** Utilities make code changes and create pull requests for you to review and merge.
 
+Each utility creates PRs with descriptive titles (e.g., "Added/Updated Logger Utility via splunk-app-action") making it easy to identify which utility made changes.
+
 **Required:** Grant workflow permissions for the action to create PRs:
 ```yaml
 permissions:

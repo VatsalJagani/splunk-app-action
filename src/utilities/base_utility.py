@@ -27,6 +27,7 @@ class BaseUtility:
         self.saved_paths: SavedPaths = saved_paths
         self.app_read_dir: str = app_read_dir
         self.app_write_dir: str = app_write_dir
+        self.pr_title: str = "Added/Updated Utility via splunk-app-action"
 
     def add(self) -> None:
         """
@@ -67,7 +68,7 @@ class BaseUtility:
                         github.create_new_branch(_msg)
                         github.add_all_and_commit(_msg)
                         github.push()
-                        github.create_pr()
+                        github.create_pr(title=self.pr_title)
                     else:
                         gat.error("Unable to get hash to generate PR for app utility.")
             except Exception as e:

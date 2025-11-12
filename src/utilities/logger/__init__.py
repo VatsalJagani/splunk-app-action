@@ -28,6 +28,7 @@ class LoggerUtility(BaseUtility):
             app_write_dir: Directory to write modified app files to.
         """
         super().__init__(saved_paths, app_read_dir, app_write_dir)
+        self.pr_title: str = "Added/Updated Logger Utility via splunk-app-action"
         self.words_for_replacement = {}
 
     @override

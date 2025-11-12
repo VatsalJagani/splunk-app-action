@@ -99,6 +99,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Personal Access Tokens (PAT) via `my_github_token` are still supported for advanced use cases
   - Simplifies workflow configuration - no need to create and manage custom GitHub tokens for basic usage
 
+- **Utility PR Title Improvement** - Automatically generated PRs now contains more human readable PR titles instead of file hash as PR title.
+
 - **Logging Improvements**
   - GitHub action now generates more readable logs
   - Log groups allow expanding/collapsing details as needed

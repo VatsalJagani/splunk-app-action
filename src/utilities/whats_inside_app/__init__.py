@@ -54,6 +54,8 @@ class WhatsInsideTheAppUtility(BaseUtility):
             Path to the updated README file if changes were made, None otherwise.
         """
         gat.info("📋 Adding WhatsInsideTheAppUtility")
+        self.pr_title: str = "Added/Updated App Content inside README via splunk-app-action"
+
         start_markers = [
             "# What's in the App",
             "What's in the Add-on",

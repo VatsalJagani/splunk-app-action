@@ -25,6 +25,7 @@ class UCCAdditionalPackagingUtility(BaseUtility):
             Path to the added script if changes were made, None otherwise.
         """
         gat.info("📦 Adding UCCAdditionalPackagingUtility")
+        self.pr_title: str = "Added/Updated UCC Additional Packaging Utility via splunk-app-action"
 
         folder_path = os.path.dirname(
             self.app_write_dir
