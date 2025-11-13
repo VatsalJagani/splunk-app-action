@@ -37,7 +37,7 @@ clean:
 .PHONY : docs-live
 docs-live :
 	rm -rf docs/build/
-	sphinx-autobuild -b html --watch src/ docs/source/ docs/build/
+	uv run sphinx-autobuild -b html --watch src/ docs/source/ docs/build/
 
 .PHONY : docs-check
 docs-check:

@@ -303,6 +303,9 @@ AppInspect results are published as inline GitHub annotations and comprehensive 
 - Annotation titles include check group and name for easy identification (e.g., "App-Inspect: Check Alert Actions Config : Check For Payload Format")
 - Automatically published for app-inspect only (not for cloud-inspect or ssai-inspect)
 
+![GitHub Annotation for App-Inspect Failure Screenshot V5](_static/images/github_annotation_app_inspect_v5.png)
+
+
 #### GitHub Job Summary
 - Comprehensive build summary displayed in the Actions UI
 - Shows app metadata (package ID, version, build number, and artifact name)
@@ -311,7 +314,8 @@ AppInspect results are published as inline GitHub annotations and comprehensive 
 - Provides direct links to download artifacts
 - Automatically generated for every workflow run
 
-````
+![GitHub Job Summary Screenshot V5](_static/images/github_job_summary_v5.png)
+
 
 #### Failure Control
 Control when the workflow fails based on AppInspect results:
@@ -410,7 +414,6 @@ permissions:
 ```
 
 **Alternative:** Set repository-wide permissions in Settings → Actions → General → Workflow permissions → "Read and write permissions"
-```
 
 ### Available Utilities:
 
