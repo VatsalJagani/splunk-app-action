@@ -11,15 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`my_github_token` No Longer Required for App Utilities** - The action now uses the workflow's automatic `GITHUB_TOKEN` by default
   - **Breaking Change:** The `my_github_token` input is now optional - you can omit it entirely
-  - **Required:** Grant workflow permissions for the action to create branches and pull requests:
-    ```yaml
-    permissions:
-      contents: write
-      pull-requests: write
-    ```
-  - **Alternative 1:** Set repository-wide permissions in Settings → Actions → General → Workflow permissions → "Read and write permissions"
-  - **Alternative 2:** Continue using `my_github_token` with a Personal Access Token (PAT) if you prefer explicit token management
-  - **Migration:** Remove `my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}` from your workflow and add the `permissions:` block instead
+  - **Required:** Grant repository-wide permissions for the action to create branches and pull requests:
+    1. Go to Repository Settings → Actions → General
+    2. Scroll to "Workflow permissions"
+    3. Select "Read and write permissions"
+    4. Check "Allow GitHub Actions to create and approve pull requests"
+  - **Alternative:** Continue using `my_github_token` with a Personal Access Token (PAT) for cross-repo permissions or explicit token management
+  - **Migration:** Remove `my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}` from your workflow and configure repository permissions
+  - **Note:** Workflow-level `permissions:` blocks do not work for composite actions
   - See updated examples in documentation for the new simplified configuration
 
 - **Migrate from `splunk_python_sdk` utility** - Consider migrating to the new `python_requirements_file` feature for better dependency management.
@@ -97,7 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Simplified Authentication for App Utilities** - `my_github_token` is now optional
   - The action automatically uses the workflow's built-in `GITHUB_TOKEN` when `my_github_token` is not provided
-  - Users must grant workflow permissions (`contents: write` and `pull-requests: write`) for automatic token usage
+  - Users must configure repository-wide permissions for automatic token usage (workflow-level `permissions:` blocks do not work for composite actions)
   - Personal Access Tokens (PAT) via `my_github_token` are still supported for advanced use cases
   - Simplifies workflow configuration - no need to create and manage custom GitHub tokens for basic usage
 

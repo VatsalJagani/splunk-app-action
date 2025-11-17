@@ -84,27 +84,7 @@ Error: Error in utility WhatsInsideTheAppUtility: Failed to create pull request:
 
 **Root Cause:** GitHub workflows don't have permission to create pull requests.
 
-**Solution (Choose ONE option):**
-
-**Option 1: Workflow-level permissions (Recommended)**
-
-Add permissions to your workflow file:
-```yaml
-permissions:
-  contents: write
-  pull-requests: write
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: VatsalJagani/splunk-app-action@v4
-        with:
-          app_utilities: "logger"
-          # No my_github_token needed!
-```
-
-**Option 2: Repository-wide permissions**
+**Solution:**
 
 1. Go to your Repository `Settings` > `Actions` > `General`
 2. Scroll down to **Workflow permissions** section
@@ -115,7 +95,7 @@ jobs:
 
 ![Workflow Permission Detail](_static/images/workflow_permission_for_pr_2.png)
 
-**Option 3: Use Personal Access Token (Advanced)**
+**Alternative: Use Personal Access Token (Not Recommended)**
 
 If you prefer explicit token management or need cross-repo permissions:
 1. Create a Personal Access Token with `repo` scope

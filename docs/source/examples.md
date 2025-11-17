@@ -686,33 +686,20 @@ SPLUNKBASE_PASSWORD = "your_splunkbase_password"
 
 When using `app_utilities`, you need to grant permissions for creating branches and pull requests.
 
-**Option 1: Workflow-Level Permissions (Recommended)**
-
-Add permissions block to your workflow:
-```yaml
-permissions:
-  contents: write
-  pull-requests: write
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: VatsalJagani/splunk-app-action@v4
-        with:
-          app_utilities: "logger"
-```
-
-**Option 2: Repository-Wide Permissions**
+**Recommended: Repository-Wide Permissions**
 
 1. Go to Repository Settings → Actions → General
 2. Scroll to "Workflow permissions"
 3. Select "Read and write permissions"
 4. Check "Allow GitHub Actions to create and approve pull requests"
 
-**Option 3: Personal Access Token (Advanced)**
+![Workflow Permission Settings](_static/images/workflow_permission_for_pr_1.png)
 
-If you need cross-repo permissions or prefer explicit token management:
+![Workflow Permission Detail](_static/images/workflow_permission_for_pr_2.png)
+
+**Alternative: Personal Access Token (Advanced)**
+
+For cross-repo permissions or explicit token management:
 
 1. Go to GitHub Settings → Developer settings → Personal access tokens
 2. Create token with `repo` scope
@@ -724,6 +711,7 @@ If you need cross-repo permissions or prefer explicit token management:
        app_utilities: "logger"
        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
    ```
+
 ```{tip}
-Test your workflow on a feature branch first to ensure all secrets are correctly configured before applying to your main branch.
+Test your workflow on a feature branch first to ensure all permissions are correctly configured before applying to your main branch.
 ```

@@ -67,28 +67,28 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
 
 ## Workflow Permissions for App Utilities
 
-When using `app_utilities`, the action needs permission to create branches and pull requests. Grant permissions in one of two ways:
+When using `app_utilities`, the action needs permission to create branches and pull requests.
 
-**Option 1: Workflow-level permissions (recommended)**
-```yaml
-permissions:
-  contents: write
-  pull-requests: write
+**Recommended: Repository-wide permissions**
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: VatsalJagani/splunk-app-action@v4
-        with:
-          app_utilities: "logger"
-```
-
-**Option 2: Repository-wide permissions**
 1. Go to Repository Settings → Actions → General
 2. Scroll to "Workflow permissions"
 3. Select "Read and write permissions"
 4. Check "Allow GitHub Actions to create and approve pull requests"
+
+![Workflow Permission Settings](https://raw.githubusercontent.com/VatsalJagani/splunk-app-action/develop/docs/source/_static/images/workflow_permission_for_pr_1.png)
+
+![Workflow Permission Detail](https://raw.githubusercontent.com/VatsalJagani/splunk-app-action/develop/docs/source/_static/images/workflow_permission_for_pr_2.png)
+
+**Alternative: Personal Access Token (Advanced)**
+
+For cross-repo permissions or explicit token management:
+```yaml
+- uses: VatsalJagani/splunk-app-action@v4
+  with:
+    app_utilities: "logger"
+    my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}  # PAT with repo scope
+```
 
 See [Troubleshooting](https://splunk-app-action.readthedocs.io/en/latest/troubleshooting.html) for more details.
 

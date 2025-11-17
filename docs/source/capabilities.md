@@ -406,14 +406,19 @@ The action provides several utilities that automatically enhance your Splunk App
 
 Each utility creates PRs with descriptive titles (e.g., "Added/Updated Logger Utility via splunk-app-action") making it easy to identify which utility made changes.
 
-**Required:** Grant workflow permissions for the action to create PRs:
-```yaml
-permissions:
-  contents: write
-  pull-requests: write
+**Required Permissions**
+
+1. Go to your Repository `Settings` > `Actions` > `General`
+2. Scroll down to **Workflow permissions** section
+3. Select **Read and write permissions**
+4. Make sure **Allow GitHub Actions to create and approve pull requests** is checked
+
+![Workflow Permission Settings](_static/images/workflow_permission_for_pr_1.png)
+
+![Workflow Permission Detail](_static/images/workflow_permission_for_pr_2.png)
+
 ```
 
-**Alternative:** Set repository-wide permissions in Settings → Actions → General → Workflow permissions → "Read and write permissions"
 
 ### Available Utilities:
 
