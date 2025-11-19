@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v5.0.0](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v5.0.0) - 2025-11-19
+
 ### Upgrade Notes
 
 - **`my_github_token` No Longer Required for App Utilities** - The action now uses the workflow's automatic `GITHUB_TOKEN` by default

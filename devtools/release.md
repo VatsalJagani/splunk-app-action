@@ -27,20 +27,22 @@
     python devtools/prepare_changelog.py
     ```
 
-4. Creating the new vX tag.
+4. Commit the changes.
+
+5. Creating the new vX tag.
 
     ```bash
     git tag "<tag-here>" -m "<tag-here>"
     # Example - git tag "v4" -m "v4"
     ```
 
-5. Push the Changes.
+6. Push the Changes.
 
     ```bash
     git push --tags
     ```
 
-6. Workflow Run (This will be executed automatically given that the tag is in vX format.)
+7. Workflow Run (This will be executed automatically given that the tag is in vX format.)
     * It generates Release Notes from Change Log.
     * It publishes a GitHub release on the Repo.
 
