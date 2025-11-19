@@ -27,6 +27,8 @@
     python devtools/prepare_changelog.py
     ```
 
+    * Change tag number in CHANGELOG.md from v5.0.0 to v5
+
 4. Commit the changes.
 
 5. Creating the new vX tag.
@@ -39,6 +41,7 @@
 6. Push the Changes.
 
     ```bash
+    git push
     git push --tags
     ```
 
