@@ -15,8 +15,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
 ```
@@ -32,8 +32,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
@@ -51,8 +51,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           local_app_inspect: true
@@ -69,8 +69,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           local_app_inspect: true
@@ -88,8 +88,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           local_app_inspect: true
@@ -111,8 +111,8 @@ jobs:
       matrix:
         app: ["my_splunk_app", "my_splunk_addon", "another_app"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: ${{ matrix.app }}
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
@@ -130,8 +130,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "TA_my_addon"
           use_ucc_gen: true
@@ -151,8 +151,8 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "."
           use_ucc_gen: true
@@ -181,8 +181,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           python_requirements_file: "lib/requirements.txt"  # Path relative to app_dir
@@ -211,8 +211,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           python_requirements_file: "lib/requirements.txt"  # Path relative to app_dir
@@ -230,8 +230,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           python_requirements_file: "dependencies/production.txt"  # Installs to dependencies/
@@ -250,8 +250,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           to_make_permission_changes: true
@@ -268,8 +268,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         env:
           SPLUNK_APP_ACTION_1: "find . -type f -exec chmod 644 '{}' \\;"
           SPLUNK_APP_ACTION_2: "find . -type f -name '*.sh' -exec chmod +x '{}' \\;"
@@ -290,8 +290,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         env:
           SPLUNK_APP_ACTION_1: "rm -rf tests/"
           SPLUNK_APP_ACTION_2: "rm -rf .pytest_cache/"
@@ -310,8 +310,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         env:
           SPLUNK_APP_ACTION_1: "echo 'version=${{ github.sha }}' >> default/app.conf"
           SPLUNK_APP_ACTION_2: "cp ../LICENSE.txt ."
@@ -334,8 +334,8 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           app_utilities: "whats_in_the_app,logger,splunk_python_sdk,common_js_utilities"
@@ -356,8 +356,8 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           app_utilities: "logger"
@@ -381,8 +381,8 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           app_utilities: "splunk_python_sdk"
@@ -404,10 +404,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - id: build_app
-        uses: VatsalJagani/splunk-app-action@v4
+        uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
@@ -444,7 +444,7 @@ jobs:
       
       # Upload with custom naming
       - name: Upload to Custom Location
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ steps.build_app.outputs.app_package_id }}-v${{ steps.build_app.outputs.app_version }}
           path: ${{ steps.build_app.outputs.build_path }}
@@ -460,8 +460,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           # Only run app-inspect on main branch
@@ -479,12 +479,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       # Use fast local validation for PRs and dev branches
       - name: Build with Local Inspect
         if: github.ref != 'refs/heads/main'
-        uses: VatsalJagani/splunk-app-action@v4
+        uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           local_app_inspect: true
@@ -492,7 +492,7 @@ jobs:
       # Use Splunkbase API for main branch (production-ready validation)
       - name: Build with Splunkbase Inspect
         if: github.ref == 'refs/heads/main'
-        uses: VatsalJagani/splunk-app-action@v4
+        uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
@@ -511,10 +511,10 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - id: build_app
-        uses: VatsalJagani/splunk-app-action@v4
+        uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
@@ -576,8 +576,8 @@ jobs:
             ucc: false
     
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: ${{ matrix.app_dir }}
           use_ucc_gen: ${{ matrix.ucc }}
@@ -598,12 +598,12 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       # Development branch - utilities only
       - name: Add Utilities (dev branch)
         if: github.ref == 'refs/heads/develop'
-        uses: VatsalJagani/splunk-app-action@v4
+        uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           app_utilities: "whats_in_the_app,logger,splunk_python_sdk"
@@ -612,7 +612,7 @@ jobs:
       # Main branch - full build with inspect
       - name: Full Build (main branch)
         if: github.ref == 'refs/heads/main'
-        uses: VatsalJagani/splunk-app-action@v4
+        uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
@@ -706,7 +706,7 @@ For cross-repo permissions or explicit token management:
 3. Add to repository secrets as `MY_GITHUB_TOKEN`
 4. Use in workflow:
    ```yaml
-   - uses: VatsalJagani/splunk-app-action@v4
+   - uses: VatsalJagani/splunk-app-action@v5
      with:
        app_utilities: "logger"
        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}

@@ -55,8 +55,8 @@ jobs:
   build:
     runs-on: ubuntu-latest  # Required - must be Linux
     steps:
-      - uses: actions/checkout@v4
-      - uses: VatsalJagani/splunk-app-action@v4
+      - uses: actions/checkout@v5
+      - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
 ```
@@ -87,9 +87,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: build_app
-        uses: VatsalJagani/splunk-app-action@v4
+        uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
       
@@ -106,7 +106,7 @@ jobs:
       
       - name: Upload to release
         if: github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: splunk-app-${{ steps.build_app.outputs.app_version }}
           path: ${{ steps.build_app.outputs.build_path }}

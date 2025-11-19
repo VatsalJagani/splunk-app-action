@@ -6,45 +6,45 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
 
 ```yaml
 # Basic build generation
-- uses: VatsalJagani/splunk-app-action@v4
+- uses: VatsalJagani/splunk-app-action@v5
   with:
     app_dir: "my_app"
 
 # Build with app-inspect checks  
-- uses: VatsalJagani/splunk-app-action@v4
+- uses: VatsalJagani/splunk-app-action@v5
   with:
     app_dir: "my_app"
     splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
     splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 
 # Build with local app-inspect (faster, no credentials needed)
-- uses: VatsalJagani/splunk-app-action@v4
+- uses: VatsalJagani/splunk-app-action@v5
   with:
     app_dir: "my_app"
     local_app_inspect: true
 
 # Build with inline code annotations for PR feedback
-- uses: VatsalJagani/splunk-app-action@v4
+- uses: VatsalJagani/splunk-app-action@v5
   with:
     app_dir: "my_app"
     local_app_inspect: true
     fail_on: "errors"  # Options: errors, warnings, none
 
 # UCC Add-on build
-- uses: VatsalJagani/splunk-app-action@v4
+- uses: VatsalJagani/splunk-app-action@v5
   with:
     app_dir: "TA_my_addon" 
     use_ucc_gen: true
 
 # With Python dependency management
 # Note: Path relative to app_dir, installs to same directory as requirements file
-- uses: VatsalJagani/splunk-app-action@v4
+- uses: VatsalJagani/splunk-app-action@v5
   with:
     app_dir: "my_app"
     python_requirements_file: "lib/requirements.txt"
 
 # With app utilities (logger, SDK, etc.) - requires workflow permissions
-- uses: VatsalJagani/splunk-app-action@v4
+- uses: VatsalJagani/splunk-app-action@v5
   permissions:
     contents: write
     pull-requests: write
@@ -56,7 +56,7 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
 
 # Using action outputs in workflows
 - id: build_step
-  uses: VatsalJagani/splunk-app-action@v4
+  uses: VatsalJagani/splunk-app-action@v5
   with:
     app_dir: "my_app"
 - name: Use build outputs
@@ -84,7 +84,7 @@ When using `app_utilities`, the action needs permission to create branches and p
 
 For cross-repo permissions or explicit token management:
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v4
+- uses: VatsalJagani/splunk-app-action@v5
   with:
     app_utilities: "logger"
     my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}  # PAT with repo scope

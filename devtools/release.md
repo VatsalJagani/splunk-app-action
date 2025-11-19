@@ -35,7 +35,7 @@
 
     ```bash
     git tag "<tag-here>" -m "<tag-here>"
-    # Example - git tag "v4" -m "v4"
+    # Example - git tag "v5" -m "v5"
     ```
 
 6. Push the Changes.

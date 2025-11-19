@@ -18,7 +18,7 @@ App-inspect failed due to file permission issues
 
 **Solution:** Enable automatic permission fixes:
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v4
+- uses: VatsalJagani/splunk-app-action@v5
   with:
     to_make_permission_changes: true
 ```
@@ -102,7 +102,7 @@ If you prefer explicit token management or need cross-repo permissions:
 2. Add it to repository secrets as `MY_GITHUB_TOKEN`
 3. Pass it to the action:
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v4
+- uses: VatsalJagani/splunk-app-action@v5
   with:
     app_utilities: "logger"
     my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
@@ -180,7 +180,7 @@ Build directory not found or access denied
 ```
 
 **Solution:**
-- Ensure your workflow checks out the repository first: `uses: actions/checkout@v4`
+- Ensure your workflow checks out the repository first: `uses: actions/checkout@v5`
 - Verify the `app_dir` path is correct and relative to repository root
 - Check that the directory contains a valid Splunk app structure
 
