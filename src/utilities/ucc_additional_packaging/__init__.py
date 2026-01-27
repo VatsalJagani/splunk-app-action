@@ -37,7 +37,7 @@ class UCCAdditionalPackagingUtility(BaseUtility):
 
         is_updated = FullRawFileHandler(
             os.path.join(os.path.dirname(__file__), "additional_packaging.py"),
-            os.path.join(file_path),
+            file_path,
         ).validate_file_content()
 
         if is_updated:
