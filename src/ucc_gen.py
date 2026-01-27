@@ -25,7 +25,7 @@ def build(saved_paths: SavedPaths, app_info: AppInfo) -> str:
     gat.debug("Preparing temporary build directory")
     if os.path.exists("ucc_build_dir"):
         shutil.rmtree("ucc_build_dir")
-    shutil.copytree(saved_paths.repo_dir_name, "ucc_build_dir")
+    shutil.copytree(saved_paths.repo_dir_path, "ucc_build_dir")
 
     ta_dir = os.path.join("ucc_build_dir", saved_paths.app_dir_name)
     gat.debug(f"Executing ucc-gen build in directory: {ta_dir}")

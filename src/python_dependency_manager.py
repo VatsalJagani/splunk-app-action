@@ -27,9 +27,9 @@ def install_dependencies(
     gat.debug("Preparing temporary build directory")
     if os.path.exists("python_deps_build_dir"):
         shutil.rmtree("python_deps_build_dir")
-    shutil.copytree(saved_paths.repo_dir_name, "python_deps_build_dir")
+    shutil.copytree(saved_paths.repo_dir_path, "python_deps_build_dir")
 
-    app_dir = os.path.join("python_deps_build_dir", saved_paths.app_dir_name)
+    app_dir = os.path.join("python_deps_build_dir", saved_paths.app_dir_path)
     requirements_file_path = os.path.join(app_dir, python_requirements_file)
 
     # Validate requirements.txt exists

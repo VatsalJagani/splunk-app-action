@@ -166,7 +166,7 @@ def main() -> None:
 
     try:
         app_write_dir = (
-            os.path.join(saved_paths.app_dir_name, "package")
+            os.path.join(saved_paths.app_dir_path, "package")
             if use_ucc_gen
             else saved_paths.app_dir_path
         )
