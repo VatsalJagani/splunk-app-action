@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fixed
+
+* Fixed the issue with file/folder paths when running UCC based utilities.
+
 ## [v5](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v5.0.0) - 2025-11-19
 
 ### Upgrade Notes
