@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+* Improved UCC additional_packaging.py file for reduced manual code writing for UCC based Add-on code.
+
 ### Fixed
 
 * Fixed the issue with file/folder paths when running UCC based utilities.
