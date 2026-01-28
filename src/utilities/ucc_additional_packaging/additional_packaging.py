@@ -1,5 +1,6 @@
 # This file is generated and maintained by splunk-app-action (https://github.com/VatsalJagani/splunk-app-action)
 # To modify anything create Pull Request on the splunk-app-action GitHub repository.
+# Version - 2026-01-28
 
 import configparser
 import os
@@ -49,11 +50,11 @@ def generate_input_handler_file(addon_name: str, input_name: str) -> None:
 from splunklib import modularinput as smi
 
 
-def validate_input(input_script: smi.Script, definition: smi.ValidationDefinition):
+def validate_input(session_key: str, input_script: smi.Script, definition: smi.ValidationDefinition):
     return
 
 
-def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_writer: smi.EventWriter):
+def stream_events(session_key: str, input_script: smi.Script, inputs: smi.InputDefinition, event_writer: smi.EventWriter):
     return
 
 """
@@ -81,7 +82,7 @@ def modify_original_input_py_file(addon_name: str, input_name: str) -> None:
 
     # Update validate_input method
     pattern_validate_input_fun = r"def validate_input[\w\W]*return\n"
-    replacement_content_validate_input_fun = f"def validate_input(self, definition: smi.ValidationDefinition):\n        {input_name}_handler.validate_input(self, definition)\n\n"
+    replacement_content_validate_input_fun = f"def validate_input(self, definition: smi.ValidationDefinition):\n        {input_name}_handler.validate_input(self._input_definition.metadata['session_key'], self, definition)\n\n"
 
     file_content = re.sub(
         pattern_validate_input_fun, replacement_content_validate_input_fun, file_content
@@ -91,7 +92,7 @@ def modify_original_input_py_file(addon_name: str, input_name: str) -> None:
 
     # Update stream_events method
     pattern_stream_events_fun = r"def stream_events[\w\W]*(?:\n\n)"
-    replacement_content_stream_events_fun = f"def stream_events(self, inputs: smi.InputDefinition, event_writer: smi.EventWriter):\n        {input_name}_handler.stream_events(self, inputs, event_writer)\n\n\n"
+    replacement_content_stream_events_fun = f"def stream_events(self, inputs: smi.InputDefinition, event_writer: smi.EventWriter):\n        {input_name}_handler.stream_events(self._input_definition.metadata['session_key'], self, inputs, event_writer)\n\n\n"
 
     file_content = re.sub(
         pattern_stream_events_fun, replacement_content_stream_events_fun, file_content
