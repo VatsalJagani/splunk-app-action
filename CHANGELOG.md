@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Fixed the issue with file/folder paths when running UCC based utilities.
+* Improved Action Failure condition, when missing inputs or utility adding fails, github workflow will now show failure.
+
 
 ## [v5](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v5.0.0) - 2025-11-19
 

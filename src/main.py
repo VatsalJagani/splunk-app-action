@@ -164,6 +164,7 @@ def main() -> None:
         )
         app_info.set_build_number(app_build_number)
 
+    utility_failed = False
     try:
         app_write_dir = (
             os.path.join(saved_paths.app_dir_path, "package")
@@ -171,12 +172,15 @@ def main() -> None:
             else saved_paths.app_dir_path
         )
         with keep_working_dir_unchanged():
-            SplunkAppUtilities(
+            sau = SplunkAppUtilities(
                 saved_paths, app_read_dir=app_build_dir_path, app_write_dir=app_write_dir
             )
+            if sau.result is False:
+                utility_failed = True
     except Exception as e:
-        gat.error(f"Error adding Splunk app utilities: {e}")
+        gat.error(f"❌ Failed to add Splunk app utilities. {e}")
         gat.error(traceback.format_exc())
+        utility_failed = True
 
     try:
         with keep_working_dir_unchanged():
@@ -225,9 +229,8 @@ def main() -> None:
                     splunkbase_password = gat.get_user_input("splunkbase_password")
 
                     if splunkbase_username is None or splunkbase_password is None:
-                        gat.error(
-                            "✅ splunkbase_username and splunkbase_password are required for app inspect."
-                        )
+                        _err_msg = "❌ splunkbase_username and splunkbase_password are required for app inspect."
+                        gat.error(_err_msg)
                         # Set statuses to Skipped
                         app_inspect_status = "Skipped"
                         cloud_inspect_status = "Skipped"
@@ -235,6 +238,7 @@ def main() -> None:
                         gat.set_output("app_inspect_status", app_inspect_status)
                         gat.set_output("cloud_inspect_status", cloud_inspect_status)
                         gat.set_output("ssai_inspect_status", ssai_inspect_status)
+                        inspect_exception = Exception(_err_msg)
                     else:
                         inspect_obj = SplunkAppInspect(
                             saved_paths,
@@ -287,37 +291,31 @@ def main() -> None:
         fail_on = fail_on.lower().strip()
 
         # Re-raise inspect exception if it occurred, unless fail_on is "none"
-        if inspect_exception is not None and fail_on != "none":
-            # Determine if we should fail based on the fail_on setting
-            gat.debug(
-                f"Checking if should fail: fail_on={fail_on}, statuses=[{app_inspect_status}, {cloud_inspect_status}, {ssai_inspect_status}]"
-            )
-            should_fail = _should_fail_on_status(
-                fail_on, app_inspect_status, cloud_inspect_status, ssai_inspect_status
-            )
-            gat.debug(f"Should fail result: {should_fail}")
-            if should_fail:
+        if fail_on != "none":
+            if inspect_exception is not None:
+                gat.debug(
+                    f"Exception in App-Inspect (re-raising here at the end): fail_on={fail_on}, statuses=[{app_inspect_status}, {cloud_inspect_status}, {ssai_inspect_status}]"
+                )
                 raise inspect_exception
             else:
-                gat.warning(
-                    f"AppInspect checks had issues but fail_on={fail_on} - continuing without failure"
+                # No exception but check if we should fail based on statuses
+                should_fail = _should_fail_on_status(
+                    fail_on, app_inspect_status, cloud_inspect_status, ssai_inspect_status
                 )
-        elif fail_on != "none":
-            # No exception but check if we should fail based on statuses
-            should_fail = _should_fail_on_status(
-                fail_on, app_inspect_status, cloud_inspect_status, ssai_inspect_status
-            )
-            if should_fail:
-                msg = f"AppInspect checks failed with fail_on={fail_on} - results: [app-inspect: {app_inspect_status}, cloud-checks: {cloud_inspect_status}, ssai-checks: {ssai_inspect_status}]"
-                gat.error(msg)
-                raise Exception(msg)
+                if should_fail:
+                    msg = f"AppInspect checks failed with fail_on={fail_on} - results: [app-inspect: {app_inspect_status}, cloud-checks: {cloud_inspect_status}, ssai-checks: {ssai_inspect_status}]"
+                    gat.error(msg)
+                    raise Exception(msg)
 
     except Exception as e:
         gat.error(f"Error in build generation or app inspect checks: {e}")
         gat.error(traceback.format_exc())
-
         sys.exit(5)
         # Failure in build generation or App Inspect means failure for Workflow
+
+    if utility_failed:
+        gat.error("❌ Workflow failed due to utility addition failure.")
+        sys.exit(5)
 
 
 if __name__ == "__main__":
