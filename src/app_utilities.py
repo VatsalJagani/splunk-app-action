@@ -80,7 +80,9 @@ class SplunkAppUtilities:
                     ).add()
 
                 elif utility == "common_js_utilities":
-                    CommonJSUtilitiesFile(self.saved_paths, self.app_read_dir, self.app_write_dir).add()
+                    CommonJSUtilitiesFile(
+                        self.saved_paths, self.app_read_dir, self.app_write_dir
+                    ).add()
 
                 elif utility == "ucc_additional_packaging":
                     UCCAdditionalPackagingUtility(
