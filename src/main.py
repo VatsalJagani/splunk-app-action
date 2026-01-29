@@ -164,6 +164,7 @@ def main() -> None:
         )
         app_info.set_build_number(app_build_number)
 
+    utility_failed = False
     try:
         app_write_dir = (
             os.path.join(saved_paths.app_dir_path, "package")
@@ -175,8 +176,9 @@ def main() -> None:
                 saved_paths, app_read_dir=app_build_dir_path, app_write_dir=app_write_dir
             )
     except Exception as e:
-        gat.error(f"Error adding Splunk app utilities: {e}")
+        gat.error(f"❌ Failed to add Splunk app utilities. {e}")
         gat.error(traceback.format_exc())
+        utility_failed = True
 
     try:
         with keep_working_dir_unchanged():
@@ -225,9 +227,8 @@ def main() -> None:
                     splunkbase_password = gat.get_user_input("splunkbase_password")
 
                     if splunkbase_username is None or splunkbase_password is None:
-                        gat.error(
-                            "✅ splunkbase_username and splunkbase_password are required for app inspect."
-                        )
+                        _err_msg = "❌ splunkbase_username and splunkbase_password are required for app inspect."
+                        gat.error(_err_msg)
                         # Set statuses to Skipped
                         app_inspect_status = "Skipped"
                         cloud_inspect_status = "Skipped"
@@ -235,6 +236,7 @@ def main() -> None:
                         gat.set_output("app_inspect_status", app_inspect_status)
                         gat.set_output("cloud_inspect_status", cloud_inspect_status)
                         gat.set_output("ssai_inspect_status", ssai_inspect_status)
+                        inspect_exception = Exception(_err_msg)
                     else:
                         inspect_obj = SplunkAppInspect(
                             saved_paths,
@@ -315,9 +317,12 @@ def main() -> None:
     except Exception as e:
         gat.error(f"Error in build generation or app inspect checks: {e}")
         gat.error(traceback.format_exc())
-
         sys.exit(5)
         # Failure in build generation or App Inspect means failure for Workflow
+
+    if utility_failed:
+        gat.error("❌ Workflow failed due to utility addition failure.")
+        sys.exit(5)
 
 
 if __name__ == "__main__":
