@@ -172,9 +172,11 @@ def main() -> None:
             else saved_paths.app_dir_path
         )
         with keep_working_dir_unchanged():
-            SplunkAppUtilities(
+            sau = SplunkAppUtilities(
                 saved_paths, app_read_dir=app_build_dir_path, app_write_dir=app_write_dir
             )
+            if sau.result is False:
+                utility_failed = True
     except Exception as e:
         gat.error(f"❌ Failed to add Splunk app utilities. {e}")
         gat.error(traceback.format_exc())

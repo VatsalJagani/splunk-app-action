@@ -38,41 +38,38 @@ class BaseUtility:
         different return types from the utility implementation (bool, str, Sequence).
         """
         with gat.group(f"🛠️ Applying Utility: {type(self).__name__}"):
-            try:
-                with gat.Repo(path=self.saved_paths.repo_dir_path, cleanup=True) as github:
-                    files_or_folders_updated = self.implement_utility()
+            with gat.Repo(path=self.saved_paths.repo_dir_path, cleanup=True) as github:
+                files_or_folders_updated = self.implement_utility()
 
-                    if not files_or_folders_updated:
-                        gat.info(f"Utility={type(self).__name__} has no change.")
-                        return
+                if not files_or_folders_updated:
+                    gat.info(f"Utility={type(self).__name__} has no change.")
+                    return
 
-                    gat.info(
-                        f"Utility={type(self).__name__} made changes, generating file/folder hash from {files_or_folders_updated}"
-                    )
-                    hash = None
-                    if not isinstance(files_or_folders_updated, str):
-                        # Handle Sequence case
-                        hash = get_multi_files_hash(list(files_or_folders_updated))
+                gat.info(
+                    f"Utility={type(self).__name__} made changes, generating file/folder hash from {files_or_folders_updated}"
+                )
+                hash = None
+                if not isinstance(files_or_folders_updated, str):
+                    # Handle Sequence case
+                    hash = get_multi_files_hash(list(files_or_folders_updated))
+                else:
+                    # Handle str case
+                    if os.path.isfile(files_or_folders_updated):
+                        hash = get_file_hash(files_or_folders_updated)
+                    elif os.path.isdir(files_or_folders_updated):
+                        hash = get_folder_hash(files_or_folders_updated)
                     else:
-                        # Handle str case
-                        if os.path.isfile(files_or_folders_updated):
-                            hash = get_file_hash(files_or_folders_updated)
-                        elif os.path.isdir(files_or_folders_updated):
-                            hash = get_folder_hash(files_or_folders_updated)
-                        else:
-                            gat.error("File to generate hash is invalid.")
+                        gat.error("File to generate hash is invalid.")
 
-                    if hash:
-                        gat.info("Committing and creating PR for the code change.")
-                        _msg = f"splunk_app_action_{hash}"
-                        github.create_new_branch(_msg)
-                        github.add_all_and_commit(_msg)
-                        github.push()
-                        github.create_pr(title=self.pr_title)
-                    else:
-                        gat.error("Unable to get hash to generate PR for app utility.")
-            except Exception as e:
-                gat.error(f"Error in utility {type(self).__name__}: {e}")
+                if hash:
+                    gat.info("Committing and creating PR for the code change.")
+                    _msg = f"splunk_app_action_{hash}"
+                    github.create_new_branch(_msg)
+                    github.add_all_and_commit(_msg)
+                    github.push()
+                    github.create_pr(title=self.pr_title)
+                else:
+                    raise Exception("Unable to get hash to generate PR for app utility.")
 
     def implement_utility(self) -> str | Sequence[str] | None:
         """
