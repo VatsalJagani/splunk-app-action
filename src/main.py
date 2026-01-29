@@ -289,30 +289,21 @@ def main() -> None:
         fail_on = fail_on.lower().strip()
 
         # Re-raise inspect exception if it occurred, unless fail_on is "none"
-        if inspect_exception is not None and fail_on != "none":
-            # Determine if we should fail based on the fail_on setting
-            gat.debug(
-                f"Checking if should fail: fail_on={fail_on}, statuses=[{app_inspect_status}, {cloud_inspect_status}, {ssai_inspect_status}]"
-            )
-            should_fail = _should_fail_on_status(
-                fail_on, app_inspect_status, cloud_inspect_status, ssai_inspect_status
-            )
-            gat.debug(f"Should fail result: {should_fail}")
-            if should_fail:
+        if fail_on != "none":
+            if inspect_exception is not None:
+                gat.debug(
+                    f"Exception in App-Inspect (re-raising here at the end): fail_on={fail_on}, statuses=[{app_inspect_status}, {cloud_inspect_status}, {ssai_inspect_status}]"
+                )
                 raise inspect_exception
             else:
-                gat.warning(
-                    f"AppInspect checks had issues but fail_on={fail_on} - continuing without failure"
+                # No exception but check if we should fail based on statuses
+                should_fail = _should_fail_on_status(
+                    fail_on, app_inspect_status, cloud_inspect_status, ssai_inspect_status
                 )
-        elif fail_on != "none":
-            # No exception but check if we should fail based on statuses
-            should_fail = _should_fail_on_status(
-                fail_on, app_inspect_status, cloud_inspect_status, ssai_inspect_status
-            )
-            if should_fail:
-                msg = f"AppInspect checks failed with fail_on={fail_on} - results: [app-inspect: {app_inspect_status}, cloud-checks: {cloud_inspect_status}, ssai-checks: {ssai_inspect_status}]"
-                gat.error(msg)
-                raise Exception(msg)
+                if should_fail:
+                    msg = f"AppInspect checks failed with fail_on={fail_on} - results: [app-inspect: {app_inspect_status}, cloud-checks: {cloud_inspect_status}, ssai-checks: {ssai_inspect_status}]"
+                    gat.error(msg)
+                    raise Exception(msg)
 
     except Exception as e:
         gat.error(f"Error in build generation or app inspect checks: {e}")
