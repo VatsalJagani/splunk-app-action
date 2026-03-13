@@ -10,7 +10,7 @@ from helpers.saved_values import AppInfo, SavedPaths
 def build(
     saved_paths: SavedPaths,
     app_info: AppInfo,
-    is_remove_not_allowed_executables_from_lib: bool = True,
+    is_remove_not_allowed_executables_from_lib: bool = False,
 ) -> str:
     """
     Build UCC-based add-on using the ucc-gen command and return the build directory name.
@@ -23,7 +23,7 @@ def build(
         saved_paths: Container for directory paths used during the build process.
         app_info: Application metadata including package ID and version number.
         is_remove_not_allowed_executables_from_lib: Whether to remove files with
-            mimetype application/x-executable or application/x-sharedlib from the generated UCC `lib` folder.
+            mimetype application/x-executable or application/x-sharedlib from the generated UCC `lib` folder. Default is False.
 
     Returns:
         Name of the directory containing the generated UCC build ("ucc_generated_build").

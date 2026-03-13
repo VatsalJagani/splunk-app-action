@@ -108,7 +108,7 @@ def main() -> None:
     # Build Add-on with UCC
     use_ucc_gen = gat.get_user_input_as("use_ucc_gen", bool, False)
     is_remove_not_allowed_executables_from_lib = gat.get_user_input_as(
-        "is_remove_not_allowed_executables_from_lib", bool, True
+        "is_remove_not_allowed_executables_from_lib", bool, False
     )
 
     # Check if Python dependency manager is being used

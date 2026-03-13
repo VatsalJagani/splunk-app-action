@@ -24,7 +24,7 @@ inputs:
   is_remove_not_allowed_executables_from_lib:
     description: "Remove files with mimetype application/x-executable or application/x-sharedlib from UCC build output lib/ folder before packaging."
     required: false
-    default: true
+    default: false
 
   python_requirements_file:
     description: "Path to the requirements.txt file for Python dependency management. Path is relative to the app_dir. When provided, dependencies will be installed before generating the build. This allows using GitHub Dependabot for automatic dependency updates."

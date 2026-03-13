@@ -65,7 +65,8 @@ class TestUccGen(unittest.TestCase):
 
     def test_remove_executables_enabled(self) -> None:
         """
-        Test that executable/sharedlib files are removed when cleanup is enabled.
+        Test that executable/sharedlib files are removed when cleanup is enabled (is_remove_not_allowed_executables_from_lib=True).
+        Default is False, so must set True explicitly.
         """
         with patch("ucc_gen.os.system", side_effect=self._mock_ucc_system_call):
             with patch("ucc_gen.magic.Magic.from_file") as mock_magic:
@@ -104,6 +105,7 @@ class TestUccGen(unittest.TestCase):
     def test_lib_directory_not_found(self) -> None:
         """
         Test behavior when UCC lib directory does not exist (should not raise error).
+        Default is_remove_not_allowed_executables_from_lib=False.
         """
 
         def mock_system(_command: str) -> int:

@@ -23,10 +23,10 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 
 
 ### `is_remove_not_allowed_executables_from_lib`
-- **Description:** Remove files with mimetype `application/x-executable` or `application/x-sharedlib` from UCC build output `lib/` folder before packaging. This helps avoid Splunk AppInspect failures due to compiled binaries. Set to `false` only if your add-on runtime explicitly requires such files.
+- **Description:** Remove files with mimetype `application/x-executable` or `application/x-sharedlib` from UCC build output `lib/` folder before packaging. This helps avoid Splunk AppInspect failures due to compiled binaries. Set to `true` only if you want stricter cleanup; default is `false` for compatibility.
 - **Required:** false
-- **Default:** true
-- **When to disable:** Set to `false` only if your add-on runtime explicitly requires those compiled executable or shared library files.
+- **Default:** false
+- **When to enable:** Set to `true` if you want to remove compiled executables or shared libraries from the UCC build output for stricter AppInspect compliance. Leave as `false` if your add-on runtime requires such files.
 
 
 ### `python_requirements_file`
