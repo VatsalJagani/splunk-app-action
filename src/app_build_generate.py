@@ -112,6 +112,9 @@ def generate_build(saved_paths: SavedPaths, app_info: AppInfo, app_build_dir_nam
         )
 
         gat.debug(f"Renaming build directory: {app_build_dir_name} -> {app_info.package_id}")
+        if os.path.exists(app_info.package_id):
+            gat.debug(f"Removing existing directory before rename: {app_info.package_id}")
+            shutil.rmtree(app_info.package_id)
         os.system(f"mv {app_build_dir_name} {app_info.package_id}")
         os.chdir(app_info.package_id)
         gat.debug(f"Current working directory after going to app package directory: {os.getcwd()}")
