@@ -1307,6 +1307,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "github-action-toolkit" },
     { name = "pip" },
+    { name = "python-magic" },
     { name = "requests" },
     { name = "splunk-add-on-ucc-framework" },
     { name = "splunk-appinspect" },
@@ -1343,6 +1344,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.5" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=7.0.0" },
     { name = "pytest-sugar", marker = "extra == 'dev'", specifier = ">=1.0.0" },
+    { name = "python-magic", specifier = "==0.4.24" },
     { name = "requests", specifier = ">=2.32.5" },
     { name = "rich", marker = "extra == 'dev'", specifier = ">=14.0.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.14.4" },

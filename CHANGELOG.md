@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Improved UCC additional_packaging.py file for reduced manual code writing for UCC based Add-on code.
 * Improved debugging logs in app build generation.
-* Added `is_remove_mypyc_from_ucc_lib` input (default: `true`) to control removal of `*mypyc.cpython-*.so` files from UCC-generated `lib/` before packaging. This will help with Splunk App-inspect failures.
+* Added `is_remove_not_allowed_executables_from_lib` input (default: `true`) to control removal of files with mimetype `application/x-executable` or `application/x-sharedlib` from UCC-generated `lib/` before packaging. This will help with Splunk App-inspect failures.
 
 ### Fixed
 

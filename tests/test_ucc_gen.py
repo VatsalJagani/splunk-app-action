@@ -47,19 +47,17 @@ class TestUccGen(unittest.TestCase):
         output_lib_path = Path("output") / self.app_info.package_id / "lib"
         output_lib_path.mkdir(parents=True, exist_ok=True)
 
-        # This file should be removed when cleanup is enabled.
-        (output_lib_path / "abc123__mypyc.cpython-312-x86_64-linux-gnu.so").write_text(
-            "binary-content"
-        )
-        # This file should always stay.
+        # This file should be removed when cleanup is enabled (simulate executable/sharedlib).
+        (output_lib_path / "abc123__mypyc.cpython-312-x86_64-linux-gnu.so").write_bytes(b"\x7fELF")
+        # This file should always stay (simulate non-executable).
         (output_lib_path / "regular_extension.so").write_text("binary-content")
         (Path("output") / self.app_info.package_id / "README.txt").write_text("readme")
         return 0
 
-    def test_remove_mypyc_so_enabled(self) -> None:
+    def test_remove_executables_enabled(self) -> None:
         with patch("ucc_gen.os.system", side_effect=self._mock_ucc_system_call):
             build_dir_name = ucc_gen.build(
-                self.saved_paths, self.app_info, is_remove_mypyc_from_ucc_lib=True
+                self.saved_paths, self.app_info, is_remove_not_allowed_executables_from_lib=True
             )
 
         self.assertEqual(build_dir_name, "ucc_generated_build")
@@ -68,10 +66,10 @@ class TestUccGen(unittest.TestCase):
         self.assertFalse((generated_lib / "abc123__mypyc.cpython-312-x86_64-linux-gnu.so").exists())
         self.assertTrue((generated_lib / "regular_extension.so").exists())
 
-    def test_remove_mypyc_so_disabled(self) -> None:
+    def test_remove_executables_disabled(self) -> None:
         with patch("ucc_gen.os.system", side_effect=self._mock_ucc_system_call):
             build_dir_name = ucc_gen.build(
-                self.saved_paths, self.app_info, is_remove_mypyc_from_ucc_lib=False
+                self.saved_paths, self.app_info, is_remove_not_allowed_executables_from_lib=False
             )
 
         self.assertEqual(build_dir_name, "ucc_generated_build")
