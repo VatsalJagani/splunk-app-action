@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * Improved UCC additional_packaging.py file for reduced manual code writing for UCC based Add-on code.
+* Improved debugging logs in app build generation.
 
 ### Fixed
 
