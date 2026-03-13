@@ -24,6 +24,7 @@ def setup_action_yml(
     test_app_repo,
     app_dir=".",
     use_ucc_gen="false",
+    is_remove_mypyc_from_ucc_lib="true",
     python_requirements_file="",
     to_make_permission_changes="false",
     is_app_inspect_check="true",
@@ -68,6 +69,7 @@ def setup_action_yml(
     # setup inputs
     os.environ["INPUT_APP_DIR"] = app_dir
     os.environ["INPUT_USE_UCC_GEN"] = use_ucc_gen
+    os.environ["INPUT_IS_REMOVE_MYPYC_FROM_UCC_LIB"] = is_remove_mypyc_from_ucc_lib
     os.environ["INPUT_PYTHON_REQUIREMENTS_FILE"] = python_requirements_file
     os.environ["INPUT_TO_MAKE_PERMISSION_CHANGES"] = to_make_permission_changes
     os.environ["INPUT_IS_APP_INSPECT_CHECK"] = is_app_inspect_check

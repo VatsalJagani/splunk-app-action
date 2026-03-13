@@ -21,6 +21,12 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 - **Default:** false
 - **⚠️ Note:** Cannot be used together with `python_requirements_file` or `splunk_python_sdk` utility.
 
+### `is_remove_mypyc_from_ucc_lib`
+- **Description:** Remove mypyc-generated shared objects from UCC build output `lib/` folder before packaging. This matches files containing `mypyc.cpython-` and ending in `.so`.
+- **Required:** false
+- **Default:** true
+- **When to disable:** Set to `false` only if your add-on runtime explicitly requires those compiled mypyc `.so` binaries.
+
 ### `python_requirements_file`
 - **Description:** Path to the requirements.txt file for Python dependency management. **Path is relative to app_dir.** Dependencies will be installed in the same directory as the requirements file. If the requirements file is in the app root, a `lib` subdirectory is automatically created. **Important:** The directory containing the requirements.txt file will be cleaned before installation, and the requirements.txt file itself will be removed after dependency installation.
 - **Required:** false

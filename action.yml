@@ -21,6 +21,11 @@ inputs:
     required: false
     default: false
 
+  is_remove_mypyc_from_ucc_lib:
+    description: "Remove mypyc-generated shared objects (files matching *mypyc.cpython-*.so) from UCC build output lib/ folder before packaging."
+    required: false
+    default: true
+
   python_requirements_file:
     description: "Path to the requirements.txt file for Python dependency management. Path is relative to the app_dir. When provided, dependencies will be installed before generating the build. This allows using GitHub Dependabot for automatic dependency updates."
     required: false
@@ -117,6 +122,7 @@ runs:
       env:
         INPUT_APP_DIR: ${{ inputs.app_dir }}
         INPUT_USE_UCC_GEN: ${{ inputs.use_ucc_gen }}
+        INPUT_IS_REMOVE_MYPYC_FROM_UCC_LIB: ${{ inputs.is_remove_mypyc_from_ucc_lib }}
         INPUT_PYTHON_REQUIREMENTS_FILE: ${{ inputs.python_requirements_file }}
         INPUT_TO_MAKE_PERMISSION_CHANGES: ${{ inputs.to_make_permission_changes }}
         INPUT_IS_APP_INSPECT_CHECK: ${{ inputs.is_app_inspect_check }}
