@@ -123,6 +123,8 @@ def generate_build(saved_paths: SavedPaths, app_info: AppInfo, app_build_dir_nam
         # Generate Build
         build_name = f"{app_info.package_id}_{app_info.version_number_encoded}_{app_info.build_number_encoded}.tgz"
         gat.debug(f"Creating tarball: {build_name}")
+        gat.Debugging.print_directory_tree()
+
         os.system(f"tar -czf {build_name} {app_info.package_id}")
 
         build_path = os.path.join(saved_paths.root_dir_path, build_name)
