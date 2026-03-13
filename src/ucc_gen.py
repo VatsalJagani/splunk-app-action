@@ -34,7 +34,12 @@ def build(saved_paths: SavedPaths, app_info: AppInfo) -> str:
     os.chdir(saved_paths.root_dir_path)
 
     gat.debug(f"Copying UCC output for package: {app_info.package_id}")
-    shutil.copytree(os.path.join(ta_dir, "output", app_info.package_id), "ucc_generated_build")
+    ucc_output_path = os.path.abspath(os.path.join(ta_dir, "output", app_info.package_id))
+    ucc_generated_build_path = os.path.abspath("ucc_generated_build")
+    gat.debug(
+        f"UCC path details | output folder: {ucc_output_path} | ucc_generated_build: {ucc_generated_build_path}"
+    )
+    shutil.copytree(ucc_output_path, ucc_generated_build_path)
 
     gat.info("UCC build generation completed successfully")
     return "ucc_generated_build"

@@ -112,21 +112,29 @@ def generate_build(saved_paths: SavedPaths, app_info: AppInfo, app_build_dir_nam
         )
 
         gat.debug(f"Renaming build directory: {app_build_dir_name} -> {app_info.package_id}")
+        if os.path.exists(app_info.package_id):
+            gat.debug(f"Removing existing directory before rename: {app_info.package_id}")
+            shutil.rmtree(app_info.package_id)
         os.system(f"mv {app_build_dir_name} {app_info.package_id}")
         os.chdir(app_info.package_id)
+        gat.debug(f"Current working directory after going to app package directory: {os.getcwd()}")
 
         remove_unwanted_files()
         run_custom_user_defined_commands()
         file_folder_permission_changes()
         os.chdir(saved_paths.root_dir_path)
+        gat.debug(f"Current working directory after returning to root directory: {os.getcwd()}")
 
         # Generate Build
         build_name = f"{app_info.package_id}_{app_info.version_number_encoded}_{app_info.build_number_encoded}.tgz"
         gat.debug(f"Creating tarball: {build_name}")
-        os.system(f"tar -czf {build_name} {app_info.package_id}")
 
-        build_path = os.path.join(saved_paths.root_dir_path, build_name)
-        gat.set_output("build_path", build_path)
-        gat.set_output("artifact_name", build_name)
-        gat.info("App build generation completed successfully")
-        return build_path
+    gat.Debugging.print_directory_tree()
+
+    os.system(f"tar -czf {build_name} {app_info.package_id}")
+
+    build_path = os.path.join(saved_paths.root_dir_path, build_name)
+    gat.set_output("build_path", build_path)
+    gat.set_output("artifact_name", build_name)
+    gat.info("App build generation completed successfully")
+    return build_path
