@@ -16,7 +16,10 @@ import unittest
 from typing import override
 from unittest.mock import patch
 
-from helpers.saved_values import AppInfo, keep_working_dir_unchanged  # pyright: ignore[reportMissingImports]
+from helpers.saved_values import (  # pyright: ignore[reportMissingImports]
+    AppInfo,
+    keep_working_dir_unchanged,
+)
 
 
 class TestKeepWorkingDirUnchanged(unittest.TestCase):

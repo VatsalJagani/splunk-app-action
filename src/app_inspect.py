@@ -505,7 +505,9 @@ class SplunkLocalAppInspect(BaseAppInspect):
             error_count = int(summary.get("error", 0))
             warning_count = int(summary.get("warning", 0))
 
-            gat.debug(f"Check results - failures: {failure_count}, errors: {error_count}, warnings: {warning_count}")
+            gat.debug(
+                f"Check results - failures: {failure_count}, errors: {error_count}, warnings: {warning_count}"
+            )
 
             if failure_count > 0:
                 return "Failure"
