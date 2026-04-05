@@ -172,7 +172,7 @@ class TestAppBuild(unittest.TestCase):
             app_build_files = glob.glob(app_build_name_pattern)
 
             if not app_build_files or len(app_build_files) <= 0:
-                assert f"No app build with name {app_build_name_pattern} found."
+                self.fail(f"No app build with name {app_build_name_pattern} found.")
 
             app_build_name = app_build_files[0]
             assert os.path.isfile(app_build_name)
@@ -212,7 +212,7 @@ class TestAppBuild(unittest.TestCase):
             app_build_files = glob.glob(app_build_name_pattern)
 
             if not app_build_files or len(app_build_files) <= 0:
-                assert f"No app build with name {app_build_name_pattern} found."
+                self.fail(f"No app build with name {app_build_name_pattern} found.")
 
             app_build_name = app_build_files[0]
             assert os.path.isfile(app_build_name)

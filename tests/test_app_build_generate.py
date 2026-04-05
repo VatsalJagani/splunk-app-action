@@ -15,10 +15,15 @@ import shutil
 import tarfile
 import tempfile
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
+from app_build_generate import (
+    file_folder_permission_changes,
+    generate_build,
+    remove_unwanted_files,
+    run_custom_user_defined_commands,
+)
 from helpers.saved_values import AppInfo, SavedPaths
-from app_build_generate import generate_build
 
 
 class TestGenerateBuild(unittest.TestCase):
@@ -80,3 +85,85 @@ class TestGenerateBuild(unittest.TestCase):
 
         expected_name = "my_test_app_1_0_0_1.tgz"
         assert os.path.basename(build_path) == expected_name
+
+
+class TestRemoveUnwantedFiles(unittest.TestCase):
+    def test_removes_git_dirs_and_gitignore(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            orig_cwd = os.getcwd()
+            try:
+                os.chdir(tmpdir)
+                os.makedirs(".git")
+                os.makedirs(".github")
+                with open(".gitignore", "w") as f:
+                    f.write("*.pyc\n")
+                os.makedirs("__pycache__")
+                with open("__pycache__/foo.pyc", "w") as f:
+                    f.write("")
+
+                remove_unwanted_files()
+
+                assert not os.path.exists(".git")
+                assert not os.path.exists(".github")
+                assert not os.path.exists(".gitignore")
+                assert not os.path.exists("__pycache__")
+            finally:
+                os.chdir(orig_cwd)
+
+    def test_no_error_when_dirs_missing(self):
+        """Calling remove_unwanted_files when targets don't exist should not raise."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            orig_cwd = os.getcwd()
+            try:
+                os.chdir(tmpdir)
+                remove_unwanted_files()
+            finally:
+                os.chdir(orig_cwd)
+
+
+class TestFileFolderPermissionChanges(unittest.TestCase):
+    @patch("app_build_generate.subprocess.run")
+    @patch("app_build_generate.gat.get_user_input_as", return_value=True)
+    def test_permissions_applied_when_enabled(self, mock_input, mock_run):
+        file_folder_permission_changes()
+
+        # Should have called subprocess.run for file perms, script exts, and dir perms
+        calls = mock_run.call_args_list
+        # At least: 1 for files (644), 5 for script extensions (755 each), 1 for dirs (755)
+        assert len(calls) >= 7
+        # First call sets 644 on files
+        assert "644" in calls[0].args[0]
+        # Last call sets 755 on dirs
+        assert "755" in calls[-1].args[0]
+        assert "-type" in calls[-1].args[0]
+        assert "d" in calls[-1].args[0]
+
+    @patch("app_build_generate.subprocess.run")
+    @patch("app_build_generate.gat.get_user_input_as", return_value=False)
+    def test_permissions_skipped_when_disabled(self, mock_input, mock_run):
+        file_folder_permission_changes()
+
+        mock_run.assert_not_called()
+
+
+class TestRunCustomUserDefinedCommands(unittest.TestCase):
+    @patch("app_build_generate.os.system")
+    def test_executes_env_commands(self, mock_system):
+        env_vars = {
+            "SPLUNK_APP_ACTION_1": "echo hello",
+            "SPLUNK_APP_ACTION_2": "echo world",
+        }
+        with patch.dict(os.environ, env_vars, clear=False):
+            run_custom_user_defined_commands()
+
+        assert mock_system.call_count == 2
+        mock_system.assert_any_call("echo hello")
+        mock_system.assert_any_call("echo world")
+
+    @patch("app_build_generate.os.system")
+    def test_no_commands_found(self, mock_system):
+        clean_env = {k: v for k, v in os.environ.items() if not k.startswith("SPLUNK_APP_ACTION_")}
+        with patch.dict(os.environ, clean_env, clear=True):
+            run_custom_user_defined_commands()
+
+        mock_system.assert_not_called()

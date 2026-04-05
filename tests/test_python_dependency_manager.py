@@ -60,7 +60,7 @@ def extract_app_build(tgz_file):
 
 class TestPythonDependencyManager(unittest.TestCase):
     def test_python_deps_basic(self):
-        """Test basic Python dependency installation."""
+        """Test basic Python dependency installation. Requires network access for pip install."""
         with setup_action_yml(
             "repo_python_deps",
             app_dir="my_app_3",
