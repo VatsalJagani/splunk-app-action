@@ -29,7 +29,7 @@ def install_dependencies(
         shutil.rmtree("python_deps_build_dir")
     shutil.copytree(saved_paths.repo_dir_path, "python_deps_build_dir")
 
-    app_dir = os.path.join("python_deps_build_dir", saved_paths.app_dir_path)
+    app_dir = os.path.join("python_deps_build_dir", saved_paths.app_dir_name)
     requirements_file_path = os.path.join(app_dir, python_requirements_file)
 
     # Validate requirements.txt exists

@@ -161,9 +161,10 @@ class BaseAppInspect(ABC):
             # Publish annotations from AppInspect results
             self._publish_annotations()
 
-            if all(i == "Passed" for i in self.app_inspect_result):
+            non_failing = {"Passed", "Warning"}
+            if all(i in non_failing for i in self.app_inspect_result):
                 gat.info(
-                    f"All {inspect_type} Splunk app inspect checks completed successfully - all checks passed"
+                    f"All {inspect_type} Splunk app inspect checks completed - results: [app-inspect: {self.app_inspect_result[0]}, cloud-checks: {self.app_inspect_result[1]}, ssai-checks: {self.app_inspect_result[2]}]"
                 )
             else:
                 msg = f"{inspect_type} Splunk app inspect checks failed - results: [app-inspect: {self.app_inspect_result[0]}, cloud-checks: {self.app_inspect_result[1]}, ssai-checks: {self.app_inspect_result[2]}]"
@@ -340,6 +341,8 @@ class SplunkAppInspect(BaseAppInspect):
                 status = "Failure"
             elif int(res["info"]["error"]) != 0:
                 status = "Error"
+            elif int(res["info"].get("warning", 0)) != 0:
+                status = "Warning"
             else:
                 status = "Passed"
             break
@@ -503,13 +506,16 @@ class SplunkLocalAppInspect(BaseAppInspect):
             )
             failure_count = int(summary.get("failure", 0))
             error_count = int(summary.get("error", 0))
+            warning_count = int(summary.get("warning", 0))
 
-            gat.debug(f"Check results - failures: {failure_count}, errors: {error_count}")
+            gat.debug(f"Check results - failures: {failure_count}, errors: {error_count}, warnings: {warning_count}")
 
             if failure_count > 0:
                 return "Failure"
             elif error_count > 0:
                 return "Error"
+            elif warning_count > 0:
+                return "Warning"
             else:
                 return "Passed"
 

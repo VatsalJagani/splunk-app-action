@@ -144,3 +144,23 @@ class TestPythonDependencyManager(unittest.TestCase):
             # Should raise FileNotFoundError
             with self.assertRaises(FileNotFoundError):
                 main()
+
+
+class TestPathJoinBug(unittest.TestCase):
+    def test_absolute_app_dir_path_discards_prefix(self):
+        """Verify os.path.join with absolute path discards the prefix (the bug)."""
+        absolute_path = "/workspace/repodir/my_app"
+        # This is the buggy behavior: absolute path discards "python_deps_build_dir"
+        result = os.path.join("python_deps_build_dir", absolute_path)
+        assert result == absolute_path
+
+    def test_app_dir_name_produces_correct_path(self):
+        """Verify os.path.join with relative name produces the correct path."""
+        app_dir_name = "my_app"
+        result = os.path.join("python_deps_build_dir", app_dir_name)
+        assert result == "python_deps_build_dir/my_app"
+
+    def test_app_dir_name_dot_produces_correct_path(self):
+        """When app_dir_name is '.', the path should still be under the build dir."""
+        result = os.path.join("python_deps_build_dir", ".")
+        assert result == "python_deps_build_dir/."

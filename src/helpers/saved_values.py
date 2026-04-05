@@ -44,8 +44,10 @@ def keep_working_dir_unchanged() -> Iterator[None]:
         None
     """
     _path = os.getcwd()
-    yield
-    os.chdir(_path)
+    try:
+        yield
+    finally:
+        os.chdir(_path)
 
 
 class AppInfo:
