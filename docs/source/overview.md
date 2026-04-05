@@ -106,7 +106,7 @@ jobs:
       
       - name: Upload to release
         if: github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: splunk-app-${{ steps.build_app.outputs.app_version }}
           path: ${{ steps.build_app.outputs.build_path }}

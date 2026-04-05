@@ -136,6 +136,7 @@ def main() -> None:
             )
 
     app_info = AppInfo(app_package_id, app_version)
+    app_info.publish()
 
     app_build_dir_name = None
     app_build_dir_path = None
@@ -157,7 +158,8 @@ def main() -> None:
     else:
         with gat.group("🏗️ Preparing for App Build without UCC"):
             app_build_dir_name = "without_ucc_build"
-            os.system(f"rm -rf {app_build_dir_name}")
+            if os.path.exists(app_build_dir_name):
+                shutil.rmtree(app_build_dir_name)
             shutil.copytree(saved_paths.app_dir_path, app_build_dir_name)
             gat.info("App build preparation completed.")
 

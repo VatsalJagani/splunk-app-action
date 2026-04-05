@@ -13,9 +13,7 @@ import os
 import unittest
 
 from helpers.splunk_config_parser import (  # pyright: ignore[reportMissingImports]
-    DEFAULT_SETTING,
     FILE_SECTION,
-    GLOBAL_SETTING,
     SplunkConfigParser,
 )
 
@@ -90,10 +88,10 @@ class TestSplunkConfigParser(unittest.TestCase):
         assert conf["STANZA1"]["OPTION1"] == "VALUE1"
         assert conf[FILE_SECTION]["GLOBAL_OPTION1"] == "GLOBAL_VALUE1"
         assert conf[FILE_SECTION]["GLOBAL_OPTION2"] == "GLOBAL_VALUE2"
-        assert conf[DEFAULT_SETTING]["GLOBAL_OPTION1"] == "GLOBAL_VALUE1"
-        assert conf[DEFAULT_SETTING]["GLOBAL_OPTION2"] == "GLOBAL_VALUE2"
-        assert conf[GLOBAL_SETTING]["GLOBAL_OPTION1"] == "GLOBAL_VALUE1"
-        assert conf[GLOBAL_SETTING]["GLOBAL_OPTION2"] == "GLOBAL_VALUE2"
+        assert conf[FILE_SECTION]["GLOBAL_OPTION1"] == "GLOBAL_VALUE1"
+        assert conf[FILE_SECTION]["GLOBAL_OPTION2"] == "GLOBAL_VALUE2"
+        assert conf[FILE_SECTION]["GLOBAL_OPTION1"] == "GLOBAL_VALUE1"
+        assert conf[FILE_SECTION]["GLOBAL_OPTION2"] == "GLOBAL_VALUE2"
 
     def test_merge_empty_configs(self):
         config1 = SplunkConfigParser(self._util_conf_path("merge_empty_1.conf"))

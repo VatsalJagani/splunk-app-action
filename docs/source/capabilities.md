@@ -12,8 +12,8 @@ The action automatically generates build artifacts from your GitHub repo.
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v5
-    with:
-        app_dir: "my_app"
+  with:
+    app_dir: "my_app"
 ```
 
 - `app_dir` is optional if you want to generate the build from the repo root.
@@ -21,12 +21,12 @@ The action automatically generates build artifacts from your GitHub repo.
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v5
-    with:
-        app_dir: "my_splunk_app"
+  with:
+    app_dir: "my_splunk_app"
 
 - uses: VatsalJagani/splunk-app-action@v5
-    with:
-        app_dir: "my_splunk_add-on"
+  with:
+    app_dir: "my_splunk_add-on"
 ```
 
 ## UCC Add-on Generator Support
@@ -40,9 +40,9 @@ Supports Add-on build with **UCC Add-on Generator** using the `ucc-gen build` co
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v5
-    with:
-        app_dir: "TA_my_addon"
-        use_ucc_gen: true
+  with:
+    app_dir: "TA_my_addon"
+    use_ucc_gen: true
     is_remove_not_allowed_executables_from_lib: true
 ```
 
@@ -197,11 +197,11 @@ You can add `to_make_permission_changes: true` to automatically fix file and fol
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v5
-    with:
-        app_dir: "my_app"
-        to_make_permission_changes: true
-        splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
-        splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+  with:
+    app_dir: "my_app"
+    to_make_permission_changes: true
+    splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+    splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
 
 This runs the following commands automatically:
@@ -227,12 +227,12 @@ Run custom Linux commands before generating the App build by setting environment
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v5
-    env:
-        SPLUNK_APP_ACTION_1: "find . -type f -exec chmod 644 '{}' \\;"
-        SPLUNK_APP_ACTION_2: "find . -type f -name '*.sh' -exec chmod +x '{}' \\;"
-        SPLUNK_APP_ACTION_3: "find . -type d -exec chmod 755 '{}' \\;"
-    with:
-        app_dir: "my_app"
+  env:
+    SPLUNK_APP_ACTION_1: "find . -type f -exec chmod 644 '{}' \\;"
+    SPLUNK_APP_ACTION_2: "find . -type f -name '*.sh' -exec chmod +x '{}' \\;"
+    SPLUNK_APP_ACTION_3: "find . -type d -exec chmod 755 '{}' \\;"
+  with:
+    app_dir: "my_app"
 ```
 
 **Key Features:**
@@ -244,11 +244,11 @@ Run custom Linux commands before generating the App build by setting environment
 **Example - Remove test files:**
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v5
-    env:
-        SPLUNK_APP_ACTION_1: "rm -rf extra_test_folder"
-        SPLUNK_APP_ACTION_2: "rm -rf tests/"
-    with:
-        app_dir: "my_app"
+  env:
+    SPLUNK_APP_ACTION_1: "rm -rf extra_test_folder"
+    SPLUNK_APP_ACTION_2: "rm -rf tests/"
+  with:
+    app_dir: "my_app"
 ```
 
 If your app has executable files other than `.sh`, avoid enabling `to_make_permission_changes`.
@@ -256,11 +256,11 @@ You can use user-defined commands to set permissions as required.
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v5
-    with:
-        app_dir: "my_app"
-        to_make_permission_changes: true
-        splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
-        splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+  with:
+    app_dir: "my_app"
+    to_make_permission_changes: true
+    splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+    splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
 
 Example shell commands used:
@@ -269,23 +269,6 @@ find my_app -type f -exec chmod 644 '{}' \;
 find my_app -type f -name '*.sh' -exec chmod 755 '{}' \;
 find my_app -type d -exec chmod 755 '{}' \;
 ```
-
-### Running User Defined Commands Before Build
-
-Set environment variables `SPLUNK_APP_ACTION_<n>` to run commands before build generation.
-
-```text
-- uses: VatsalJagani/splunk-app-action@v5
-    env:
-        SPLUNK_APP_ACTION_1: "find . -type f -exec chmod 644 '{}' \;"
-        SPLUNK_APP_ACTION_2: "find . -type f -name '*.sh' -exec chmod +x '{}' \;"
-        SPLUNK_APP_ACTION_3: "find . -type d -exec chmod 755 '{}' \;"
-    with:
-        app_dir: "my_app"
-```
-
-- Maximum 99 commands: `SPLUNK_APP_ACTION_1` to `SPLUNK_APP_ACTION_99`.
-- Commands run in the app's root directory context.
 
 ---
 
@@ -359,10 +342,10 @@ We recommend the Splunkbase API because:
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v5
-    with:
-        app_dir: "my_app"
-        splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
-        splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+  with:
+    app_dir: "my_app"
+    splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+    splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
 
 ### Local App Inspect (Faster Alternative)
@@ -381,9 +364,9 @@ Local app inspect may not be as up-to-date as the Splunkbase API. For production
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v5
-    with:
-        app_dir: "my_app"
-        local_app_inspect: true
+  with:
+    app_dir: "my_app"
+    local_app_inspect: true
 ```
 
 ### Disable App Inspect (Optional):
@@ -392,9 +375,9 @@ Local app inspect may not be as up-to-date as the Splunkbase API. For production
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v5
-    with:
-        app_dir: "my_app" 
-        is_app_inspect_check: false
+  with:
+    app_dir: "my_app"
+    is_app_inspect_check: false
 ```
 
 ---
@@ -499,7 +482,7 @@ jobs:
 ### `splunk_python_sdk` - Splunk SDK Management
 
 > [!WARNING]
-> **DEPRECATED:** This utility is deprecated and will be removed in v5. Please plan to migrate to the new dynamic library installation feature in v5, which allows installing splunklib and other libraries without copying them into the repository.
+> **DEPRECATED:** This utility is deprecated and will be removed in v6. Please plan to migrate to the Python Dependency Manager feature, which allows installing splunklib and other libraries without copying them into the repository.
 
 Automatically installs and upgrades the Splunk Python SDK (splunklib):
 - Installs latest version if not present
@@ -511,16 +494,16 @@ Automatically installs and upgrades the Splunk Python SDK (splunklib):
 ```yaml
 # Default installation (bin folder)
 - uses: VatsalJagani/splunk-app-action@v5
-    with:
-        app_dir: "my_app"
-        app_utilities: "splunk_python_sdk"
+  with:
+    app_dir: "my_app"
+    app_utilities: "splunk_python_sdk"
 
 # Custom installation path
 - uses: VatsalJagani/splunk-app-action@v5
-    with:
-        app_dir: "my_app"
-        app_utilities: "splunk_python_sdk"
-        splunk_python_sdk_install_path: "bin/lib"
+  with:
+    app_dir: "my_app"
+    app_utilities: "splunk_python_sdk"
+    splunk_python_sdk_install_path: "bin/lib"
 ```
 
 **Optional Parameters:**
@@ -535,9 +518,9 @@ Adds a JavaScript file with commonly used functionality for Splunk App developme
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v5
-    with:
-        app_dir: "my_app"
-        app_utilities: "common_js_utilities"
+  with:
+    app_dir: "my_app"
+    app_utilities: "common_js_utilities"
 ```
 
 ---
@@ -550,10 +533,10 @@ This utility adds `additional_packaging.py` for UCC-built Add-ons, helping gener
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v5
-    with:
-        app_dir: "."
-        use_ucc_gen: true
-        app_utilities: "ucc_additional_packaging"
+  with:
+    app_dir: "."
+    use_ucc_gen: true
+    app_utilities: "ucc_additional_packaging"
 ```
 
 The input handler file `<Input_Name>_handler.py` will start with:

@@ -12,20 +12,25 @@
 
 import os
 import unittest
-from typing import override
+from collections.abc import Sequence
 
 from helpers.saved_values import SavedPaths  # pyright: ignore[reportMissingImports]
 from utilities.base_utility import BaseUtility  # pyright: ignore[reportMissingImports]
 
 
 class TestBaseUtility(unittest.TestCase):
-    @override
-    def setUp(self):
-        self.app_read_dir = os.path.join(os.path.dirname(__file__), "test_app_repos")
-        self.app_write_dir = os.path.join(os.path.dirname(__file__), "test_app_repos")
-        self.saved_paths = SavedPaths("test_app")
-        self.base_utility = BaseUtility(self.saved_paths, self.app_read_dir, self.app_write_dir)
+    def test_cannot_instantiate_abstract_class(self):
+        saved_paths = SavedPaths("test_app")
+        app_dir = os.path.join(os.path.dirname(__file__), "test_app_repos")
+        with self.assertRaises(TypeError):
+            BaseUtility(saved_paths, app_dir, app_dir)  # pyright: ignore[reportAbstractUsage]
 
-    def test_implement_utility_not_implemented(self):
-        with self.assertRaises(NotImplementedError):
-            self.base_utility.implement_utility()
+    def test_concrete_subclass_can_be_instantiated(self):
+        class ConcreteUtility(BaseUtility):  # pyright: ignore[reportUntypedBaseClass]
+            def implement_utility(self) -> str | Sequence[str] | None:
+                return None
+
+        saved_paths = SavedPaths("test_app")
+        app_dir = os.path.join(os.path.dirname(__file__), "test_app_repos")
+        utility = ConcreteUtility(saved_paths, app_dir, app_dir)
+        assert utility.implement_utility() is None

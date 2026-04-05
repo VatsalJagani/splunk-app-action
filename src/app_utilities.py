@@ -39,7 +39,6 @@ class SplunkAppUtilities:
         # Get Inputs
         app_utilities_input = gat.get_user_input("app_utilities")
         if not app_utilities_input or app_utilities_input == "NONE" or app_utilities_input == "":
-            self.app_utilities: list[str] = []
             app_utilities_list: list[str] = []
         else:
             app_utilities_split = app_utilities_input.split(",")

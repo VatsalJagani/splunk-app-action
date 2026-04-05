@@ -10,12 +10,14 @@ on:
       - develop
     paths:
       - 'src/**'
+      - 'action.yml'
+      - 'docs/**'
+      - '.github/workflows/**'
 
 jobs:
   changelog:
     name: CHANGELOG
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
 
     steps:
     - uses: actions/checkout@v5

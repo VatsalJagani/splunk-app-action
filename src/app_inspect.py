@@ -65,8 +65,8 @@ class BaseAppInspect(ABC):
         except Exception as e:
             gat.error(f"App-inspect check failed: {e}")
             gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[0] = status
+        finally:
+            self.app_inspect_result[0] = status
 
     def _perform_cloud_inspect_check(self) -> None:
         """Wrapper for cloud-inspect check with error handling."""
@@ -79,8 +79,8 @@ class BaseAppInspect(ABC):
         except Exception as e:
             gat.error(f"Cloud-inspect check failed: {e}")
             gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[1] = status
+        finally:
+            self.app_inspect_result[1] = status
 
     def _perform_ssai_inspect_check(self) -> None:
         """Wrapper for SSAI-inspect check with error handling."""
@@ -93,8 +93,8 @@ class BaseAppInspect(ABC):
         except Exception as e:
             gat.error(f"SSAI-inspect check failed: {e}")
             gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[2] = status
+        finally:
+            self.app_inspect_result[2] = status
 
     def _publish_annotations(self) -> None:
         """Publish AppInspect results as GitHub annotations (app-inspect only)."""
@@ -161,9 +161,10 @@ class BaseAppInspect(ABC):
             # Publish annotations from AppInspect results
             self._publish_annotations()
 
-            if all(i == "Passed" for i in self.app_inspect_result):
+            non_failing = {"Passed", "Warning"}
+            if all(i in non_failing for i in self.app_inspect_result):
                 gat.info(
-                    f"All {inspect_type} Splunk app inspect checks completed successfully - all checks passed"
+                    f"All {inspect_type} Splunk app inspect checks completed - results: [app-inspect: {self.app_inspect_result[0]}, cloud-checks: {self.app_inspect_result[1]}, ssai-checks: {self.app_inspect_result[2]}]"
                 )
             else:
                 msg = f"{inspect_type} Splunk app inspect checks failed - results: [app-inspect: {self.app_inspect_result[0]}, cloud-checks: {self.app_inspect_result[1]}, ssai-checks: {self.app_inspect_result[2]}]"
@@ -266,22 +267,19 @@ class SplunkAppInspect(BaseAppInspect):
             json_report_file_name = f"{self.report_name_prefix}_default_check.json"
             html_report_file_name = f"{self.report_name_prefix}_default_check.html"
 
-        app_build_f = open(self.app_build_path, "rb")
-        app_build_f.seek(0)
-
-        files = [
-            ("app_package", (self.app_build_filename, app_build_f, "application/octet-stream"))
-        ]
-
-        gat.info(f"App build submitting (check_type={check_type})")
-        response = requests.request(
-            "POST",
-            self.SUBMIT_URL,
-            headers=self.headers,
-            files=files,
-            data=payload,
-            timeout=TIMEOUT_MAX,
-        )
+        with open(self.app_build_path, "rb") as app_build_f:
+            files = [
+                ("app_package", (self.app_build_filename, app_build_f, "application/octet-stream"))
+            ]
+            gat.info(f"App build submitting (check_type={check_type})")
+            response = requests.request(
+                "POST",
+                self.SUBMIT_URL,
+                headers=self.headers,
+                files=files,
+                data=payload,
+                timeout=TIMEOUT_MAX,
+            )
         gat.info(
             f"App package submit (check_type={check_type}) response: status_code={response.status_code}, text={response.text}"
         )
@@ -340,6 +338,8 @@ class SplunkAppInspect(BaseAppInspect):
                 status = "Failure"
             elif int(res["info"]["error"]) != 0:
                 status = "Error"
+            elif int(res["info"].get("warning", 0)) != 0:
+                status = "Warning"
             else:
                 status = "Passed"
             break
@@ -503,13 +503,18 @@ class SplunkLocalAppInspect(BaseAppInspect):
             )
             failure_count = int(summary.get("failure", 0))
             error_count = int(summary.get("error", 0))
+            warning_count = int(summary.get("warning", 0))
 
-            gat.debug(f"Check results - failures: {failure_count}, errors: {error_count}")
+            gat.debug(
+                f"Check results - failures: {failure_count}, errors: {error_count}, warnings: {warning_count}"
+            )
 
             if failure_count > 0:
                 return "Failure"
             elif error_count > 0:
                 return "Error"
+            elif warning_count > 0:
+                return "Warning"
             else:
                 return "Passed"
 

@@ -530,22 +530,3 @@ def convert_json_file_to_html_file(json_file_path: str, html_file_path: str) -> 
     # Write HTML file
     with open(html_file_path, "w", encoding="utf-8") as f:
         f.write(html_content)
-
-
-if __name__ == "__main__":
-    # Example usage
-    import sys
-
-    if len(sys.argv) != 3:
-        print("Usage: python json_to_html_converter.py <input_json_file> <output_html_file>")
-        sys.exit(1)
-
-    input_file = sys.argv[1]
-    output_file = sys.argv[2]
-
-    try:
-        convert_json_file_to_html_file(input_file, output_file)
-        print(f"Successfully converted {input_file} to {output_file}")
-    except Exception as e:
-        print(f"Error: {e}")
-        sys.exit(1)

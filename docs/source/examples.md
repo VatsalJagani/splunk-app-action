@@ -444,7 +444,7 @@ jobs:
       
       # Upload with custom naming
       - name: Upload to Custom Location
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ steps.build_app.outputs.app_package_id }}-v${{ steps.build_app.outputs.app_version }}
           path: ${{ steps.build_app.outputs.build_path }}
@@ -522,20 +522,22 @@ jobs:
       
       # Deploy only if all AppInspect checks passed
       - name: Deploy to Production
-        if: |
+        if: ${{
           steps.build_app.outputs.app_inspect_status == 'Passed' &&
           steps.build_app.outputs.cloud_inspect_status == 'Passed' &&
           steps.build_app.outputs.ssai_inspect_status == 'Passed'
+          }}
         run: |
           echo "✅ All AppInspect checks passed - deploying to production"
           # Add your deployment commands here
       
       # Create warning issue if any check failed
       - name: Create Issue for Failed Checks
-        if: |
+        if: ${{
           steps.build_app.outputs.app_inspect_status != 'Passed' ||
           steps.build_app.outputs.cloud_inspect_status != 'Passed' ||
           steps.build_app.outputs.ssai_inspect_status != 'Passed'
+          }}
         uses: actions/github-script@v7
         with:
           script: |

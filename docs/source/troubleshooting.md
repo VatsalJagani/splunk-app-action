@@ -240,6 +240,37 @@ AppInspect results appear in two places:
 
 Annotations are published for app-inspect only. The job summary includes results from all AppInspect types.
 
+### AppInspect Fails with Authentication Error (No Credentials Provided)
+
+**Problem:** The action fails with a Splunkbase API authentication error even though you didn't explicitly enable app-inspect checks.
+
+**Cause:** The `is_app_inspect_check` input defaults to `true`. If you don't provide `splunkbase_username` and `splunkbase_password`, the API authentication will fail.
+
+**Solutions:**
+
+1. Provide Splunkbase credentials:
+   ```yaml
+   - uses: VatsalJagani/splunk-app-action@v5
+     with:
+       app_dir: "my_app"
+       splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
+       splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
+   ```
+2. Disable API-based inspect and use local validation instead:
+   ```yaml
+   - uses: VatsalJagani/splunk-app-action@v5
+     with:
+       app_dir: "my_app"
+       local_app_inspect: true
+   ```
+3. Disable app-inspect entirely:
+   ```yaml
+   - uses: VatsalJagani/splunk-app-action@v5
+     with:
+       app_dir: "my_app"
+       is_app_inspect_check: false
+   ```
+
 ## Getting Help
 
 If you encounter issues not covered here:
