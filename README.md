@@ -35,6 +35,7 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
   with:
     app_dir: "TA_my_addon" 
     use_ucc_gen: true
+    is_remove_not_allowed_executables_from_lib: true  # Default is false; set true for stricter cleanup
 
 # With Python dependency management
 # Note: Path relative to app_dir, installs to same directory as requirements file

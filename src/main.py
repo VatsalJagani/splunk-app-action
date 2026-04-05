@@ -107,6 +107,9 @@ def main() -> None:
 
     # Build Add-on with UCC
     use_ucc_gen = gat.get_user_input_as("use_ucc_gen", bool, False)
+    is_remove_not_allowed_executables_from_lib = gat.get_user_input_as(
+        "is_remove_not_allowed_executables_from_lib", bool, False
+    )
 
     # Check if Python dependency manager is being used
     python_requirements_file = gat.get_user_input("python_requirements_file")
@@ -140,7 +143,9 @@ def main() -> None:
     if use_ucc_gen:
         with gat.group("🏗️ Preparing for App Build with UCC"):
             with keep_working_dir_unchanged():
-                app_build_dir_name = ucc_gen.build(saved_paths, app_info)
+                app_build_dir_name = ucc_gen.build(
+                    saved_paths, app_info, is_remove_not_allowed_executables_from_lib
+                )
 
     elif use_python_deps:
         with gat.group("🏗️ Installing dynamic Python Dependencies"):

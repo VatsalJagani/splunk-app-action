@@ -21,6 +21,14 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 - **Default:** false
 - **⚠️ Note:** Cannot be used together with `python_requirements_file` or `splunk_python_sdk` utility.
 
+
+### `is_remove_not_allowed_executables_from_lib`
+- **Description:** Remove files with mimetype `application/x-executable` or `application/x-sharedlib` from UCC build output `lib/` folder before packaging. This helps avoid Splunk AppInspect failures due to compiled binaries. Set to `true` only if you want stricter cleanup; default is `false` for compatibility.
+- **Required:** false
+- **Default:** false
+- **When to enable:** Set to `true` if you want to remove compiled executables or shared libraries from the UCC build output for stricter AppInspect compliance. Leave as `false` if your add-on runtime requires such files.
+
+
 ### `python_requirements_file`
 - **Description:** Path to the requirements.txt file for Python dependency management. **Path is relative to app_dir.** Dependencies will be installed in the same directory as the requirements file. If the requirements file is in the app root, a `lib` subdirectory is automatically created. **Important:** The directory containing the requirements.txt file will be cleaned before installation, and the requirements.txt file itself will be removed after dependency installation.
 - **Required:** false
