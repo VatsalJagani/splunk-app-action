@@ -35,9 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Removed dead code: unused constants, dead fields, prohibited `if __name__` block, stray `print()`.
 * Expanded changelog check to cover docs, action.yml, and workflow changes.
 * Fixed `devtools/lint.py` DOC_PATHS to use correct `devtools/` prefix.
-* Scoped `create_tag.sh` to only stage version and changelog files.
 * Removed redundant CI steps, added concurrency group, reduced `fetch-depth`.
-* Added ~24 new unit tests covering previously untested modules (~740 lines added).
+* Added ~24 new unit tests covering previously untested modules.
 
 
 ## [v5](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v5.0.0) - 2025-11-19
