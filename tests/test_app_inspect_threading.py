@@ -14,10 +14,11 @@ import os
 import shutil
 import tempfile
 import unittest
-from unittest.mock import patch, MagicMock
+from typing import override
+from unittest.mock import MagicMock
 
-from app_inspect import SplunkLocalAppInspect
-from helpers.saved_values import AppInfo, SavedPaths
+from app_inspect import SplunkLocalAppInspect  # pyright: ignore[reportMissingImports]
+from helpers.saved_values import AppInfo, SavedPaths  # pyright: ignore[reportMissingImports]
 
 
 def _make_inspector(temp_dir):
@@ -41,11 +42,13 @@ def _make_inspector(temp_dir):
 
 
 class TestThreadErrorHandling(unittest.TestCase):
+    @override
     def setUp(self):
         self.original_cwd = os.getcwd()
         self.temp_dir = tempfile.mkdtemp()
         os.chdir(self.temp_dir)
 
+    @override
     def tearDown(self):
         os.chdir(self.original_cwd)
         shutil.rmtree(self.temp_dir, ignore_errors=True)

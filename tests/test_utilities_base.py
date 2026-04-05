@@ -13,7 +13,6 @@
 import os
 import unittest
 from collections.abc import Sequence
-from typing import override
 
 from helpers.saved_values import SavedPaths  # pyright: ignore[reportMissingImports]
 from utilities.base_utility import BaseUtility  # pyright: ignore[reportMissingImports]
@@ -27,8 +26,7 @@ class TestBaseUtility(unittest.TestCase):
             BaseUtility(saved_paths, app_dir, app_dir)  # pyright: ignore[reportAbstractUsage]
 
     def test_concrete_subclass_can_be_instantiated(self):
-        class ConcreteUtility(BaseUtility):
-            @override
+        class ConcreteUtility(BaseUtility):  # pyright: ignore[reportUntypedBaseClass]
             def implement_utility(self) -> str | Sequence[str] | None:
                 return None
 

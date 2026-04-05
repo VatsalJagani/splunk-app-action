@@ -15,18 +15,20 @@ import shutil
 import tarfile
 import tempfile
 import unittest
+from typing import override
 from unittest.mock import MagicMock, patch
 
-from app_build_generate import (
+from app_build_generate import (  # pyright: ignore[reportMissingImports]
     file_folder_permission_changes,
     generate_build,
     remove_unwanted_files,
     run_custom_user_defined_commands,
 )
-from helpers.saved_values import AppInfo, SavedPaths
+from helpers.saved_values import AppInfo, SavedPaths  # pyright: ignore[reportMissingImports]
 
 
 class TestGenerateBuild(unittest.TestCase):
+    @override
     def setUp(self):
         self.original_cwd = os.getcwd()
         self.temp_dir = tempfile.mkdtemp()
@@ -48,6 +50,7 @@ class TestGenerateBuild(unittest.TestCase):
         self.app_info.version_number_encoded = "1_0_0"
         self.app_info.build_number_encoded = "1"
 
+    @override
     def tearDown(self):
         os.chdir(self.original_cwd)
         shutil.rmtree(self.temp_dir, ignore_errors=True)

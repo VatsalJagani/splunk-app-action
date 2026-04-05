@@ -15,13 +15,12 @@ import os
 import tempfile
 import unittest
 
-from helpers.splunk_app_inspect_report_json_to_html_converter import (
+from helpers.splunk_app_inspect_report_json_to_html_converter import (  # pyright: ignore[reportMissingImports]
     convert_json_file_to_html_file,
     convert_json_to_html,
     escape_html,
     get_status_icon,
 )
-
 
 MINIMAL_REPORT = {
     "request_id": "req-123",
