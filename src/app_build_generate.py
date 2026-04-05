@@ -115,7 +115,7 @@ def generate_build(saved_paths: SavedPaths, app_info: AppInfo, app_build_dir_nam
         if os.path.exists(app_info.package_id):
             gat.debug(f"Removing existing directory before rename: {app_info.package_id}")
             shutil.rmtree(app_info.package_id)
-        os.system(f"mv {app_build_dir_name} {app_info.package_id}")
+        shutil.move(app_build_dir_name, app_info.package_id)
         os.chdir(app_info.package_id)
         gat.debug(f"Current working directory after going to app package directory: {os.getcwd()}")
 
@@ -131,7 +131,7 @@ def generate_build(saved_paths: SavedPaths, app_info: AppInfo, app_build_dir_nam
 
     gat.Debugging.print_directory_tree()
 
-    os.system(f"tar -czf {build_name} {app_info.package_id}")
+    subprocess.run(["tar", "-czf", build_name, app_info.package_id], check=True)
 
     build_path = os.path.join(saved_paths.root_dir_path, build_name)
     gat.set_output("build_path", build_path)

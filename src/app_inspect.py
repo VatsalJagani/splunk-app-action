@@ -65,8 +65,8 @@ class BaseAppInspect(ABC):
         except Exception as e:
             gat.error(f"App-inspect check failed: {e}")
             gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[0] = status
+        finally:
+            self.app_inspect_result[0] = status
 
     def _perform_cloud_inspect_check(self) -> None:
         """Wrapper for cloud-inspect check with error handling."""
@@ -79,8 +79,8 @@ class BaseAppInspect(ABC):
         except Exception as e:
             gat.error(f"Cloud-inspect check failed: {e}")
             gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[1] = status
+        finally:
+            self.app_inspect_result[1] = status
 
     def _perform_ssai_inspect_check(self) -> None:
         """Wrapper for SSAI-inspect check with error handling."""
@@ -93,8 +93,8 @@ class BaseAppInspect(ABC):
         except Exception as e:
             gat.error(f"SSAI-inspect check failed: {e}")
             gat.error(traceback.format_exc())
-            raise e
-        self.app_inspect_result[2] = status
+        finally:
+            self.app_inspect_result[2] = status
 
     def _publish_annotations(self) -> None:
         """Publish AppInspect results as GitHub annotations (app-inspect only)."""
@@ -267,22 +267,19 @@ class SplunkAppInspect(BaseAppInspect):
             json_report_file_name = f"{self.report_name_prefix}_default_check.json"
             html_report_file_name = f"{self.report_name_prefix}_default_check.html"
 
-        app_build_f = open(self.app_build_path, "rb")
-        app_build_f.seek(0)
-
-        files = [
-            ("app_package", (self.app_build_filename, app_build_f, "application/octet-stream"))
-        ]
-
-        gat.info(f"App build submitting (check_type={check_type})")
-        response = requests.request(
-            "POST",
-            self.SUBMIT_URL,
-            headers=self.headers,
-            files=files,
-            data=payload,
-            timeout=TIMEOUT_MAX,
-        )
+        with open(self.app_build_path, "rb") as app_build_f:
+            files = [
+                ("app_package", (self.app_build_filename, app_build_f, "application/octet-stream"))
+            ]
+            gat.info(f"App build submitting (check_type={check_type})")
+            response = requests.request(
+                "POST",
+                self.SUBMIT_URL,
+                headers=self.headers,
+                files=files,
+                data=payload,
+                timeout=TIMEOUT_MAX,
+            )
         gat.info(
             f"App package submit (check_type={check_type}) response: status_code={response.status_code}, text={response.text}"
         )
