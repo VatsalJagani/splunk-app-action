@@ -1,5 +1,6 @@
 import os
 import shutil
+import subprocess
 
 import github_action_toolkit as gat
 import magic
@@ -37,7 +38,11 @@ def build(
     ta_dir = os.path.abspath(os.path.join("ucc_build_dir", saved_paths.app_dir_name))
     gat.debug(f"Executing ucc-gen build in directory: {ta_dir}")
     os.chdir(ta_dir)
-    os.system(f"ucc-gen build --ta-version {app_info.version_number}")
+    result = subprocess.run(
+        ["ucc-gen", "build", "--ta-version", app_info.version_number], check=False
+    )
+    if result.returncode != 0:
+        gat.warning(f"ucc-gen build exited with code {result.returncode}")
 
     if is_remove_not_allowed_executables_from_lib:
         # Remove files with mimetype application/x-executable or application/x-sharedlib from UCC lib directory.

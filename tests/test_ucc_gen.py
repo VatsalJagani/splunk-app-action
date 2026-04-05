@@ -11,6 +11,7 @@
 # pyright: reportUninitializedInstanceVariable=false
 
 import os
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -49,7 +50,9 @@ class TestUccGen(unittest.TestCase):
         os.chdir(self.original_cwd)
         self.temp_dir.cleanup()
 
-    def _mock_ucc_system_call(self, _command: str) -> int:
+    def _mock_ucc_subprocess_run(
+        self, cmd: list[str], **kwargs
+    ) -> subprocess.CompletedProcess[str]:
         """
         Simulate ucc-gen build output structure for testing.
         """
@@ -61,14 +64,14 @@ class TestUccGen(unittest.TestCase):
         # This file should always stay (simulate non-executable).
         (output_lib_path / "regular_extension.so").write_text("binary-content")
         (Path("output") / self.app_info.package_id / "README.txt").write_text("readme")
-        return 0
+        return subprocess.CompletedProcess(cmd, 0)
 
     def test_remove_executables_enabled(self) -> None:
         """
         Test that executable/sharedlib files are removed when cleanup is enabled (is_remove_not_allowed_executables_from_lib=True).
         Default is False, so must set True explicitly.
         """
-        with patch("ucc_gen.os.system", side_effect=self._mock_ucc_system_call):
+        with patch("ucc_gen.subprocess.run", side_effect=self._mock_ucc_subprocess_run):
             with patch("ucc_gen.magic.Magic.from_file") as mock_magic:
 
                 def fake_mimetype(path):
@@ -91,7 +94,7 @@ class TestUccGen(unittest.TestCase):
         """
         Test that executable/sharedlib files are not removed when cleanup is disabled.
         """
-        with patch("ucc_gen.os.system", side_effect=self._mock_ucc_system_call):
+        with patch("ucc_gen.subprocess.run", side_effect=self._mock_ucc_subprocess_run):
             build_dir_name = ucc_gen.build(
                 self.saved_paths, self.app_info, is_remove_not_allowed_executables_from_lib=False
             )
@@ -108,14 +111,14 @@ class TestUccGen(unittest.TestCase):
         Default is_remove_not_allowed_executables_from_lib=False.
         """
 
-        def mock_system(_command: str) -> int:
+        def mock_subprocess_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess[str]:
             # No lib directory created
             output_path = Path("output") / self.app_info.package_id
             output_path.mkdir(parents=True, exist_ok=True)
             (output_path / "README.txt").write_text("readme")
-            return 0
+            return subprocess.CompletedProcess(cmd, 0)
 
-        with patch("ucc_gen.os.system", side_effect=mock_system):
+        with patch("ucc_gen.subprocess.run", side_effect=mock_subprocess_run):
             build_dir_name = ucc_gen.build(
                 self.saved_paths, self.app_info, is_remove_not_allowed_executables_from_lib=True
             )
@@ -128,7 +131,7 @@ class TestUccGen(unittest.TestCase):
         """
         Test that magic failure is handled gracefully and does not remove files.
         """
-        with patch("ucc_gen.os.system", side_effect=self._mock_ucc_system_call):
+        with patch("ucc_gen.subprocess.run", side_effect=self._mock_ucc_subprocess_run):
             with patch("ucc_gen.magic.Magic", side_effect=Exception("magic error")):
                 build_dir_name = ucc_gen.build(
                     self.saved_paths, self.app_info, is_remove_not_allowed_executables_from_lib=True
@@ -143,7 +146,7 @@ class TestUccGen(unittest.TestCase):
         """
         Test that output files are copied to ucc_generated_build.
         """
-        with patch("ucc_gen.os.system", side_effect=self._mock_ucc_system_call):
+        with patch("ucc_gen.subprocess.run", side_effect=self._mock_ucc_subprocess_run):
             build_dir_name = ucc_gen.build(
                 self.saved_paths, self.app_info, is_remove_not_allowed_executables_from_lib=True
             )
