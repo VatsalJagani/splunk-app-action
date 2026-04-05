@@ -199,7 +199,7 @@ class SplunkPythonSDKUtility(BaseUtility):
         splunklib_dir = os.path.join(folder_to_install_splunklib, "splunklib")
         init_file = os.path.join(splunklib_dir, "__init__.py")
 
-        print(f"init_file inside code = {init_file}")
+        gat.debug(f"init_file inside code = {init_file}")
 
         if (
             os.path.exists(splunklib_dir)

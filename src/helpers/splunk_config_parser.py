@@ -7,8 +7,6 @@ from typing import override
 MULTI_LINE_CHAR = "\\"
 COMMENT_CHAR = "#"
 FILE_SECTION = "___FILE___"
-GLOBAL_SETTING = "___FILE___"
-DEFAULT_SETTING = "___FILE___"
 NEW_LINE_CHAR = "\n"
 
 

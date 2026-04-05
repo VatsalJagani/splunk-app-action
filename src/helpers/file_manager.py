@@ -10,7 +10,7 @@ from helpers.splunk_config_parser import SplunkConfigParser
 
 def get_file_hash(file_path: str) -> str:
     """Generate MD5 hash for a single file."""
-    hash_md5 = hashlib.md5()
+    hash_md5 = hashlib.md5(usedforsecurity=False)
     try:
         with open(file_path, "rb") as f:
             for chunk in iter(lambda: f.read(4096), b""):
@@ -22,7 +22,7 @@ def get_file_hash(file_path: str) -> str:
 
 def get_folder_hash(folder_path: str) -> str:
     """Generate MD5 hash for all files in a folder."""
-    hash_md5 = hashlib.md5()
+    hash_md5 = hashlib.md5(usedforsecurity=False)
     if not os.path.isdir(folder_path):
         raise ValueError(f"Path '{folder_path}' is not a directory or does not exist.")
     for root, _dirs, files in os.walk(folder_path):
@@ -47,7 +47,7 @@ def get_multi_files_hash(file_paths: Sequence[str]) -> str:
     Returns:
         Combined MD5 hash as a hexadecimal string.
     """
-    hash_md5 = hashlib.md5()
+    hash_md5 = hashlib.md5(usedforsecurity=False)
     for file_path in file_paths:
         file_hash = get_file_hash(file_path)
         hash_md5.update(file_hash.encode("utf-8"))

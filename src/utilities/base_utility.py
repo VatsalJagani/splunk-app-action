@@ -1,4 +1,5 @@
 import os
+from abc import ABC, abstractmethod
 from collections.abc import Sequence
 
 import github_action_toolkit as gat
@@ -7,7 +8,7 @@ from helpers.file_manager import get_file_hash, get_folder_hash, get_multi_files
 from helpers.saved_values import SavedPaths
 
 
-class BaseUtility:
+class BaseUtility(ABC):
     """
     Base class for Splunk app utilities that can be applied to apps.
 
@@ -71,6 +72,7 @@ class BaseUtility:
                 else:
                     raise Exception("Unable to get hash to generate PR for app utility.")
 
+    @abstractmethod
     def implement_utility(self) -> str | Sequence[str] | None:
         """
         Implement the specific utility functionality.
@@ -81,10 +83,5 @@ class BaseUtility:
             - str: Path to a modified file or directory
             - Sequence[str]: List of paths to modified files
             - None: No changes were made
-
-        Raises:
-            NotImplementedError: If not implemented in child class.
         """
-        raise NotImplementedError(
-            "The implement_utility function must be implemented in the child class."
-        )
+        ...

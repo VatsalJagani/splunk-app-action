@@ -136,6 +136,7 @@ def main() -> None:
             )
 
     app_info = AppInfo(app_package_id, app_version)
+    app_info.publish()
 
     app_build_dir_name = None
     app_build_dir_path = None

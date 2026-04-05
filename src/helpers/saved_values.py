@@ -78,25 +78,22 @@ class AppInfo:
         """
         Initialize AppInfo with package ID and version number.
 
-        Sets up application metadata and configures GitHub Actions environment
-        variables and outputs for the package ID and version.
-
         Args:
             package_id: Unique identifier for the Splunk app package.
             version_number: Version number of the application.
         """
         self.package_id: str = package_id
-        gat.set_env("app_package_id", package_id)
-        gat.set_output("app_package_id", package_id)
-
         self.version_number: str = version_number
         self.version_number_encoded: str = self.encode(version_number)
-        gat.set_env("app_version_encoded", self.version_number_encoded)
-        gat.set_output("app_version", version_number)
-
-        # These will be set later via set_build_number()
         self.build_number: str = ""
         self.build_number_encoded: str = ""
+
+    def publish(self) -> None:
+        """Publish app metadata to GitHub Actions environment variables and outputs."""
+        gat.set_env("app_package_id", self.package_id)
+        gat.set_output("app_package_id", self.package_id)
+        gat.set_env("app_version_encoded", self.version_number_encoded)
+        gat.set_output("app_version", self.version_number)
 
     def set_build_number(self, build_number: str) -> None:
         """
