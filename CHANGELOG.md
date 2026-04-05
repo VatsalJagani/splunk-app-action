@@ -12,12 +12,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Improved UCC additional_packaging.py file for reduced manual code writing for UCC based Add-on code.
 * Improved debugging logs in app build generation.
 * Added `is_remove_not_allowed_executables_from_lib` input (default: `false`) to control removal of files with mimetype `application/x-executable` or `application/x-sharedlib` from UCC-generated `lib/` before packaging. Set to `true` for stricter AppInspect compliance; default is `false` for compatibility.
+* **AppInspect Warning Status** - AppInspect checks now return "Warning" status when warnings exist but no errors/failures, enabling `fail_on: warnings` to work correctly.
 
 ### Fixed
 
 * Fixed the issue with file/folder paths when running UCC based utilities.
 * Improved Action Failure condition, when missing inputs or utility adding fails, github workflow will now show failure.
 * Fixed silent ucc build generation issue when app folder name in the repo and app package id is same.
+* **Python Dependency Manager** - Fixed path construction bug where dependencies were installed into the original checkout instead of the build copy.
+* **Context Manager Safety** - Fixed `keep_working_dir_unchanged` missing `try/finally`, which could leave the process in the wrong directory after an exception.
+* **Shell Injection Prevention** - Replaced `os.system()` calls with `shutil.move()` and `subprocess.run()` to prevent potential shell injection via user-controlled `app.conf` values.
+* **File Handle Leak** - Fixed unclosed file handle during AppInspect API submission.
+* **Thread Error Handling** - AppInspect thread exceptions now properly set "Error" status instead of leaving stale "Running" status.
+* **Documentation Fixes** - Fixed YAML indentation in code examples, version contradictions for deprecated utility (v5 → v6), removed duplicate section, added expression delimiters to workflow examples, updated `upload-artifact` references to v6.
+* **Troubleshooting** - Added entry for common first-time user issue when `is_app_inspect_check` defaults to `true` without credentials.
+
+### Developer & Internal Changes
+
+* Extracted `AppInfo.publish()` from constructor to separate object creation from CI side effects.
+* Made `BaseUtility` an ABC with `@abstractmethod` for `implement_utility`.
+* Added `usedforsecurity=False` to `hashlib.md5()` for FIPS compliance.
+* Removed dead code: unused constants, dead fields, prohibited `if __name__` block, stray `print()`.
+* Expanded changelog check to cover docs, action.yml, and workflow changes.
+* Fixed `devtools/lint.py` DOC_PATHS to use correct `devtools/` prefix.
+* Scoped `create_tag.sh` to only stage version and changelog files.
+* Removed redundant CI steps, added concurrency group, reduced `fetch-depth`.
+* Added ~24 new unit tests covering previously untested modules (~740 lines added).
 
 
 ## [v5](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v5.0.0) - 2025-11-19
