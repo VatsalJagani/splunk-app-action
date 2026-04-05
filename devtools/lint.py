@@ -7,7 +7,7 @@ from rich import print as rprint
 # Update as needed.
 SRC_PATHS = ["src", "tests", "devtools"]
 # TODO - Ideally tests folder should also be checked, but skipping that for this project for now.
-DOC_PATHS = ["README.md", "development.md", "release.md", "docs/source"]
+DOC_PATHS = ["README.md", "devtools/development.md", "devtools/release.md", "docs/source"]
 
 
 reconfigure(emoji=not get_console().options.legacy_windows)  # No emojis on legacy windows.

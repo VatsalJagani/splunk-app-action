@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,16 +22,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Install uv (official Astral action)
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
           python-version: "3.12"
-
-      - name: Set up Python (using uv)
-        run: uv python install
 
       - name: Install all dependencies
         run: uv sync --all-extras
