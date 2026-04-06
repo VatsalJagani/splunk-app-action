@@ -27,7 +27,7 @@
     python devtools/prepare_changelog.py
     ```
 
-    * Change tag number in CHANGELOG.md from v5.0.0 to v5
+    * Change tag number in CHANGELOG.md from v6.0.0 to v6
 
 4. Commit the changes.
 
@@ -35,7 +35,7 @@
 
     ```bash
     git tag "<tag-here>" -m "<tag-here>"
-    # Example - git tag "v5" -m "v5"
+    # Example - git tag "v6" -m "v6"
     ```
 
 6. Push the Changes.

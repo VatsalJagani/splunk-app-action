@@ -1,5 +1,5 @@
-_MAJOR = "5"
-_MINOR = "5"
+_MAJOR = "6"
+_MINOR = "0"
 # On main and in a nightly release the patch should be one ahead of the last
 # released build.
 _PATCH = "0"

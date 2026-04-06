@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v6](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v6) - 2026-04-06
+
 ### Changed
 
 * **AppInspect Warning Status** - AppInspect checks now return "Warning" status when warnings exist but no errors/failures, enabling `fail_on: warnings` to work correctly.
@@ -49,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Fixed integration test validation to accept "Warning" as a non-failing status alongside "Passed".
 
 
-## [v5](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v5.0.0) - 2025-11-19
+## [v5](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v5) - 2025-11-19
 
 ### Upgrade Notes
 
