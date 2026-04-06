@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
 ```
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           local_app_inspect: true
@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           local_app_inspect: true
@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           local_app_inspect: true
@@ -112,7 +112,7 @@ jobs:
         app: ["my_splunk_app", "my_splunk_addon", "another_app"]
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: ${{ matrix.app }}
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
@@ -131,7 +131,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "TA_my_addon"
           use_ucc_gen: true
@@ -152,7 +152,7 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "."
           use_ucc_gen: true
@@ -169,7 +169,7 @@ jobs:
 - Dependencies are installed in the same directory as the requirements file
 - The directory containing requirements.txt will be cleaned before installation
 - The requirements.txt file is removed from the final build package
-- This can replicate the splunk-python-sdk installation by adding `splunk-sdk` to requirements.txt
+- Install Splunk Python SDK by adding `splunk-sdk` to requirements.txt
 ```
 
 ### Basic Python Dependencies
@@ -182,7 +182,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           python_requirements_file: "lib/requirements.txt"  # Path relative to app_dir
@@ -212,7 +212,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           python_requirements_file: "lib/requirements.txt"  # Path relative to app_dir
@@ -231,7 +231,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           python_requirements_file: "dependencies/production.txt"  # Installs to dependencies/
@@ -251,7 +251,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           to_make_permission_changes: true
@@ -269,7 +269,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         env:
           SPLUNK_APP_ACTION_1: "find . -type f -exec chmod 644 '{}' \\;"
           SPLUNK_APP_ACTION_2: "find . -type f -name '*.sh' -exec chmod +x '{}' \\;"
@@ -291,7 +291,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         env:
           SPLUNK_APP_ACTION_1: "rm -rf tests/"
           SPLUNK_APP_ACTION_2: "rm -rf .pytest_cache/"
@@ -311,7 +311,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         env:
           SPLUNK_APP_ACTION_1: "echo 'version=${{ github.sha }}' >> default/app.conf"
           SPLUNK_APP_ACTION_2: "cp ../LICENSE.txt ."
@@ -335,13 +335,12 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
-          app_utilities: "whats_in_the_app,logger,splunk_python_sdk,common_js_utilities"
+          app_utilities: "whats_in_the_app,logger,common_js_utilities"
           logger_log_files_prefix: "my_app"
           logger_sourcetype: "my_app:logs"
-          splunk_python_sdk_install_path: "bin/lib"
 ```
 
 ### Logger Utility Only
@@ -357,37 +356,12 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           app_utilities: "logger"
           logger_log_files_prefix: "my_custom_app"
           logger_sourcetype: "my_custom_app:internal"
-```
-
-### Splunk SDK with Custom Path
-
-> [!WARNING]
-> **DEPRECATED:** The `splunk_python_sdk` utility is deprecated and will be removed in v6.
-
-```yaml
-name: Install SDK in Custom Location
-on: [push]
-
-jobs:
-  sdk-install:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
-        with:
-          app_dir: "my_app"
-          app_utilities: "splunk_python_sdk"
-          splunk_python_sdk_install_path: "bin/lib"
-          is_remove_pyc_from_splunklib_dir: true
 ```
 
 ## Advanced Workflows
@@ -407,7 +381,7 @@ jobs:
       - uses: actions/checkout@v5
       
       - id: build_app
-        uses: VatsalJagani/splunk-app-action@v5
+        uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
@@ -461,7 +435,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           # Only run app-inspect on main branch
@@ -484,7 +458,7 @@ jobs:
       # Use fast local validation for PRs and dev branches
       - name: Build with Local Inspect
         if: github.ref != 'refs/heads/main'
-        uses: VatsalJagani/splunk-app-action@v5
+        uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           local_app_inspect: true
@@ -492,7 +466,7 @@ jobs:
       # Use Splunkbase API for main branch (production-ready validation)
       - name: Build with Splunkbase Inspect
         if: github.ref == 'refs/heads/main'
-        uses: VatsalJagani/splunk-app-action@v5
+        uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
@@ -514,7 +488,7 @@ jobs:
       - uses: actions/checkout@v5
       
       - id: build_app
-        uses: VatsalJagani/splunk-app-action@v5
+        uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
@@ -574,12 +548,12 @@ jobs:
             utilities: "ucc_additional_packaging"
             ucc: true
           - app_dir: "another_app"
-            utilities: "splunk_python_sdk,common_js_utilities"
+            utilities: "common_js_utilities"
             ucc: false
     
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: ${{ matrix.app_dir }}
           use_ucc_gen: ${{ matrix.ucc }}
@@ -605,16 +579,16 @@ jobs:
       # Development branch - utilities only
       - name: Add Utilities (dev branch)
         if: github.ref == 'refs/heads/develop'
-        uses: VatsalJagani/splunk-app-action@v5
+        uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
-          app_utilities: "whats_in_the_app,logger,splunk_python_sdk"
+          app_utilities: "whats_in_the_app,logger"
           is_app_inspect_check: false
       
       # Main branch - full build with inspect
       - name: Full Build (main branch)
         if: github.ref == 'refs/heads/main'
-        uses: VatsalJagani/splunk-app-action@v5
+        uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
@@ -708,7 +682,7 @@ For cross-repo permissions or explicit token management:
 3. Add to repository secrets as `MY_GITHUB_TOKEN`
 4. Use in workflow:
    ```yaml
-   - uses: VatsalJagani/splunk-app-action@v5
+   - uses: VatsalJagani/splunk-app-action@v6
      with:
        app_utilities: "logger"
        my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}

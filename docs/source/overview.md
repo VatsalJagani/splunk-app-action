@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest  # Required - must be Linux
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
 ```
@@ -75,9 +75,9 @@ The action provides several output variables that can be used in subsequent work
 - `app_build_number` - The app build number extracted from app.conf
 
 #### AppInspect Status
-- `app_inspect_status` - Status of app-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)
-- `cloud_inspect_status` - Status of cloud-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)
-- `ssai_inspect_status` - Status of SSAI-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)
+- `app_inspect_status` - Status of app-inspect check (Passed, Warning, Failure, Error, Timed-out, Exception, Skipped, or Not Run)
+- `cloud_inspect_status` - Status of cloud-inspect check (Passed, Warning, Failure, Error, Timed-out, Exception, Skipped, or Not Run)
+- `ssai_inspect_status` - Status of SSAI-inspect check (Passed, Warning, Failure, Error, Timed-out, Exception, Skipped, or Not Run)
 
 
 ### Using Outputs in Workflows
@@ -89,7 +89,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - id: build_app
-        uses: VatsalJagani/splunk-app-action@v5
+        uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
       
@@ -123,11 +123,13 @@ The job summary includes:
 - **Build Information Table** - Displays app package ID, version, build number, and artifact name
 - **AppInspect Results Table** - Shows the status of all three inspect checks with color-coded emoji indicators:
   - ✅ Passed
+  - ⚠️ Warning
   - ❌ Failure or Error  
   - ⏱️ Timed-out
-  - ⚠️ Exception
+  - 💥 Exception
   - ⏭️ Skipped
   - ⚪ Not Run
+- **Fail Mode Display** - Shows the configured `fail_on` mode in the results table
 - **Artifacts Section** - Provides a direct link to download workflow run artifacts
 
 ### Example Summary
@@ -151,6 +153,7 @@ When you view a completed workflow run in GitHub Actions, you'll see a summary l
 | App-Inspect | ✅ Passed |
 | Cloud-Inspect | ✅ Passed |
 | SSAI-Inspect | ✅ Passed |
+| Fail Mode | errors |
 
 ### Artifacts
 📦 [Download artifacts from this run](https://github.com/org/repo/actions/runs/123456)

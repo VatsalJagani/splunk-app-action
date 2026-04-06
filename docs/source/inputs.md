@@ -19,7 +19,7 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 - **Description:** Use ucc-gen command to generate the build for Add-on. The 'app_dir' folder must have a sub-folder named 'package', and a file named 'globalConfig.json' for this to work.
 - **Required:** false
 - **Default:** false
-- **⚠️ Note:** Cannot be used together with `python_requirements_file` or `splunk_python_sdk` utility.
+- **⚠️ Note:** Cannot be used together with `python_requirements_file`.
 
 
 ### `is_remove_not_allowed_executables_from_lib`
@@ -43,7 +43,7 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
   - Keeps repository clean without third-party code
   - Automatically cleans up dangling code and cache files
   - Removes requirements.txt from the final build
-- **⚠️ Note:** Cannot be used together with `use_ucc_gen` or `splunk_python_sdk` utility.
+- **⚠️ Note:** Cannot be used together with `use_ucc_gen`.
 
 ## App-Inspect Inputs
 
@@ -85,9 +85,8 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 - **Description:** Add comma separated list of utilities to use. You need to enable read and write permission for workflow to create Pull Requests.
 - **Required:** false
 - **Default:** "" (no utilities)
-- **Valid options:** `whats_in_the_app`, `logger`, `splunk_python_sdk`, `common_js_utilities`, `ucc_additional_packaging`
-- **Example:** `"whats_in_the_app,logger,splunk_python_sdk"`
-- **⚠️ Note:** The `splunk_python_sdk` utility cannot be used together with `python_requirements_file` or `use_ucc_gen`.
+- **Valid options:** `whats_in_the_app`, `logger`, `common_js_utilities`, `ucc_additional_packaging`
+- **Example:** `"whats_in_the_app,logger"`
 
 ### `my_github_token`
 - **Description:** GitHub token to create pull requests for app utilities. **OPTIONAL** - the action automatically uses the built-in `GITHUB_TOKEN`. Only provide this if you want to use a Personal Access Token (PAT) for cross-repo permissions or explicit token management.
@@ -103,27 +102,14 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 ## Logger Utility Inputs
 
 ### `logger_log_files_prefix`
-- **Description:** Log files prefix. Only required for logger utility.
-- **Required:** false (required when using logger utility)
+- **Description:** Log files prefix. Required when using the `logger` utility.
+- **Required:** false
+- **Default:** `"NONE"` (must be set when using logger utility)
 - **Example:** `"my_app"` (creates log files like `my_app_error.log`)
 
 ### `logger_sourcetype`
-- **Description:** Sourcetype for the internal app logs. Required only for logger utility.
-- **Required:** false (recommended when using logger utility)
+- **Description:** Sourcetype for the internal app logs. Recommended when using the `logger` utility.
+- **Required:** false
+- **Default:** `"NONE"` (should be set when using logger utility)
 - **Example:** `"my_app:logs"`
 
-## Splunk SDK Inputs
-
-> [!WARNING]
-> **DEPRECATED:** The `splunk_python_sdk` utility and its related inputs are deprecated and will be removed in v6. Please plan to migrate to the new dynamic library installation feature in v5.
-
-### `splunk_python_sdk_install_path`
-- **Description:** Path where you would like to install splunk-python-sdk (splunklib). Path is relative to App's root folder.
-- **Required:** false
-- **Default:** "bin"
-- **Example:** `"bin/lib"`, `"lib"`
-
-### `is_remove_pyc_from_splunklib_dir`
-- **Description:** Remove `.pyc` files and `__pycache__` directory from splunk-python-sdk (splunklib) installation path before generating Pull Request. Do not turn this off unless you are facing any issues explicitly.
-- **Required:** false
-- **Default:** true

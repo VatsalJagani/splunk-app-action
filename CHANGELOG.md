@@ -9,23 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-* Improved UCC additional_packaging.py file for reduced manual code writing for UCC based Add-on code.
-* Improved debugging logs in app build generation.
-* Added `is_remove_not_allowed_executables_from_lib` input (default: `false`) to control removal of files with mimetype `application/x-executable` or `application/x-sharedlib` from UCC-generated `lib/` before packaging. Set to `true` for stricter AppInspect compliance; default is `false` for compatibility.
 * **AppInspect Warning Status** - AppInspect checks now return "Warning" status when warnings exist but no errors/failures, enabling `fail_on: warnings` to work correctly.
+* **UCC Additional Packaging** - Reduced manual code writing for UCC-based Add-on input handlers.
+* **Build Logging** - Improved debugging logs during app build generation.
+* **Job Summary** - Added Warning emoji (`⚠️`), distinct Exception emoji (`💥`), and `fail_on` mode display in AppInspect results table.
+* **Actionable Error Messages** - Improved error messages for missing Splunkbase credentials, dependency installation failures, and unsupported utilities with specific guidance.
+
+### Added
+
+* **`is_remove_not_allowed_executables_from_lib` Input** - Controls removal of executable/shared-library files from UCC-generated `lib/` before packaging (default: `false`). Set to `true` for stricter AppInspect compliance.
+* **Troubleshooting** - Added entry for common first-time user issue when `is_app_inspect_check` defaults to `true` without credentials.
+
+### Removed
+
+* **`splunk_python_sdk` Utility** - Removed the deprecated Splunk Python SDK utility and its inputs (`splunk_python_sdk_install_path`, `is_remove_pyc_from_splunklib_dir`). Use the Python Dependency Manager (`python_requirements_file`) with `splunk-sdk` in your requirements.txt instead.
 
 ### Fixed
 
-* Fixed the issue with file/folder paths when running UCC based utilities.
-* Improved Action Failure condition, when missing inputs or utility adding fails, github workflow will now show failure.
-* Fixed silent ucc build generation issue when app folder name in the repo and app package id is same.
+* **UCC Utility Paths** - Fixed file/folder path resolution when running UCC-based utilities.
+* **UCC Build Detection** - Fixed silent build generation failure when app folder name matches app package ID.
+* **Action Failure Handling** - Missing inputs and utility failures now correctly fail the Github workflow.
 * **Python Dependency Manager** - Fixed path construction bug where dependencies were installed into the original checkout instead of the build copy.
 * **Context Manager Safety** - Fixed `keep_working_dir_unchanged` missing `try/finally`, which could leave the process in the wrong directory after an exception.
 * **Shell Injection Prevention** - Replaced `os.system()` calls with `shutil.move()` and `subprocess.run()` to prevent potential shell injection via user-controlled `app.conf` values.
 * **File Handle Leak** - Fixed unclosed file handle during AppInspect API submission.
 * **Thread Error Handling** - AppInspect thread exceptions now properly set "Error" status instead of leaving stale "Running" status.
-* **Documentation Fixes** - Fixed YAML indentation in code examples, version contradictions for deprecated utility (v5 → v6), removed duplicate section, added expression delimiters to workflow examples, updated `upload-artifact` references to v6.
-* **Troubleshooting** - Added entry for common first-time user issue when `is_app_inspect_check` defaults to `true` without credentials.
+* **Documentation** - Fixed YAML indentation in examples, version references, duplicate sections, expression delimiters, and `upload-artifact` references.
 
 ### Developer & Internal Changes
 
@@ -33,12 +42,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Made `BaseUtility` an ABC with `@abstractmethod` for `implement_utility`.
 * Added `usedforsecurity=False` to `hashlib.md5()` for FIPS compliance.
 * Removed dead code: unused constants, dead fields, prohibited `if __name__` block, stray `print()`.
-* Expanded changelog check to cover docs, action.yml, and workflow changes.
+* Improved CI: expanded changelog check scope, added concurrency group, reduced `fetch-depth`, removed redundant steps.
 * Fixed `devtools/lint.py` DOC_PATHS to use correct `devtools/` prefix.
-* Removed redundant CI steps, added concurrency group, reduced `fetch-depth`.
-* Added ~24 new unit tests covering previously untested modules.
+* Added ~30 unit tests covering mutual exclusivity validation, duplicate stanza handling, and previously untested modules.
+* Added integration tests for error cases (missing `app.conf`, invalid `app_dir`) and `fail_on=warnings` behavior.
 * Fixed integration test validation to accept "Warning" as a non-failing status alongside "Passed".
-* Added `fail_on=warnings` integration test to verify action fails when warnings are present.
 
 
 ## [v5](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v5.0.0) - 2025-11-19

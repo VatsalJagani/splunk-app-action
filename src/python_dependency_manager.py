@@ -88,8 +88,13 @@ def install_dependencies(
     )
 
     if result.returncode != 0:
-        gat.error(f"Failed to install dependencies: {result.stderr}")
-        raise RuntimeError(f"Dependency installation failed: {result.stderr}")
+        gat.error(
+            f"Failed to install Python dependencies from '{python_requirements_file}'.\n"
+            f"  pip exit code: {result.returncode}\n"
+            f"  stderr: {result.stderr}\n"
+            "Verify that all packages in the requirements file exist and have compatible versions."
+        )
+        raise RuntimeError(f"Dependency installation failed (exit code {result.returncode})")
 
     gat.debug(result.stdout)
 

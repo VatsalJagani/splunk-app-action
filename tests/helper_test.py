@@ -36,8 +36,6 @@ def setup_action_yml(
     current_branch="NONE",
     logger_log_files_prefix="NONE",
     logger_sourcetype="NONE",
-    splunk_python_sdk_install_path="bin",
-    is_remove_pyc_from_splunklib_dir="true",
 ):
     print("Test Setup Steps")
     repo_root_dir_path = os.getcwd()
@@ -83,9 +81,6 @@ def setup_action_yml(
     os.environ["INPUT_CURRENT_BRANCH_NAME"] = current_branch
     os.environ["INPUT_LOGGER_LOG_FILES_PREFIX"] = logger_log_files_prefix
     os.environ["INPUT_LOGGER_SOURCETYPE"] = logger_sourcetype
-    os.environ["INPUT_SPLUNK_PYTHON_SDK_INSTALL_PATH"] = splunk_python_sdk_install_path
-    os.environ["INPUT_IS_REMOVE_PYC_FROM_SPLUNKLIB_DIR"] = is_remove_pyc_from_splunklib_dir
-
     # Set GITHUB_WORKSPACE to the test directory so main() works correctly
     os.environ["GITHUB_WORKSPACE"] = temp_dir_for_test_path
 

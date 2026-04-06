@@ -7,12 +7,32 @@ import github_action_toolkit as gat
 from helpers.saved_values import AppInfo
 
 
+def _get_status_emoji(status: str) -> str:
+    """Get emoji for AppInspect status."""
+    status_lower = status.lower()
+    if status_lower == "passed":
+        return "✅"
+    elif status_lower == "warning":
+        return "⚠️"
+    elif status_lower in ["failure", "error"]:
+        return "❌"
+    elif status_lower == "timed-out":
+        return "⏱️"
+    elif status_lower == "exception":
+        return "💥"
+    elif status_lower == "skipped" or status_lower == "not run":
+        return "⏭️"
+    else:
+        return "⚪"
+
+
 def write_build_summary(
     app_info: AppInfo,
     artifact_name: str,
     app_inspect_status: str = "Not Run",
     cloud_inspect_status: str = "Not Run",
     ssai_inspect_status: str = "Not Run",
+    fail_on: str = "errors",
 ) -> None:
     """
     Write a GitHub Actions job summary with build information and AppInspect results.
@@ -39,27 +59,12 @@ def write_build_summary(
     # AppInspect Results Table
     summary.add_heading("AppInspect Results", 3)
 
-    def get_status_emoji(status: str) -> str:
-        """Get emoji for status."""
-        status_lower = status.lower()
-        if status_lower == "passed":
-            return "✅"
-        elif status_lower in ["failure", "error"]:
-            return "❌"
-        elif status_lower == "timed-out":
-            return "⏱️"
-        elif status_lower == "exception":
-            return "⚠️"
-        elif status_lower == "skipped":
-            return "⏭️"
-        else:
-            return "⚪"
-
     inspect_table_data = [
         ["Check Type", "Status"],
-        ["App-Inspect", f"{get_status_emoji(app_inspect_status)} {app_inspect_status}"],
-        ["Cloud-Inspect", f"{get_status_emoji(cloud_inspect_status)} {cloud_inspect_status}"],
-        ["SSAI-Inspect", f"{get_status_emoji(ssai_inspect_status)} {ssai_inspect_status}"],
+        ["App-Inspect", f"{_get_status_emoji(app_inspect_status)} {app_inspect_status}"],
+        ["Cloud-Inspect", f"{_get_status_emoji(cloud_inspect_status)} {cloud_inspect_status}"],
+        ["SSAI-Inspect", f"{_get_status_emoji(ssai_inspect_status)} {ssai_inspect_status}"],
+        ["Fail Mode", f"`fail_on: {fail_on}`"],
     ]
     summary.add_table(inspect_table_data)
     summary.add_eol()

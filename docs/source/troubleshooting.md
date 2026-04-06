@@ -18,7 +18,7 @@ App-inspect failed due to file permission issues
 
 **Solution:** Enable automatic permission fixes:
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     to_make_permission_changes: true
 ```
@@ -102,7 +102,7 @@ If you prefer explicit token management or need cross-repo permissions:
 2. Add it to repository secrets as `MY_GITHUB_TOKEN`
 3. Pass it to the action:
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     app_utilities: "logger"
     my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
@@ -210,8 +210,7 @@ Error: Multiple build features detected: UCC-Gen, Python-Dependency-Management
 - Only use ONE of these features at a time:
   - UCC-Gen (`use_ucc_gen: true`)
   - Python Dependency Management (`python_requirements_file`)
-  - Splunk Python SDK utility (`app_utilities: splunk_python_sdk`)
-- Remove or disable the conflicting features from your workflow
+- Remove or disable the conflicting feature from your workflow
 
 ### AppInspect Annotations
 
@@ -250,7 +249,7 @@ Annotations are published for app-inspect only. The job summary includes results
 
 1. Provide Splunkbase credentials:
    ```yaml
-   - uses: VatsalJagani/splunk-app-action@v5
+   - uses: VatsalJagani/splunk-app-action@v6
      with:
        app_dir: "my_app"
        splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
@@ -258,14 +257,14 @@ Annotations are published for app-inspect only. The job summary includes results
    ```
 2. Disable API-based inspect and use local validation instead:
    ```yaml
-   - uses: VatsalJagani/splunk-app-action@v5
+   - uses: VatsalJagani/splunk-app-action@v6
      with:
        app_dir: "my_app"
        local_app_inspect: true
    ```
 3. Disable app-inspect entirely:
    ```yaml
-   - uses: VatsalJagani/splunk-app-action@v5
+   - uses: VatsalJagani/splunk-app-action@v6
      with:
        app_dir: "my_app"
        is_app_inspect_check: false

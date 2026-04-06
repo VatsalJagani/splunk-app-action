@@ -52,36 +52,18 @@ def validate_mutually_exclusive_features() -> None:
     """Validate that only one build feature is enabled at a time."""
     use_ucc_gen = gat.get_user_input_as("use_ucc_gen", bool, False)
     python_requirements_file = gat.get_user_input("python_requirements_file")
-    app_utilities_input = gat.get_user_input("app_utilities")
-
-    # Check if Splunk Python SDK utility is being used
-    use_splunk_python_sdk = False
-    if app_utilities_input and app_utilities_input != "NONE" and app_utilities_input != "":
-        app_utilities_list = [u.strip() for u in app_utilities_input.split(",")]
-        use_splunk_python_sdk = "splunk_python_sdk" in app_utilities_list
 
     # Check if Python dependency manager is being used
     use_python_deps = python_requirements_file and python_requirements_file != ""
 
-    # Count active features
-    active_features: list[str] = []
-    if use_ucc_gen:
-        active_features.append("UCC-Gen")
-    if use_python_deps:
-        active_features.append("Python-Dependency-Management")
-    if use_splunk_python_sdk:
-        active_features.append("Splunk-Python-SDK")
-
-    if len(active_features) > 1:
-        error_msg = (
-            f"Error: Multiple build features detected: {', '.join(active_features)}. "
-            "You can only use ONE of the following features at a time:\n"
+    if use_ucc_gen and use_python_deps:
+        gat.error(
+            "Error: Both UCC-Gen and Python Dependency Manager are enabled. "
+            "You can only use one at a time:\n"
             "  - UCC-Gen (use_ucc_gen: true)\n"
             "  - Python-Dependency-Management (python_requirements_file)\n"
-            "  - Splunk-Python-SDK (app_utilities: splunk_python_sdk)\n"
             "Please update your workflow configuration to use only one feature."
         )
-        gat.error(error_msg)
         sys.exit(1)
 
 
@@ -236,7 +218,12 @@ def main() -> None:
                     splunkbase_password = gat.get_user_input("splunkbase_password")
 
                     if splunkbase_username is None or splunkbase_password is None:
-                        _err_msg = "❌ splunkbase_username and splunkbase_password are required for app inspect."
+                        _err_msg = (
+                            "❌ splunkbase_username and splunkbase_password are required for "
+                            "Splunkbase API app-inspect. Either provide credentials or use "
+                            "'local_app_inspect: true' for local validation, or set "
+                            "'is_app_inspect_check: false' to skip app-inspect entirely."
+                        )
                         gat.error(_err_msg)
                         # Set statuses to Skipped
                         app_inspect_status = "Skipped"
@@ -283,6 +270,10 @@ def main() -> None:
             gat.set_output("cloud_inspect_status", cloud_inspect_status)
             gat.set_output("ssai_inspect_status", ssai_inspect_status)
 
+        # Handle failure mode based on fail_on parameter
+        fail_on = gat.get_user_input("fail_on") or "errors"
+        fail_on = fail_on.lower().strip()
+
         # Write job summary
         with gat.group("📊 Writing job summary"):
             job_summary.write_build_summary(
@@ -291,11 +282,8 @@ def main() -> None:
                 app_inspect_status=app_inspect_status,
                 cloud_inspect_status=cloud_inspect_status,
                 ssai_inspect_status=ssai_inspect_status,
+                fail_on=fail_on,
             )
-
-        # Handle failure mode based on fail_on parameter
-        fail_on = gat.get_user_input("fail_on") or "errors"
-        fail_on = fail_on.lower().strip()
 
         # Re-raise inspect exception if it occurred, unless fail_on is "none"
         if fail_on != "none":
