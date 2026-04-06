@@ -98,7 +98,7 @@ jobs:
 
       - name: Run splunk-app-action WITHOUT permission changes
         id: build_no_perms
-        uses: VatsalJagani/splunk-app-action@improvement/ux-and-testing
+        uses: VatsalJagani/splunk-app-action@develop
         continue-on-error: true
         with:
           app_dir: "tests/integration_test_apps/valid_app_permissions_no_fix"
@@ -172,7 +172,7 @@ jobs:
 
       - name: Run splunk-app-action WITH permission changes
         id: build_perms
-        uses: VatsalJagani/splunk-app-action@improvement/ux-and-testing
+        uses: VatsalJagani/splunk-app-action@develop
         with:
           app_dir: "tests/integration_test_apps/valid_app_permissions"
           to_make_permission_changes: true
@@ -232,7 +232,7 @@ jobs:
       
       - name: Run splunk-app-action with custom commands
         id: build_commands
-        uses: VatsalJagani/splunk-app-action@improvement/ux-and-testing
+        uses: VatsalJagani/splunk-app-action@develop
         env:
           SPLUNK_APP_ACTION_1: "echo 'Custom command 1 executed' > default/my.conf"
           SPLUNK_APP_ACTION_2: "echo 'Additional content from command 2' >> default/my.conf"
@@ -315,7 +315,7 @@ jobs:
       
       - name: Build ${{ matrix.app }}
         id: build_multi
-        uses: VatsalJagani/splunk-app-action@improvement/ux-and-testing
+        uses: VatsalJagani/splunk-app-action@develop
         with:
           app_dir: "tests/integration_test_apps/${{ matrix.app }}"
           python_requirements_file: ${{ matrix.python_reqs }}
@@ -414,7 +414,7 @@ jobs:
       - name: Run splunk-app-action with fail_on=warnings
         id: build
         continue-on-error: true
-        uses: VatsalJagani/splunk-app-action@improvement/ux-and-testing
+        uses: VatsalJagani/splunk-app-action@develop
         with:
           app_dir: "tests/integration_test_apps/app_inspect_warn"
           local_app_inspect: true
@@ -471,7 +471,7 @@ jobs:
       - name: Run splunk-app-action with missing app.conf
         id: build
         continue-on-error: true
-        uses: VatsalJagani/splunk-app-action@improvement/ux-and-testing
+        uses: VatsalJagani/splunk-app-action@develop
         with:
           app_dir: "tests/integration_test_apps/missing_app_conf"
           is_app_inspect_check: false
@@ -498,7 +498,7 @@ jobs:
       - name: Run splunk-app-action with nonexistent app_dir
         id: build
         continue-on-error: true
-        uses: VatsalJagani/splunk-app-action@improvement/ux-and-testing
+        uses: VatsalJagani/splunk-app-action@develop
         with:
           app_dir: "this/path/does/not/exist"
           is_app_inspect_check: false
@@ -524,7 +524,7 @@ jobs:
       
       - name: Run splunk-app-action with fail_on=none on failing app
         id: inspect_fail_on_none
-        uses: VatsalJagani/splunk-app-action@improvement/ux-and-testing
+        uses: VatsalJagani/splunk-app-action@develop
         with:
           app_dir: "tests/integration_test_apps/app_inspect_fail3"
           local_app_inspect: true
