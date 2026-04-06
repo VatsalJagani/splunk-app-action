@@ -89,7 +89,10 @@ class SplunkAppUtilities:
                     ).add()
 
                 else:
-                    gat.error(f"🛠️ Unsupported utility: {utility}")
+                    gat.error(
+                        f"🛠️ Unsupported utility: '{utility}'. "
+                        "Valid options: whats_in_the_app, logger, common_js_utilities, ucc_additional_packaging"
+                    )
 
             except Exception as e:
                 gat.error(f"Error in utility '{utility}': {e}")

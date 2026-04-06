@@ -218,7 +218,12 @@ def main() -> None:
                     splunkbase_password = gat.get_user_input("splunkbase_password")
 
                     if splunkbase_username is None or splunkbase_password is None:
-                        _err_msg = "❌ splunkbase_username and splunkbase_password are required for app inspect."
+                        _err_msg = (
+                            "❌ splunkbase_username and splunkbase_password are required for "
+                            "Splunkbase API app-inspect. Either provide credentials or use "
+                            "'local_app_inspect: true' for local validation, or set "
+                            "'is_app_inspect_check: false' to skip app-inspect entirely."
+                        )
                         gat.error(_err_msg)
                         # Set statuses to Skipped
                         app_inspect_status = "Skipped"
