@@ -193,6 +193,14 @@ class TestSplunkConfigParser(unittest.TestCase):
             "\n[STANZA1]\nOPTION1 = VALUE1\n\n[STANZA2]\nOPTION2 = VALUE2\n",
         )
 
+    def test_duplicate_stanza_merges_options(self):
+        """Duplicate stanzas in the same file merge their options into one stanza."""
+        conf = SplunkConfigParser(self._util_conf_path("duplicate_stanza.conf"))
+        assert "my_stanza" in conf.sections()
+        # Both keys from both occurrences should be present
+        assert conf["my_stanza"]["key1"] == "value1"
+        assert conf["my_stanza"]["key2"] == "value2"
+
     def test_merge_configs_option_value_changed(self):
         config1 = SplunkConfigParser(self._util_conf_path("merge_same_stanza_update_1.conf"))
         config2 = SplunkConfigParser(self._util_conf_path("merge_same_stanza_update_2.conf"))

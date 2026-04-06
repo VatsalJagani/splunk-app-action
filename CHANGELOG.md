@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Removed redundant CI steps, added concurrency group, reduced `fetch-depth`.
 * Added ~24 new unit tests covering previously untested modules.
 * Fixed integration test validation to accept "Warning" as a non-failing status alongside "Passed".
+* Added unit tests for `validate_mutually_exclusive_features` and conf parser duplicate stanza handling.
 * Added `fail_on=warnings` integration test to verify action fails when warnings are present.
 
 
