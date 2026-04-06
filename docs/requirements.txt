@@ -1,0 +1,6 @@
+sphinx>=8.2.3
+sphinx-autodoc-typehints>=3.4.0
+sphinx-copybutton>=0.5.2
+sphinxcontrib-mermaid>=1.0.0
+furo>=2025.9.25
+myst-parser>=4.0.1

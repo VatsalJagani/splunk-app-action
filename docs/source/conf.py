@@ -18,7 +18,16 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.abspath("../../"))
 
-from src.version import VERSION, VERSION_SHORT  # noqa: E402
+# Import version directly to avoid triggering src/__init__.py (which imports main.py
+# and its heavy dependencies like github_action_toolkit that aren't available on RTD).
+import importlib.util
+
+_spec = importlib.util.spec_from_file_location("version", os.path.abspath("../../src/version.py"))
+assert _spec is not None and _spec.loader is not None
+_version_mod = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_version_mod)
+VERSION = _version_mod.VERSION
+VERSION_SHORT = _version_mod.VERSION_SHORT
 
 # -- Project information -----------------------------------------------------
 
