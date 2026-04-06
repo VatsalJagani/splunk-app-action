@@ -37,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Fixed `devtools/lint.py` DOC_PATHS to use correct `devtools/` prefix.
 * Removed redundant CI steps, added concurrency group, reduced `fetch-depth`.
 * Added ~24 new unit tests covering previously untested modules.
+* Fixed integration test validation to accept "Warning" as a non-failing status alongside "Passed".
+* Added `fail_on=warnings` integration test to verify action fails when warnings are present.
 
 
 ## [v5](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v5.0.0) - 2025-11-19

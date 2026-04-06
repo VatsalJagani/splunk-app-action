@@ -68,7 +68,7 @@ on:
         required: false
         type: string
         default: "pass"
-        description: 'Expected app-inspect result'
+        description: 'Expected app-inspect result: pass (Passed/Warning), fail (Failure/Error), passed_only (strict Passed)'
       continue-on-error:
         required: false
         type: boolean
