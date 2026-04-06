@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added ~24 new unit tests covering previously untested modules.
 * Fixed integration test validation to accept "Warning" as a non-failing status alongside "Passed".
 * Added unit tests for `validate_mutually_exclusive_features` and conf parser duplicate stanza handling.
+* Added integration tests for error cases: missing `app.conf` and invalid `app_dir` path.
 * Added `fail_on=warnings` integration test to verify action fails when warnings are present.
 
 

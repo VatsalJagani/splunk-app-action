@@ -10,6 +10,7 @@ name: Integration Tests
 # ✅ Splunkbase API App-Inspect (splunkbase_username/password)
 # ✅ App-Inspect fail_on modes (errors, warnings, none) and Warning status handling
 # ✅ Multiple apps in one workflow
+# ✅ Error handling: missing app.conf, invalid app_dir
 #
 # ⚠️ Not Tested (create PRs or require special access):
 # - App Utilities (whats_in_the_app, logger, etc.) - creates PRs
@@ -459,7 +460,61 @@ jobs:
           echo "✅ fail_on=warnings mode working correctly!" >> $GITHUB_STEP_SUMMARY
 
 
-  # Test 13: App-inspect with fail_on parameter (none mode)
+  # Test 13: Missing app.conf (should fail gracefully)
+  test-missing-app-conf:
+    name: Test Missing app.conf
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Run splunk-app-action with missing app.conf
+        id: build
+        continue-on-error: true
+        uses: VatsalJagani/splunk-app-action@develop
+        with:
+          app_dir: "tests/integration_test_apps/missing_app_conf"
+          is_app_inspect_check: false
+
+      - name: Validate action failed
+        run: |
+          echo "## Missing app.conf Validation" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.build.outcome }}" == "success" ]; then
+            echo "❌ Action should have failed with missing app.conf" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          echo "✅ Action correctly failed when app.conf is missing" >> $GITHUB_STEP_SUMMARY
+
+
+  # Test 14: Invalid app_dir path (should fail gracefully)
+  test-invalid-app-dir:
+    name: Test Invalid app_dir
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Run splunk-app-action with nonexistent app_dir
+        id: build
+        continue-on-error: true
+        uses: VatsalJagani/splunk-app-action@develop
+        with:
+          app_dir: "this/path/does/not/exist"
+          is_app_inspect_check: false
+
+      - name: Validate action failed
+        run: |
+          echo "## Invalid app_dir Validation" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.build.outcome }}" == "success" ]; then
+            echo "❌ Action should have failed with invalid app_dir" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          echo "✅ Action correctly failed with invalid app_dir" >> $GITHUB_STEP_SUMMARY
+
+
+  # Test 15: App-inspect with fail_on parameter (none mode)
   test-appinspect-fail-on-none:
     name: Test App-Inspect fail_on=none
     runs-on: ubuntu-latest
@@ -521,6 +576,8 @@ jobs:
       - test-local-appinspect-fail
       - test-appinspect-fail-on-warnings
       - test-appinspect-fail-on-none
+      - test-missing-app-conf
+      - test-invalid-app-dir
     if: always()
     steps:
       - name: Check test results
@@ -543,6 +600,8 @@ jobs:
           echo "- Local App-Inspect (Fail): ${{ needs.test-local-appinspect-fail.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- App-Inspect fail_on=warnings: ${{ needs.test-appinspect-fail-on-warnings.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- App-Inspect fail_on=none: ${{ needs.test-appinspect-fail-on-none.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Missing app.conf: ${{ needs.test-missing-app-conf.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Invalid app_dir: ${{ needs.test-invalid-app-dir.result }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Check if any required test failed (excluding the expected-to-fail test)
@@ -558,7 +617,9 @@ jobs:
              [ "${{ needs.test-splunkbase-appinspect-fail.result }}" != "success" ] || \
              [ "${{ needs.test-local-appinspect-fail.result }}" != "success" ] || \
              [ "${{ needs.test-appinspect-fail-on-warnings.result }}" != "success" ] || \
-             [ "${{ needs.test-appinspect-fail-on-none.result }}" != "success" ]; then
+             [ "${{ needs.test-appinspect-fail-on-none.result }}" != "success" ] || \
+             [ "${{ needs.test-missing-app-conf.result }}" != "success" ] || \
+             [ "${{ needs.test-invalid-app-dir.result }}" != "success" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "❌ Some tests failed!" >> $GITHUB_STEP_SUMMARY
             exit 1
