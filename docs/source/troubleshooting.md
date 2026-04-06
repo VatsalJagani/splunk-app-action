@@ -18,7 +18,7 @@ App-inspect failed due to file permission issues
 
 **Solution:** Enable automatic permission fixes:
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     to_make_permission_changes: true
 ```
@@ -102,7 +102,7 @@ If you prefer explicit token management or need cross-repo permissions:
 2. Add it to repository secrets as `MY_GITHUB_TOKEN`
 3. Pass it to the action:
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     app_utilities: "logger"
     my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
@@ -249,7 +249,7 @@ Annotations are published for app-inspect only. The job summary includes results
 
 1. Provide Splunkbase credentials:
    ```yaml
-   - uses: VatsalJagani/splunk-app-action@v5
+   - uses: VatsalJagani/splunk-app-action@v6
      with:
        app_dir: "my_app"
        splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
@@ -257,14 +257,14 @@ Annotations are published for app-inspect only. The job summary includes results
    ```
 2. Disable API-based inspect and use local validation instead:
    ```yaml
-   - uses: VatsalJagani/splunk-app-action@v5
+   - uses: VatsalJagani/splunk-app-action@v6
      with:
        app_dir: "my_app"
        local_app_inspect: true
    ```
 3. Disable app-inspect entirely:
    ```yaml
-   - uses: VatsalJagani/splunk-app-action@v5
+   - uses: VatsalJagani/splunk-app-action@v6
      with:
        app_dir: "my_app"
        is_app_inspect_check: false

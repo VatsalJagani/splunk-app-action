@@ -161,11 +161,11 @@ outputs:
     description: "The app build number extracted from app.conf"
     value: ${{ steps.run_splunk_app_action.outputs.app_build_number }}
   app_inspect_status:
-    description: "Status of app-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)"
+    description: "Status of app-inspect check (Passed, Warning, Failure, Error, Timed-out, Exception, Skipped, or Not Run)"
     value: ${{ steps.run_splunk_app_action.outputs.app_inspect_status }}
   cloud_inspect_status:
-    description: "Status of cloud-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)"
+    description: "Status of cloud-inspect check (Passed, Warning, Failure, Error, Timed-out, Exception, Skipped, or Not Run)"
     value: ${{ steps.run_splunk_app_action.outputs.cloud_inspect_status }}
   ssai_inspect_status:
-    description: "Status of SSAI-inspect check (Passed, Failure, Error, Timed-out, Exception, Skipped, or Not Run)"
+    description: "Status of SSAI-inspect check (Passed, Warning, Failure, Error, Timed-out, Exception, Skipped, or Not Run)"
     value: ${{ steps.run_splunk_app_action.outputs.ssai_inspect_status }}

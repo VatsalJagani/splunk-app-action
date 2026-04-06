@@ -11,7 +11,7 @@ This action provides a comprehensive set of capabilities for building, inspectin
 The action automatically generates build artifacts from your GitHub repo.
 
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     app_dir: "my_app"
 ```
@@ -20,11 +20,11 @@ The action automatically generates build artifacts from your GitHub repo.
 - Supports multiple Apps/Add-ons in a single repository.
 
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     app_dir: "my_splunk_app"
 
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     app_dir: "my_splunk_add-on"
 ```
@@ -39,7 +39,7 @@ Supports Add-on build with **UCC Add-on Generator** using the `ucc-gen build` co
  - By default, this action does not remove files with mimetype `application/x-executable` or `application/x-sharedlib` from generated `lib/` output. Set `is_remove_not_allowed_executables_from_lib: true` to enable stricter cleanup for AppInspect compliance.
 
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     app_dir: "TA_my_addon"
     use_ucc_gen: true
@@ -71,7 +71,7 @@ Manage Python dependencies for your Splunk Apps and Add-ons using a `requirement
 ### Basic Usage
 
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     app_dir: "my_app"
     python_requirements_file: "lib/requirements.txt"  # Path relative to app_dir
@@ -90,7 +90,7 @@ Manage Python dependencies for your Splunk Apps and Add-ons using a `requirement
 
 2. Add the action to your workflow with the `python_requirements_file` parameter:
    ```yaml
-   - uses: VatsalJagani/splunk-app-action@v5
+   - uses: VatsalJagani/splunk-app-action@v6
      with:
        app_dir: "my_splunk_app"
        python_requirements_file: "lib/requirements.txt"  # Path relative to app_dir
@@ -112,7 +112,7 @@ Manage Python dependencies for your Splunk Apps and Add-ons using a `requirement
 
 You can specify a different requirements file path (always relative to app_dir):
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     app_dir: "my_app"
     python_requirements_file: "dependencies/production.txt"  # Dependencies installed to dependencies/
@@ -158,8 +158,8 @@ from bs4 import BeautifulSoup
 ```
 
 ```{tip}
-**Replicating Splunk Python SDK Installation:**
-You can use the Python Dependency Manager instead of the Splunk Python SDK utility by adding `splunk-sdk` to your requirements.txt:
+**Installing Splunk Python SDK:**
+You can install the Splunk Python SDK via the Python Dependency Manager by adding `splunk-sdk` to your requirements.txt:
 ```text
 splunk-sdk==2.1.1
 ```
@@ -192,7 +192,7 @@ import splunklib.client as client
 You can add `to_make_permission_changes: true` to automatically fix file and folder permission issues for Splunk App Inspect:
 
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     app_dir: "my_app"
     to_make_permission_changes: true
@@ -216,13 +216,13 @@ find my_app -type d -exec chmod 755 '{}' \;
 ## Running User Defined Commands
 
 ```{note}
-**v5 Change:** Commands now run in the context of your App's root directory instead of the repo's root directory.
+Commands run in the context of your App's root directory (not the repo's root directory).
 ```
 
 Run custom Linux commands before generating the App build by setting environment variables `SPLUNK_APP_ACTION_<n>`:
 
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   env:
     SPLUNK_APP_ACTION_1: "find . -type f -exec chmod 644 '{}' \\;"
     SPLUNK_APP_ACTION_2: "find . -type f -name '*.sh' -exec chmod +x '{}' \\;"
@@ -239,7 +239,7 @@ Run custom Linux commands before generating the App build by setting environment
 
 **Example - Remove test files:**
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   env:
     SPLUNK_APP_ACTION_1: "rm -rf extra_test_folder"
     SPLUNK_APP_ACTION_2: "rm -rf tests/"
@@ -251,7 +251,7 @@ If your app has executable files other than `.sh`, avoid enabling `to_make_permi
 You can use user-defined commands to set permissions as required.
 
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     app_dir: "my_app"
     to_make_permission_changes: true
@@ -302,7 +302,7 @@ AppInspect results are published as inline GitHub annotations and comprehensive 
 Control when the workflow fails based on AppInspect results:
 
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     app_dir: "my_app"
     local_app_inspect: true
@@ -337,7 +337,7 @@ We recommend the Splunkbase API because:
 - `splunkbase_password`: Your Splunkbase account password (use GitHub secrets!)
 
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     app_dir: "my_app"
     splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
@@ -359,7 +359,7 @@ Local app inspect may not be as up-to-date as the Splunkbase API. For production
 - **JSON and HTML reports** generated as GitHub artifacts
 
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     app_dir: "my_app"
     local_app_inspect: true
@@ -370,7 +370,7 @@ Local app inspect may not be as up-to-date as the Splunkbase API. For production
 - You can use this for PRs and other than default branch if you don't want Splunkbase AppInspect checks to run on all changes.
 
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     app_dir: "my_app"
     is_app_inspect_check: false
@@ -418,7 +418,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           app_utilities: "whats_in_the_app,logger"
@@ -440,7 +440,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           app_utilities: "whats_in_the_app"
@@ -462,7 +462,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: VatsalJagani/splunk-app-action@v5
+      - uses: VatsalJagani/splunk-app-action@v6
         with:
           app_dir: "my_app"
           app_utilities: "logger"
@@ -481,7 +481,7 @@ Adds a JavaScript file with commonly used functionality for Splunk App developme
 - Ready-to-use code for typical Splunk app needs
 
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     app_dir: "my_app"
     app_utilities: "common_js_utilities"
@@ -496,7 +496,7 @@ This utility adds `additional_packaging.py` for UCC-built Add-ons, helping gener
 ### Example Usage
 
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v5
+- uses: VatsalJagani/splunk-app-action@v6
   with:
     app_dir: "."
     use_ucc_gen: true
