@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * **Documentation Fixes** - Fixed YAML indentation in code examples, version contradictions for deprecated utility (v5 → v6), removed duplicate section, added expression delimiters to workflow examples, updated `upload-artifact` references to v6.
 * **Troubleshooting** - Added entry for common first-time user issue when `is_app_inspect_check` defaults to `true` without credentials.
 * **Actionable Error Messages** - Improved error messages for missing Splunkbase credentials (suggests `local_app_inspect` or disabling), dependency installation failures (shows pip exit code and package details), and unsupported utilities (lists valid options).
+* **Job Summary** - Added Warning status emoji, `fail_on` mode display in AppInspect results table, and distinct emoji for exception vs warning status.
 
 ### Developer & Internal Changes
 

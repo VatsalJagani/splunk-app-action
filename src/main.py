@@ -270,6 +270,10 @@ def main() -> None:
             gat.set_output("cloud_inspect_status", cloud_inspect_status)
             gat.set_output("ssai_inspect_status", ssai_inspect_status)
 
+        # Handle failure mode based on fail_on parameter
+        fail_on = gat.get_user_input("fail_on") or "errors"
+        fail_on = fail_on.lower().strip()
+
         # Write job summary
         with gat.group("📊 Writing job summary"):
             job_summary.write_build_summary(
@@ -278,11 +282,8 @@ def main() -> None:
                 app_inspect_status=app_inspect_status,
                 cloud_inspect_status=cloud_inspect_status,
                 ssai_inspect_status=ssai_inspect_status,
+                fail_on=fail_on,
             )
-
-        # Handle failure mode based on fail_on parameter
-        fail_on = gat.get_user_input("fail_on") or "errors"
-        fail_on = fail_on.lower().strip()
 
         # Re-raise inspect exception if it occurred, unless fail_on is "none"
         if fail_on != "none":

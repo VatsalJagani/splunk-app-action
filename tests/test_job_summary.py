@@ -107,6 +107,22 @@ class TestJobSummary(unittest.TestCase):
         # Check that Skipped appears in the summary
         assert "Skipped" in summary_content
 
+    def test_write_build_summary_with_warning_status(self):
+        """Test job summary displays Warning status with correct emoji and fail_on mode."""
+        app_info = MockAppInfo()
+        write_build_summary(
+            app_info=app_info,
+            artifact_name="test_app_1_2_3_42.tgz",
+            app_inspect_status="Warning",
+            cloud_inspect_status="Passed",
+            ssai_inspect_status="Passed",
+            fail_on="warnings",
+        )
+
+        summary_content = Path(self.summary_file).read_text()
+        assert "Warning" in summary_content
+        assert "fail_on: warnings" in summary_content
+
     def test_write_build_summary_with_github_env(self):
         """Test job summary with GitHub environment variables for artifact links."""
         # Set GitHub environment variables
