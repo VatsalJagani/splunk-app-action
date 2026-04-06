@@ -52,36 +52,18 @@ def validate_mutually_exclusive_features() -> None:
     """Validate that only one build feature is enabled at a time."""
     use_ucc_gen = gat.get_user_input_as("use_ucc_gen", bool, False)
     python_requirements_file = gat.get_user_input("python_requirements_file")
-    app_utilities_input = gat.get_user_input("app_utilities")
-
-    # Check if Splunk Python SDK utility is being used
-    use_splunk_python_sdk = False
-    if app_utilities_input and app_utilities_input != "NONE" and app_utilities_input != "":
-        app_utilities_list = [u.strip() for u in app_utilities_input.split(",")]
-        use_splunk_python_sdk = "splunk_python_sdk" in app_utilities_list
 
     # Check if Python dependency manager is being used
     use_python_deps = python_requirements_file and python_requirements_file != ""
 
-    # Count active features
-    active_features: list[str] = []
-    if use_ucc_gen:
-        active_features.append("UCC-Gen")
-    if use_python_deps:
-        active_features.append("Python-Dependency-Management")
-    if use_splunk_python_sdk:
-        active_features.append("Splunk-Python-SDK")
-
-    if len(active_features) > 1:
-        error_msg = (
-            f"Error: Multiple build features detected: {', '.join(active_features)}. "
-            "You can only use ONE of the following features at a time:\n"
+    if use_ucc_gen and use_python_deps:
+        gat.error(
+            "Error: Both UCC-Gen and Python Dependency Manager are enabled. "
+            "You can only use one at a time:\n"
             "  - UCC-Gen (use_ucc_gen: true)\n"
             "  - Python-Dependency-Management (python_requirements_file)\n"
-            "  - Splunk-Python-SDK (app_utilities: splunk_python_sdk)\n"
             "Please update your workflow configuration to use only one feature."
         )
-        gat.error(error_msg)
         sys.exit(1)
 
 

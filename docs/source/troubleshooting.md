@@ -210,8 +210,7 @@ Error: Multiple build features detected: UCC-Gen, Python-Dependency-Management
 - Only use ONE of these features at a time:
   - UCC-Gen (`use_ucc_gen: true`)
   - Python Dependency Management (`python_requirements_file`)
-  - Splunk Python SDK utility (`app_utilities: splunk_python_sdk`)
-- Remove or disable the conflicting features from your workflow
+- Remove or disable the conflicting feature from your workflow
 
 ### AppInspect Annotations
 

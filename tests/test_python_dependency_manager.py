@@ -119,20 +119,6 @@ class TestPythonDependencyManager(unittest.TestCase):
                 main()
             assert cm.exception.code == 1
 
-    def test_mutually_exclusive_python_sdk_and_python_deps(self):
-        """Test that Splunk Python SDK and Python dependency manager cannot be used together."""
-        with setup_action_yml(
-            "repo_python_deps",
-            app_dir="my_app_3",
-            python_requirements_file="lib/requirements.txt",
-            app_utilities="splunk_python_sdk",
-            is_app_inspect_check="false",
-        ):
-            # Should exit with error code 1
-            with self.assertRaises(SystemExit) as cm:
-                main()
-            assert cm.exception.code == 1
-
     def test_requirements_file_not_found(self):
         """Test error when requirements.txt file doesn't exist."""
         with setup_action_yml(

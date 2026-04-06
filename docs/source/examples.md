@@ -338,10 +338,9 @@ jobs:
       - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
-          app_utilities: "whats_in_the_app,logger,splunk_python_sdk,common_js_utilities"
+          app_utilities: "whats_in_the_app,logger,common_js_utilities"
           logger_log_files_prefix: "my_app"
           logger_sourcetype: "my_app:logs"
-          splunk_python_sdk_install_path: "bin/lib"
 ```
 
 ### Logger Utility Only
@@ -363,31 +362,6 @@ jobs:
           app_utilities: "logger"
           logger_log_files_prefix: "my_custom_app"
           logger_sourcetype: "my_custom_app:internal"
-```
-
-### Splunk SDK with Custom Path
-
-> [!WARNING]
-> **DEPRECATED:** The `splunk_python_sdk` utility is deprecated and will be removed in v6.
-
-```yaml
-name: Install SDK in Custom Location
-on: [push]
-
-jobs:
-  sdk-install:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v5
-        with:
-          app_dir: "my_app"
-          app_utilities: "splunk_python_sdk"
-          splunk_python_sdk_install_path: "bin/lib"
-          is_remove_pyc_from_splunklib_dir: true
 ```
 
 ## Advanced Workflows
@@ -574,7 +548,7 @@ jobs:
             utilities: "ucc_additional_packaging"
             ucc: true
           - app_dir: "another_app"
-            utilities: "splunk_python_sdk,common_js_utilities"
+            utilities: "common_js_utilities"
             ucc: false
     
     steps:
@@ -608,7 +582,7 @@ jobs:
         uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
-          app_utilities: "whats_in_the_app,logger,splunk_python_sdk"
+          app_utilities: "whats_in_the_app,logger"
           is_app_inspect_check: false
       
       # Main branch - full build with inspect

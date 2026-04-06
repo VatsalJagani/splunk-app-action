@@ -12,7 +12,7 @@ name: Integration Tests
 # ✅ Multiple apps in one workflow
 #
 # ⚠️ Not Tested (create PRs or require special access):
-# - App Utilities (whats_in_the_app, logger, splunk_python_sdk, etc.) - creates PRs
+# - App Utilities (whats_in_the_app, logger, etc.) - creates PRs
 
 on:
   push:

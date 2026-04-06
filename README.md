@@ -51,7 +51,7 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
     pull-requests: write
   with:
     app_dir: "my_app"
-    app_utilities: "logger,splunk_python_sdk"
+    app_utilities: "logger"
     logger_log_files_prefix: "my_app"
     logger_sourcetype: "my_app:logs"
 

@@ -55,7 +55,7 @@ inputs:
     default: "errors"
 
   app_utilities:
-    description: "Add comma separated list of utilities to use. You need to enable read and write permission for workflow to create Pull Requests. Valid options: whats_in_the_app, logger, splunk_python_sdk, common_js_utilities, ucc_additional_packaging"
+    description: "Add comma separated list of utilities to use. You need to enable read and write permission for workflow to create Pull Requests. Valid options: whats_in_the_app, logger, common_js_utilities, ucc_additional_packaging"
     required: false
     default: ""
 
@@ -76,16 +76,6 @@ inputs:
     description: "Sourcetype for the internal app logs. Required only for logger utility."
     required: false
     default: "NONE"
-
-  splunk_python_sdk_install_path:
-    description: "Path where you would like to install splunk-python-sdk (splunklib). Path is relative to App's root folder."
-    required: false
-    default: "bin"
-
-  is_remove_pyc_from_splunklib_dir:
-    description: "Remove `.pyc` files and `__pycache__` directory from splunk-python-sdk (splunklib) installation path before generating Pull Request. Do not turn this off unless you are facing any issues explicitly."
-    required: false
-    default: true
 
 
 runs:
@@ -135,8 +125,6 @@ runs:
         INPUT_CURRENT_BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
         INPUT_LOGGER_LOG_FILES_PREFIX: ${{ inputs.logger_log_files_prefix }}
         INPUT_LOGGER_SOURCETYPE: ${{ inputs.logger_sourcetype }}
-        INPUT_SPLUNK_PYTHON_SDK_INSTALL_PATH: ${{ inputs.splunk_python_sdk_install_path }}
-        INPUT_IS_REMOVE_PYC_FROM_SPLUNKLIB_DIR: ${{ inputs.is_remove_pyc_from_splunklib_dir }}
         GITHUB_WORKSPACE: ${{ github.workspace }}
       run: |
         uv run python -u src/main.py

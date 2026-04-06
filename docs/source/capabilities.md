@@ -51,7 +51,7 @@ You must run `ucc-gen init` locally first to set up the proper UCC structure bef
 ```
 
 ```{important}
-**Mutually Exclusive Feature:** UCC-Gen cannot be used together with Python Dependency Manager (`python_requirements_file`) or Splunk Python SDK utility (`splunk_python_sdk`). The workflow will fail if multiple features are enabled.
+**Mutually Exclusive Feature:** UCC-Gen cannot be used together with Python Dependency Manager (`python_requirements_file`). The workflow will fail if both features are enabled.
 ```
 
 ---
@@ -154,11 +154,7 @@ from bs4 import BeautifulSoup
 ### Important Notes
 
 ```{important}
-**Mutually Exclusive Feature:** Python Dependency Manager cannot be used together with:
-- UCC-Gen (`use_ucc_gen: true`)
-- Splunk Python SDK utility (`app_utilities: splunk_python_sdk`)
-
-The workflow will fail with a clear error message if multiple features are enabled.
+**Mutually Exclusive Feature:** Python Dependency Manager cannot be used together with UCC-Gen (`use_ucc_gen: true`). The workflow will fail with a clear error message if both features are enabled.
 ```
 
 ```{tip}
@@ -409,9 +405,8 @@ Each utility creates PRs with descriptive titles (e.g., "Added/Updated Logger Ut
 
 1. **`whats_in_the_app`** - Adds information about your app (dashboards, alerts, etc.) to README.md
 2. **`logger`** - Adds Python logger manager with proper configuration
-3. **`splunk_python_sdk`** - Installs/upgrades Splunk Python SDK (splunklib)
-4. **`common_js_utilities`** - Adds common JavaScript utilities for Splunk apps
-5. **`ucc_additional_packaging`** - Helper for UCC Add-on input handler generation
+3. **`common_js_utilities`** - Adds common JavaScript utilities for Splunk apps
+4. **`ucc_additional_packaging`** - Helper for UCC Add-on input handler generation
 
 You can use multiple utilities at once:
 ```yaml
@@ -426,7 +421,7 @@ jobs:
       - uses: VatsalJagani/splunk-app-action@v5
         with:
           app_dir: "my_app"
-          app_utilities: "whats_in_the_app,logger,splunk_python_sdk"
+          app_utilities: "whats_in_the_app,logger"
 ```
 
 ### `whats_in_the_app` - Auto-Generate App Information
@@ -478,37 +473,6 @@ jobs:
 **Required Parameters:**
 - `logger_log_files_prefix`: Prefix for your log files
 - `logger_sourcetype`: Sourcetype for internal app logs (not required but recommended)
-
-### `splunk_python_sdk` - Splunk SDK Management
-
-> [!WARNING]
-> **DEPRECATED:** This utility is deprecated and will be removed in v6. Please plan to migrate to the Python Dependency Manager feature, which allows installing splunklib and other libraries without copying them into the repository.
-
-Automatically installs and upgrades the Splunk Python SDK (splunklib):
-- Installs latest version if not present
-- Upgrades to newer versions automatically
-- Removes `.pyc` files and `__pycache__` directories by default
-- Cleans up old package metadata files (`.dist-info` and `.egg-info`) after upgrade
-- Also cleans up old versions of splunk-sdk dependencies (e.g., `deprecation`, `packaging`)
-
-```yaml
-# Default installation (bin folder)
-- uses: VatsalJagani/splunk-app-action@v5
-  with:
-    app_dir: "my_app"
-    app_utilities: "splunk_python_sdk"
-
-# Custom installation path
-- uses: VatsalJagani/splunk-app-action@v5
-  with:
-    app_dir: "my_app"
-    app_utilities: "splunk_python_sdk"
-    splunk_python_sdk_install_path: "bin/lib"
-```
-
-**Optional Parameters:**
-- `splunk_python_sdk_install_path`: Custom path (default: "bin")
-- `is_remove_pyc_from_splunklib_dir`: Remove .pyc files (default: true)
 
 ### `common_js_utilities` - JavaScript Utilities
 

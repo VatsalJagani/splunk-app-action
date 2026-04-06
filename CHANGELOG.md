@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `is_remove_not_allowed_executables_from_lib` input (default: `false`) to control removal of files with mimetype `application/x-executable` or `application/x-sharedlib` from UCC-generated `lib/` before packaging. Set to `true` for stricter AppInspect compliance; default is `false` for compatibility.
 * **AppInspect Warning Status** - AppInspect checks now return "Warning" status when warnings exist but no errors/failures, enabling `fail_on: warnings` to work correctly.
 
+### Removed
+
+* **`splunk_python_sdk` Utility** - Removed the deprecated Splunk Python SDK utility and its inputs (`splunk_python_sdk_install_path`, `is_remove_pyc_from_splunklib_dir`). Use the Python Dependency Manager (`python_requirements_file`) with `splunk-sdk` in your requirements.txt instead.
+
 ### Fixed
 
 * Fixed the issue with file/folder paths when running UCC based utilities.

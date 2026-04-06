@@ -3,7 +3,6 @@ import github_action_toolkit as gat
 from helpers.saved_values import SavedPaths
 from utilities.common_splunk_js_utilities import CommonJSUtilitiesFile
 from utilities.logger import LoggerUtility
-from utilities.splunk_sdk_python import SplunkPythonSDKUtility
 from utilities.ucc_additional_packaging import UCCAdditionalPackagingUtility
 from utilities.whats_inside_app import WhatsInsideTheAppUtility
 
@@ -52,7 +51,7 @@ class SplunkAppUtilities:
         Add and configure utilities for the Splunk app.
 
         Processes the list of utility names and applies each one to the app.
-        Supported utilities include whats_in_the_app, logger, splunk_python_sdk,
+        Supported utilities include whats_in_the_app, logger,
         common_js_utilities, and ucc_additional_packaging.
 
         Args:
@@ -74,9 +73,10 @@ class SplunkAppUtilities:
                     LoggerUtility(self.saved_paths, self.app_read_dir, self.app_write_dir).add()
 
                 elif utility == "splunk_python_sdk":
-                    SplunkPythonSDKUtility(
-                        self.saved_paths, self.app_read_dir, self.app_write_dir
-                    ).add()
+                    gat.error(
+                        "The 'splunk_python_sdk' utility has been removed in v6. "
+                        "Use the Python Dependency Manager feature (python_requirements_file input) instead."
+                    )
 
                 elif utility == "common_js_utilities":
                     CommonJSUtilitiesFile(
@@ -92,7 +92,7 @@ class SplunkAppUtilities:
                     gat.error(f"🛠️ Unsupported utility: {utility}")
 
             except Exception as e:
-                gat.error(f"Error in utility {type(self).__name__}: {e}")
+                gat.error(f"Error in utility '{utility}': {e}")
                 self.result = False
 
         gat.info("🛠️ App utilities installation completed.")
