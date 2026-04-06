@@ -102,12 +102,14 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 ## Logger Utility Inputs
 
 ### `logger_log_files_prefix`
-- **Description:** Log files prefix. Only required for logger utility.
-- **Required:** false (required when using logger utility)
+- **Description:** Log files prefix. Required when using the `logger` utility.
+- **Required:** false
+- **Default:** `"NONE"` (must be set when using logger utility)
 - **Example:** `"my_app"` (creates log files like `my_app_error.log`)
 
 ### `logger_sourcetype`
-- **Description:** Sourcetype for the internal app logs. Required only for logger utility.
-- **Required:** false (recommended when using logger utility)
+- **Description:** Sourcetype for the internal app logs. Recommended when using the `logger` utility.
+- **Required:** false
+- **Default:** `"NONE"` (should be set when using logger utility)
 - **Example:** `"my_app:logs"`
 
