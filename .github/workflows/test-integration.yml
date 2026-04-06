@@ -8,7 +8,7 @@ name: Integration Tests
 # ✅ User Defined Commands (SPLUNK_APP_ACTION_n)
 # ✅ Local App-Inspect (local_app_inspect)
 # ✅ Splunkbase API App-Inspect (splunkbase_username/password)
-# ✅ App-Inspect fail_on modes (errors, warnings, none)
+# ✅ App-Inspect fail_on modes (errors, warnings, none) and Warning status handling
 # ✅ Multiple apps in one workflow
 #
 # ⚠️ Not Tested (create PRs or require special access):
@@ -402,7 +402,64 @@ jobs:
       expected-appinspect-result: "fail"
 
 
-  # Test 12: App-inspect with fail_on parameter (none mode)
+  # Test 12: App-inspect with fail_on=warnings (action should fail when warnings exist)
+  test-appinspect-fail-on-warnings:
+    name: Test App-Inspect fail_on=warnings
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Run splunk-app-action with fail_on=warnings
+        id: build
+        continue-on-error: true
+        uses: VatsalJagani/splunk-app-action@develop
+        with:
+          app_dir: "tests/integration_test_apps/app_inspect_warn"
+          local_app_inspect: true
+          fail_on: "warnings"
+
+      - name: Validate action failed due to warnings
+        run: |
+          echo "## App-Inspect fail_on=warnings Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          .github/scripts/validate-build-outputs.sh \
+            "app_inspect_warn" \
+            "1.0.0" \
+            "1" \
+            "${{ steps.build.outputs.artifact_name }}" \
+            "${{ steps.build.outputs.app_package_id }}" \
+            "${{ steps.build.outputs.app_version }}" \
+            "${{ steps.build.outputs.app_build_number }}"
+
+          STATUS="${{ steps.build.outputs.app_inspect_status }}"
+          OUTCOME="${{ steps.build.outcome }}"
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### fail_on=warnings Validation:" >> $GITHUB_STEP_SUMMARY
+          echo "- app_inspect_status: $STATUS" >> $GITHUB_STEP_SUMMARY
+          echo "- action outcome: $OUTCOME" >> $GITHUB_STEP_SUMMARY
+
+          # Status should be Warning (warnings present, no errors/failures)
+          if [ "$STATUS" != "Warning" ] && [ "$STATUS" != "Failure" ] && [ "$STATUS" != "Error" ]; then
+            echo "❌ Expected app_inspect_status to be Warning/Failure/Error, got '$STATUS'" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          echo "✅ app_inspect_status is non-passing: $STATUS" >> $GITHUB_STEP_SUMMARY
+
+          # Action should have failed because fail_on=warnings
+          if [ "$OUTCOME" == "success" ]; then
+            echo "❌ Action should have failed with fail_on=warnings but succeeded" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          echo "✅ Action correctly failed with fail_on=warnings" >> $GITHUB_STEP_SUMMARY
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ fail_on=warnings mode working correctly!" >> $GITHUB_STEP_SUMMARY
+
+
+  # Test 13: App-inspect with fail_on parameter (none mode)
   test-appinspect-fail-on-none:
     name: Test App-Inspect fail_on=none
     runs-on: ubuntu-latest
@@ -450,7 +507,7 @@ jobs:
   test-summary:
     name: Test Summary
     runs-on: ubuntu-latest
-    needs: 
+    needs:
       - test-basic-build
       - test-python-deps
       - test-ucc-build
@@ -462,6 +519,7 @@ jobs:
       - test-splunkbase-appinspect-pass
       - test-splunkbase-appinspect-fail
       - test-local-appinspect-fail
+      - test-appinspect-fail-on-warnings
       - test-appinspect-fail-on-none
     if: always()
     steps:
@@ -483,6 +541,7 @@ jobs:
           echo "- Splunkbase App-Inspect (Pass): ${{ needs.test-splunkbase-appinspect-pass.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Splunkbase App-Inspect (Fail): ${{ needs.test-splunkbase-appinspect-fail.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Local App-Inspect (Fail): ${{ needs.test-local-appinspect-fail.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- App-Inspect fail_on=warnings: ${{ needs.test-appinspect-fail-on-warnings.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- App-Inspect fail_on=none: ${{ needs.test-appinspect-fail-on-none.result }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
@@ -498,6 +557,7 @@ jobs:
              [ "${{ needs.test-splunkbase-appinspect-pass.result }}" != "success" ] || \
              [ "${{ needs.test-splunkbase-appinspect-fail.result }}" != "success" ] || \
              [ "${{ needs.test-local-appinspect-fail.result }}" != "success" ] || \
+             [ "${{ needs.test-appinspect-fail-on-warnings.result }}" != "success" ] || \
              [ "${{ needs.test-appinspect-fail-on-none.result }}" != "success" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "❌ Some tests failed!" >> $GITHUB_STEP_SUMMARY
