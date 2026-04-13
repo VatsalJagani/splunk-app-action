@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Developer & Internal Changes
+
+* Bumped `actions/upload-artifact` from v6 to v7 in `action.yml`.
+
 ## [v6](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v6) - 2026-04-06
 
 ### Changed
