@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Developer & Internal Changes
 
 * Bumped `softprops/action-gh-release` from v2 to v3 (Node 20 → Node 24 runtime) in `release.yml`.
+* Bumped `VatsalJagani/pytest-cov-action` from v1.3 to v1.4 in `test.yml`.
+* Bumped `actions/upload-artifact` from v6 to v7 in `action.yml`.
 
 ## [v6](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v6) - 2026-04-06
 
