@@ -51,7 +51,7 @@ dev = [
     "sphinx-autobuild>=2025.8.25",
     "sphinx-autodoc-typehints>=3.4.0",
     "sphinx-copybutton>=0.5.2",
-    "sphinxcontrib-mermaid>=1.0.0",
+    "sphinxcontrib-mermaid>=2.0.1",
     "furo>=2025.9.25",
     "myst-parser>=4.0.1",
 ]
