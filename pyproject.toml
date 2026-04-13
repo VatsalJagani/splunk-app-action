@@ -40,7 +40,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=9.0.3",
-    "pytest-sugar>=1.0.0",
+    "pytest-sugar>=1.1.1",
     "pytest-cov>=7.0.0",
     "ruff>=0.14.4",
     "codespell>=2.4.1",
