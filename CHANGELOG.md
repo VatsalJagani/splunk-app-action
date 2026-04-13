@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Developer & Internal Changes
+
+* Bumped `softprops/action-gh-release` from v2 to v3 (Node 20 → Node 24 runtime) in `release.yml`.
+
 ## [v6](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v6) - 2026-04-06
 
 ### Changed
