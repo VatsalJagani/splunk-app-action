@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Developer & Internal Changes
+
+* Bumped `VatsalJagani/pytest-cov-action` from v1.3 to v1.4 in `test.yml`.
+
 ## [v6](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v6) - 2026-04-06
 
 ### Changed
