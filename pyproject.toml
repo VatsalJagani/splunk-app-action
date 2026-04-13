@@ -29,7 +29,7 @@ dependencies = [
     "github-action-toolkit>=0.8.0",
     "pip>=25.3",
     "requests>=2.32.5",
-    "splunk-add-on-ucc-framework>=6.0.1",
+    "splunk-add-on-ucc-framework>=6.3.0",
     "splunk-appinspect>=2.0.0",
     "python-magic==0.4.24",
 ]
