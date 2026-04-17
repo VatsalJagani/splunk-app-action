@@ -67,7 +67,9 @@ class BaseUtility(ABC):
 
                     # If the remote branch already exists, changes were pushed in a previous run.
                     try:
-                        remote_heads = {ref.remote_head for ref in github.repo.remotes.origin.refs}
+                        remote_heads: set[str] = {
+                            ref.remote_head for ref in github.repo.remotes.origin.refs
+                        }
                     except Exception:
                         remote_heads = set()
 

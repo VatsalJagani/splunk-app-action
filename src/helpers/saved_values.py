@@ -1,6 +1,6 @@
 import os
 import re
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 
 import github_action_toolkit as gat
@@ -32,7 +32,7 @@ class SavedPaths:
 
 
 @contextmanager
-def keep_working_dir_unchanged() -> Iterator[None]:
+def keep_working_dir_unchanged() -> Generator[None]:
     """
     Context manager to preserve the current working directory.
 
