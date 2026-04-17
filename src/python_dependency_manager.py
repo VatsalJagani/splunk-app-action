@@ -108,10 +108,6 @@ def install_dependencies(
         ["find", target_dir, "-name", "*.dist-info", "-type", "d", "-exec", "rm", "-rf", "{}", "+"],
         check=False,
     )
-    subprocess.run(
-        ["find", target_dir, "-name", "*.data", "-type", "d", "-exec", "rm", "-rf", "{}", "+"],
-        check=False,
-    )
 
     # Remove requirements.txt file after installing dependencies
     gat.info(f"Removing requirements file: {requirements_file_path}")
