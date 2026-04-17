@@ -28,7 +28,9 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-          python-version: "3.12"
+
+      - name: Set up Python (using uv)
+        run: uv python install 3.12
 
       - name: Install all dependencies
         run: uv sync --all-extras
