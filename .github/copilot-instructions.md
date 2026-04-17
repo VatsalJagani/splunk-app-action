@@ -1,30 +1,6 @@
-# CLAUDE.md
+# splunk-app-action
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
----
-description: General Guidelines
-globs: 
-alwaysApply: true
----
-# Assistant Rules
-
-Be a senior engineer — concise, factual, systematic. No praise, banter, or gratuitous enthusiasm. Propose options if unclear. Comments only for non-obvious intent.
-
-## Architecture
-
-**GitHub Actions composite action** (`action.yml`) for Splunk App/Add-on builds, inspection, and utilities. Runs Python from `src/` on Ubuntu runners.
-
-**Pipeline** (`action.yml` → `src/main.py`):
-1. **Paths & metadata** — `SavedPaths` + `AppInfo` from inputs/`app.conf`/`globalConfig.json`; `AppInfo.publish()` exports to GH Actions
-2. **Build** — `ucc_gen.build()` (UCC add-ons) or `app_build_generate.generate_build()` (standard apps via tar); optional `python_dependency_manager` for pip deps
-3. **AppInspect** — `SplunkAppInspect` (API, threaded: app/cloud/SSAI parallel) or `SplunkLocalAppInspect` (CLI); both extend `BaseAppInspect` ABC
-4. **Utilities** — Optional utilities via `SplunkAppUtilities`; each extends `BaseUtility` ABC
-5. **Job summary & annotations** — Published to GitHub Actions UI
-
-**Key modules:** `src/helpers/saved_values.py` (paths, app info, `keep_working_dir_unchanged`), `src/helpers/splunk_config_parser.py` (custom `.conf` parser with `FILE_SECTION`), `src/app_inspect.py` (inspect ABCs), `src/utilities/base_utility.py` (`BaseUtility` ABC)
-
-**Tests:** `conftest.py` globally mocks `gat.set_env`/`gat.set_output`/`SplunkAppInspect._api_login`. `sys.path` adds `src/` so tests import directly. Fixtures in `tests/test_app_repos/` and `tests/integration_test_apps/`.
+GitHub Actions composite action for Splunk App/Add-on builds, app-inspect checks, and utilities. Runs Python from `src/` on Ubuntu runners.
 
 ## Commands
 
@@ -32,34 +8,48 @@ Be a senior engineer — concise, factual, systematic. No praise, banter, or gra
 make                  # install + lint + test + docs-check
 make lint             # codespell + ruff format + ruff check + basedpyright
 make test             # uv run pytest
-make docs-check       # Sphinx build, fail on warnings
-
-uv run pytest tests/test_ucc_gen.py::TestUccGen::test_remove_executables_enabled -x -v
-uv run basedpyright src/main.py
-uv run ruff check src/main.py
+uv run pytest tests/path/to/test.py::Class::method -x -v
 ```
 
----
-description: Python Coding Guidelines
-globs: *.py,pyproject.toml
-alwaysApply: false
----
-# Python Guidelines
+## Architecture
 
-- **Python 3.12 only.** Use `uv` exclusively (never `pip`/`python`). Run `make lint` + `make test` after changes; zero errors required.
-- Modern types: `str | None` not `Optional`, `list[str]` not `List[str]`. Use `StrEnum`, `@override` (from `typing_extensions`), `Path` over strings.
-- Absolute imports only. `Callable` from `collections.abc`.
-- Resolve basedpyright errors; `# pyright: ignore` only when justified. Test files: fix logic first, use file-level ignores (`# pyright: reportUnusedVariable=false`).
-- Never change existing comments/pydocs/log statements unless fixing the issue or explicitly asked.
-- Docstrings: concise, explain "why" not "what". Public exports should have them; skip for obvious internals.
-- Use `dedent()` for multi-line strings. Use `raise AssertionError("msg")` not `assert False`.
+`action.yml` → `INPUT_*` env vars → `src/main.py`
 
-## Changelog
+**Three mutually exclusive build paths:**
+1. **UCC**: `ucc_gen.build()` — runs `ucc-gen build` in repo copy
+2. **Python deps**: `python_dependency_manager.install_dependencies()` — `pip install --target lib/`, cleans `.pyc`/`.dist-info`
+3. **Standard**: `shutil.copytree()` only
 
-Update `CHANGELOG.md` for user-facing changes. Categories: **Upgrade Notes**, **Changed/Added/Removed/Fixed/Deprecated/Security** (user-facing only), **Developer & Internal Changes** (concise, outcome-only). Feature format: `**Name** - Description`. Use "Github" not "GitHub".
+**After build:** `app_build_generate.generate_build()` → App Inspect (3 parallel threads) → Utilities → Job summary
 
-## Testing
+**App Inspect:** `SplunkAppInspect` (Splunkbase API) or `SplunkLocalAppInspect` (CLI). Results: `[0]=app, [1]=cloud, [2]=ssai`.
 
-- Tests in `tests/test_*.py`. No trivial tests, no `if __name__ == "__main__"`.
-- Integration tests: use reusable workflow (`.github/workflows/reusable-integration-test.yml`). **Never reuse app names** across tests.
-- Update docs (`docs/source`) + README for behavior changes. Run `make docs-check`.
+**Utilities:** `BaseUtility` subclasses detect changes via file hash, create PRs via `gat.Repo`. Idempotent — skips if `splunk_app_action_<hash>` branch already exists on remote.
+
+## Key Non-Obvious Details
+
+- `SavedPaths.repo_dir_path` is always `{cwd}/repodir` (hardcoded from action.yml checkout path)
+- `AppInfo.publish()` must be called explicitly after construction; `set_build_number()` after build dir is ready
+- App inspect threads set status in `finally` so outputs publish even on failure
+- `python_dependency_manager` preserves `default/metadata/static/appserver/bin/local/lookups` when cleaning target dir
+- `docs/source/CHANGELOG.md` is a symlink to root `CHANGELOG.md`
+
+## Tests
+
+```python
+with setup_action_yml("integration_test_apps/valid_app", app_dir="valid_app", is_app_inspect_check="false"):
+    main()
+```
+
+- `setup_action_yml()` in `tests/helper_test.py`: copies app → `temp_for_test/repodir/`, sets `INPUT_*` env vars, cleans up on exit
+- `conftest.py` mocks `gat.set_env`, `gat.set_output`, `SplunkAppInspect._api_login`; adds `src/` to `sys.path`
+- Expect failures: `pytest.raises(SystemExit)` with `code == 5`
+- Permission tests: mask group-write bit (`stat.st_mode & ~0o020`) — varies by machine umask
+- Never reuse app names across integration tests
+
+## Python
+
+- Python 3.12, `uv` only (never `pip`/`python`), zero lint errors
+- `str | None` not `Optional`; `Generator` not `Iterator` for `@contextmanager`; absolute imports only
+- `Callable` from `collections.abc`
+- `CHANGELOG.md`: user-facing categories (Changed/Added/Fixed/etc.) + Developer & Internal Changes; feature format `**Name** - Description`; "Github" not "GitHub"
