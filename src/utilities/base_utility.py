@@ -63,8 +63,22 @@ class BaseUtility(ABC):
                         gat.error("File to generate hash is invalid.")
 
                 if hash:
-                    gat.info("Committing and creating PR for the code change.")
                     _msg = f"splunk_app_action_{hash}"
+
+                    # If the remote branch already exists, changes were pushed in a previous run.
+                    try:
+                        remote_heads = {ref.remote_head for ref in github.repo.remotes.origin.refs}
+                    except Exception:
+                        remote_heads = set()
+
+                    if _msg in remote_heads:
+                        gat.info(
+                            f"Remote branch '{_msg}' already exists — "
+                            f"{type(self).__name__} changes were already submitted. Skipping."
+                        )
+                        return
+
+                    gat.info("Committing and creating PR for the code change.")
                     github.create_new_branch(_msg)
                     github.add_all_and_commit(_msg)
                     github.push()
