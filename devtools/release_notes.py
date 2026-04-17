@@ -25,7 +25,9 @@ def get_change_log_notes() -> str:
                 if line.startswith(f"## [{TAG}]"):
                     in_current_section = True
                     continue
-                break
+                if in_current_section:
+                    break
+                continue
             if in_current_section:
                 if line.startswith("### Added"):
                     line = ADDED_HEADER + "\n"
