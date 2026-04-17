@@ -37,8 +37,9 @@ def get_file_permissions(filepath):
         print(f"Error getting file permissions: {e}")
         return None
 
-    # Extract permission bits using stat.st_mode
-    permissions = stat.st_mode
+    # Extract permission bits using stat.st_mode.
+    # Mask out group-write (0o020) — git doesn't track it and it varies by umask.
+    permissions = stat.st_mode & ~0o020
 
     # Define permission character mappings for readability
     permission_map = {

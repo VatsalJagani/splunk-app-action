@@ -7,11 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v6.0.1](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v6.0.1) - 2026-04-18
+
+### Fixed
+
+* **`setup-uv@v5` Compatibility** - Removed `python-version` from `astral-sh/setup-uv@v5` step to prevent venv activation failure in composite action context. Python 3.12 is now explicitly installed in a separate step scoped to the action's own directory.
+* **Duplicate Utility PR** - Utility PR creation is now skipped when the remote branch already exists (same content hash), preventing a non-fast-forward `git push` failure on repeated workflow runs.
+* **Python Dependency Manager Metadata Cleanup** - `.dist-info` directories created by `pip install --target` are now removed from `lib/` after installation. These pip metadata directories are not needed at Splunk runtime and unnecessarily bloat the app package.
+
 ### Developer & Internal Changes
 
 * Bumped `softprops/action-gh-release` from v2 to v3 (Node 20 → Node 24 runtime) in `release.yml`.
 * Bumped `VatsalJagani/pytest-cov-action` from v1.3 to v1.4 in `test.yml`.
 * Bumped `actions/upload-artifact` from v6 to v7 in `action.yml`.
+* Applied `setup-uv@v5` fix to `release.yml` and `test.yml` as well.
 
 ## [v6](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v6) - 2026-04-06
 

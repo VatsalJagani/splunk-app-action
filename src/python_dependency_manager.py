@@ -98,11 +98,15 @@ def install_dependencies(
 
     gat.debug(result.stdout)
 
-    # Clean up cache files
-    gat.debug("Cleaning up cache files...")
+    # Clean up pip metadata and cache files not needed at runtime
+    gat.debug("Cleaning up pip metadata and cache files...")
     subprocess.run(["find", target_dir, "-name", "*.py[co]", "-type", "f", "-delete"], check=False)
     subprocess.run(
         ["find", target_dir, "-name", "__pycache__", "-type", "d", "-delete"], check=False
+    )
+    subprocess.run(
+        ["find", target_dir, "-name", "*.dist-info", "-type", "d", "-exec", "rm", "-rf", "{}", "+"],
+        check=False,
     )
 
     # Remove requirements.txt file after installing dependencies
