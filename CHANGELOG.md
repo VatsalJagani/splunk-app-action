@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fixed
+
+* **UCC Additional Packaging - Handler Signature** - Generated `<input>_handler.py` now includes `session_key: str` as the first parameter in both `validate_input` and `stream_events`, making the session key available without requiring access to internal script attributes.
+* **UCC Additional Packaging - Regex Robustness** - Regex patterns for `validate_input` and `stream_events` replacement are now non-greedy, preventing incorrect matches when multiple methods are present. Each substitution now raises `RuntimeError` if the pattern does not match, surfacing UCC output format changes instead of silently producing a broken file.
+* **UCC Additional Packaging - `validate_input` Session Key Source** - Fixed incorrect use of `self._input_definition.metadata['session_key']` inside `validate_input`; now correctly uses `definition.metadata['session_key']`.
+
 ## [v6.0.1](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v6.0.1) - 2026-04-18
 
 ### Fixed

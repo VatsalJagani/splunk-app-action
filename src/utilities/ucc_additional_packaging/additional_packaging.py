@@ -1,6 +1,6 @@
 # This file is generated and maintained by splunk-app-action (https://github.com/VatsalJagani/splunk-app-action)
 # To modify anything create Pull Request on the splunk-app-action GitHub repository.
-# Version - 2026-01-28
+# Version - 2026-04-24
 
 import configparser
 import os
@@ -68,37 +68,38 @@ def modify_original_input_py_file(addon_name: str, input_name: str) -> None:
     with open(file_path) as f:
         file_content = f.read()
 
-    # print(f"file_content1 = {file_content}")
-
     # Insert import statement for your modular input
-    file_content = re.sub(
+    new_content = re.sub(
         r"(?m)^(import[^\n]*)$(?!.*^import[^\n]*)",
         r"\1\nimport " + input_name + "_handler",
         file_content,
         flags=re.DOTALL,
     )
-
-    # print(f"file_content2 = {file_content}")
+    if new_content == file_content:
+        raise RuntimeError(f"Import injection did not match in {file_path} — UCC output format may have changed")
+    file_content = new_content
 
     # Update validate_input method
-    pattern_validate_input_fun = r"def validate_input[\w\W]*return\n"
-    replacement_content_validate_input_fun = f"def validate_input(self, definition: smi.ValidationDefinition):\n        {input_name}_handler.validate_input(self._input_definition.metadata['session_key'], self, definition)\n\n"
+    pattern_validate_input_fun = r"def validate_input[\w\W]*?return\n"
+    replacement_content_validate_input_fun = f"def validate_input(self, definition: smi.ValidationDefinition):\n        {input_name}_handler.validate_input(definition.metadata['session_key'], self, definition)\n\n"
 
-    file_content = re.sub(
+    new_content = re.sub(
         pattern_validate_input_fun, replacement_content_validate_input_fun, file_content
     )
-
-    # print(f"file_content3 = {file_content}")
+    if new_content == file_content:
+        raise RuntimeError(f"validate_input pattern did not match in {file_path} — UCC output format may have changed")
+    file_content = new_content
 
     # Update stream_events method
-    pattern_stream_events_fun = r"def stream_events[\w\W]*(?:\n\n)"
+    pattern_stream_events_fun = r"def stream_events[\w\W]*?(?:\n\n)"
     replacement_content_stream_events_fun = f"def stream_events(self, inputs: smi.InputDefinition, event_writer: smi.EventWriter):\n        {input_name}_handler.stream_events(self._input_definition.metadata['session_key'], self, inputs, event_writer)\n\n\n"
 
-    file_content = re.sub(
+    new_content = re.sub(
         pattern_stream_events_fun, replacement_content_stream_events_fun, file_content
     )
-
-    # print(f"file_content4 = {file_content}")
+    if new_content == file_content:
+        raise RuntimeError(f"stream_events pattern did not match in {file_path} — UCC output format may have changed")
+    file_content = new_content
 
     with open(file_path, "w") as f:
         f.write(file_content)
