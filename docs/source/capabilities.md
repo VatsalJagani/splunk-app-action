@@ -508,10 +508,10 @@ The input handler file `<Input_Name>_handler.py` will start with:
 ```python
 from splunklib import modularinput as smi
 
-def validate_input(input_script: smi.Script, definition: smi.ValidationDefinition):
+def validate_input(session_key: str, input_script: smi.Script, definition: smi.ValidationDefinition):
         return
 
-def stream_events(input_script: smi.Script, inputs: smi.InputDefinition, event_writer: smi.EventWriter):
+def stream_events(session_key: str, input_script: smi.Script, inputs: smi.InputDefinition, event_writer: smi.EventWriter):
         return
 ```
 
