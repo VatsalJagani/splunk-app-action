@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v6.0.2](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v6.0.2) - 2026-04-24
+
 ### Fixed
 
 * **UCC Additional Packaging - Handler Signature** - Generated `<input>_handler.py` now includes `session_key: str` as the first parameter in both `validate_input` and `stream_events`, making the session key available without requiring access to internal script attributes.

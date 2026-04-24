@@ -5,7 +5,13 @@
 2. Update dependencies, run checks and tests.
     * `make`
 
-3. Run the release script:
+3. Prepare changelog.
+
+    ```bash
+    python devtools/prepare_changelog.py
+    ```
+
+4. Run the release script:
 
     ```bash
     make create-tag
