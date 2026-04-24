@@ -19,6 +19,14 @@
 
     This will commit the changes and then create a new tag in git.
 
+5. Move the floating major tag (e.g. `v6`) to point to the new patch release.
+
+    ```bash
+    git tag -f "vX" -m "vX"
+    git push origin -f "vX"
+    # Example - git tag -f "v6" -m "v6" && git push origin -f "v6"
+    ```
+
 
 ## Publishing new Release or Updating the Release (to patch issues)
 
