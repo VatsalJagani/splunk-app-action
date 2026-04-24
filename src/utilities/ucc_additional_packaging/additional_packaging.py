@@ -76,7 +76,9 @@ def modify_original_input_py_file(addon_name: str, input_name: str) -> None:
         flags=re.DOTALL,
     )
     if new_content == file_content:
-        raise RuntimeError(f"Import injection did not match in {file_path} — UCC output format may have changed")
+        raise RuntimeError(
+            f"Import injection did not match in {file_path} — UCC output format may have changed"
+        )
     file_content = new_content
 
     # Update validate_input method
@@ -87,7 +89,9 @@ def modify_original_input_py_file(addon_name: str, input_name: str) -> None:
         pattern_validate_input_fun, replacement_content_validate_input_fun, file_content
     )
     if new_content == file_content:
-        raise RuntimeError(f"validate_input pattern did not match in {file_path} — UCC output format may have changed")
+        raise RuntimeError(
+            f"validate_input pattern did not match in {file_path} — UCC output format may have changed"
+        )
     file_content = new_content
 
     # Update stream_events method
@@ -98,7 +102,9 @@ def modify_original_input_py_file(addon_name: str, input_name: str) -> None:
         pattern_stream_events_fun, replacement_content_stream_events_fun, file_content
     )
     if new_content == file_content:
-        raise RuntimeError(f"stream_events pattern did not match in {file_path} — UCC output format may have changed")
+        raise RuntimeError(
+            f"stream_events pattern did not match in {file_path} — UCC output format may have changed"
+        )
     file_content = new_content
 
     with open(file_path, "w") as f:
