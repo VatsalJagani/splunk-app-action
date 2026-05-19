@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-* **Python Dependency Manager - uv Artifact Cleanup** - The `.lock` file and `bin/` directory created by `uv pip install --target` are now removed from the build. These are not needed at Splunk runtime and caused Splunk App Inspect failures (`check_that_extracted_splunk_app_does_not_contain_prohibited_directories_or_files`). The `bin/` directory is only removed if all files within it are console entry point scripts (identified by shebang `#!`); if any non-script file is found, the directory is preserved and a warning is logged.
+* **Python Dependency Manager - uv Artifact Cleanup** - The `.lock` file and `bin/` directory created by `uv pip install --target` are now removed from the build. These are not needed at Splunk runtime and caused Splunk App Inspect failures (`check_that_extracted_splunk_app_does_not_contain_prohibited_directories_or_files`). The `bin/` directory is only removed if all files within it are console entry point scripts (identified by shebang `#!`); if any non-script file, subdirectory, or symlink/special file is found, the directory is preserved and a warning is logged.
 
 ## [v6.0.2](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v6.0.2) - 2026-04-24
 

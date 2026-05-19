@@ -248,7 +248,8 @@ class TestUvArtifactCleanup(unittest.TestCase):
             if "pip" in cmd and "install" in cmd:
                 target_dir = cmd[cmd.index("--target") + 1]
                 os.makedirs(target_dir, exist_ok=True)
-                open(os.path.join(target_dir, ".lock"), "w").close()
+                with open(os.path.join(target_dir, ".lock"), "w"):
+                    pass
                 if extra_files:
                     for rel_path, content in extra_files.items():
                         full_path = os.path.join(target_dir, rel_path)
