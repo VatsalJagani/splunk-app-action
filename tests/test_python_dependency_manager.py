@@ -306,3 +306,54 @@ class TestUvArtifactCleanup(unittest.TestCase):
         )
         lib_bin = [f for f in all_folders if f.endswith("lib/bin")]
         assert len(lib_bin) > 0, "lib/bin/ should be kept when it contains non-script files"
+
+    def test_bin_with_subdirectory_kept_in_build(self):
+        """bin/ containing a subdirectory is NOT removed (subdirs can't be validated as scripts)."""
+        all_files, all_folders = self._run_and_extract(
+            extra_files={
+                "bin/normalizer": "#!/usr/bin/env python3\nprint('normalizer')\n",
+                "bin/subpackage/__init__.py": "# subpackage\n",
+            }
+        )
+        lib_bin = [f for f in all_folders if f.endswith("lib/bin")]
+        assert len(lib_bin) > 0, "lib/bin/ should be kept when it contains subdirectories"
+        assert any("bin/subpackage/__init__.py" in f for f in all_files), (
+            "bin/subpackage/__init__.py should be preserved in the build"
+        )
+
+    def test_bin_with_dangling_symlink_kept_in_build(self):
+        """bin/ containing a dangling symlink is NOT removed (uncertain content — preserve)."""
+        real_run = subprocess.run
+
+        def mock_pip_with_dangling_symlink(cmd, **kwargs):
+            if "pip" in cmd and "install" in cmd:
+                target_dir = cmd[cmd.index("--target") + 1]
+                os.makedirs(os.path.join(target_dir, "bin"), exist_ok=True)
+                open(os.path.join(target_dir, ".lock"), "w").close()
+                open(os.path.join(target_dir, "bin", "normalizer"), "w").write(
+                    "#!/usr/bin/env python3\n"
+                )
+                os.symlink(
+                    "/nonexistent/target",
+                    os.path.join(target_dir, "bin", "dangling_link"),
+                )
+                return MagicMock(returncode=0, stdout="", stderr="")
+            return real_run(cmd, **kwargs)
+
+        with setup_action_yml(
+            "repo_python_deps",
+            app_dir="my_app_3",
+            python_requirements_file="lib/requirements.txt",
+            is_app_inspect_check="false",
+        ):
+            with patch(
+                "python_dependency_manager.subprocess.run",
+                side_effect=mock_pip_with_dangling_symlink,
+            ):
+                main()
+
+            app_build_name = "my_app_3_1_2_3_1.tgz"
+            assert os.path.isfile(app_build_name), f"App build {app_build_name} not found"
+            _fc, _dc, all_files, all_folders = extract_app_build(app_build_name)
+            lib_bin = [f for f in all_folders if f.endswith("lib/bin")]
+            assert len(lib_bin) > 0, "lib/bin/ should be kept when it contains a dangling symlink"

@@ -132,22 +132,30 @@ def install_dependencies(
     # Remove uv .lock file — not needed in Splunk builds and flagged by App Inspect
     uv_lock_file = os.path.join(target_dir, ".lock")
     if os.path.exists(uv_lock_file):
-        gat.debug("Removing uv .lock file from target directory")
+        gat.info("Removing uv .lock file from target directory")
         os.remove(uv_lock_file)
 
     # Remove bin/ at target dir root if it contains only console entry point scripts
     # (identified by shebang #!). These are created by uv for packages with console_scripts
-    # entry points and are not needed at Splunk runtime. Skipped if any non-script file is
-    # found, which would indicate a real Python module directory that should be preserved.
+    # entry points and are not needed at Splunk runtime. Skipped if any subdirectory,
+    # non-script file, or symlink is found, which would indicate real content to preserve.
     uv_bin_dir = os.path.join(target_dir, "bin")
     if os.path.exists(uv_bin_dir) and os.path.isdir(uv_bin_dir):
-        bin_files = [
-            f for f in os.listdir(uv_bin_dir) if os.path.isfile(os.path.join(uv_bin_dir, f))
+        bin_items = os.listdir(uv_bin_dir)
+        bin_files = [f for f in bin_items if os.path.isfile(os.path.join(uv_bin_dir, f))]
+        bin_subdirs = [f for f in bin_items if os.path.isdir(os.path.join(uv_bin_dir, f))]
+        bin_other = [
+            f
+            for f in bin_items
+            if not os.path.isfile(os.path.join(uv_bin_dir, f))
+            and not os.path.isdir(os.path.join(uv_bin_dir, f))
         ]
         non_scripts = [f for f in bin_files if not _is_console_script(os.path.join(uv_bin_dir, f))]
-        if non_scripts:
+        unexpected = bin_subdirs + non_scripts + bin_other
+        if unexpected:
             gat.warning(
-                f"bin/ in target directory contains non-script files {non_scripts} — skipping removal"
+                f"bin/ in target directory contains unexpected items "
+                f"(subdirs={bin_subdirs}, non_scripts={non_scripts}, other={bin_other}) — skipping removal"
             )
         else:
             gat.info(
@@ -177,7 +185,7 @@ def install_dependencies(
     final_build_dir = "python_deps_generated_build"
     if os.path.exists(final_build_dir):
         shutil.rmtree(final_build_dir)
-    shutil.copytree(app_dir, final_build_dir)
+    shutil.copytree(app_dir, final_build_dir, symlinks=True)
 
     gat.info("Python dependency installation completed successfully")
     return final_build_dir
