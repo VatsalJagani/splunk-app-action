@@ -163,6 +163,7 @@ from bs4 import BeautifulSoup
 - The requirements.txt file will be removed from the final build package
 - The `.python-version` file will be automatically removed from the final build package (safe to commit to your app directory for Dependabot)
 - The `uv`-specific `.lock` file is removed from the dependency target directory
+- The `bin/` directory at the target root is removed if it contains only console entry point scripts (shebang `#!` files created by `uv` for packages with `console_scripts` entry points). If any non-script file is found inside `bin/`, the directory is preserved and a warning is logged
 - This ensures a clean build without any leftover files or dependencies
 ```
 

@@ -7,6 +7,15 @@ import github_action_toolkit as gat
 from helpers.saved_values import AppInfo, SavedPaths
 
 
+def _is_console_script(filepath: str) -> bool:
+    """Return True if the file starts with a shebang, indicating a uv/pip entry point script."""
+    try:
+        with open(filepath, "rb") as f:
+            return f.read(2) == b"#!"
+    except Exception:
+        return False
+
+
 def install_dependencies(
     saved_paths: SavedPaths,
     app_info: AppInfo,  # pyright: ignore[reportUnusedParameter]
@@ -125,6 +134,26 @@ def install_dependencies(
     if os.path.exists(uv_lock_file):
         gat.debug("Removing uv .lock file from target directory")
         os.remove(uv_lock_file)
+
+    # Remove bin/ at target dir root if it contains only console entry point scripts
+    # (identified by shebang #!). These are created by uv for packages with console_scripts
+    # entry points and are not needed at Splunk runtime. Skipped if any non-script file is
+    # found, which would indicate a real Python module directory that should be preserved.
+    uv_bin_dir = os.path.join(target_dir, "bin")
+    if os.path.exists(uv_bin_dir) and os.path.isdir(uv_bin_dir):
+        bin_files = [
+            f for f in os.listdir(uv_bin_dir) if os.path.isfile(os.path.join(uv_bin_dir, f))
+        ]
+        non_scripts = [f for f in bin_files if not _is_console_script(os.path.join(uv_bin_dir, f))]
+        if non_scripts:
+            gat.warning(
+                f"bin/ in target directory contains non-script files {non_scripts} — skipping removal"
+            )
+        else:
+            gat.info(
+                f"Removing bin/ from target directory ({len(bin_files)} console entry point script(s))"
+            )
+            shutil.rmtree(uv_bin_dir)
 
     # Remove requirements.txt file after installing dependencies
     gat.info(f"Removing requirements file: {requirements_file_path}")

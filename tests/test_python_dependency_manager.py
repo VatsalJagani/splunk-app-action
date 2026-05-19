@@ -238,21 +238,29 @@ class TestPythonVersionFileExclusion(unittest.TestCase):
 
 
 class TestUvArtifactCleanup(unittest.TestCase):
-    def _mock_pip_creates_lock(self, real_run):
-        """Side effect that simulates uv creating a .lock file in the target dir."""
+    def _mock_pip(self, real_run, extra_files: dict[str, str] | None = None):
+        """Side effect simulating uv pip install creating artifacts in the target dir.
+
+        extra_files: mapping of relative path → file content to create inside target_dir.
+        """
 
         def side_effect(cmd, **kwargs):
             if "pip" in cmd and "install" in cmd:
                 target_dir = cmd[cmd.index("--target") + 1]
                 os.makedirs(target_dir, exist_ok=True)
                 open(os.path.join(target_dir, ".lock"), "w").close()
+                if extra_files:
+                    for rel_path, content in extra_files.items():
+                        full_path = os.path.join(target_dir, rel_path)
+                        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+                        with open(full_path, "w") as f:
+                            f.write(content)
                 return MagicMock(returncode=0, stdout="", stderr="")
             return real_run(cmd, **kwargs)
 
         return side_effect
 
-    def test_uv_lock_file_excluded_from_build(self):
-        """The .lock file created by uv pip install must not appear in the final build."""
+    def _run_and_extract(self, extra_files: dict[str, str] | None = None):
         real_run = subprocess.run
         with setup_action_yml(
             "repo_python_deps",
@@ -262,12 +270,39 @@ class TestUvArtifactCleanup(unittest.TestCase):
         ):
             with patch(
                 "python_dependency_manager.subprocess.run",
-                side_effect=self._mock_pip_creates_lock(real_run),
+                side_effect=self._mock_pip(real_run, extra_files),
             ):
                 main()
 
             app_build_name = "my_app_3_1_2_3_1.tgz"
             assert os.path.isfile(app_build_name), f"App build {app_build_name} not found"
-            _fc, _dc, all_files, _fd = extract_app_build(app_build_name)
-            lock_files = [f for f in all_files if ".lock" in f]
-            assert len(lock_files) == 0, f".lock file found in build: {lock_files}"
+            _fc, _dc, all_files, all_folders = extract_app_build(app_build_name)
+            return all_files, all_folders
+
+    def test_uv_lock_file_excluded_from_build(self):
+        """The .lock file created by uv pip install must not appear in the final build."""
+        all_files, _ = self._run_and_extract()
+        lock_files = [f for f in all_files if ".lock" in f]
+        assert len(lock_files) == 0, f".lock file found in build: {lock_files}"
+
+    def test_bin_with_only_console_scripts_excluded_from_build(self):
+        """bin/ containing only shebang scripts (uv console entry points) is removed from build."""
+        all_files, all_folders = self._run_and_extract(
+            extra_files={
+                "bin/normalizer": "#!/usr/bin/env python3\nprint('normalizer')\n",
+                "bin/another_tool": "#!/usr/bin/env python\nprint('tool')\n",
+            }
+        )
+        lib_bin = [f for f in all_folders if f.endswith("lib/bin")]
+        assert len(lib_bin) == 0, f"lib/bin/ found in build: {lib_bin}"
+
+    def test_bin_with_non_script_files_kept_in_build(self):
+        """bin/ containing non-shebang files (real Python module) is NOT removed from build."""
+        all_files, all_folders = self._run_and_extract(
+            extra_files={
+                "bin/normalizer": "#!/usr/bin/env python3\nprint('normalizer')\n",
+                "bin/__init__.py": "# real Python module\n",
+            }
+        )
+        lib_bin = [f for f in all_folders if f.endswith("lib/bin")]
+        assert len(lib_bin) > 0, "lib/bin/ should be kept when it contains non-script files"
