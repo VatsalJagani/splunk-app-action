@@ -31,6 +31,11 @@ inputs:
     required: false
     default: ""
 
+  splunk_python_version:
+    description: "Python version to target when installing dependencies from python_requirements_file. Should match the Python version used by the Splunk platform (default: 3.9)."
+    required: false
+    default: "3.9"
+
   is_app_inspect_check:
     description: "Whether to perform the Splunk app-inspect checks or not. This would include cloud-inspect checks as well."
     required: false
@@ -112,6 +117,7 @@ runs:
         INPUT_USE_UCC_GEN: ${{ inputs.use_ucc_gen }}
         INPUT_IS_REMOVE_NOT_ALLOWED_EXECUTABLES_FROM_LIB: ${{ inputs.is_remove_not_allowed_executables_from_lib }}
         INPUT_PYTHON_REQUIREMENTS_FILE: ${{ inputs.python_requirements_file }}
+        INPUT_SPLUNK_PYTHON_VERSION: ${{ inputs.splunk_python_version }}
         INPUT_TO_MAKE_PERMISSION_CHANGES: ${{ inputs.to_make_permission_changes }}
         INPUT_IS_APP_INSPECT_CHECK: ${{ inputs.is_app_inspect_check }}
         INPUT_SPLUNKBASE_USERNAME: ${{ inputs.splunkbase_username }}

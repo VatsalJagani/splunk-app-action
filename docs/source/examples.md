@@ -170,6 +170,7 @@ jobs:
 - The directory containing requirements.txt will be cleaned before installation
 - The requirements.txt file is removed from the final build package
 - Install Splunk Python SDK by adding `splunk-sdk` to requirements.txt
+- Use `splunk_python_version` to match the Python version of your Splunk platform (default: `"3.9"`)
 ```
 
 ### Basic Python Dependencies

@@ -12,6 +12,7 @@
 import os
 import tarfile
 import unittest
+from unittest.mock import MagicMock, patch
 
 from main import main  # pyright: ignore[reportMissingImports]
 
@@ -150,3 +151,56 @@ class TestPathJoinBug(unittest.TestCase):
         """When app_dir_name is '.', the path should still be under the build dir."""
         result = os.path.join("python_deps_build_dir", ".")
         assert result == "python_deps_build_dir/."
+
+
+class TestPythonVersionInput(unittest.TestCase):
+    def _capture_subprocess(self, pip_install_calls):
+        def side_effect(cmd, **kwargs):
+            if "install" in cmd:
+                pip_install_calls.append(list(cmd))
+            return MagicMock(returncode=0, stdout="", stderr="")
+
+        return side_effect
+
+    def test_pip_install_uses_python_39_by_default(self):
+        """uv pip install should target Python 3.9 when splunk_python_version is not specified."""
+        pip_install_calls: list[list[str]] = []
+        with setup_action_yml(
+            "repo_python_deps",
+            app_dir="my_app_3",
+            python_requirements_file="lib/requirements.txt",
+            is_app_inspect_check="false",
+        ):
+            with patch(
+                "python_dependency_manager.subprocess.run",
+                side_effect=self._capture_subprocess(pip_install_calls),
+            ):
+                main()
+
+        assert len(pip_install_calls) == 1
+        cmd = pip_install_calls[0]
+        assert cmd[0] == "uv"
+        assert "--python" in cmd
+        assert cmd[cmd.index("--python") + 1] == "3.9"
+
+    def test_pip_install_uses_custom_splunk_python_version(self):
+        """uv pip install should use the splunk_python_version input when explicitly specified."""
+        pip_install_calls: list[list[str]] = []
+        with setup_action_yml(
+            "repo_python_deps",
+            app_dir="my_app_3",
+            python_requirements_file="lib/requirements.txt",
+            is_app_inspect_check="false",
+            splunk_python_version="3.11",
+        ):
+            with patch(
+                "python_dependency_manager.subprocess.run",
+                side_effect=self._capture_subprocess(pip_install_calls),
+            ):
+                main()
+
+        assert len(pip_install_calls) == 1
+        cmd = pip_install_calls[0]
+        assert cmd[0] == "uv"
+        assert "--python" in cmd
+        assert cmd[cmd.index("--python") + 1] == "3.11"

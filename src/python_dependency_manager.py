@@ -16,6 +16,7 @@ def install_dependencies(
     Note: app_info parameter is kept for API consistency with other build functions (e.g., ucc_gen.build).
     """
     python_requirements_file = gat.get_user_input("python_requirements_file")
+    splunk_python_version = gat.get_user_input("splunk_python_version") or "3.9"
 
     if not python_requirements_file or python_requirements_file == "":
         gat.error("python_requirements_file must be provided when using Python dependency manager")
@@ -80,9 +81,19 @@ def install_dependencies(
 
     gat.info(f"Installing Python dependencies to: {target_dir}")
 
-    # Run pip install with requirements.txt
+    # Run pip install with requirements.txt, targeting the Splunk platform Python version
     result = subprocess.run(
-        ["pip", "install", "-r", requirements_file_path, "--target", target_dir],
+        [
+            "uv",
+            "pip",
+            "install",
+            "--python",
+            splunk_python_version,
+            "-r",
+            requirements_file_path,
+            "--target",
+            target_dir,
+        ],
         capture_output=True,
         text=True,
     )
@@ -90,7 +101,7 @@ def install_dependencies(
     if result.returncode != 0:
         gat.error(
             f"Failed to install Python dependencies from '{python_requirements_file}'.\n"
-            f"  pip exit code: {result.returncode}\n"
+            f"  uv pip exit code: {result.returncode}\n"
             f"  stderr: {result.stderr}\n"
             "Verify that all packages in the requirements file exist and have compatible versions."
         )

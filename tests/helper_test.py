@@ -26,6 +26,7 @@ def setup_action_yml(
     use_ucc_gen="false",
     is_remove_not_allowed_executables_from_lib="true",
     python_requirements_file="",
+    splunk_python_version="3.9",
     to_make_permission_changes="false",
     is_app_inspect_check="true",
     splunkbase_username="NONE",
@@ -71,6 +72,7 @@ def setup_action_yml(
         is_remove_not_allowed_executables_from_lib
     )
     os.environ["INPUT_PYTHON_REQUIREMENTS_FILE"] = python_requirements_file
+    os.environ["INPUT_SPLUNK_PYTHON_VERSION"] = splunk_python_version
     os.environ["INPUT_TO_MAKE_PERMISSION_CHANGES"] = to_make_permission_changes
     os.environ["INPUT_IS_APP_INSPECT_CHECK"] = is_app_inspect_check
     os.environ["INPUT_SPLUNKBASE_USERNAME"] = splunkbase_username
