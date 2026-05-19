@@ -144,18 +144,18 @@ def install_dependencies(
         bin_items = os.listdir(uv_bin_dir)
         bin_files = [f for f in bin_items if os.path.isfile(os.path.join(uv_bin_dir, f))]
         bin_subdirs = [f for f in bin_items if os.path.isdir(os.path.join(uv_bin_dir, f))]
-        bin_other = [
+        bin_symlinks_or_special = [
             f
             for f in bin_items
             if not os.path.isfile(os.path.join(uv_bin_dir, f))
             and not os.path.isdir(os.path.join(uv_bin_dir, f))
         ]
         non_scripts = [f for f in bin_files if not _is_console_script(os.path.join(uv_bin_dir, f))]
-        unexpected = bin_subdirs + non_scripts + bin_other
+        unexpected = bin_subdirs + non_scripts + bin_symlinks_or_special
         if unexpected:
             gat.warning(
                 f"bin/ in target directory contains unexpected items "
-                f"(subdirs={bin_subdirs}, non_scripts={non_scripts}, other={bin_other}) — skipping removal"
+                f"(subdirs={bin_subdirs}, non_scripts={non_scripts}, special={bin_symlinks_or_special}) — skipping removal"
             )
         else:
             gat.info(

@@ -329,10 +329,10 @@ class TestUvArtifactCleanup(unittest.TestCase):
             if "pip" in cmd and "install" in cmd:
                 target_dir = cmd[cmd.index("--target") + 1]
                 os.makedirs(os.path.join(target_dir, "bin"), exist_ok=True)
-                open(os.path.join(target_dir, ".lock"), "w").close()
-                open(os.path.join(target_dir, "bin", "normalizer"), "w").write(
-                    "#!/usr/bin/env python3\n"
-                )
+                with open(os.path.join(target_dir, ".lock"), "w"):
+                    pass
+                with open(os.path.join(target_dir, "bin", "normalizer"), "w") as f:
+                    f.write("#!/usr/bin/env python3\n")
                 os.symlink(
                     "/nonexistent/target",
                     os.path.join(target_dir, "bin", "dangling_link"),
@@ -357,3 +357,35 @@ class TestUvArtifactCleanup(unittest.TestCase):
             _fc, _dc, all_files, all_folders = extract_app_build(app_build_name)
             lib_bin = [f for f in all_folders if f.endswith("lib/bin")]
             assert len(lib_bin) > 0, "lib/bin/ should be kept when it contains a dangling symlink"
+
+    def test_dangling_symlink_outside_bin_preserved_in_build(self):
+        """A dangling symlink outside bin/ (e.g., installed into lib/) must survive into the tarball."""
+        real_run = subprocess.run
+
+        def mock_pip_with_lib_symlink(cmd, **kwargs):
+            if "pip" in cmd and "install" in cmd:
+                target_dir = cmd[cmd.index("--target") + 1]
+                os.makedirs(target_dir, exist_ok=True)
+                os.symlink("/nonexistent/target", os.path.join(target_dir, "dangling_lib_link"))
+                return MagicMock(returncode=0, stdout="", stderr="")
+            return real_run(cmd, **kwargs)
+
+        with setup_action_yml(
+            "repo_python_deps",
+            app_dir="my_app_3",
+            python_requirements_file="lib/requirements.txt",
+            is_app_inspect_check="false",
+        ):
+            with patch(
+                "python_dependency_manager.subprocess.run",
+                side_effect=mock_pip_with_lib_symlink,
+            ):
+                main()
+
+            app_build_name = "my_app_3_1_2_3_1.tgz"
+            assert os.path.isfile(app_build_name), f"App build {app_build_name} not found"
+            with tarfile.open(app_build_name, "r:gz") as tar:
+                symlink_names = [m.name for m in tar.getmembers() if m.issym()]
+            assert any("dangling_lib_link" in n for n in symlink_names), (
+                f"dangling symlink in lib/ should be preserved in the tarball; symlinks found: {symlink_names}"
+            )
