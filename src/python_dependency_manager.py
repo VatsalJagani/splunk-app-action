@@ -120,6 +120,12 @@ def install_dependencies(
         check=False,
     )
 
+    # Remove uv .lock file — not needed in Splunk builds and flagged by App Inspect
+    uv_lock_file = os.path.join(target_dir, ".lock")
+    if os.path.exists(uv_lock_file):
+        gat.debug("Removing uv .lock file from target directory")
+        os.remove(uv_lock_file)
+
     # Remove requirements.txt file after installing dependencies
     gat.info(f"Removing requirements file: {requirements_file_path}")
     try:

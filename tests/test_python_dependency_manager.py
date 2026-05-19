@@ -235,3 +235,39 @@ class TestPythonVersionFileExclusion(unittest.TestCase):
             assert len(python_version_files) == 0, (
                 f".python-version found in build: {python_version_files}"
             )
+
+
+class TestUvArtifactCleanup(unittest.TestCase):
+    def _mock_pip_creates_lock(self, real_run):
+        """Side effect that simulates uv creating a .lock file in the target dir."""
+
+        def side_effect(cmd, **kwargs):
+            if "pip" in cmd and "install" in cmd:
+                target_dir = cmd[cmd.index("--target") + 1]
+                os.makedirs(target_dir, exist_ok=True)
+                open(os.path.join(target_dir, ".lock"), "w").close()
+                return MagicMock(returncode=0, stdout="", stderr="")
+            return real_run(cmd, **kwargs)
+
+        return side_effect
+
+    def test_uv_lock_file_excluded_from_build(self):
+        """The .lock file created by uv pip install must not appear in the final build."""
+        real_run = subprocess.run
+        with setup_action_yml(
+            "repo_python_deps",
+            app_dir="my_app_3",
+            python_requirements_file="lib/requirements.txt",
+            is_app_inspect_check="false",
+        ):
+            with patch(
+                "python_dependency_manager.subprocess.run",
+                side_effect=self._mock_pip_creates_lock(real_run),
+            ):
+                main()
+
+            app_build_name = "my_app_3_1_2_3_1.tgz"
+            assert os.path.isfile(app_build_name), f"App build {app_build_name} not found"
+            _fc, _dc, all_files, _fd = extract_app_build(app_build_name)
+            lock_files = [f for f in all_files if ".lock" in f]
+            assert len(lock_files) == 0, f".lock file found in build: {lock_files}"

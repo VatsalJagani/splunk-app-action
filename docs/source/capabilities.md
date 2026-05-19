@@ -162,6 +162,7 @@ from bs4 import BeautifulSoup
 - The directory containing requirements.txt will be cleaned before installing dependencies
 - The requirements.txt file will be removed from the final build package
 - The `.python-version` file will be automatically removed from the final build package (safe to commit to your app directory for Dependabot)
+- The `uv`-specific `.lock` file is removed from the dependency target directory
 - This ensures a clean build without any leftover files or dependencies
 ```
 
