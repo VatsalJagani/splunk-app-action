@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v6.1.0](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v6.1.0) - 2026-05-19
+
 ### Added
 
 * **`splunk_python_version` Input** - New input for the Python Dependency Manager that controls which Python version is targeted when installing dependencies. Defaults to `3.9` (Splunk's current default runtime). Pass a different version (e.g., `"3.13"`) if your Splunk platform uses a newer Python. This ensures installed packages are resolved against the correct Python version and prevents installing incompatible library versions.
