@@ -170,6 +170,7 @@ jobs:
 - The directory containing requirements.txt will be cleaned before installation
 - The requirements.txt file is removed from the final build package
 - Install Splunk Python SDK by adding `splunk-sdk` to requirements.txt
+- Use `splunk_python_version` to match the Python version of your Splunk platform (default: `"3.9"`)
 ```
 
 ### Basic Python Dependencies
@@ -191,18 +192,29 @@ jobs:
 ```
 
 ### With GitHub Dependabot
-Set up automatic dependency updates by adding `.github/dependabot.yml`:
+
+Dependabot can automatically open PRs when newer versions of your dependencies are available. To ensure it only suggests versions compatible with Splunk's Python runtime, two files are required.
+
+**1. Add `.python-version` to your app directory** (e.g., `my_app/.python-version`):
+```
+3.9
+```
+This tells Dependabot which Python version to use when resolving compatible package versions. Without it, Dependabot may suggest packages that require a newer Python and fail at Splunk runtime (e.g., `requests==2.33.1` requires Python ≥3.10).
+
+The action automatically removes `.python-version` from the final build, so it is safe to commit it inside your app directory.
+
+**2. Add `.github/dependabot.yml`**, pointing `directory` at the app root so Dependabot picks up the `.python-version` file:
 ```yaml
 version: 2
 updates:
   - package-ecosystem: "pip"
-    directory: "/my_app/lib"  # Match the directory containing requirements.txt
+    directory: "/my_app"  # App root — not lib/ — so Dependabot reads .python-version
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
 ```
 
-Then use the action:
+**3. Use the action as normal:**
 ```yaml
 name: Build with Managed Dependencies
 on: [push, pull_request]
@@ -216,9 +228,12 @@ jobs:
         with:
           app_dir: "my_app"
           python_requirements_file: "lib/requirements.txt"  # Path relative to app_dir
+          splunk_python_version: "3.9"  # Should match .python-version
           splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
           splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 ```
+
+> **Tip:** Keep `splunk_python_version` in the action and the value in `.python-version` in sync. Both serve the same purpose — one constrains Dependabot suggestions, the other constrains what gets installed into the build.
 
 ### Custom Requirements Path
 Dependencies will be installed in the same directory as the requirements file:

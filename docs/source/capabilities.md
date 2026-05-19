@@ -75,6 +75,7 @@ Manage Python dependencies for your Splunk Apps and Add-ons using a `requirement
   with:
     app_dir: "my_app"
     python_requirements_file: "lib/requirements.txt"  # Path relative to app_dir
+    splunk_python_version: "3.9"  # Match your Splunk platform's Python version (default: 3.9)
 ```
 
 ### Setup Instructions
@@ -98,14 +99,26 @@ Manage Python dependencies for your Splunk Apps and Add-ons using a `requirement
        splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
    ```
 
-3. (Optional) Enable GitHub Dependabot by adding `.github/dependabot.yml`:
+3. (Optional) Enable GitHub Dependabot for automatic dependency updates:
+
+   **Step 3a:** Add a `.python-version` file to your app directory so Dependabot knows which Python version to target when evaluating compatible package versions:
+   ```
+   3.9
+   ```
+   This file should sit at the app root (e.g., `my_splunk_app/.python-version`). Without it, Dependabot may suggest versions incompatible with Splunk's Python runtime — for example, proposing `requests==2.33.1` which requires Python ≥3.10 and would fail at Splunk runtime.
+
+   **Step 3b:** Add `.github/dependabot.yml`, pointing the directory at your app root so Dependabot discovers both the `.python-version` file and your `requirements.txt`:
    ```yaml
    version: 2
    updates:
      - package-ecosystem: "pip"
-       directory: "/my_splunk_app"
+       directory: "/my_splunk_app"  # App root — Dependabot discovers requirements.txt recursively
        schedule:
          interval: "weekly"
+   ```
+
+   ```{important}
+   Always point Dependabot's `directory` to the **app root** (not the `lib/` subdirectory). This ensures Dependabot reads the `.python-version` file and constrains its suggestions to packages compatible with your Splunk platform's Python version.
    ```
 
 ### Advanced Configuration
@@ -128,7 +141,7 @@ You can specify a different requirements file path (always relative to app_dir):
 1. The action copies your app directory to a temporary build location
 2. Determines the target directory from the requirements file path (e.g., `lib/requirements.txt` → target is `lib/`)
 3. Cleans the target directory (removes all existing files)
-4. Runs `pip install -r requirements.txt --target <target_directory>` to install dependencies
+4. Runs `uv pip install --python <splunk_python_version> -r requirements.txt --target <target_directory>` to install dependencies compatible with your Splunk platform's Python version (default: `3.9`)
 5. Cleans up `.pyc` files and `__pycache__` directories
 6. Removes requirements.txt file from the build
 7. Proceeds with normal build generation
@@ -148,6 +161,9 @@ from bs4 import BeautifulSoup
 **Cleanup Behavior:**
 - The directory containing requirements.txt will be cleaned before installing dependencies
 - The requirements.txt file will be removed from the final build package
+- The `.python-version` file will be automatically removed from the final build package (safe to commit to your app directory for Dependabot)
+- The `uv`-specific `.lock` file is removed from the dependency target directory
+- The `bin/` directory at the target root is removed if it contains only console entry point scripts (shebang `#!` files created by `uv` for packages with `console_scripts` entry points). If any non-script file, subdirectory, or symlink/special file is found inside `bin/`, the directory is preserved and a warning is logged
 - This ensures a clean build without any leftover files or dependencies
 ```
 

@@ -45,6 +45,14 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
   - Removes requirements.txt from the final build
 - **⚠️ Note:** Cannot be used together with `use_ucc_gen`.
 
+### `splunk_python_version`
+- **Description:** Python version to target when installing dependencies from `python_requirements_file`. Should match the Python version used by your Splunk platform so that dependency resolution selects compatible package versions.
+- **Required:** false
+- **Default:** `"3.9"` (Splunk's current default runtime)
+- **Example:** `"3.9"`, `"3.13"`
+- **Note:** Only relevant when `python_requirements_file` is set. Has no effect otherwise.
+- **Dependabot:** Add a `.python-version` file to your app directory containing the same version (e.g., `3.9`) so Dependabot also constrains its suggestions to packages compatible with that Python version. See the [Dependabot example](examples.md#with-github-dependabot) for details.
+
 ## App-Inspect Inputs
 
 ### `is_app_inspect_check`  

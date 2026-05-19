@@ -10,8 +10,10 @@
 # pyright: reportUnannotatedClassAttribute=false
 
 import os
+import subprocess
 import tarfile
 import unittest
+from unittest.mock import MagicMock, patch
 
 from main import main  # pyright: ignore[reportMissingImports]
 
@@ -150,3 +152,241 @@ class TestPathJoinBug(unittest.TestCase):
         """When app_dir_name is '.', the path should still be under the build dir."""
         result = os.path.join("python_deps_build_dir", ".")
         assert result == "python_deps_build_dir/."
+
+
+class TestPythonVersionInput(unittest.TestCase):
+    def _capture_subprocess(self, pip_install_calls):
+        def side_effect(cmd, **kwargs):
+            if "install" in cmd:
+                pip_install_calls.append(list(cmd))
+            return MagicMock(returncode=0, stdout="", stderr="")
+
+        return side_effect
+
+    def test_pip_install_uses_python_39_by_default(self):
+        """uv pip install should target Python 3.9 when splunk_python_version is not specified."""
+        pip_install_calls: list[list[str]] = []
+        with setup_action_yml(
+            "repo_python_deps",
+            app_dir="my_app_3",
+            python_requirements_file="lib/requirements.txt",
+            is_app_inspect_check="false",
+        ):
+            with patch(
+                "python_dependency_manager.subprocess.run",
+                side_effect=self._capture_subprocess(pip_install_calls),
+            ):
+                main()
+
+        assert len(pip_install_calls) == 1
+        cmd = pip_install_calls[0]
+        assert cmd[0] == "uv"
+        assert "--python" in cmd
+        assert cmd[cmd.index("--python") + 1] == "3.9"
+
+    def test_pip_install_uses_custom_splunk_python_version(self):
+        """uv pip install should use the splunk_python_version input when explicitly specified."""
+        pip_install_calls: list[list[str]] = []
+        with setup_action_yml(
+            "repo_python_deps",
+            app_dir="my_app_3",
+            python_requirements_file="lib/requirements.txt",
+            is_app_inspect_check="false",
+            splunk_python_version="3.11",
+        ):
+            with patch(
+                "python_dependency_manager.subprocess.run",
+                side_effect=self._capture_subprocess(pip_install_calls),
+            ):
+                main()
+
+        assert len(pip_install_calls) == 1
+        cmd = pip_install_calls[0]
+        assert cmd[0] == "uv"
+        assert "--python" in cmd
+        assert cmd[cmd.index("--python") + 1] == "3.11"
+
+
+class TestPythonVersionFileExclusion(unittest.TestCase):
+    def test_python_version_file_excluded_from_build(self):
+        """The .python-version file must not appear in the final app build."""
+        real_run = subprocess.run
+
+        def mock_only_pip_install(cmd, **kwargs):
+            if "pip" in cmd and "install" in cmd:
+                return MagicMock(returncode=0, stdout="", stderr="")
+            return real_run(cmd, **kwargs)
+
+        with setup_action_yml(
+            "repo_python_deps",
+            app_dir="my_app_3",
+            python_requirements_file="lib/requirements.txt",
+            is_app_inspect_check="false",
+        ):
+            with patch(
+                "python_dependency_manager.subprocess.run", side_effect=mock_only_pip_install
+            ):
+                main()
+
+            app_build_name = "my_app_3_1_2_3_1.tgz"
+            assert os.path.isfile(app_build_name), f"App build {app_build_name} not found"
+            _fc, _dc, all_files, _fd = extract_app_build(app_build_name)
+            python_version_files = [f for f in all_files if ".python-version" in f]
+            assert len(python_version_files) == 0, (
+                f".python-version found in build: {python_version_files}"
+            )
+
+
+class TestUvArtifactCleanup(unittest.TestCase):
+    def _mock_pip(self, real_run, extra_files: dict[str, str] | None = None):
+        """Side effect simulating uv pip install creating artifacts in the target dir.
+
+        extra_files: mapping of relative path → file content to create inside target_dir.
+        """
+
+        def side_effect(cmd, **kwargs):
+            if "pip" in cmd and "install" in cmd:
+                target_dir = cmd[cmd.index("--target") + 1]
+                os.makedirs(target_dir, exist_ok=True)
+                with open(os.path.join(target_dir, ".lock"), "w"):
+                    pass
+                if extra_files:
+                    for rel_path, content in extra_files.items():
+                        full_path = os.path.join(target_dir, rel_path)
+                        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+                        with open(full_path, "w") as f:
+                            f.write(content)
+                return MagicMock(returncode=0, stdout="", stderr="")
+            return real_run(cmd, **kwargs)
+
+        return side_effect
+
+    def _run_and_extract(self, extra_files: dict[str, str] | None = None):
+        real_run = subprocess.run
+        with setup_action_yml(
+            "repo_python_deps",
+            app_dir="my_app_3",
+            python_requirements_file="lib/requirements.txt",
+            is_app_inspect_check="false",
+        ):
+            with patch(
+                "python_dependency_manager.subprocess.run",
+                side_effect=self._mock_pip(real_run, extra_files),
+            ):
+                main()
+
+            app_build_name = "my_app_3_1_2_3_1.tgz"
+            assert os.path.isfile(app_build_name), f"App build {app_build_name} not found"
+            _fc, _dc, all_files, all_folders = extract_app_build(app_build_name)
+            return all_files, all_folders
+
+    def test_uv_lock_file_excluded_from_build(self):
+        """The .lock file created by uv pip install must not appear in the final build."""
+        all_files, _ = self._run_and_extract()
+        lock_files = [f for f in all_files if ".lock" in f]
+        assert len(lock_files) == 0, f".lock file found in build: {lock_files}"
+
+    def test_bin_with_only_console_scripts_excluded_from_build(self):
+        """bin/ containing only shebang scripts (uv console entry points) is removed from build."""
+        all_files, all_folders = self._run_and_extract(
+            extra_files={
+                "bin/normalizer": "#!/usr/bin/env python3\nprint('normalizer')\n",
+                "bin/another_tool": "#!/usr/bin/env python\nprint('tool')\n",
+            }
+        )
+        lib_bin = [f for f in all_folders if f.endswith("lib/bin")]
+        assert len(lib_bin) == 0, f"lib/bin/ found in build: {lib_bin}"
+
+    def test_bin_with_non_script_files_kept_in_build(self):
+        """bin/ containing non-shebang files (real Python module) is NOT removed from build."""
+        all_files, all_folders = self._run_and_extract(
+            extra_files={
+                "bin/normalizer": "#!/usr/bin/env python3\nprint('normalizer')\n",
+                "bin/__init__.py": "# real Python module\n",
+            }
+        )
+        lib_bin = [f for f in all_folders if f.endswith("lib/bin")]
+        assert len(lib_bin) > 0, "lib/bin/ should be kept when it contains non-script files"
+
+    def test_bin_with_subdirectory_kept_in_build(self):
+        """bin/ containing a subdirectory is NOT removed (subdirs can't be validated as scripts)."""
+        all_files, all_folders = self._run_and_extract(
+            extra_files={
+                "bin/normalizer": "#!/usr/bin/env python3\nprint('normalizer')\n",
+                "bin/subpackage/__init__.py": "# subpackage\n",
+            }
+        )
+        lib_bin = [f for f in all_folders if f.endswith("lib/bin")]
+        assert len(lib_bin) > 0, "lib/bin/ should be kept when it contains subdirectories"
+        assert any("bin/subpackage/__init__.py" in f for f in all_files), (
+            "bin/subpackage/__init__.py should be preserved in the build"
+        )
+
+    def test_bin_with_dangling_symlink_kept_in_build(self):
+        """bin/ containing a dangling symlink is NOT removed (uncertain content — preserve)."""
+        real_run = subprocess.run
+
+        def mock_pip_with_dangling_symlink(cmd, **kwargs):
+            if "pip" in cmd and "install" in cmd:
+                target_dir = cmd[cmd.index("--target") + 1]
+                os.makedirs(os.path.join(target_dir, "bin"), exist_ok=True)
+                with open(os.path.join(target_dir, ".lock"), "w"):
+                    pass
+                with open(os.path.join(target_dir, "bin", "normalizer"), "w") as f:
+                    f.write("#!/usr/bin/env python3\n")
+                os.symlink(
+                    "/nonexistent/target",
+                    os.path.join(target_dir, "bin", "dangling_link"),
+                )
+                return MagicMock(returncode=0, stdout="", stderr="")
+            return real_run(cmd, **kwargs)
+
+        with setup_action_yml(
+            "repo_python_deps",
+            app_dir="my_app_3",
+            python_requirements_file="lib/requirements.txt",
+            is_app_inspect_check="false",
+        ):
+            with patch(
+                "python_dependency_manager.subprocess.run",
+                side_effect=mock_pip_with_dangling_symlink,
+            ):
+                main()
+
+            app_build_name = "my_app_3_1_2_3_1.tgz"
+            assert os.path.isfile(app_build_name), f"App build {app_build_name} not found"
+            _fc, _dc, all_files, all_folders = extract_app_build(app_build_name)
+            lib_bin = [f for f in all_folders if f.endswith("lib/bin")]
+            assert len(lib_bin) > 0, "lib/bin/ should be kept when it contains a dangling symlink"
+
+    def test_dangling_symlink_outside_bin_preserved_in_build(self):
+        """A dangling symlink outside bin/ (e.g., installed into lib/) must survive into the tarball."""
+        real_run = subprocess.run
+
+        def mock_pip_with_lib_symlink(cmd, **kwargs):
+            if "pip" in cmd and "install" in cmd:
+                target_dir = cmd[cmd.index("--target") + 1]
+                os.makedirs(target_dir, exist_ok=True)
+                os.symlink("/nonexistent/target", os.path.join(target_dir, "dangling_lib_link"))
+                return MagicMock(returncode=0, stdout="", stderr="")
+            return real_run(cmd, **kwargs)
+
+        with setup_action_yml(
+            "repo_python_deps",
+            app_dir="my_app_3",
+            python_requirements_file="lib/requirements.txt",
+            is_app_inspect_check="false",
+        ):
+            with patch(
+                "python_dependency_manager.subprocess.run",
+                side_effect=mock_pip_with_lib_symlink,
+            ):
+                main()
+
+            app_build_name = "my_app_3_1_2_3_1.tgz"
+            assert os.path.isfile(app_build_name), f"App build {app_build_name} not found"
+            with tarfile.open(app_build_name, "r:gz") as tar:
+                symlink_names = [m.name for m in tar.getmembers() if m.issym()]
+            assert any("dangling_lib_link" in n for n in symlink_names), (
+                f"dangling symlink in lib/ should be preserved in the tarball; symlinks found: {symlink_names}"
+            )

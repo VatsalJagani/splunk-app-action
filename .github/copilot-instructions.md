@@ -17,7 +17,7 @@ uv run pytest tests/path/to/test.py::Class::method -x -v
 
 **Three mutually exclusive build paths:**
 1. **UCC**: `ucc_gen.build()` — runs `ucc-gen build` in repo copy
-2. **Python deps**: `python_dependency_manager.install_dependencies()` — `pip install --target lib/`, cleans `.pyc`/`.dist-info`
+2. **Python deps**: `python_dependency_manager.install_dependencies()` — `uv pip install --python <splunk_python_version> --target lib/`, cleans `.pyc`/`.dist-info`
 3. **Standard**: `shutil.copytree()` only
 
 **After build:** `app_build_generate.generate_build()` → App Inspect (3 parallel threads) → Utilities → Job summary
@@ -53,3 +53,14 @@ with setup_action_yml("integration_test_apps/valid_app", app_dir="valid_app", is
 - `str | None` not `Optional`; `Generator` not `Iterator` for `@contextmanager`; absolute imports only
 - `Callable` from `collections.abc`
 - `CHANGELOG.md`: user-facing categories (Changed/Added/Fixed/etc.) + Developer & Internal Changes; feature format `**Name** - Description`; "Github" not "GitHub"
+
+## Every Feature Change Must Update
+
+- `CHANGELOG.md` — entry under `## Unreleased`
+- `action.yml` — input definition if a new input is added
+- `docs/source/inputs.md` — input reference for any new/changed input
+- `docs/source/capabilities.md` — usage examples and "How It Works" if behavior changes
+- `docs/source/examples.md` — add/update relevant examples
+- `docs/source/troubleshooting.md` — update error message text if error output changes
+- `README.md` — if the change affects the top-level usage example
+- `tests/helper_test.py` — add parameter to `setup_action_yml` for any new `INPUT_*` env var

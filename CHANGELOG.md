@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+* **`splunk_python_version` Input** - New input for the Python Dependency Manager that controls which Python version is targeted when installing dependencies. Defaults to `3.9` (Splunk's current default runtime). Pass a different version (e.g., `"3.13"`) if your Splunk platform uses a newer Python. This ensures installed packages are resolved against the correct Python version and prevents installing incompatible library versions.
+* **`.python-version` Auto-Exclusion** - The Python Dependency Manager now automatically removes `.python-version` from the app build. This file can be placed in the app directory to constrain Github Dependabot to Python-version-compatible package suggestions, without it ending up in the final Splunk package.
+
+### Fixed
+
+* **Python Dependency Manager - uv Artifact Cleanup** - The `.lock` file and `bin/` directory created by `uv pip install --target` are now removed from the build. These are not needed at Splunk runtime and caused Splunk App Inspect failures (`check_that_extracted_splunk_app_does_not_contain_prohibited_directories_or_files`). The `bin/` directory is only removed if all files within it are console entry point scripts (identified by shebang `#!`); if any non-script file, subdirectory, or symlink/special file is found, the directory is preserved and a warning is logged.
+
 ## [v6.0.2](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v6.0.2) - 2026-04-24
 
 ### Fixed

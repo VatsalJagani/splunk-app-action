@@ -7,6 +7,15 @@ import github_action_toolkit as gat
 from helpers.saved_values import AppInfo, SavedPaths
 
 
+def _is_console_script(filepath: str) -> bool:
+    """Return True if the file starts with a shebang, indicating a uv/pip entry point script."""
+    try:
+        with open(filepath, "rb") as f:
+            return f.read(2) == b"#!"
+    except Exception:
+        return False
+
+
 def install_dependencies(
     saved_paths: SavedPaths,
     app_info: AppInfo,  # pyright: ignore[reportUnusedParameter]
@@ -16,6 +25,7 @@ def install_dependencies(
     Note: app_info parameter is kept for API consistency with other build functions (e.g., ucc_gen.build).
     """
     python_requirements_file = gat.get_user_input("python_requirements_file")
+    splunk_python_version = gat.get_user_input("splunk_python_version") or "3.9"
 
     if not python_requirements_file or python_requirements_file == "":
         gat.error("python_requirements_file must be provided when using Python dependency manager")
@@ -80,9 +90,19 @@ def install_dependencies(
 
     gat.info(f"Installing Python dependencies to: {target_dir}")
 
-    # Run pip install with requirements.txt
+    # Run pip install with requirements.txt, targeting the Splunk platform Python version
     result = subprocess.run(
-        ["pip", "install", "-r", requirements_file_path, "--target", target_dir],
+        [
+            "uv",
+            "pip",
+            "install",
+            "--python",
+            splunk_python_version,
+            "-r",
+            requirements_file_path,
+            "--target",
+            target_dir,
+        ],
         capture_output=True,
         text=True,
     )
@@ -90,7 +110,7 @@ def install_dependencies(
     if result.returncode != 0:
         gat.error(
             f"Failed to install Python dependencies from '{python_requirements_file}'.\n"
-            f"  pip exit code: {result.returncode}\n"
+            f"  uv pip exit code: {result.returncode}\n"
             f"  stderr: {result.stderr}\n"
             "Verify that all packages in the requirements file exist and have compatible versions."
         )
@@ -109,6 +129,40 @@ def install_dependencies(
         check=False,
     )
 
+    # Remove uv .lock file — not needed in Splunk builds and flagged by App Inspect
+    uv_lock_file = os.path.join(target_dir, ".lock")
+    if os.path.exists(uv_lock_file):
+        gat.info("Removing uv .lock file from target directory")
+        os.remove(uv_lock_file)
+
+    # Remove bin/ at target dir root if it contains only console entry point scripts
+    # (identified by shebang #!). These are created by uv for packages with console_scripts
+    # entry points and are not needed at Splunk runtime. Skipped if any subdirectory,
+    # non-script file, or symlink is found, which would indicate real content to preserve.
+    uv_bin_dir = os.path.join(target_dir, "bin")
+    if os.path.exists(uv_bin_dir) and os.path.isdir(uv_bin_dir):
+        bin_items = os.listdir(uv_bin_dir)
+        bin_files = [f for f in bin_items if os.path.isfile(os.path.join(uv_bin_dir, f))]
+        bin_subdirs = [f for f in bin_items if os.path.isdir(os.path.join(uv_bin_dir, f))]
+        bin_symlinks_or_special = [
+            f
+            for f in bin_items
+            if not os.path.isfile(os.path.join(uv_bin_dir, f))
+            and not os.path.isdir(os.path.join(uv_bin_dir, f))
+        ]
+        non_scripts = [f for f in bin_files if not _is_console_script(os.path.join(uv_bin_dir, f))]
+        unexpected = bin_subdirs + non_scripts + bin_symlinks_or_special
+        if unexpected:
+            gat.warning(
+                f"bin/ in target directory contains unexpected items "
+                f"(subdirs={bin_subdirs}, non_scripts={non_scripts}, special={bin_symlinks_or_special}) — skipping removal"
+            )
+        else:
+            gat.info(
+                f"Removing bin/ from target directory ({len(bin_files)} console entry point script(s))"
+            )
+            shutil.rmtree(uv_bin_dir)
+
     # Remove requirements.txt file after installing dependencies
     gat.info(f"Removing requirements file: {requirements_file_path}")
     try:
@@ -116,11 +170,22 @@ def install_dependencies(
     except Exception as e:
         gat.warning(f"Failed to remove requirements file: {e}")
 
+    # Remove .python-version file — used by Dependabot for version constraints, not needed in Splunk build
+    python_version_file_path = os.path.join(app_dir, ".python-version")
+    if os.path.exists(python_version_file_path):
+        gat.info(
+            "Removing .python-version file from build (Dependabot helper, not needed at runtime)"
+        )
+        try:
+            os.remove(python_version_file_path)
+        except Exception as e:
+            gat.warning(f"Failed to remove .python-version: {e}")
+
     # Copy the build to final location
     final_build_dir = "python_deps_generated_build"
     if os.path.exists(final_build_dir):
         shutil.rmtree(final_build_dir)
-    shutil.copytree(app_dir, final_build_dir)
+    shutil.copytree(app_dir, final_build_dir, symlinks=True)
 
     gat.info("Python dependency installation completed successfully")
     return final_build_dir
