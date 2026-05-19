@@ -10,6 +10,7 @@
 # pyright: reportUnannotatedClassAttribute=false
 
 import os
+import subprocess
 import tarfile
 import unittest
 from unittest.mock import MagicMock, patch
@@ -204,3 +205,33 @@ class TestPythonVersionInput(unittest.TestCase):
         assert cmd[0] == "uv"
         assert "--python" in cmd
         assert cmd[cmd.index("--python") + 1] == "3.11"
+
+
+class TestPythonVersionFileExclusion(unittest.TestCase):
+    def test_python_version_file_excluded_from_build(self):
+        """The .python-version file must not appear in the final app build."""
+        real_run = subprocess.run
+
+        def mock_only_pip_install(cmd, **kwargs):
+            if "pip" in cmd and "install" in cmd:
+                return MagicMock(returncode=0, stdout="", stderr="")
+            return real_run(cmd, **kwargs)
+
+        with setup_action_yml(
+            "repo_python_deps",
+            app_dir="my_app_3",
+            python_requirements_file="lib/requirements.txt",
+            is_app_inspect_check="false",
+        ):
+            with patch(
+                "python_dependency_manager.subprocess.run", side_effect=mock_only_pip_install
+            ):
+                main()
+
+            app_build_name = "my_app_3_1_2_3_1.tgz"
+            assert os.path.isfile(app_build_name), f"App build {app_build_name} not found"
+            _fc, _dc, all_files, _fd = extract_app_build(app_build_name)
+            python_version_files = [f for f in all_files if ".python-version" in f]
+            assert len(python_version_files) == 0, (
+                f".python-version found in build: {python_version_files}"
+            )

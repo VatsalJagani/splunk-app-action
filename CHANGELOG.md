@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * **`splunk_python_version` Input** - New input for the Python Dependency Manager that controls which Python version is targeted when installing dependencies. Defaults to `3.9` (Splunk's current default runtime). Pass a different version (e.g., `"3.13"`) if your Splunk platform uses a newer Python. This ensures installed packages are resolved against the correct Python version and prevents installing incompatible library versions.
+* **`.python-version` Auto-Exclusion** - The Python Dependency Manager now automatically removes `.python-version` from the app build. This file can be placed in the app directory to constrain Github Dependabot to Python-version-compatible package suggestions, without it ending up in the final Splunk package.
 
 ## [v6.0.2](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v6.0.2) - 2026-04-24
 

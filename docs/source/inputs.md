@@ -51,6 +51,7 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 - **Default:** `"3.9"` (Splunk's current default runtime)
 - **Example:** `"3.9"`, `"3.13"`
 - **Note:** Only relevant when `python_requirements_file` is set. Has no effect otherwise.
+- **Dependabot:** Add a `.python-version` file to your app directory containing the same version (e.g., `3.9`) so Dependabot also constrains its suggestions to packages compatible with that Python version. See the [Dependabot example](examples.md#with-github-dependabot) for details.
 
 ## App-Inspect Inputs
 

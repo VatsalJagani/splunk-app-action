@@ -127,6 +127,17 @@ def install_dependencies(
     except Exception as e:
         gat.warning(f"Failed to remove requirements file: {e}")
 
+    # Remove .python-version file — used by Dependabot for version constraints, not needed in Splunk build
+    python_version_file_path = os.path.join(app_dir, ".python-version")
+    if os.path.exists(python_version_file_path):
+        gat.info(
+            "Removing .python-version file from build (Dependabot helper, not needed at runtime)"
+        )
+        try:
+            os.remove(python_version_file_path)
+        except Exception as e:
+            gat.warning(f"Failed to remove .python-version: {e}")
+
     # Copy the build to final location
     final_build_dir = "python_deps_generated_build"
     if os.path.exists(final_build_dir):
