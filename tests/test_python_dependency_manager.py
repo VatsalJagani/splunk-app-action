@@ -8,13 +8,19 @@
 # pyright: reportUnknownArgumentType=false
 # pyright: reportFunctionMemberAccess=false
 # pyright: reportUnannotatedClassAttribute=false
+# pyright: reportUninitializedInstanceVariable=false
 
 import os
 import subprocess
 import tarfile
+import tempfile
 import unittest
+from pathlib import Path
+from typing import override
 from unittest.mock import MagicMock, patch
 
+import python_dependency_manager  # pyright: ignore[reportMissingImports]
+from helpers.saved_values import AppInfo, SavedPaths  # pyright: ignore[reportMissingImports]
 from main import main  # pyright: ignore[reportMissingImports]
 
 from .helper_test import setup_action_yml
@@ -390,3 +396,135 @@ class TestUvArtifactCleanup(unittest.TestCase):
             assert any("dangling_lib_link" in n for n in symlink_names), (
                 f"dangling symlink in lib/ should be preserved in the tarball; symlinks found: {symlink_names}"
             )
+
+
+class TestRemoveNotAllowedExecutablesFromLib(unittest.TestCase):
+    """Tests for is_remove_not_allowed_executables_from_lib in install_dependencies."""
+
+    temp_dir: tempfile.TemporaryDirectory[str]
+    original_cwd: str
+    saved_paths: SavedPaths
+    app_info: AppInfo
+
+    @override
+    def setUp(self) -> None:
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.original_cwd = os.getcwd()
+        os.chdir(self.temp_dir.name)
+
+        # Create repo/app/lib structure with requirements.txt
+        repo_dir = os.path.join(self.temp_dir.name, "repodir")
+        app_dir_name = "my_app"
+        lib_dir = os.path.join(repo_dir, app_dir_name, "lib")
+        os.makedirs(lib_dir)
+        Path(os.path.join(lib_dir, "requirements.txt")).write_text("requests\n")
+        Path(os.path.join(repo_dir, app_dir_name, "default")).mkdir()
+        Path(os.path.join(repo_dir, app_dir_name, "default", "app.conf")).write_text(
+            "[launcher]\nversion = 1.0.0\n"
+        )
+
+        self.saved_paths = MagicMock(spec=SavedPaths)
+        self.saved_paths.repo_dir_path = repo_dir
+        self.saved_paths.app_dir_name = app_dir_name
+
+        self.app_info = MagicMock(spec=AppInfo)
+        self.app_info.package_id = "my_app"
+
+    @override
+    def tearDown(self) -> None:
+        os.chdir(self.original_cwd)
+        self.temp_dir.cleanup()
+
+    def _mock_pip_install_with_so_files(self, cmd: list[str], **kwargs) -> MagicMock:
+        """Simulate uv pip install creating platform-specific .so files and a pure Python file."""
+        if "install" in cmd:
+            target_dir = cmd[cmd.index("--target") + 1]
+            os.makedirs(target_dir, exist_ok=True)
+            Path(
+                os.path.join(target_dir, "charset_normalizer.cpython-39-x86_64-linux-gnu.so")
+            ).write_bytes(b"\x7fELF")
+            Path(os.path.join(target_dir, "pure_python_module.py")).write_text("# pure python\n")
+        return MagicMock(returncode=0, stdout="", stderr="")
+
+    def _fake_mimetype(self, path: str) -> str:
+        if path.endswith(".so"):
+            return "application/x-sharedlib"
+        return "text/plain"
+
+    def test_so_files_removed_when_enabled(self) -> None:
+        """x86_64 .so files are removed when is_remove_not_allowed_executables_from_lib=True."""
+        with patch(
+            "python_dependency_manager.subprocess.run",
+            side_effect=self._mock_pip_install_with_so_files,
+        ):
+            with patch("python_dependency_manager.magic.Magic") as mock_magic_cls:
+                mock_magic_instance = MagicMock()
+                mock_magic_instance.from_file.side_effect = self._fake_mimetype
+                mock_magic_cls.return_value = mock_magic_instance
+
+                with patch.dict(
+                    os.environ,
+                    {
+                        "INPUT_PYTHON_REQUIREMENTS_FILE": "lib/requirements.txt",
+                        "INPUT_SPLUNK_PYTHON_VERSION": "3.9",
+                    },
+                ):
+                    python_dependency_manager.install_dependencies(
+                        self.saved_paths,
+                        self.app_info,
+                        is_remove_not_allowed_executables_from_lib=True,
+                    )
+
+        lib_dir = Path("python_deps_generated_build") / "lib"
+        so_files = list(lib_dir.glob("*.so"))
+        assert len(so_files) == 0, f".so files should be removed but found: {so_files}"
+        assert (lib_dir / "pure_python_module.py").exists(), "pure Python file should be kept"
+
+    def test_so_files_kept_when_disabled(self) -> None:
+        """x86_64 .so files are kept when is_remove_not_allowed_executables_from_lib=False."""
+        with patch(
+            "python_dependency_manager.subprocess.run",
+            side_effect=self._mock_pip_install_with_so_files,
+        ):
+            with patch.dict(
+                os.environ,
+                {
+                    "INPUT_PYTHON_REQUIREMENTS_FILE": "lib/requirements.txt",
+                    "INPUT_SPLUNK_PYTHON_VERSION": "3.9",
+                },
+            ):
+                python_dependency_manager.install_dependencies(
+                    self.saved_paths,
+                    self.app_info,
+                    is_remove_not_allowed_executables_from_lib=False,
+                )
+
+        lib_dir = Path("python_deps_generated_build") / "lib"
+        so_files = list(lib_dir.glob("*.so"))
+        assert len(so_files) == 1, f".so file should be kept but found: {so_files}"
+
+    def test_magic_failure_keeps_files(self) -> None:
+        """When magic raises an exception for a file, that file is left untouched."""
+        with patch(
+            "python_dependency_manager.subprocess.run",
+            side_effect=self._mock_pip_install_with_so_files,
+        ):
+            with patch(
+                "python_dependency_manager.magic.Magic", side_effect=Exception("magic error")
+            ):
+                with patch.dict(
+                    os.environ,
+                    {
+                        "INPUT_PYTHON_REQUIREMENTS_FILE": "lib/requirements.txt",
+                        "INPUT_SPLUNK_PYTHON_VERSION": "3.9",
+                    },
+                ):
+                    python_dependency_manager.install_dependencies(
+                        self.saved_paths,
+                        self.app_info,
+                        is_remove_not_allowed_executables_from_lib=True,
+                    )
+
+        lib_dir = Path("python_deps_generated_build") / "lib"
+        so_files = list(lib_dir.glob("*.so"))
+        assert len(so_files) == 1, ".so file should be kept when magic raises an error"
