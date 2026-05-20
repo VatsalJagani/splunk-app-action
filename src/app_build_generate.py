@@ -20,6 +20,10 @@ def remove_unwanted_files() -> None:
     if os.path.exists(".gitignore"):
         os.remove(".gitignore")
 
+    # Remove .python-version file — Dependabot helper for version constraints, not needed in Splunk build
+    if os.path.exists(".python-version"):
+        os.remove(".python-version")
+
     # Clean Python cache files using subprocess for better control
     subprocess.run(["find", ".", "-name", "*.py[co]", "-type", "f", "-delete"], check=False)
     subprocess.run(["find", ".", "-name", "__pycache__", "-type", "d", "-delete"], check=False)

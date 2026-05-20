@@ -113,6 +113,26 @@ class TestRemoveUnwantedFiles(unittest.TestCase):
             finally:
                 os.chdir(orig_cwd)
 
+    def test_removes_python_version_file(self):
+        """remove_unwanted_files removes .python-version so it is not included in the Splunk build.
+
+        This covers UCC add-ons where .python-version lives in package/ and is copied into
+        the ucc-gen output. Without this removal, App Inspect fails with
+        check_that_extracted_splunk_app_does_not_contain_prohibited_directories_or_files.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            orig_cwd = os.getcwd()
+            try:
+                os.chdir(tmpdir)
+                with open(".python-version", "w") as f:
+                    f.write("3.9\n")
+
+                remove_unwanted_files()
+
+                assert not os.path.exists(".python-version")
+            finally:
+                os.chdir(orig_cwd)
+
     def test_no_error_when_dirs_missing(self):
         """Calling remove_unwanted_files when targets don't exist should not raise."""
         with tempfile.TemporaryDirectory() as tmpdir:
