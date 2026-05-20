@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v6.1.1](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v6.1.1) - 2026-05-20
+
 ### Fixed
 
 * **UCC Build - `.python-version` Removal** - `.python-version` is now removed from the build for all build types (UCC, Python dependency manager, and standard). Previously it was only removed by the Python Dependency Manager, so UCC add-ons that place `.python-version` inside `package/` (so Dependabot can read it) would have it copied into the ucc-gen output and fail App Inspect with `check_that_extracted_splunk_app_does_not_contain_prohibited_directories_or_files`.
