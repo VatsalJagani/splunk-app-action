@@ -457,7 +457,7 @@ class TestRemoveNotAllowedExecutablesFromLib(unittest.TestCase):
             "python_dependency_manager.subprocess.run",
             side_effect=self._mock_pip_install_with_so_files,
         ):
-            with patch("python_dependency_manager.magic.Magic") as mock_magic_cls:
+            with patch("helpers.lib_cleanup.magic.Magic") as mock_magic_cls:
                 mock_magic_instance = MagicMock()
                 mock_magic_instance.from_file.side_effect = self._fake_mimetype
                 mock_magic_cls.return_value = mock_magic_instance
@@ -509,9 +509,7 @@ class TestRemoveNotAllowedExecutablesFromLib(unittest.TestCase):
             "python_dependency_manager.subprocess.run",
             side_effect=self._mock_pip_install_with_so_files,
         ):
-            with patch(
-                "python_dependency_manager.magic.Magic", side_effect=Exception("magic error")
-            ):
+            with patch("helpers.lib_cleanup.magic.Magic", side_effect=Exception("magic error")):
                 with patch.dict(
                     os.environ,
                     {

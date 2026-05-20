@@ -72,7 +72,7 @@ class TestUccGen(unittest.TestCase):
         Default is False, so must set True explicitly.
         """
         with patch("ucc_gen.subprocess.run", side_effect=self._mock_ucc_subprocess_run):
-            with patch("ucc_gen.magic.Magic.from_file") as mock_magic:
+            with patch("helpers.lib_cleanup.magic.Magic.from_file") as mock_magic:
 
                 def fake_mimetype(path):
                     if path.endswith("abc123__mypyc.cpython-312-x86_64-linux-gnu.so"):
@@ -132,7 +132,7 @@ class TestUccGen(unittest.TestCase):
         Test that magic failure is handled gracefully and does not remove files.
         """
         with patch("ucc_gen.subprocess.run", side_effect=self._mock_ucc_subprocess_run):
-            with patch("ucc_gen.magic.Magic", side_effect=Exception("magic error")):
+            with patch("helpers.lib_cleanup.magic.Magic", side_effect=Exception("magic error")):
                 build_dir_name = ucc_gen.build(
                     self.saved_paths, self.app_info, is_remove_not_allowed_executables_from_lib=True
                 )
