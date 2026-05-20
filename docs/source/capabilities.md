@@ -36,7 +36,7 @@ Supports Add-on build with **UCC Add-on Generator** using the `ucc-gen build` co
 - Reference: [Splunk Add-on UCC Framework](https://splunk.github.io/addonfactory-ucc-generator/)
 - The `app_dir` folder must have a sub-folder named `package` and a file named `globalConfig.json`
 - You need to use `ucc-gen init` command locally first to initialize the Add-on/Repository before using this action
- - By default, this action does not remove files with mimetype `application/x-executable` or `application/x-sharedlib` from generated `lib/` output. Set `is_remove_not_allowed_executables_from_lib: true` to enable stricter cleanup for AppInspect compliance.
+ - By default, this action does not remove files with mimetype `application/x-executable` or `application/x-sharedlib` from generated `lib/` output. Set `is_remove_not_allowed_executables_from_lib: true` to enable stricter cleanup for AppInspect compliance. This also works with the Python Dependency Manager (`python_requirements_file`).
 
 ```yaml
 - uses: VatsalJagani/splunk-app-action@v6

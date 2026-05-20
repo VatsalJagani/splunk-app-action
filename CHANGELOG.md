@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fixed
+
+* **`is_remove_not_allowed_executables_from_lib` for Python Dependency Manager** - This input now also applies when using `python_requirements_file`. Previously it only worked for UCC builds. Use this to strip platform-specific compiled extensions (e.g. `charset-normalizer` `.so` files) that cause App Inspect `check_aarch64_compatibility` failures.
+
 ## [v6.1.1](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v6.1.1) - 2026-05-20
 
 ### Fixed
