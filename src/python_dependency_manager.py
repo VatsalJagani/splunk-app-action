@@ -4,6 +4,7 @@ import subprocess
 
 import github_action_toolkit as gat
 
+from helpers.lib_cleanup import remove_not_allowed_executables
 from helpers.saved_values import AppInfo, SavedPaths
 
 
@@ -19,6 +20,7 @@ def _is_console_script(filepath: str) -> bool:
 def install_dependencies(
     saved_paths: SavedPaths,
     app_info: AppInfo,  # pyright: ignore[reportUnusedParameter]
+    is_remove_not_allowed_executables_from_lib: bool = False,
 ) -> str:
     """Install Python dependencies from requirements.txt and return the build directory name.
 
@@ -180,6 +182,10 @@ def install_dependencies(
             os.remove(python_version_file_path)
         except Exception as e:
             gat.warning(f"Failed to remove .python-version: {e}")
+
+    # Remove files with mimetype application/x-executable or application/x-sharedlib from lib directory
+    if is_remove_not_allowed_executables_from_lib:
+        remove_not_allowed_executables(target_dir)
 
     # Copy the build to final location
     final_build_dir = "python_deps_generated_build"

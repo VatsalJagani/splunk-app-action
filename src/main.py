@@ -134,7 +134,7 @@ def main() -> None:
         with gat.group("🏗️ Installing dynamic Python Dependencies"):
             with keep_working_dir_unchanged():
                 app_build_dir_name = python_dependency_manager.install_dependencies(
-                    saved_paths, app_info
+                    saved_paths, app_info, is_remove_not_allowed_executables_from_lib
                 )
 
     else:
