@@ -170,7 +170,7 @@ jobs:
 - The directory containing requirements.txt will be cleaned before installation
 - The requirements.txt file is removed from the final build package
 - Install Splunk Python SDK by adding `splunk-sdk` to requirements.txt
-- Use `splunk_python_version` to match the Python version of your Splunk platform (default: `"3.9"`)
+- Use `splunk_python_version` to match the Python version of your Splunk platform (default: `"3.13"`)
 ```
 
 ### Basic Python Dependencies
@@ -197,7 +197,7 @@ Dependabot can automatically open PRs when newer versions of your dependencies a
 
 **1. Add `.python-version` to your app directory** (e.g., `my_app/.python-version`):
 ```
-3.9
+3.13
 ```
 This tells Dependabot which Python version to use when resolving compatible package versions. Without it, Dependabot may suggest packages that require a newer Python and fail at Splunk runtime (e.g., `requests==2.33.1` requires Python ≥3.10).
 
@@ -256,7 +256,7 @@ my-splunk-repo/
 
 **1. Add `.python-version` inside `package/`** (e.g., `TA_my_addon/package/.python-version`):
 ```
-3.9
+3.13
 ```
 
 **2. Add `.github/dependabot.yml`**, pointing `directory` at `package/` so Dependabot finds both `lib/requirements.txt` (one level deep) and `.python-version`:

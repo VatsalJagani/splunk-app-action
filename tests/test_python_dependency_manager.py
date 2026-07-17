@@ -170,7 +170,7 @@ class TestPythonVersionInput(unittest.TestCase):
         return side_effect
 
     def test_pip_install_uses_python_39_by_default(self):
-        """uv pip install should target Python 3.9 when splunk_python_version is not specified."""
+        """uv pip install should target Python 3.13 when splunk_python_version is not specified."""
         pip_install_calls: list[list[str]] = []
         with setup_action_yml(
             "repo_python_deps",
@@ -188,7 +188,7 @@ class TestPythonVersionInput(unittest.TestCase):
         cmd = pip_install_calls[0]
         assert cmd[0] == "uv"
         assert "--python" in cmd
-        assert cmd[cmd.index("--python") + 1] == "3.9"
+        assert cmd[cmd.index("--python") + 1] == "3.13"
 
     def test_pip_install_uses_custom_splunk_python_version(self):
         """uv pip install should use the splunk_python_version input when explicitly specified."""
@@ -466,7 +466,7 @@ class TestRemoveNotAllowedExecutablesFromLib(unittest.TestCase):
                     os.environ,
                     {
                         "INPUT_PYTHON_REQUIREMENTS_FILE": "lib/requirements.txt",
-                        "INPUT_SPLUNK_PYTHON_VERSION": "3.9",
+                        "INPUT_SPLUNK_PYTHON_VERSION": "3.13",
                     },
                 ):
                     python_dependency_manager.install_dependencies(
@@ -490,7 +490,7 @@ class TestRemoveNotAllowedExecutablesFromLib(unittest.TestCase):
                 os.environ,
                 {
                     "INPUT_PYTHON_REQUIREMENTS_FILE": "lib/requirements.txt",
-                    "INPUT_SPLUNK_PYTHON_VERSION": "3.9",
+                    "INPUT_SPLUNK_PYTHON_VERSION": "3.13",
                 },
             ):
                 python_dependency_manager.install_dependencies(
@@ -514,7 +514,7 @@ class TestRemoveNotAllowedExecutablesFromLib(unittest.TestCase):
                     os.environ,
                     {
                         "INPUT_PYTHON_REQUIREMENTS_FILE": "lib/requirements.txt",
-                        "INPUT_SPLUNK_PYTHON_VERSION": "3.9",
+                        "INPUT_SPLUNK_PYTHON_VERSION": "3.13",
                     },
                 ):
                     python_dependency_manager.install_dependencies(

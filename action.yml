@@ -32,9 +32,9 @@ inputs:
     default: ""
 
   splunk_python_version:
-    description: "Python version to target when installing dependencies from python_requirements_file. Should match the Python version used by the Splunk platform (default: 3.9)."
+    description: "Python version to target when installing dependencies from python_requirements_file. Should match the Python version used by the Splunk platform (default: 3.13)."
     required: false
-    default: "3.9"
+    default: "3.13"
 
   is_app_inspect_check:
     description: "Whether to perform the Splunk app-inspect checks or not. This would include cloud-inspect checks as well."
@@ -105,8 +105,8 @@ runs:
       shell: bash
       run: |
         echo "Installing Python and dependencies..."
-        uv python install 3.12
-        uv sync --python 3.12
+        uv python install 3.13
+        uv sync --python 3.13
 
     - name: "Running the Splunk App actions"
       id: run_splunk_app_action

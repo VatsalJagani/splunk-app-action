@@ -27,7 +27,7 @@ def install_dependencies(
     Note: app_info parameter is kept for API consistency with other build functions (e.g., ucc_gen.build).
     """
     python_requirements_file = gat.get_user_input("python_requirements_file")
-    splunk_python_version = gat.get_user_input("splunk_python_version") or "3.9"
+    splunk_python_version = gat.get_user_input("splunk_python_version") or "3.13"
 
     if not python_requirements_file or python_requirements_file == "":
         gat.error("python_requirements_file must be provided when using Python dependency manager")
