@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## Changed
+* **`splunk_python_version` Input** - Default value of the input for the Python Dependency Manager that controls which Python version is changed from `3.9` to `3.13` since Splunk is asking App developers to support 3.13 Python version.
+
+
 ## [v6.1.2](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v6.1.2) - 2026-05-20
 
 ### Fixed

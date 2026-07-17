@@ -26,7 +26,7 @@ def setup_action_yml(
     use_ucc_gen="false",
     is_remove_not_allowed_executables_from_lib="true",
     python_requirements_file="",
-    splunk_python_version="3.9",
+    splunk_python_version="3.13",
     to_make_permission_changes="false",
     is_app_inspect_check="true",
     splunkbase_username="NONE",

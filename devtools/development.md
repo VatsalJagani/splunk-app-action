@@ -19,7 +19,7 @@ The `Makefile` simply offers shortcuts to `uv` commands for developer convenienc
 ```shell
 
 # Create virtual environment with uv
-uv venv --python 3.12
+uv venv --python 3.13
 
 # Activate virtual environment
 source .venv/bin/activate

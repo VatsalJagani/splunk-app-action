@@ -125,7 +125,7 @@ class TestRemoveUnwantedFiles(unittest.TestCase):
             try:
                 os.chdir(tmpdir)
                 with open(".python-version", "w") as f:
-                    f.write("3.9\n")
+                    f.write("3.13\n")
 
                 remove_unwanted_files()
 

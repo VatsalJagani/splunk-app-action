@@ -75,7 +75,7 @@ Manage Python dependencies for your Splunk Apps and Add-ons using a `requirement
   with:
     app_dir: "my_app"
     python_requirements_file: "lib/requirements.txt"  # Path relative to app_dir
-    splunk_python_version: "3.9"  # Match your Splunk platform's Python version (default: 3.9)
+    splunk_python_version: "3.9"  # Match your Splunk platform's Python version (default: 3.13)
 ```
 
 ### Setup Instructions
@@ -103,7 +103,7 @@ Manage Python dependencies for your Splunk Apps and Add-ons using a `requirement
 
    **Step 3a:** Add a `.python-version` file to your app directory so Dependabot knows which Python version to target when evaluating compatible package versions:
    ```
-   3.9
+   3.13
    ```
    This file should sit at the app root (e.g., `my_splunk_app/.python-version`). Without it, Dependabot may suggest versions incompatible with Splunk's Python runtime — for example, proposing `requests==2.33.1` which requires Python ≥3.10 and would fail at Splunk runtime.
 
@@ -141,7 +141,7 @@ You can specify a different requirements file path (always relative to app_dir):
 1. The action copies your app directory to a temporary build location
 2. Determines the target directory from the requirements file path (e.g., `lib/requirements.txt` → target is `lib/`)
 3. Cleans the target directory (removes all existing files)
-4. Runs `uv pip install --python <splunk_python_version> -r requirements.txt --target <target_directory>` to install dependencies compatible with your Splunk platform's Python version (default: `3.9`)
+4. Runs `uv pip install --python <splunk_python_version> -r requirements.txt --target <target_directory>` to install dependencies compatible with your Splunk platform's Python version (default: `3.13`)
 5. Cleans up `.pyc` files and `__pycache__` directories
 6. Removes requirements.txt file from the build
 7. Proceeds with normal build generation
