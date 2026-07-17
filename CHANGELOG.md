@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Developer & Internal Changes
 
-* **Dependency Updates** - Updated all main and dev dependencies to their latest compatible versions (including `splunk-add-on-ucc-framework`, `splunk-appinspect`, `requests`, `pip`, `ruff`, `pytest`, `basedpyright`, and Sphinx tooling) and refreshed `uv.lock`.
+* **Dependency Updates** - Updated all main and dev dependencies to their latest compatible versions (including `splunk-add-on-ucc-framework`, `splunk-appinspect`, `requests`, `pip`, `ruff`, `pytest`, `basedpyright`, and Sphinx tooling) and refreshed `uv.lock`. Github action dependacies update.
 * **Deprecation Cleanup** - Replaced deprecated `os.system` / `os.popen` calls with `subprocess.run` (surfaced by the newer `basedpyright`) in `src/app_build_generate.py` and `devtools/release_notes.py`.
 
 
