@@ -81,7 +81,7 @@ def run_custom_user_defined_commands() -> None:
             cmd = os.environ.get(f"SPLUNK_APP_ACTION_{no}")
             if cmd:
                 gat.debug(f"Executing custom command {no}: {cmd}")
-                os.system(cmd)
+                subprocess.run(cmd, shell=True, check=False)
                 commands_executed += 1
         except Exception as e:
             gat.warning(f"Failed to execute custom command {no}: {e}")
