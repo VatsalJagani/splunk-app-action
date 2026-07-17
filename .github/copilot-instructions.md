@@ -49,7 +49,7 @@ with setup_action_yml("integration_test_apps/valid_app", app_dir="valid_app", is
 
 ## Python
 
-- Python 3.12, `uv` only (never `pip`/`python`), zero lint errors
+- Python 3.13, `uv` only (never `pip`/`python`), zero lint errors
 - `str | None` not `Optional`; `Generator` not `Iterator` for `@contextmanager`; absolute imports only
 - `Callable` from `collections.abc`
 - `CHANGELOG.md`: user-facing categories (Changed/Added/Fixed/etc.) + Developer & Internal Changes; feature format `**Name** - Description`; "Github" not "GitHub"

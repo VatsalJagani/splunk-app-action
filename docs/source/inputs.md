@@ -48,10 +48,10 @@ Complete reference of all available inputs for the splunk-app-action GitHub Acti
 ### `splunk_python_version`
 - **Description:** Python version to target when installing dependencies from `python_requirements_file`. Should match the Python version used by your Splunk platform so that dependency resolution selects compatible package versions.
 - **Required:** false
-- **Default:** `"3.9"` (Splunk's current default runtime)
+- **Default:** `"3.13"` (Splunk's current default runtime)
 - **Example:** `"3.9"`, `"3.13"`
 - **Note:** Only relevant when `python_requirements_file` is set. Has no effect otherwise.
-- **Dependabot:** Add a `.python-version` file containing the same version (e.g., `3.9`) so Dependabot also constrains its suggestions to packages compatible with that Python version. Placement depends on app type:
+- **Dependabot:** Add a `.python-version` file containing the same version (e.g., `3.13`) so Dependabot also constrains its suggestions to packages compatible with that Python version. Placement depends on app type:
   - **Non-UCC apps:** place `.python-version` in the app directory (e.g., `my_app/.python-version`) and point Dependabot `directory` at the app root (e.g., `/my_app`).
   - **UCC apps (`use_ucc_gen: true`):** place `.python-version` in the `package/` subdirectory (e.g., `my_app/package/.python-version`) and point Dependabot `directory` at `package/` (e.g., `/my_app/package`). Dependabot only scans one level deep, and for UCC apps `requirements.txt` lives at `package/lib/requirements.txt`.
   - See [Dependabot examples](examples.md#with-github-dependabot) for full configuration.

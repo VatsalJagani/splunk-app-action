@@ -125,7 +125,7 @@ class TestRemoveUnwantedFiles(unittest.TestCase):
             try:
                 os.chdir(tmpdir)
                 with open(".python-version", "w") as f:
-                    f.write("3.9\n")
+                    f.write("3.13\n")
 
                 remove_unwanted_files()
 
@@ -170,8 +170,8 @@ class TestFileFolderPermissionChanges(unittest.TestCase):
 
 
 class TestRunCustomUserDefinedCommands(unittest.TestCase):
-    @patch("app_build_generate.os.system")
-    def test_executes_env_commands(self, mock_system):
+    @patch("app_build_generate.subprocess.run")
+    def test_executes_env_commands(self, mock_run):
         env_vars = {
             "SPLUNK_APP_ACTION_1": "echo hello",
             "SPLUNK_APP_ACTION_2": "echo world",
@@ -179,14 +179,14 @@ class TestRunCustomUserDefinedCommands(unittest.TestCase):
         with patch.dict(os.environ, env_vars, clear=False):
             run_custom_user_defined_commands()
 
-        assert mock_system.call_count == 2
-        mock_system.assert_any_call("echo hello")
-        mock_system.assert_any_call("echo world")
+        assert mock_run.call_count == 2
+        mock_run.assert_any_call("echo hello", shell=True, check=False)
+        mock_run.assert_any_call("echo world", shell=True, check=False)
 
-    @patch("app_build_generate.os.system")
-    def test_no_commands_found(self, mock_system):
+    @patch("app_build_generate.subprocess.run")
+    def test_no_commands_found(self, mock_run):
         clean_env = {k: v for k, v in os.environ.items() if not k.startswith("SPLUNK_APP_ACTION_")}
         with patch.dict(os.environ, clean_env, clear=True):
             run_custom_user_defined_commands()
 
-        mock_system.assert_not_called()
+        mock_run.assert_not_called()
