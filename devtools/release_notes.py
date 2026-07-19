@@ -39,7 +39,16 @@ def get_change_log_notes() -> str:
                 elif line.startswith("### Removed"):
                     line = REMOVED_HEADER + "\n"
                 current_section_notes.append(line)
-    assert current_section_notes
+    if not current_section_notes:
+        raise SystemExit(
+            f"No CHANGELOG.md section found for tag '{TAG}'. "
+            f"Expected a heading starting with '## [{TAG}]' (e.g. "
+            f"'## [{TAG}](https://github.com/.../releases/tag/{TAG}) - YYYY-MM-DD'). "
+            "For a floating major tag, the CHANGELOG heading must use the tag "
+            "itself (e.g. '## [v7]'), not the full semver ('## [v7.0.0]'). "
+            "Also ensure subsections use '### Changed'/'### Added' (level 3), not "
+            "'## Changed', so they aren't parsed as a new top-level section."
+        )
     return "## What's new\n\n" + "".join(current_section_notes).strip() + "\n"
 
 
