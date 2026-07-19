@@ -4,6 +4,10 @@ Welcome to **splunk-app-action**!
 
 This documentation covers the usage, capabilities, and development of the custom GitHub Action for Splunk Apps and Add-ons.
 
+## Choosing a Version Tag
+
+> ⚠️ **Only upgrade to the latest major tag (`v7`) if your app supports Python 3.13 on Splunk** and has `python.version = latest` set in **all** Python-related conf files (e.g. `inputs.conf`, `commands.conf`, `restmap.conf`, `alert_actions.conf`). The `v7` release changes the `splunk_python_version` default from `3.9` to `3.13`. If your app is not yet ready for Python 3.13, stay on `v6` or explicitly pass `splunk_python_version: "3.9"`.
+
 ## What is splunk-app-action?
 
 **splunk-app-action** is a comprehensive GitHub Action that automates the build, validation, and packaging process for Splunk Apps and Add-ons. It streamlines your development workflow by:

@@ -4,6 +4,8 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
 
 ## Quick Start
 
+> ⚠️ **Which version tag to use?** Only upgrade to the latest major tag (`v7`) if your app supports Python 3.13 on Splunk and has `python.version = latest` set in **all** Python-related conf files (e.g. `inputs.conf`, `commands.conf`, `restmap.conf`, `alert_actions.conf`). `v7` changes the `splunk_python_version` default from `3.9` to `3.13`. If your app is not yet ready for Python 3.13, stay on `v6` (or set `splunk_python_version: "3.9"`).
+
 ```yaml
 # Basic build generation
 - uses: VatsalJagani/splunk-app-action@v6
