@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-## [v7.0.0](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v7.0.0) - 2026-07-19
+## [v7](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v7) - 2026-07-19
 
 > ⚠️ **Upgrade note (next major tag, `v7`):** Only upgrade to the latest major tag if your app already supports Python 3.13 on Splunk and has `python.version = latest` set in every Python-related conf file (e.g. `inputs.conf`, `commands.conf`, `restmap.conf`, `alert_actions.conf`). This release changes the `splunk_python_version` default from `3.9` to `3.13`. If your app is not yet ready for Python 3.13, stay on `v6` or explicitly pass `splunk_python_version: "3.9"`.
 
-## Changed
+### Changed
 * **`splunk_python_version` Input** - Default value of the input for the Python Dependency Manager that controls which Python version is changed from `3.9` to `3.13` since Splunk is asking App developers to support 3.13 Python version.
 
 ### Developer & Internal Changes
