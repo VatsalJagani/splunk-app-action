@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Developer & Internal Changes
+
+* **Dependency Updates** - Bumped `splunk-appinspect` (`>=4.2.1`), `sphinx-autodoc-typehints` (`>=3.13.0`), and `sphinxcontrib-mermaid` (`>=2.1.0`) floors to their latest versions, and refreshed `uv.lock` to the latest compatible transitive dependencies (`certifi`, `gitpython`, `soupsieve`, `sphinx-autodoc-typehints`, `sphinxcontrib-mermaid`, `websockets`). `python-magic` stays pinned to `==0.4.24` because `splunk-appinspect 4.2.1` hard-requires exactly that version.
+* **CI** - Bumped `astral-sh/setup-uv` from `v5` to `v9.0.0` (this action no longer publishes a short `v9` major tag, so the full version is pinned).
+* **Dependabot** - Switched the Python ecosystem from `pip` to the native `uv` ecosystem (correctly updates `uv.lock` for this uv-managed project), moved to a weekly schedule, and grouped updates per ecosystem with PR limits.
+
 ## [v7](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v7) - 2026-07-19
 
 > ⚠️ **Upgrade note (next major tag, `v7`):** Only upgrade to the latest major tag if your app already supports Python 3.13 on Splunk and has `python.version = latest` set in every Python-related conf file (e.g. `inputs.conf`, `commands.conf`, `restmap.conf`, `alert_actions.conf`). This release changes the `splunk_python_version` default from `3.9` to `3.13`. If your app is not yet ready for Python 3.13, stay on `v6` or explicitly pass `splunk_python_version: "3.9"`.

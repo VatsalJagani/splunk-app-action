@@ -1,11 +1,25 @@
 version: 2
 updates:
-- package-ecosystem: "pip"
-  directory: "/"
-  schedule:
-    interval: "daily"
-  open-pull-requests-limit: 10
-- package-ecosystem: "github-actions"
-  directory: "/"
-  schedule:
-    interval: "daily"
+  # Python dependencies (managed by uv — pyproject.toml + uv.lock).
+  # Dependabot has native `uv` ecosystem support; the previous `pip`
+  # ecosystem did not keep uv.lock up to date for this project.
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      python-dependencies:
+        patterns:
+          - "*"
+
+  # GitHub Actions used in the workflows.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      github-actions:
+        patterns:
+          - "*"
