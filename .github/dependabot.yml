@@ -8,6 +8,11 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    ignore:
+      # python-magic is hard-pinned to ==0.4.24 in pyproject.toml because
+      # splunk-appinspect 4.2.1 requires exactly that version. Any bump makes
+      # the resolve unsatisfiable, so let splunk-appinspect dictate it.
+      - dependency-name: "python-magic"
     groups:
       python-dependencies:
         patterns:
