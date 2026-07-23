@@ -20,12 +20,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 1
 
       - name: Install uv (official Astral action)
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           enable-cache: true
 
@@ -45,7 +45,7 @@ jobs:
         run: uv run pytest --junitxml=junit/test-results.xml --cov=src --cov-config=tests/.coveragerc --cov-report=xml
 
       - name: Adding GitHub action step summary
-        uses: VatsalJagani/pytest-cov-action@v1.4
+        uses: VatsalJagani/pytest-cov-action@4d95462f541c6d96707568051af92bfd1ec17542 # v1.4
         with:
           pytest_results_file: "junit/test-results.xml"
           pytest_cov_file: "coverage.xml"
