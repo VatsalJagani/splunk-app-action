@@ -98,7 +98,7 @@ runs:
         path: repodir
 
     - name: Install uv (official Astral action)
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v7
 
     - name: Set up Python and install dependencies
       working-directory: ${{ github.action_path }}
