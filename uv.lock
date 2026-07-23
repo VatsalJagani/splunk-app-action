@@ -1192,11 +1192,11 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.15.22" },
     { name = "sphinx", marker = "extra == 'dev'", specifier = ">=9.1.0" },
     { name = "sphinx-autobuild", marker = "extra == 'dev'", specifier = ">=2025.8.25" },
-    { name = "sphinx-autodoc-typehints", marker = "extra == 'dev'", specifier = ">=3.12.1" },
+    { name = "sphinx-autodoc-typehints", marker = "extra == 'dev'", specifier = ">=3.13.0" },
     { name = "sphinx-copybutton", marker = "extra == 'dev'", specifier = ">=0.5.2" },
-    { name = "sphinxcontrib-mermaid", marker = "extra == 'dev'", specifier = ">=2.0.3" },
+    { name = "sphinxcontrib-mermaid", marker = "extra == 'dev'", specifier = ">=2.1.0" },
     { name = "splunk-add-on-ucc-framework", specifier = ">=6.5.2" },
-    { name = "splunk-appinspect", specifier = ">=2.0.0" },
+    { name = "splunk-appinspect", specifier = ">=4.2.1" },
 ]
 provides-extras = ["dev"]
 
