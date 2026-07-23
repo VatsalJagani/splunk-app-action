@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v7.1.0](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v7.1.0) - 2026-07-23
+
 ### Developer & Internal Changes
 
 * **Dependency Updates** - Bumped `splunk-appinspect` (`>=4.2.1`), `sphinx-autodoc-typehints` (`>=3.13.0`), and `sphinxcontrib-mermaid` (`>=2.1.0`) floors to their latest versions, and refreshed `uv.lock` to the latest compatible transitive dependencies (`certifi`, `gitpython`, `soupsieve`, `sphinx-autodoc-typehints`, `sphinxcontrib-mermaid`, `websockets`). `python-magic` stays pinned to `==0.4.24` because `splunk-appinspect 4.2.1` hard-requires exactly that version.
