@@ -27,10 +27,10 @@ dynamic = ["version"]
 
 dependencies = [
     "github-action-toolkit>=0.9.0",
-    "pip>=26.1.2",
+    "pip>=26.2.1",
     "requests>=2.34.2",
-    "splunk-add-on-ucc-framework>=6.5.2",
-    "splunk-appinspect>=4.2.1",
+    "splunk-add-on-ucc-framework>=6.5.3",
+    "splunk-appinspect>=4.3.0",
     # Pinned to match splunk-appinspect 4.2.1, which hard-requires python-magic==0.4.24.
     "python-magic==0.4.24",
 ]
@@ -43,14 +43,14 @@ dev = [
     "pytest>=9.1.1",
     "pytest-sugar>=1.1.1",
     "pytest-cov>=7.1.0",
-    "ruff>=0.15.22",
+    "ruff>=0.16.1",
     "codespell>=2.4.3",
     "rich>=15.0.0",
     "basedpyright>=1.39.9",
     "funlog>=0.2.1",
     "sphinx>=9.1.0",
     "sphinx-autobuild>=2025.8.25",
-    "sphinx-autodoc-typehints>=3.13.0",
+    "sphinx-autodoc-typehints>=3.13.2",
     "sphinx-copybutton>=0.5.2",
     "sphinxcontrib-mermaid>=2.1.0",
     "furo>=2025.12.19",
