@@ -5,35 +5,37 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
 ## Quick Start
 
 > ⚠️ **Which version tag to use?** Only upgrade to the latest major tag (`v7`) if your app supports Python 3.13 on Splunk and has `python.version = latest` set in **all** Python-related conf files (e.g. `inputs.conf`, `commands.conf`, `restmap.conf`, `alert_actions.conf`). `v7` changes the `splunk_python_version` default from `3.9` to `3.13`. If your app is not yet ready for Python 3.13, stay on `v6` (or set `splunk_python_version: "3.9"`).
+>
+> For supply-chain hardening, consider pinning to a full commit SHA instead of a tag — see [Pinning to a Commit SHA](https://splunk-app-action.readthedocs.io/en/latest/overview.html#pinning-to-a-commit-sha).
 
 ```yaml
 # Basic build generation
-- uses: VatsalJagani/splunk-app-action@v6
+- uses: VatsalJagani/splunk-app-action@v7
   with:
     app_dir: "my_app"
 
 # Build with app-inspect checks  
-- uses: VatsalJagani/splunk-app-action@v6
+- uses: VatsalJagani/splunk-app-action@v7
   with:
     app_dir: "my_app"
     splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
     splunkbase_password: ${{ secrets.SPLUNKBASE_PASSWORD }}
 
 # Build with local app-inspect (faster, no credentials needed)
-- uses: VatsalJagani/splunk-app-action@v6
+- uses: VatsalJagani/splunk-app-action@v7
   with:
     app_dir: "my_app"
     local_app_inspect: true
 
 # Build with inline code annotations for PR feedback
-- uses: VatsalJagani/splunk-app-action@v6
+- uses: VatsalJagani/splunk-app-action@v7
   with:
     app_dir: "my_app"
     local_app_inspect: true
     fail_on: "errors"  # Options: errors, warnings, none
 
 # UCC Add-on build
-- uses: VatsalJagani/splunk-app-action@v6
+- uses: VatsalJagani/splunk-app-action@v7
   with:
     app_dir: "TA_my_addon" 
     use_ucc_gen: true
@@ -41,13 +43,13 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
 
 # With Python dependency management
 # Note: Path relative to app_dir, installs to same directory as requirements file
-- uses: VatsalJagani/splunk-app-action@v6
+- uses: VatsalJagani/splunk-app-action@v7
   with:
     app_dir: "my_app"
     python_requirements_file: "lib/requirements.txt"
 
 # With app utilities (logger, etc.) - requires workflow permissions
-- uses: VatsalJagani/splunk-app-action@v6
+- uses: VatsalJagani/splunk-app-action@v7
   permissions:
     contents: write
     pull-requests: write
@@ -59,7 +61,7 @@ GitHub Action to automatically generate Splunk App and Add-on builds, run app-in
 
 # Using action outputs in workflows
 - id: build_step
-  uses: VatsalJagani/splunk-app-action@v6
+  uses: VatsalJagani/splunk-app-action@v7
   with:
     app_dir: "my_app"
 - name: Use build outputs
@@ -87,7 +89,7 @@ When using `app_utilities`, the action needs permission to create branches and p
 
 For cross-repo permissions or explicit token management:
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v6
+- uses: VatsalJagani/splunk-app-action@v7
   with:
     app_utilities: "logger"
     my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}  # PAT with repo scope
