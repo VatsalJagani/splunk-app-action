@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Developer & Internal Changes
+
+* **CI** - Bumped `astral-sh/setup-uv` from `v9.0.0` to `v10.0.1` and refreshed `softprops/action-gh-release`'s pinned commit SHA (both `v3`) across `action.yml`, `test.yml`, and `release.yml`.
+* **Dependency Updates** - Bumped `ruff` (`0.15.22` → `0.16.5`), `basedpyright` (`1.39.9` → `1.39.10`), `pip` (`26.1.2` → `26.2.1`), `splunk-add-on-ucc-framework` (`6.5.2` → `6.6.0`), `splunk-appinspect` (`4.2.1` → `4.3.1`), `sphinx-autodoc-typehints` (`3.13.0` → `3.13.5`), and `sphinxcontrib-mermaid` (`2.1.0` → `2.1.1`), and refreshed `uv.lock`.
+
 ## [v7.1.0](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v7.1.0) - 2026-07-23
 
 ### Developer & Internal Changes
