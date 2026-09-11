@@ -153,6 +153,17 @@ ERROR: Cannot install package-a and package-b because these package versions hav
 - Use specific version pinning to resolve conflicts
 - Consider using a requirements lock file
 
+#### `check_aarch64_compatibility` App-Inspect Failure
+```
+check_aarch64_compatibility: failure - <package> contains a platform-specific compiled extension (.so file)
+```
+
+**Cause:** Some packages (e.g., `charset-normalizer`) install platform-specific compiled extensions or executables into `lib/` that aren't compatible with all architectures Splunk Cloud validates against.
+
+**Solution:**
+- Set `is_remove_not_allowed_executables_from_lib: true` to strip files with mimetype `application/x-executable` or `application/x-sharedlib` from the generated `lib/` output (works for both UCC builds and the Python Dependency Manager)
+- If the package is required at runtime on all architectures, choose an alternative pure-Python package instead
+
 ### Build Generation Issues
 
 #### Missing app.conf
