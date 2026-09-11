@@ -332,16 +332,16 @@ wheels = [
 
 [[package]]
 name = "github-action-toolkit"
-version = "0.9.0"
+version = "0.10.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "gitpython" },
     { name = "pydantic" },
     { name = "pygithub" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8b/5b/fbb0bc28285a112d58ca964d19ddf394f706d6f27a052bac8f4fa2ad1be3/github_action_toolkit-0.9.0.tar.gz", hash = "sha256:a500223f91bdaf32318a68bf40e98a8244035d4471f6ac8cd27d515e49b2a3b8", size = 239059, upload-time = "2026-03-09T12:37:12.966Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/bf/4e/38484ce9c4fce83b5f9404f8157c7a3dc392c451be04422bb84ad2c1620e/github_action_toolkit-0.10.0.tar.gz", hash = "sha256:08275418bdc0034286185e22226920285e7386445032c14455a62fb33064dba7", size = 240143, upload-time = "2026-09-11T11:39:57.874Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/42/88/07cf968812afbbf5fd2718be9247388b0dcc37f49587da817cafbef97941/github_action_toolkit-0.9.0-py3-none-any.whl", hash = "sha256:56588a16662f27bfcb8d780171fdf0c39848b0c0017932663c97d497911b8ce0", size = 51330, upload-time = "2026-03-09T12:37:11.285Z" },
+    { url = "https://files.pythonhosted.org/packages/a3/0d/915b59a4f758b652c123a4e3c3d9e8fde733c83ef867f6304107983e0429/github_action_toolkit-0.10.0-py3-none-any.whl", hash = "sha256:7f640b7627726172dc8797a21cee57bb261fcd98fb9c28e20933fd2126e0e6e4", size = 51336, upload-time = "2026-09-11T11:39:56.601Z" },
 ]
 
 [[package]]
