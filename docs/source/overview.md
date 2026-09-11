@@ -8,6 +8,16 @@ This documentation covers the usage, capabilities, and development of the custom
 
 > ⚠️ **Only upgrade to the latest major tag (`v7`) if your app supports Python 3.13 on Splunk** and has `python.version = latest` set in **all** Python-related conf files (e.g. `inputs.conf`, `commands.conf`, `restmap.conf`, `alert_actions.conf`). The `v7` release changes the `splunk_python_version` default from `3.9` to `3.13`. If your app is not yet ready for Python 3.13, stay on `v6` or explicitly pass `splunk_python_version: "3.9"`.
 
+### Pinning to a Commit SHA
+
+For supply-chain hardening, pin `uses:` to the full commit SHA of a release tag instead of the tag itself — a mutable tag can be moved to point at different code, but a commit SHA cannot. Add a `# <version>` comment so the pin stays readable:
+
+```yaml
+- uses: VatsalJagani/splunk-app-action@c1d9df10965f11bb8fcc83a9ae3f4128c2c9ff6e # v7.1.1
+```
+
+Find the SHA for any tag with `git rev-parse <tag>`, or copy it from the tag's commit on the [Releases page](https://github.com/VatsalJagani/splunk-app-action/releases). This is the same approach this repo uses for its own external GitHub Actions dependencies (see `action.yml` and the workflows in `.github/workflows/`).
+
 ## What is splunk-app-action?
 
 **splunk-app-action** is a comprehensive GitHub Action that automates the build, validation, and packaging process for Splunk Apps and Add-ons. It streamlines your development workflow by:
@@ -60,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest  # Required - must be Linux
     steps:
       - uses: actions/checkout@v5
-      - uses: VatsalJagani/splunk-app-action@v6
+      - uses: VatsalJagani/splunk-app-action@v7
         with:
           app_dir: "my_app"
 ```
@@ -93,7 +103,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - id: build_app
-        uses: VatsalJagani/splunk-app-action@v6
+        uses: VatsalJagani/splunk-app-action@v7
         with:
           app_dir: "my_app"
       

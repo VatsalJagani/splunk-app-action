@@ -18,7 +18,7 @@ App-inspect failed due to file permission issues
 
 **Solution:** Enable automatic permission fixes:
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v6
+- uses: VatsalJagani/splunk-app-action@v7
   with:
     to_make_permission_changes: true
 ```
@@ -102,7 +102,7 @@ If you prefer explicit token management or need cross-repo permissions:
 2. Add it to repository secrets as `MY_GITHUB_TOKEN`
 3. Pass it to the action:
 ```yaml
-- uses: VatsalJagani/splunk-app-action@v6
+- uses: VatsalJagani/splunk-app-action@v7
   with:
     app_utilities: "logger"
     my_github_token: ${{ secrets.MY_GITHUB_TOKEN }}
@@ -152,6 +152,17 @@ ERROR: Cannot install package-a and package-b because these package versions hav
 - Review your requirements.txt for version conflicts
 - Use specific version pinning to resolve conflicts
 - Consider using a requirements lock file
+
+#### `check_aarch64_compatibility` App-Inspect Failure
+```
+check_aarch64_compatibility: failure - <package> contains a platform-specific compiled extension (.so file)
+```
+
+**Cause:** Some packages (e.g., `charset-normalizer`) install platform-specific compiled extensions or executables into `lib/` that aren't compatible with all architectures Splunk Cloud validates against.
+
+**Solution:**
+- Set `is_remove_not_allowed_executables_from_lib: true` to strip files with mimetype `application/x-executable` or `application/x-sharedlib` from the generated `lib/` output (works for both UCC builds and the Python Dependency Manager)
+- If the package is required at runtime on all architectures, choose an alternative pure-Python package instead
 
 ### Build Generation Issues
 
@@ -249,7 +260,7 @@ Annotations are published for app-inspect only. The job summary includes results
 
 1. Provide Splunkbase credentials:
    ```yaml
-   - uses: VatsalJagani/splunk-app-action@v6
+   - uses: VatsalJagani/splunk-app-action@v7
      with:
        app_dir: "my_app"
        splunkbase_username: ${{ secrets.SPLUNKBASE_USERNAME }}
@@ -257,14 +268,14 @@ Annotations are published for app-inspect only. The job summary includes results
    ```
 2. Disable API-based inspect and use local validation instead:
    ```yaml
-   - uses: VatsalJagani/splunk-app-action@v6
+   - uses: VatsalJagani/splunk-app-action@v7
      with:
        app_dir: "my_app"
        local_app_inspect: true
    ```
 3. Disable app-inspect entirely:
    ```yaml
-   - uses: VatsalJagani/splunk-app-action@v6
+   - uses: VatsalJagani/splunk-app-action@v7
      with:
        app_dir: "my_app"
        is_app_inspect_check: false

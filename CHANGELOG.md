@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Documentation
+
+* **Version Pinning Guidance** - README and docs examples updated from `@v6` to `@v7`. Added a "Pinning to a Commit SHA" section to `docs/source/overview.md` (linked from the README) recommending pinning `uses:` to a full commit SHA instead of a mutable tag, for supply-chain hardening.
+* **Python Dependency Manager Cleanup** - Documented `.dist-info` directory removal in the Python Dependency Manager's cleanup behavior notes.
+* **Troubleshooting** - Added an entry for `check_aarch64_compatibility` App Inspect failures caused by platform-specific compiled extensions, pointing to `is_remove_not_allowed_executables_from_lib`.
+
 ## [v7.1.1](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v7.1.1) - 2026-09-11
 
 ### Developer & Internal Changes
