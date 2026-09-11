@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v7.1.1](https://github.com/VatsalJagani/splunk-app-action/releases/tag/v7.1.1) - 2026-09-11
+
 ### Developer & Internal Changes
 
 * **CI** - Bumped `astral-sh/setup-uv` from `v9.0.0` to `v10.0.1` and refreshed `softprops/action-gh-release`'s pinned commit SHA (both `v3`) across `action.yml`, `test.yml`, and `release.yml`.
