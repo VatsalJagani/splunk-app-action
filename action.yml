@@ -98,7 +98,7 @@ runs:
         path: repodir
 
     - name: Install uv (official Astral action)
-      uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+      uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
 
     - name: Set up Python and install dependencies
       working-directory: ${{ github.action_path }}
@@ -134,14 +134,14 @@ runs:
         uv run python -u src/main.py
 
     - name: "Upload the app build as artifact"
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
       if: always()
       with:
         name: "App-Build-${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}"
         path: ${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}.tgz
 
     - name: "Upload the app-inspect reports as artifact"
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
       if: always() && inputs.is_app_inspect_check == 'true'
       with:
         name: "App-Inspect-Reports-${{env.app_package_id}}_${{env.app_version_encoded}}_${{env.app_build_number_encoded}}"
